@@ -23,3 +23,8 @@ public class CreateCustomerWithUserDto
     public string UserName { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
 }
+
+public class UpdateCustomerDto
+{
+    public int? UsersId { get; set; }
+}

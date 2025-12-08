@@ -112,6 +112,31 @@ public class CustomersController : ControllerBase
         return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, MapToDto(customer));
     }
 
+    // PUT: api/customers/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDto dto)
+    {
+        var customer = await _context.Customers
+            .Include(c => c.Users)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (customer == null)
+            return NotFound(new { message = "Customer not found" });
+
+        if (dto.UsersId.HasValue)
+        {
+            var user = await _context.Users.FindAsync(dto.UsersId.Value);
+            if (user == null)
+                return BadRequest(new { message = "User not found" });
+
+            customer.Users_Id = dto.UsersId.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(MapToDto(customer));
+    }
+
     // DELETE: api/customers/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCustomer(int id)
