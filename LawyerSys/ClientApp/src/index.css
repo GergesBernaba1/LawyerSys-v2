@@ -22,7 +22,3 @@ th,td{padding:8px;border-bottom:1px solid #f0f0f0;text-align:start}
 [dir="rtl"] .form-row input,[dir="rtl"] .form-row select,[dir="rtl"] textarea{text-align:right}
 .header{display:flex;justify-content:space-between;align-items:center}
 [dir="rtl"] .header{flex-direction:row-reverse}
-
-/* Make sure MUI permanent Drawer paper sticks to the correct side when RTL/LTR */
-.MuiDrawer-root .MuiDrawer-paper{left:0;right:auto}
-[dir="rtl"] .MuiDrawer-root .MuiDrawer-paper{left:auto !important;right:0 !important}

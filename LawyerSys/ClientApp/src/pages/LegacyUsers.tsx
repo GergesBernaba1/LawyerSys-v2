@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import {
-  Box, Card, Typography, Grid, TextField, Button, CircularProgress,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton
-} from '@mui/material'
+import { Box, Card, Typography, TextField, Button, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Grid } from '@mui/material'
 import { Delete } from '@mui/icons-material'
 
 type User = { id:number; fullName?:string; userName?:string; address?:string; job?:string; phoneNumber?:string }

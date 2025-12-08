@@ -109,8 +109,18 @@ export default function Layout({ children }: LayoutProps) {
   const changeLang = (lng: string) => {
     // set document direction immediately so UI reacts right away
     try { document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr') } catch {}
+
+    // compute new route by replacing existing /en or /ar prefix (if present)
+    let path = '/'
+    try { path = window.location.pathname } catch {}
+    const withoutPrefix = path.replace(/^\/(en|ar)/, '') || '/'
+    const newPath = `/${lng}${withoutPrefix}`.replace(/\/+/g, '/')
+
     i18n.changeLanguage(lng);
     handleLangClose();
+
+    // reload the page so Next's locale routing and basename update correctly
+    try { window.location.href = newPath } catch (e) { window.location.pathname = newPath }
   }
 
   const handleProfileMenuClose = () => {
@@ -124,10 +134,29 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const handleNavigation = (path: string) => {
-    navigate(path);
+    // For progressively-migrated pages we want to navigate to Next's native app routes
+    // so that the app router serves those pages (full page navigation). Keep SPA
+    // navigation for everything else.
+    const migratedMap: Record<string, string> = {
+      '/': '/dashboard',
+      '/cases': '/cases',
+      '/customers': '/customers',
+      '/employees': '/employees',
+      '/files': '/files',
+    }
+
+    const mapped = migratedMap[path];
+    if (mapped) {
+      const lng = i18n.language?.startsWith('ar') ? 'ar' : 'en'
+      const newPath = `/${lng}${mapped}`.replace(/\/+/g, '/');
+      try { window.location.href = newPath } catch (e) { window.location.pathname = newPath }
+      return
+    }
+
     if (isMobile) {
       setMobileOpen(false);
     }
+    navigate(path);
   };
 
   const drawer = (
@@ -331,6 +360,20 @@ export default function Layout({ children }: LayoutProps) {
                   {t('app.logout')}
                 </MenuItem>
               </Menu>
+
+              {/* DEV DEBUG: show detected RTL/language state (dev only) */}
+              {process.env.NODE_ENV !== 'production' && (
+                <Box sx={{ ml: 2, px: 1, py: 0.5, borderRadius: 1, bgcolor: 'primary.light', color: 'white', fontSize: '0.75rem', display: 'inline-flex', gap: 1, alignItems: 'center' }}>
+                  <Box component="span" sx={{ opacity: 0.85 }}>dir:</Box>
+                  <Box component="span" sx={{ fontWeight: 700 }}>{docDir || theme.direction}</Box>
+                  <Box component="span" sx={{ opacity: 0.6 }}>|</Box>
+                  <Box component="span" sx={{ opacity: 0.85 }}>i18n:</Box>
+                  <Box component="span" sx={{ fontWeight: 700 }}>{i18n.language}</Box>
+                  <Box component="span" sx={{ opacity: 0.6 }}>|</Box>
+                  <Box component="span" sx={{ opacity: 0.85 }}>isRTL:</Box>
+                  <Box component="span" sx={{ fontWeight: 700 }}>{isRTL ? 'true' : 'false'}</Box>
+                </Box>
+              )}
             </>
           )}
         </Toolbar>

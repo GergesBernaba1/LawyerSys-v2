@@ -324,7 +324,7 @@ export default function Dashboard() {
       <Paper sx={{ mt: 3, p: 2 }}>
         {/* Use a div here because we render inline <code> and <Chip> components (which are divs) */}
         <Typography component="div" variant="body2" color="text.secondary">
-          <strong>System Info:</strong> API Base URL: {import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'} •
+          <strong>System Info:</strong> API Base URL: {process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'} •
           JWT stored in localStorage as <code>lawyersys-token</code> •
           {isAuthenticated ? (
             <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}>

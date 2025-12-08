@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Grid from '@mui/material/Grid'
 import {
   Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Grid,
+  Tooltip, TextField, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import {
   Add as AddIcon, Delete as DeleteIcon, Task as TaskIcon, Refresh as RefreshIcon, NotificationsActive as ReminderIcon,
@@ -15,7 +16,7 @@ type Task = { id: number; taskName?: string; type?: string; taskDate?: string; t
 
 export default function AdminTasks() {
   const { t } = useTranslation();
-  const [items, setItems] = useState<AdminTask[]>([]);
+  const [items, setItems] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [taskName, setTaskName] = useState('');
   const [type, setType] = useState('');
@@ -76,20 +77,20 @@ export default function AdminTasks() {
           <TableBody>
             {loading ? [...Array(3)].map((_, i) => (<TableRow key={i}>{[...Array(5)].map((_, j) => (<TableCell key={j}><Skeleton /></TableCell>))}</TableRow>))
               : items.length === 0 ? (<TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>{t('tasks.noTasks')}</TableCell></TableRow>)
-              : items.map((t) => (
-                <TableRow key={t.id} hover>
-                  <TableCell><strong>{t.taskName || '-'}</strong></TableCell>
-                  <TableCell><Chip label={t.type || 'General'} size="small" variant="outlined" /></TableCell>
+              : items.map((task) => (
+                <TableRow key={task.id} hover>
+                  <TableCell><strong>{task.taskName || '-'}</strong></TableCell>
+                  <TableCell><Chip label={task.type || 'General'} size="small" variant="outlined" /></TableCell>
                   <TableCell>
-                    {t.taskReminderDate ? (
+                    {task.taskReminderDate ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <ReminderIcon fontSize="small" color="warning" />
-                        {new Date(t.taskReminderDate).toLocaleDateString()}
+                        {new Date(task.taskReminderDate).toLocaleDateString()}
                       </Box>
                     ) : '-'}
                   </TableCell>
-                  <TableCell>{t.employeeName || '-'}</TableCell>
-                  <TableCell align="right"><Tooltip title={t('common.delete')}><IconButton color="error" onClick={() => remove(t.id)}><DeleteIcon /></IconButton></Tooltip></TableCell>
+                  <TableCell>{task.employeeName || '-'}</TableCell>
+                  <TableCell align="right"><Tooltip title={t('common.delete')}><IconButton color="error" onClick={() => remove(task.id)}><DeleteIcon /></IconButton></Tooltip></TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -101,9 +102,9 @@ export default function AdminTasks() {
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.taskName')} value={taskName} onChange={(e) => setTaskName(e.target.value)} /></Grid>
-            <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.type')} value={type} onChange={(e) => setType(e.target.value)} /></Grid>
-            <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.taskDate')} type="date" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} InputLabelProps={{ shrink: true }} /></Grid>
-            <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.reminder')} type="datetime-local" value={taskReminderDate} onChange={(e) => setTaskReminderDate(e.target.value)} InputLabelProps={{ shrink: true }} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.type')} value={type} onChange={(e) => setType(e.target.value)} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.taskDate')} type="date" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} InputLabelProps={{ shrink: true }} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label={t('tasks.reminder')} type="datetime-local" value={taskReminderDate} onChange={(e) => setTaskReminderDate(e.target.value)} InputLabelProps={{ shrink: true }} /></Grid>
             <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel>{t('tasks.employee')}</InputLabel>

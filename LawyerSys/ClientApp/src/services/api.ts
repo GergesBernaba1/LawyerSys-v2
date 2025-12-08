@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000/api'
+// support both Vite and Next public env var names
+const API_BASE = (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL))
+  || 'http://localhost:5000/api'
 
 const instance = axios.create({
   baseURL: API_BASE,
