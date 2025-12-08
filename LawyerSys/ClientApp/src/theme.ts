@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
+const base = {
   palette: {
     mode: 'light',
     primary: {
@@ -134,6 +134,7 @@ const theme = createTheme({
       styleOverrides: {
         paper: {
           borderRight: 'none',
+          borderLeft: 'none',
           boxShadow: '2px 0 12px rgba(0,0,0,0.08)',
         },
       },
@@ -160,6 +161,98 @@ const theme = createTheme({
       },
     },
   },
-});
+};
 
-export default theme;
+const getTheme = (direction: 'ltr' | 'rtl' = 'ltr') => {
+  const isRTL = direction === 'rtl';
+  return createTheme({ 
+    ...base as any, 
+    direction,
+    typography: {
+      ...base.typography,
+      fontFamily: isRTL 
+        ? '"Cairo", "Tajawal", "Noto Sans Arabic", "Arial", sans-serif'
+        : '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    },
+    components: {
+      ...base.components,
+      MuiTableCell: {
+        styleOverrides: {
+          root: {
+            textAlign: isRTL ? 'right' : 'left',
+          },
+          head: {
+            fontWeight: 600,
+            backgroundColor: '#f5f7fa',
+            textAlign: isRTL ? 'right' : 'left',
+          },
+        },
+      },
+      MuiTextField: {
+        styleOverrides: {
+          root: {
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 8,
+            },
+            '& .MuiInputBase-input': {
+              textAlign: isRTL ? 'right' : 'left',
+            },
+            '& .MuiInputLabel-root': {
+              left: isRTL ? 'auto' : 0,
+              right: isRTL ? 0 : 'auto',
+              transformOrigin: isRTL ? 'right' : 'left',
+            },
+          },
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            left: isRTL ? 'auto' : 0,
+            right: isRTL ? 28 : 'auto',
+            transformOrigin: isRTL ? 'top right' : 'top left',
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          notchedOutline: {
+            textAlign: isRTL ? 'right' : 'left',
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            textAlign: isRTL ? 'right' : 'left',
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            flexDirection: isRTL ? 'row-reverse' : 'row',
+          },
+        },
+      },
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            flexDirection: isRTL ? 'row-reverse' : 'row',
+          },
+        },
+      },
+      MuiListItemIcon: {
+        styleOverrides: {
+          root: {
+            minWidth: 40,
+            marginRight: isRTL ? 0 : 8,
+            marginLeft: isRTL ? 8 : 0,
+          },
+        },
+      },
+    },
+  });
+};
+
+export default getTheme;

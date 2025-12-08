@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
@@ -13,6 +14,7 @@ import api from '../services/api';
 type Court = { id: number; name?: string; address?: string; telephone?: string; notes?: string; govId?: number; governmentName?: string };
 
 export default function Courts() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Court[]>([]);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
@@ -30,7 +32,7 @@ export default function Courts() {
       setItems(r.data);
       setGovs(gg.data);
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to load data', severity: 'error' });
+      setSnackbar({ open: true, message: t('courts.failedLoad'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -44,20 +46,20 @@ export default function Courts() {
       setName(''); setAddress(''); setTelephone(''); setGovId('');
       setOpenDialog(false);
       await load();
-      setSnackbar({ open: true, message: 'Court created successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('courts.created'), severity: 'success' });
     } catch (e: any) {
-      setSnackbar({ open: true, message: e?.response?.data?.message || 'Failed', severity: 'error' });
+      setSnackbar({ open: true, message: e?.response?.data?.message || t('courts.failed'), severity: 'error' });
     }
   }
 
   async function remove(id: number) {
-    if (!confirm('Delete court?')) return;
+    if (!confirm(t('courts.confirmDelete'))) return;
     try {
       await api.delete(`/Courts/${id}`);
       await load();
-      setSnackbar({ open: true, message: 'Court deleted', severity: 'success' });
+      setSnackbar({ open: true, message: t('courts.deleted'), severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to delete', severity: 'error' });
+      setSnackbar({ open: true, message: t('courts.failed'), severity: 'error' });
     }
   }
 
@@ -66,34 +68,34 @@ export default function Courts() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <AccountBalanceIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h5" fontWeight={600}>Courts Management</Typography>
+          <Typography variant="h5" fontWeight={600}>{t('courts.management')}</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh"><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)}>New Court</Button>
+          <Tooltip title={t('cases.refresh')}><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)}>{t('courts.newCourt')}</Button>
         </Box>
       </Box>
 
-      <Card sx={{ mb: 3 }}><CardContent sx={{ py: 2 }}><Typography variant="body2" color="text.secondary">Total Courts: <strong>{items.length}</strong></Typography></CardContent></Card>
+      <Card sx={{ mb: 3 }}><CardContent sx={{ py: 2 }}><Typography variant="body2" color="text.secondary">{t('courts.totalCourts')}: <strong>{items.length}</strong></Typography></CardContent></Card>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell><TableCell>Address</TableCell><TableCell>Telephone</TableCell><TableCell>Government</TableCell><TableCell align="right">Actions</TableCell>
+              <TableCell>{t('courts.name')}</TableCell><TableCell>{t('courts.address')}</TableCell><TableCell>{t('courts.telephone')}</TableCell><TableCell>{t('courts.government')}</TableCell><TableCell align="right">{t('common.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? [...Array(3)].map((_, i) => (<TableRow key={i}>{[...Array(5)].map((_, j) => (<TableCell key={j}><Skeleton /></TableCell>))}</TableRow>))
               : items.length === 0 ? (
-                <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>No courts found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>{t('courts.noCourts')}</TableCell></TableRow>
               ) : items.map((c) => (
                 <TableRow key={c.id} hover>
                   <TableCell><strong>{c.name || '-'}</strong></TableCell>
                   <TableCell>{c.address || '-'}</TableCell>
                   <TableCell>{c.telephone || '-'}</TableCell>
                   <TableCell><Chip label={c.governmentName || 'N/A'} size="small" variant="outlined" /></TableCell>
-                  <TableCell align="right"><Tooltip title="Delete"><IconButton color="error" onClick={() => remove(c.id)}><DeleteIcon /></IconButton></Tooltip></TableCell>
+                  <TableCell align="right"><Tooltip title={t('common.delete')}><IconButton color="error" onClick={() => remove(c.id)}><DeleteIcon /></IconButton></Tooltip></TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -101,17 +103,17 @@ export default function Courts() {
       </TableContainer>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Court</DialogTitle>
+        <DialogTitle>{t('courts.newCourt')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid size={{ xs: 12 }}><TextField fullWidth label="Name" value={name} onChange={(e) => setName(e.target.value)} /></Grid>
-            <Grid size={{ xs: 12 }}><TextField fullWidth label="Address" value={address} onChange={(e) => setAddress(e.target.value)} /></Grid>
-            <Grid size={{ xs: 12, sm: 6 }}><TextField fullWidth label="Telephone" value={telephone} onChange={(e) => setTelephone(e.target.value)} /></Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12 }}><TextField fullWidth label={t('courts.name')} value={name} onChange={e => setName(e.target.value)} /></Grid>
+            <Grid size={{ xs: 12 }}><TextField fullWidth label={t('courts.address')} value={address} onChange={e => setAddress(e.target.value)} /></Grid>
+            <Grid size={{ xs: 12 }}><TextField fullWidth label={t('courts.telephone')} value={telephone} onChange={e => setTelephone(e.target.value)} /></Grid>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
-                <InputLabel>Government</InputLabel>
-                <Select value={govId} label="Government" onChange={(e) => setGovId(Number(e.target.value) || '')}>
-                  <MenuItem value=""><em>-- Select --</em></MenuItem>
+                <InputLabel>{t('courts.government')}</InputLabel>
+                <Select value={govId} label={t('courts.government')} onChange={e => setGovId(Number(e.target.value) || '')}>
+                  <MenuItem value=""><em>{t('common.select')}</em></MenuItem>
                   {govs.map((g) => (<MenuItem key={g.id} value={g.id}>{g.govName}</MenuItem>))}
                 </Select>
               </FormControl>
@@ -119,8 +121,8 @@ export default function Courts() {
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={create} disabled={!name}>Create</Button>
+          <Button onClick={() => setOpenDialog(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" onClick={create} disabled={!name}>{t('common.create')}</Button>
         </DialogActions>
       </Dialog>
 

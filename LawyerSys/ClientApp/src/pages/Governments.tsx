@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
@@ -13,6 +14,7 @@ import api from '../services/api';
 type Gov = { id: number; govName?: string };
 
 export default function Governments() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Gov[]>([]);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
@@ -22,7 +24,7 @@ export default function Governments() {
   async function load() {
     setLoading(true);
     try { const r = await api.get('/Governments'); setItems(r.data); }
-    catch (err) { setSnackbar({ open: true, message: 'Failed to load', severity: 'error' }); }
+    catch (err) { setSnackbar({ open: true, message: t('governments.failedLoad'), severity: 'error' }); }
     finally { setLoading(false); }
   }
 
@@ -32,14 +34,14 @@ export default function Governments() {
     try {
       await api.post('/Governments', { govName: name });
       setName(''); setOpenDialog(false); await load();
-      setSnackbar({ open: true, message: 'Government created', severity: 'success' });
-    } catch (e: any) { setSnackbar({ open: true, message: e?.response?.data?.message || 'Failed', severity: 'error' }); }
+      setSnackbar({ open: true, message: t('governments.created'), severity: 'success' });
+    } catch (e: any) { setSnackbar({ open: true, message: e?.response?.data?.message || t('governments.failed'), severity: 'error' }); }
   }
 
   async function remove(id: number) {
-    if (!confirm('Delete government?')) return;
-    try { await api.delete(`/Governments/${id}`); await load(); setSnackbar({ open: true, message: 'Deleted', severity: 'success' }); }
-    catch (err) { setSnackbar({ open: true, message: 'Failed to delete', severity: 'error' }); }
+    if (!confirm(t('governments.confirmDelete'))) return;
+    try { await api.delete(`/Governments/${id}`); await load(); setSnackbar({ open: true, message: t('governments.deleted'), severity: 'success' }); }
+    catch (err) { setSnackbar({ open: true, message: t('governments.failed'), severity: 'error' }); }
   }
 
   return (
@@ -47,27 +49,27 @@ export default function Governments() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <LocationCityIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h5" fontWeight={600}>Governments Management</Typography>
+          <Typography variant="h5" fontWeight={600}>{t('governments.management')}</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh"><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)}>New Government</Button>
+          <Tooltip title={t('cases.refresh')}><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)}>{t('governments.newGovernment')}</Button>
         </Box>
       </Box>
 
-      <Card sx={{ mb: 3 }}><CardContent sx={{ py: 2 }}><Typography variant="body2" color="text.secondary">Total: <strong>{items.length}</strong></Typography></CardContent></Card>
+      <Card sx={{ mb: 3 }}><CardContent sx={{ py: 2 }}><Typography variant="body2" color="text.secondary">{t('governments.totalGovernments')}: <strong>{items.length}</strong></Typography></CardContent></Card>
 
       <TableContainer component={Paper}>
         <Table>
-          <TableHead><TableRow><TableCell>ID</TableCell><TableCell>Name</TableCell><TableCell align="right">Actions</TableCell></TableRow></TableHead>
+          <TableHead><TableRow><TableCell>{t('common.id')}</TableCell><TableCell>{t('governments.name')}</TableCell><TableCell align="right">{t('common.actions')}</TableCell></TableRow></TableHead>
           <TableBody>
             {loading ? [...Array(3)].map((_, i) => (<TableRow key={i}>{[...Array(3)].map((_, j) => (<TableCell key={j}><Skeleton /></TableCell>))}</TableRow>))
-              : items.length === 0 ? (<TableRow><TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>No governments found</TableCell></TableRow>)
+              : items.length === 0 ? (<TableRow><TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>{t('governments.noGovernments')}</TableCell></TableRow>)
               : items.map((g) => (
                 <TableRow key={g.id} hover>
                   <TableCell><Chip label={`#${g.id}`} size="small" variant="outlined" /></TableCell>
                   <TableCell><strong>{g.govName || '-'}</strong></TableCell>
-                  <TableCell align="right"><Tooltip title="Delete"><IconButton color="error" onClick={() => remove(g.id)}><DeleteIcon /></IconButton></Tooltip></TableCell>
+                  <TableCell align="right"><Tooltip title={t('common.delete')}><IconButton color="error" onClick={() => remove(g.id)}><DeleteIcon /></IconButton></Tooltip></TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -75,13 +77,13 @@ export default function Governments() {
       </TableContainer>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Government</DialogTitle>
+        <DialogTitle>{t('governments.newGovernment')}</DialogTitle>
         <DialogContent>
-          <TextField fullWidth label="Government Name" value={name} onChange={(e) => setName(e.target.value)} sx={{ mt: 2 }} />
+          <TextField fullWidth label={t('governments.name')} value={name} onChange={(e) => setName(e.target.value)} sx={{ mt: 2 }} />
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={create} disabled={!name}>Create</Button>
+          <Button onClick={() => setOpenDialog(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" onClick={create} disabled={!name}>{t('common.create')}</Button>
         </DialogActions>
       </Dialog>
 

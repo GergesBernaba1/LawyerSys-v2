@@ -21,8 +21,10 @@ import {
   Gavel as GavelIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -39,12 +41,12 @@ export default function Login() {
     try {
       const ok = await auth.login(username, password);
       if (!ok) {
-        setError('Invalid username or password. Please try again.');
+        setError(t('login.invalidCredentials'));
       } else {
         navigate('/');
       }
     } catch (err) {
-      setError('An error occurred. Please try again later.');
+      setError(t('login.errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -78,10 +80,10 @@ export default function Login() {
               <GavelIcon sx={{ fontSize: 32, color: 'white' }} />
             </Box>
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              Welcome Back
+              {t('login.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Sign in to access your LawyerSys dashboard
+              {t('login.subtitle')}
             </Typography>
           </Box>
 
@@ -94,7 +96,7 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Username"
+              label={t('login.username')}
               variant="outlined"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -109,7 +111,7 @@ export default function Login() {
             />
             <TextField
               fullWidth
-              label="Password"
+              label={t('login.password')}
               variant="outlined"
               type={showPassword ? 'text' : 'password'}
               value={password}
@@ -141,14 +143,14 @@ export default function Login() {
               disabled={loading || !username || !password}
               sx={{ mb: 2, py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Sign In'}
+              {loading ? <CircularProgress size={24} /> : t('login.signIn')}
             </Button>
           </form>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            Don't have an account?{' '}
+            {t('login.dontHaveAccount')}{' '}
             <Link component={RouterLink} to="/register" underline="hover">
-              Create one
+              {t('login.createOne')}
             </Link>
           </Typography>
         </CardContent>

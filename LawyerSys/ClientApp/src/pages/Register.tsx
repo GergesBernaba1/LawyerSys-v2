@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -25,6 +26,7 @@ import {
 import api from '../services/api';
 
 export default function Register() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,17 +41,17 @@ export default function Register() {
     setMessage(null);
 
     if (password !== confirmPassword) {
-      setMessage({ text: 'Passwords do not match', severity: 'error' });
+      setMessage({ text: t('register.passwordMismatch'), severity: 'error' });
       return;
     }
 
     setLoading(true);
     try {
       await api.post('/Account/register', { userName: username, email, password });
-      setMessage({ text: 'Account created successfully! Redirecting to login...', severity: 'success' });
+      setMessage({ text: t('register.accountCreated'), severity: 'success' });
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
-      setMessage({ text: err?.response?.data?.message ?? 'Registration failed. Please try again.', severity: 'error' });
+      setMessage({ text: err?.response?.data?.message ?? t('register.registrationFailed'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -83,10 +85,10 @@ export default function Register() {
               <HowToRegIcon sx={{ fontSize: 32, color: 'white' }} />
             </Box>
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              Create Account
+              {t('register.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Register to access the LawyerSys platform
+              {t('register.subtitle')}
             </Typography>
           </Box>
 
@@ -101,7 +103,7 @@ export default function Register() {
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
-                  label="Username"
+                  label={t('register.username')}
                   variant="outlined"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -117,7 +119,7 @@ export default function Register() {
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
-                  label="Email"
+                  label={t('register.email')}
                   type="email"
                   variant="outlined"
                   value={email}
@@ -134,7 +136,7 @@ export default function Register() {
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
-                  label="Password"
+                  label={t('register.password')}
                   variant="outlined"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -158,7 +160,7 @@ export default function Register() {
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
-                  label="Confirm Password"
+                  label={t('register.confirmPassword')}
                   variant="outlined"
                   type={showPassword ? 'text' : 'password'}
                   value={confirmPassword}
@@ -181,14 +183,14 @@ export default function Register() {
               disabled={loading || !username || !email || !password || !confirmPassword}
               sx={{ mt: 3, mb: 2, py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Create Account'}
+              {loading ? <CircularProgress size={24} /> : t('register.createAccount')}
             </Button>
           </form>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            Already have an account?{' '}
+            {t('register.alreadyHaveAccount')}{' '}
             <Link component={RouterLink} to="/login" underline="hover">
-              Sign in
+              {t('register.signIn')}
             </Link>
           </Typography>
         </CardContent>

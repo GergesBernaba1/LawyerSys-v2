@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import {
   Box, Card, Typography, Grid, TextField, Button,
@@ -9,6 +10,7 @@ import { Delete, Add, People, Gavel, AccountBalance, Work, Event, Folder } from 
 type CaseItem = { id:number; code:number }
 
 export default function CaseRelations(){
+  const { t } = useTranslation()
   const [cases,setCases] = useState<CaseItem[]>([])
   const [selectedCase, setSelectedCase] = useState<number|undefined>(undefined)
   const [customers,setCustomers] = useState<any[]>([])
@@ -59,23 +61,23 @@ export default function CaseRelations(){
             <ListItemText primary={typeof displayField === 'function' ? displayField(item) : (item[displayField] ?? `#${item[idField] ?? item.id}`)} />
           </ListItem>
         ))}
-        {items.length === 0 && <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>No items linked</Typography>}
+        {items.length === 0 && <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>{t('caseRelations.noItems')}</Typography>}
       </List>
       <Box display="flex" gap={1}>
-        <TextField size="small" label="Add by ID" type="number" inputRef={inputRef} sx={{ flex: 1 }} />
-        <Button variant="outlined" size="small" startIcon={<Add />} onClick={()=>{ const val = inputRef.current?.value; if(val) { attach(type, Number(val)); inputRef.current!.value = ''; } }}>Add</Button>
+        <TextField size="small" label={t('caseRelations.addById')} type="number" inputRef={inputRef} sx={{ flex: 1 }} />
+        <Button variant="outlined" size="small" startIcon={<Add />} onClick={()=>{ const val = inputRef.current?.value; if(val) { attach(type, Number(val)); inputRef.current!.value = ''; } }}>{t('common.add')}</Button>
       </Box>
     </Card>
   )
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom fontWeight={600}>Case Relations</Typography>
+      <Typography variant="h5" gutterBottom fontWeight={600}>{t('caseRelations.management')}</Typography>
       <Card sx={{ p: 2, mb: 3 }}>
         <FormControl sx={{ minWidth: 300 }} size="small">
-          <InputLabel>Select Case</InputLabel>
-          <Select value={selectedCase || ''} label="Select Case" onChange={e=>{ setSelectedCase(Number(e.target.value)||undefined); if(Number(e.target.value)) loadRelations(Number(e.target.value)) }}>
-            <MenuItem value="">-- Select a Case --</MenuItem>
+          <InputLabel>{t('caseRelations.selectCase')}</InputLabel>
+          <Select value={selectedCase || ''} label={t('caseRelations.selectCase')} onChange={e=>{ setSelectedCase(Number(e.target.value)||undefined); if(Number(e.target.value)) loadRelations(Number(e.target.value)) }}>
+            <MenuItem value="">{t('caseRelations.selectCasePlaceholder')}</MenuItem>
             {cases.map(c=> <MenuItem key={c.id} value={c.code}>Case #{c.code} (ID: {c.id})</MenuItem>)}
           </Select>
         </FormControl>
@@ -84,22 +86,22 @@ export default function CaseRelations(){
       {selectedCase && (
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RelationCard title="Customers" icon={<People color="primary" />} items={customers} idField="customerId" displayField={(c)=> c.customerName ?? c.CustomerName ?? `#${c.customerId}`} type="customers" inputRef={custIdRef} />
+            <RelationCard title={t('caseRelations.customers')} icon={<People color="primary" />} items={customers} idField="customerId" displayField={(c)=> c.customerName ?? c.CustomerName ?? `#${c.customerId}`} type="customers" inputRef={custIdRef} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RelationCard title="Contenders" icon={<Gavel color="primary" />} items={contenders} idField="contenderId" displayField="fullName" type="contenders" inputRef={contIdRef} />
+            <RelationCard title={t('caseRelations.contenders')} icon={<Gavel color="primary" />} items={contenders} idField="contenderId" displayField="fullName" type="contenders" inputRef={contIdRef} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RelationCard title="Courts" icon={<AccountBalance color="primary" />} items={courts} idField="courtId" displayField={(c)=> c.courtName ?? c.CourtName ?? `#${c.courtId}`} type="courts" inputRef={courtIdRef} />
+            <RelationCard title={t('caseRelations.courts')} icon={<AccountBalance color="primary" />} items={courts} idField="courtId" displayField={(c)=> c.courtName ?? c.CourtName ?? `#${c.courtId}`} type="courts" inputRef={courtIdRef} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RelationCard title="Employees" icon={<Work color="primary" />} items={employees} idField="employeeId" displayField={(e)=> e.employeeName ?? e.EmployeeName ?? `#${e.employeeId}`} type="employees" inputRef={empIdRef} />
+            <RelationCard title={t('caseRelations.employees')} icon={<Work color="primary" />} items={employees} idField="employeeId" displayField={(e)=> e.employeeName ?? e.EmployeeName ?? `#${e.employeeId}`} type="employees" inputRef={empIdRef} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RelationCard title="Sitings" icon={<Event color="primary" />} items={sitings} idField="sitingId" displayField={(s)=> `${s.sitingDate ?? ''} ${s.sitingTime ?? ''}`} type="sitings" inputRef={sitingIdRef} />
+            <RelationCard title={t('caseRelations.sitings')} icon={<Event color="primary" />} items={sitings} idField="sitingId" displayField={(s)=> `${s.sitingDate ?? ''} ${s.sitingTime ?? ''}`} type="sitings" inputRef={sitingIdRef} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <RelationCard title="Files" icon={<Folder color="primary" />} items={files} idField="fileId" displayField="path" type="files" inputRef={fileIdRef} />
+            <RelationCard title={t('caseRelations.files')} icon={<Folder color="primary" />} items={files} idField="fileId" displayField="path" type="files" inputRef={fileIdRef} />
           </Grid>
         </Grid>
       )}

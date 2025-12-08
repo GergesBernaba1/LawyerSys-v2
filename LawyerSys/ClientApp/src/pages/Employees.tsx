@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Card,
@@ -43,6 +44,7 @@ type UserDto = { id: number; fullName?: string; userName?: string };
 type Employee = { id: number; salary?: number; usersId: number; user?: UserDto };
 
 export default function Employees() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
@@ -65,7 +67,7 @@ export default function Employees() {
       setItems(employeesRes.data);
       setUsers(usersRes.data);
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to load data', severity: 'error' });
+      setSnackbar({ open: true, message: t('employees.failedLoad'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -77,29 +79,29 @@ export default function Employees() {
 
   async function create() {
     if (!selectedUser) {
-      setSnackbar({ open: true, message: 'Please select a user', severity: 'error' });
+      setSnackbar({ open: true, message: t('employees.pleaseSelectUser'), severity: 'error' });
       return;
     }
     try {
-      await api.post('/Employees', { usersId: selectedUser, salary: salary || 0 });
+      await api.post('/Employees', { usersId: selectedUser, salary: Number(salary) || undefined });
       await load();
       setSelectedUser('');
       setSalary('');
       setOpenDialog(false);
-      setSnackbar({ open: true, message: 'Employee created successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('employees.employeeCreated'), severity: 'success' });
     } catch (err: any) {
-      setSnackbar({ open: true, message: err?.response?.data?.message ?? 'Failed to create employee', severity: 'error' });
+      setSnackbar({ open: true, message: err?.response?.data?.message ?? t('employees.failedCreate'), severity: 'error' });
     }
   }
 
   async function remove(id: number) {
-    if (!confirm('Are you sure you want to delete this employee?')) return;
+    if (!confirm(t('employees.confirmDelete'))) return;
     try {
       await api.delete(`/Employees/${id}`);
       await load();
-      setSnackbar({ open: true, message: 'Employee deleted successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('employees.employeeDeleted'), severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to delete employee', severity: 'error' });
+      setSnackbar({ open: true, message: t('employees.failedDelete'), severity: 'error' });
     }
   }
 
@@ -110,17 +112,17 @@ export default function Employees() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <BadgeIcon sx={{ fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h5" fontWeight={600}>
-            Employees Management
+            {t('employees.management')}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh">
+          <Tooltip title={t('cases.refresh')}>
             <IconButton onClick={load} disabled={loading}>
               <RefreshIcon />
             </IconButton>
           </Tooltip>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)}>
-            New Employee
+            {t('employees.newEmployee')}
           </Button>
         </Box>
       </Box>
@@ -129,7 +131,7 @@ export default function Employees() {
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ py: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            Total Employees: <strong>{items.length}</strong>
+            {t('employees.totalEmployees')}: <strong>{items.length}</strong>
           </Typography>
         </CardContent>
       </Card>
@@ -158,12 +160,12 @@ export default function Employees() {
               ))
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                   <Box sx={{ color: 'text.secondary' }}>
                     <BadgeIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                    <Typography>No employees found</Typography>
+                    <Typography>{t('employees.noEmployees')}</Typography>
                     <Button variant="contained" size="small" sx={{ mt: 2 }} onClick={() => setOpenDialog(true)}>
-                      Create First Employee
+                      {t('employees.createFirst')}
                     </Button>
                   </Box>
                 </TableCell>
@@ -191,7 +193,7 @@ export default function Employees() {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Delete">
+                    <Tooltip title={t('app.delete')}>
                       <IconButton color="error" onClick={() => remove(item.id)}>
                         <DeleteIcon />
                       </IconButton>
@@ -206,15 +208,15 @@ export default function Employees() {
 
       {/* Create Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Employee</DialogTitle>
+        <DialogTitle>{t('employees.createNew')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
-                <InputLabel>Select User</InputLabel>
+                <InputLabel>{t('employees.selectUser')}</InputLabel>
                 <Select
                   value={selectedUser}
-                  label="Select User"
+                  label={t('employees.selectUser')}
                   onChange={(e) => setSelectedUser(Number(e.target.value) || '')}
                 >
                   <MenuItem value="">
@@ -231,7 +233,7 @@ export default function Employees() {
             <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
-                label="Salary"
+                label={t('employees.salary')}
                 type="number"
                 value={salary}
                 onChange={(e) => setSalary(Number(e.target.value) || '')}
@@ -243,9 +245,9 @@ export default function Employees() {
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={() => setOpenDialog(false)}>{t('app.cancel')}</Button>
           <Button variant="contained" onClick={create} disabled={!selectedUser}>
-            Create
+            {t('app.create')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -21,12 +21,14 @@ import {
   Alert,
   Snackbar,
   Tooltip,
+  useTheme,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 interface Column {
   key: string;
@@ -72,25 +74,29 @@ export default function DataPage({
   createDialog,
   snackbar,
 }: DataPageProps) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const isRTL = theme.direction === 'rtl';
+  
   return (
-    <Box>
+    <Box dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Box sx={{ color: 'primary.main', fontSize: 32, display: 'flex' }}>{icon}</Box>
           <Typography variant="h5" fontWeight={600}>
             {title}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh">
+        <Box sx={{ display: 'flex', gap: 1, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <Tooltip title={t('cases.refresh')}>
             <IconButton onClick={onRefresh} disabled={loading}>
               <RefreshIcon />
             </IconButton>
           </Tooltip>
           {createDialog && (
-            <Button variant="contained" startIcon={<AddIcon />} onClick={createDialog.onOpen}>
-              Add New
+            <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={createDialog.onOpen}>
+              {t('app.add')}
             </Button>
           )}
         </Box>
@@ -99,8 +105,8 @@ export default function DataPage({
       {/* Stats Card */}
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ py: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Total Records: <strong>{data.length}</strong>
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('common.total')}: <strong>{data.length}</strong>
           </Typography>
         </CardContent>
       </Card>
@@ -111,9 +117,9 @@ export default function DataPage({
           <TableHead>
             <TableRow>
               {columns.map((col) => (
-                <TableCell key={col.key}>{col.label}</TableCell>
+                <TableCell key={col.key} sx={{ textAlign: isRTL ? 'right' : 'left' }}>{col.label}</TableCell>
               ))}
-              {onDelete && <TableCell align="right">Actions</TableCell>}
+              {onDelete && <TableCell align={isRTL ? 'left' : 'right'}>{t('app.actions')}</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -132,10 +138,10 @@ export default function DataPage({
                 <TableCell colSpan={columns.length + (onDelete ? 1 : 0)} align="center" sx={{ py: 4 }}>
                   <Box sx={{ color: 'text.secondary' }}>
                     <Box sx={{ opacity: 0.3, mb: 1, fontSize: 48 }}>{icon}</Box>
-                    <Typography>No records found</Typography>
+                    <Typography>{t('common.noRecords')}</Typography>
                     {createDialog && (
                       <Button variant="contained" size="small" sx={{ mt: 2 }} onClick={createDialog.onOpen}>
-                        Create First Record
+                        {t('common.createFirst')}
                       </Button>
                     )}
                   </Box>
@@ -145,13 +151,13 @@ export default function DataPage({
               data.map((row) => (
                 <TableRow key={row[idField]} hover>
                   {columns.map((col) => (
-                    <TableCell key={col.key}>
+                    <TableCell key={col.key} sx={{ textAlign: isRTL ? 'right' : 'left' }}>
                       {col.render ? col.render(row[col.key], row) : row[col.key] ?? '-'}
                     </TableCell>
                   ))}
                   {onDelete && (
-                    <TableCell align="right">
-                      <Tooltip title="Delete">
+                    <TableCell align={isRTL ? 'left' : 'right'}>
+                      <Tooltip title={t('app.delete')}>
                         <IconButton color="error" onClick={() => onDelete(row[idField])}>
                           <DeleteIcon />
                         </IconButton>
@@ -168,12 +174,12 @@ export default function DataPage({
       {/* Create Dialog */}
       {createDialog && (
         <Dialog open={createDialog.open} onClose={createDialog.onClose} maxWidth="sm" fullWidth>
-          <DialogTitle>{createDialog.title}</DialogTitle>
+          <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left' }}>{createDialog.title}</DialogTitle>
           <DialogContent>{createDialog.content}</DialogContent>
-          <DialogActions sx={{ p: 2 }}>
-            <Button onClick={createDialog.onClose}>Cancel</Button>
+          <DialogActions sx={{ p: 2, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'flex-end' }}>
+            <Button onClick={createDialog.onClose}>{t('app.cancel')}</Button>
             <Button variant="contained" onClick={createDialog.onSubmit} disabled={createDialog.submitDisabled}>
-              Create
+              {t('app.create')}
             </Button>
           </DialogActions>
         </Dialog>
@@ -185,7 +191,7 @@ export default function DataPage({
           open={snackbar.open}
           autoHideDuration={4000}
           onClose={snackbar.onClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
         >
           <Alert onClose={snackbar.onClose} severity={snackbar.severity} variant="filled">
             {snackbar.message}

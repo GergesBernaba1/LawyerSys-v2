@@ -8,7 +8,10 @@ import { Delete } from '@mui/icons-material'
 
 type User = { id:number; fullName?:string; userName?:string; address?:string; job?:string; phoneNumber?:string }
 
+import {useTranslation} from 'react-i18next'
+
 export default function LegacyUsers(){
+  const { t } = useTranslation()
   const [items,setItems] = useState<User[]>([])
   const [loading,setLoading] = useState(false)
 
@@ -34,31 +37,31 @@ export default function LegacyUsers(){
       <Card sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Full Name" value={fullName} onChange={e=>setFullName(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.fullName')} value={fullName} onChange={e=>setFullName(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Address" value={address} onChange={e=>setAddress(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.address')} value={address} onChange={e=>setAddress(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-            <TextField fullWidth size="small" label="Job" value={job} onChange={e=>setJob(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.job')} value={job} onChange={e=>setJob(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-            <TextField fullWidth size="small" label="Phone" value={phone} onChange={e=>setPhone(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.phone')} value={phone} onChange={e=>setPhone(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-            <TextField fullWidth size="small" label="Date of Birth" type="date" slotProps={{ inputLabel: { shrink: true } }} value={dob} onChange={e=>setDob(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.dateOfBirth')} type="date" slotProps={{ inputLabel: { shrink: true } }} value={dob} onChange={e=>setDob(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-            <TextField fullWidth size="small" label="SSN" value={ssn} onChange={e=>setSsn(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.ssn')} value={ssn} onChange={e=>setSsn(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-            <TextField fullWidth size="small" label="Username" value={userName} onChange={e=>setUserName(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.username')} value={userName} onChange={e=>setUserName(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-            <TextField fullWidth size="small" label="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
+            <TextField fullWidth size="small" label={t('legacyUsers.password')} type="password" value={password} onChange={e=>setPassword(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <Button variant="contained" fullWidth onClick={create}>Create</Button>
+            <Button variant="contained" fullWidth onClick={create}>{t('common.create')}</Button>
           </Grid>
         </Grid>
       </Card>
@@ -68,10 +71,10 @@ export default function LegacyUsers(){
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: 'primary.main' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 600 }}>Id</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600 }}>Name</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600 }}>Username</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600 }}>Phone</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 600 }}>{t('common.id')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 600 }}>{t('common.name')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 600 }}>{t('legacyUsers.username')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 600 }}>{t('legacyUsers.phone')}</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 600 }} width={60}></TableCell>
               </TableRow>
             </TableHead>

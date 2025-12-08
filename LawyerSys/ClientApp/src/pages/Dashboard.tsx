@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Grid,
@@ -16,6 +17,7 @@ import {
   ListItemAvatar,
   ListItemText,
   Divider,
+  useTheme,
 } from '@mui/material';
 import {
   Gavel as GavelIcon,
@@ -88,8 +90,11 @@ function StatCard({ title, value, icon, color, loading, onClick }: StatCardProps
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const theme = useTheme();
+  const isRTL = theme.direction === 'rtl';
   const [stats, setStats] = useState({
     cases: 0,
     customers: 0,
@@ -125,14 +130,14 @@ export default function Dashboard() {
   }, []);
 
   const quickActions = [
-    { label: 'New Case', path: '/cases', icon: <GavelIcon /> },
-    { label: 'New Customer', path: '/customers', icon: <PeopleIcon /> },
-    { label: 'View Billing', path: '/billing', icon: <ReceiptIcon /> },
-    { label: 'Admin Tasks', path: '/tasks', icon: <EventIcon /> },
+    { label: t('dashboard.newCase'), path: '/cases', icon: <GavelIcon /> },
+    { label: t('dashboard.newCustomer'), path: '/customers', icon: <PeopleIcon /> },
+    { label: t('dashboard.viewBilling'), path: '/billing', icon: <ReceiptIcon /> },
+    { label: t('dashboard.adminTasks'), path: '/tasks', icon: <EventIcon /> },
   ];
 
   return (
-    <Box>
+    <Box dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Welcome Section */}
       <Paper
         sx={{
@@ -143,18 +148,19 @@ export default function Dashboard() {
           borderRadius: 3,
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <Box sx={{ textAlign: isRTL ? 'right' : 'left' }}>
             <Typography variant="h4" fontWeight={700} gutterBottom>
-              Welcome back{user ? `, ${user.email}` : ''}!
+              {t('dashboard.welcomeBack')}{user ? `, ${user.email}` : ''}!
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.9 }}>
-              Manage your law firm's cases, clients, and documents efficiently.
+              {t('dashboard.subtitle')}
             </Typography>
           </Box>
           <Button
             variant="contained"
-            endIcon={<OpenInNewIcon />}
+            startIcon={isRTL ? <OpenInNewIcon /> : undefined}
+            endIcon={!isRTL ? <OpenInNewIcon /> : undefined}
             href="/swagger"
             target="_blank"
             sx={{
@@ -163,7 +169,7 @@ export default function Dashboard() {
               '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' },
             }}
           >
-            API Docs
+            {t('dashboard.apiDocs')}
           </Button>
         </Box>
       </Paper>
@@ -172,7 +178,7 @@ export default function Dashboard() {
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="Total Cases"
+            title={t('dashboard.totalCases')}
             value={stats.cases}
             icon={<GavelIcon />}
             color="#1565c0"
@@ -182,7 +188,7 @@ export default function Dashboard() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="Customers"
+            title={t('dashboard.customers')}
             value={stats.customers}
             icon={<PeopleIcon />}
             color="#7c4dff"
@@ -192,7 +198,7 @@ export default function Dashboard() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="Employees"
+            title={t('dashboard.employees')}
             value={stats.employees}
             icon={<BadgeIcon />}
             color="#00bcd4"
@@ -202,7 +208,7 @@ export default function Dashboard() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
-            title="Files"
+            title={t('dashboard.files')}
             value={stats.files}
             icon={<FolderIcon />}
             color="#ff9800"
@@ -218,19 +224,20 @@ export default function Dashboard() {
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Quick Actions
+                {t('dashboard.quickActions')}
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
                 {quickActions.map((action) => (
                   <Button
                     key={action.label}
                     variant="outlined"
-                    startIcon={action.icon}
+                    startIcon={!isRTL ? action.icon : undefined}
+                    endIcon={isRTL ? action.icon : undefined}
                     onClick={() => navigate(action.path)}
                     sx={{
-                      justifyContent: 'flex-start',
+                      justifyContent: isRTL ? 'flex-end' : 'flex-start',
                       py: 1.5,
-                      textAlign: 'left',
+                      textAlign: isRTL ? 'right' : 'left',
                     }}
                     fullWidth
                   >
@@ -244,16 +251,17 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                 <Typography variant="h6" fontWeight={600}>
-                  Recent Cases
+                  {t('dashboard.recentCases')}
                 </Typography>
                 <Button
                   size="small"
-                  endIcon={<ArrowForwardIcon />}
+                  startIcon={isRTL ? <ArrowForwardIcon sx={{ transform: 'scaleX(-1)' }} /> : undefined}
+                  endIcon={!isRTL ? <ArrowForwardIcon /> : undefined}
                   onClick={() => navigate('/cases')}
                 >
-                  View All
+                  {t('app.viewAll')}
                 </Button>
               </Box>
               {loading ? (
@@ -314,13 +322,18 @@ export default function Dashboard() {
 
       {/* System Info */}
       <Paper sx={{ mt: 3, p: 2 }}>
-        <Typography variant="body2" color="text.secondary">
+        {/* Use a div here because we render inline <code> and <Chip> components (which are divs) */}
+        <Typography component="div" variant="body2" color="text.secondary">
           <strong>System Info:</strong> API Base URL: {import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'} •
           JWT stored in localStorage as <code>lawyersys-token</code> •
           {isAuthenticated ? (
-            <Chip label="Authenticated" size="small" color="success" sx={{ ml: 1 }} />
+            <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}>
+              <Chip label="Authenticated" size="small" color="success" />
+            </Box>
           ) : (
-            <Chip label="Not Authenticated" size="small" color="warning" sx={{ ml: 1 }} />
+            <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}>
+              <Chip label="Not Authenticated" size="small" color="warning" />
+            </Box>
           )}
         </Typography>
       </Paper>

@@ -5,11 +5,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using LawyerSys.Data;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger with JWT Authentication support
@@ -105,6 +108,15 @@ builder.Services.AddAuthentication(options =>
     });
 
 var app = builder.Build();
+
+// Localization
+var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ar-SA") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
 
 // Always enable Swagger (for development and production)
 app.UseSwagger();

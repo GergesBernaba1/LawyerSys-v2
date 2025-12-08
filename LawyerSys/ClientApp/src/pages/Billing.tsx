@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Card,
@@ -62,6 +63,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function Billing() {
+  const { t } = useTranslation();
   const [payments, setPayments] = useState<Pay[]>([]);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(false);
@@ -102,7 +104,7 @@ export default function Billing() {
       setCustomers(c.data);
       setEmployees(e.data);
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to load data', severity: 'error' });
+      setSnackbar({ open: true, message: t('billing.failedLoad'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -129,9 +131,9 @@ export default function Billing() {
       setPayCustomer('');
       setPayDialogOpen(false);
       await load();
-      setSnackbar({ open: true, message: 'Payment created successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('billing.paymentCreated'), severity: 'success' });
     } catch (e: any) {
-      setSnackbar({ open: true, message: e?.response?.data?.message || 'Failed', severity: 'error' });
+      setSnackbar({ open: true, message: e?.response?.data?.message || t('billing.failed'), severity: 'error' });
     }
   }
 
@@ -149,31 +151,31 @@ export default function Billing() {
       setRecEmployee('');
       setRecDialogOpen(false);
       await load();
-      setSnackbar({ open: true, message: 'Receipt created successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('billing.receiptCreated'), severity: 'success' });
     } catch (e: any) {
-      setSnackbar({ open: true, message: e?.response?.data?.message || 'Failed', severity: 'error' });
+      setSnackbar({ open: true, message: e?.response?.data?.message || t('billing.failed'), severity: 'error' });
     }
   }
 
   async function removePayment(id: number) {
-    if (!confirm('Are you sure you want to delete this payment?')) return;
+    if (!confirm(t('billing.confirmDeletePayment'))) return;
     try {
       await api.delete(`/Billing/payments/${id}`);
       await load();
-      setSnackbar({ open: true, message: 'Payment deleted', severity: 'success' });
+      setSnackbar({ open: true, message: t('billing.paymentDeleted'), severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to delete payment', severity: 'error' });
+      setSnackbar({ open: true, message: t('billing.failed'), severity: 'error' });
     }
   }
 
   async function removeReceipt(id: number) {
-    if (!confirm('Are you sure you want to delete this receipt?')) return;
+    if (!confirm(t('billing.confirmDeleteReceipt'))) return;
     try {
       await api.delete(`/Billing/receipts/${id}`);
       await load();
-      setSnackbar({ open: true, message: 'Receipt deleted', severity: 'success' });
+      setSnackbar({ open: true, message: t('billing.receiptDeleted'), severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to delete receipt', severity: 'error' });
+      setSnackbar({ open: true, message: t('billing.failed'), severity: 'error' });
     }
   }
 
@@ -184,11 +186,11 @@ export default function Billing() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <ReceiptIcon sx={{ fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h5" fontWeight={600}>
-            Billing Management
+            {t('billing.management')}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh">
+          <Tooltip title={t('cases.refresh')}>
             <IconButton onClick={load} disabled={loading}>
               <RefreshIcon />
             </IconButton>
@@ -204,7 +206,7 @@ export default function Billing() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    Total Payments
+                    {t('billing.totalPayments')}
                   </Typography>
                   <Typography variant="h4" fontWeight={700}>
                     ${totalPayments.toLocaleString()}
@@ -221,7 +223,7 @@ export default function Billing() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    Total Receipts
+                    {t('billing.totalReceipts')}
                   </Typography>
                   <Typography variant="h4" fontWeight={700}>
                     ${totalReceipts.toLocaleString()}
@@ -238,7 +240,7 @@ export default function Billing() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    Net Balance
+                    {t('billing.netBalance')}
                   </Typography>
                   <Typography variant="h4" fontWeight={700}>
                     ${(totalPayments - totalReceipts).toLocaleString()}
@@ -254,26 +256,26 @@ export default function Billing() {
       {/* Tabs */}
       <Paper sx={{ mb: 3 }}>
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tab icon={<PaymentIcon />} iconPosition="start" label="Payments" />
-          <Tab icon={<ReceiptIcon />} iconPosition="start" label="Receipts" />
+          <Tab icon={<PaymentIcon />} iconPosition="start" label={t('billing.payments')} />
+          <Tab icon={<ReceiptIcon />} iconPosition="start" label={t('billing.receipts')} />
         </Tabs>
 
         <TabPanel value={tabValue} index={0}>
           <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
               <Button variant="contained" startIcon={<AddIcon />} onClick={() => setPayDialogOpen(true)}>
-                New Payment
+                {t('billing.newPayment')}
               </Button>
             </Box>
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Customer</TableCell>
-                    <TableCell>Notes</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell>{t('billing.amount')}</TableCell>
+                    <TableCell>{t('billing.date')}</TableCell>
+                    <TableCell>{t('billing.customer')}</TableCell>
+                    <TableCell>{t('billing.notes')}</TableCell>
+                    <TableCell align="right">{t('common.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -290,7 +292,7 @@ export default function Billing() {
                   ) : payments.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                        No payments found
+                        {t('billing.noPayments')}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -322,18 +324,18 @@ export default function Billing() {
           <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
               <Button variant="contained" startIcon={<AddIcon />} onClick={() => setRecDialogOpen(true)}>
-                New Receipt
+                {t('billing.newReceipt')}
               </Button>
             </Box>
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Employee</TableCell>
-                    <TableCell>Notes</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell>{t('billing.amount')}</TableCell>
+                    <TableCell>{t('billing.date')}</TableCell>
+                    <TableCell>{t('billing.employee')}</TableCell>
+                    <TableCell>{t('billing.notes')}</TableCell>
+                    <TableCell align="right">{t('common.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -350,7 +352,7 @@ export default function Billing() {
                   ) : receipts.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                        No receipts found
+                        {t('billing.noReceipts')}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -363,7 +365,7 @@ export default function Billing() {
                         <TableCell>{r.employeeId || '-'}</TableCell>
                         <TableCell>{r.notes || '-'}</TableCell>
                         <TableCell align="right">
-                          <Tooltip title="Delete">
+                          <Tooltip title={t('common.delete')}>
                             <IconButton color="error" onClick={() => removeReceipt(r.id)}>
                               <DeleteIcon />
                             </IconButton>
@@ -381,13 +383,13 @@ export default function Billing() {
 
       {/* Payment Dialog */}
       <Dialog open={payDialogOpen} onClose={() => setPayDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Payment</DialogTitle>
+        <DialogTitle>{t('billing.newPayment')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label="Amount"
+                label={t('billing.amount')}
                 type="number"
                 value={payAmount}
                 onChange={(e) => setPayAmount(Number(e.target.value) || '')}
@@ -397,7 +399,7 @@ export default function Billing() {
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label="Date"
+                label={t('billing.date')}
                 type="date"
                 value={payDate}
                 onChange={(e) => setPayDate(e.target.value)}
@@ -406,10 +408,10 @@ export default function Billing() {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
-                <InputLabel>Customer</InputLabel>
-                <Select value={payCustomer} label="Customer" onChange={(e) => setPayCustomer(Number(e.target.value) || '')}>
+                <InputLabel>{t('billing.customer')}</InputLabel>
+                <Select value={payCustomer} label={t('billing.customer')} onChange={(e) => setPayCustomer(Number(e.target.value) || '')}>
                   <MenuItem value="">
-                    <em>-- Select Customer --</em>
+                    <em>{t('billing.selectCustomer')}</em>
                   </MenuItem>
                   {customers.map((c) => (
                     <MenuItem key={c.id} value={c.id}>
@@ -420,27 +422,27 @@ export default function Billing() {
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TextField fullWidth label="Notes" multiline rows={2} value={payNotes} onChange={(e) => setPayNotes(e.target.value)} />
+              <TextField fullWidth label={t('billing.notes')} multiline rows={2} value={payNotes} onChange={(e) => setPayNotes(e.target.value)} />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setPayDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setPayDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={createPayment} disabled={!payAmount}>
-            Create
+            {t('common.create')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Receipt Dialog */}
       <Dialog open={recDialogOpen} onClose={() => setRecDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Receipt</DialogTitle>
+        <DialogTitle>{t('billing.newReceipt')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label="Amount"
+                label={t('billing.amount')}
                 type="number"
                 value={recAmount}
                 onChange={(e) => setRecAmount(Number(e.target.value) || '')}
@@ -450,7 +452,7 @@ export default function Billing() {
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label="Date"
+                label={t('billing.date')}
                 type="date"
                 value={recDate}
                 onChange={(e) => setRecDate(e.target.value)}
@@ -459,10 +461,10 @@ export default function Billing() {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
-                <InputLabel>Employee</InputLabel>
-                <Select value={recEmployee} label="Employee" onChange={(e) => setRecEmployee(Number(e.target.value) || '')}>
+                <InputLabel>{t('billing.employee')}</InputLabel>
+                <Select value={recEmployee} label={t('billing.employee')} onChange={(e) => setRecEmployee(Number(e.target.value) || '')}>
                   <MenuItem value="">
-                    <em>-- Select Employee --</em>
+                    <em>{t('billing.selectEmployee')}</em>
                   </MenuItem>
                   {employees.map((e) => (
                     <MenuItem key={e.id} value={e.id}>
@@ -473,14 +475,14 @@ export default function Billing() {
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TextField fullWidth label="Notes" multiline rows={2} value={recNotes} onChange={(e) => setRecNotes(e.target.value)} />
+              <TextField fullWidth label={t('billing.notes')} multiline rows={2} value={recNotes} onChange={(e) => setRecNotes(e.target.value)} />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setRecDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setRecDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={createReceipt} disabled={!recAmount}>
-            Create
+            {t('common.create')}
           </Button>
         </DialogActions>
       </Dialog>

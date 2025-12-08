@@ -42,34 +42,36 @@ import {
   ExpandLess,
   ExpandMore,
   ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
+import { useTranslation } from 'react-i18next'
 
 const drawerWidth = 280;
 
 interface MenuItem {
-  text: string;
+  key: string;
   icon: React.ReactNode;
   path: string;
   children?: MenuItem[];
 }
 
 const menuItems: MenuItem[] = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Cases', icon: <GavelIcon />, path: '/cases' },
-  { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },
-  { text: 'Employees', icon: <BadgeIcon />, path: '/employees' },
-  { text: 'Files', icon: <FolderIcon />, path: '/files' },
-  { text: 'Courts', icon: <AccountBalanceIcon />, path: '/courts' },
-  { text: 'Governments', icon: <LocationCityIcon />, path: '/governments' },
-  { text: 'Contenders', icon: <PersonSearchIcon />, path: '/contenders' },
-  { text: 'Sitings', icon: <EventIcon />, path: '/sitings' },
-  { text: 'Consultations', icon: <ChatIcon />, path: '/consultations' },
-  { text: 'Judicial Docs', icon: <DescriptionIcon />, path: '/judicial' },
-  { text: 'Admin Tasks', icon: <TaskIcon />, path: '/tasks' },
-  { text: 'Billing', icon: <ReceiptIcon />, path: '/billing' },
-  { text: 'Users', icon: <PersonIcon />, path: '/legacyusers' },
-  { text: 'Case Relations', icon: <LinkIcon />, path: '/caserelations' },
+  { key: 'dashboard', icon: <DashboardIcon />, path: '/' },
+  { key: 'cases', icon: <GavelIcon />, path: '/cases' },
+  { key: 'customers', icon: <PeopleIcon />, path: '/customers' },
+  { key: 'employees', icon: <BadgeIcon />, path: '/employees' },
+  { key: 'files', icon: <FolderIcon />, path: '/files' },
+  { key: 'courts', icon: <AccountBalanceIcon />, path: '/courts' },
+  { key: 'governments', icon: <LocationCityIcon />, path: '/governments' },
+  { key: 'contenders', icon: <PersonSearchIcon />, path: '/contenders' },
+  { key: 'sitings', icon: <EventIcon />, path: '/sitings' },
+  { key: 'consultations', icon: <ChatIcon />, path: '/consultations' },
+  { key: 'judicial', icon: <DescriptionIcon />, path: '/judicial' },
+  { key: 'tasks', icon: <TaskIcon />, path: '/tasks' },
+  { key: 'billing', icon: <ReceiptIcon />, path: '/billing' },
+  { key: 'legacyusers', icon: <PersonIcon />, path: '/legacyusers' },
+  { key: 'caserelations', icon: <LinkIcon />, path: '/caserelations' },
 ];
 
 interface LayoutProps {
@@ -84,6 +86,15 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation()
+  const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
+  // prefer using theme direction (keeps in sync with ThemeProvider) but
+  // fall back to i18n language or the document dir attribute if theme isn't updated yet
+  const docDir = typeof document !== 'undefined' ? document.documentElement.getAttribute('dir') : null
+  const isRTL = theme.direction === 'rtl' || i18n.language.startsWith('ar') || docDir === 'rtl'
+  // Use the effective isRTL boolean so drawer anchor follows the same
+  // runtime detection (i18n or theme) and doesn't get out of sync.
+  const drawerAnchor = isRTL ? 'right' : 'left'
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -92,6 +103,15 @@ export default function Layout({ children }: LayoutProps) {
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const handleLangOpen = (event: React.MouseEvent<HTMLElement>) => setLangAnchor(event.currentTarget)
+  const handleLangClose = () => setLangAnchor(null)
+  const changeLang = (lng: string) => {
+    // set document direction immediately so UI reacts right away
+    try { document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr') } catch {}
+    i18n.changeLanguage(lng);
+    handleLangClose();
+  }
 
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
@@ -129,19 +149,22 @@ export default function Layout({ children }: LayoutProps) {
         </Box>
         {isMobile && (
           <IconButton onClick={handleDrawerToggle}>
-            <ChevronLeftIcon />
+            {/* use a mirrored icon when RTL */}
+            {isRTL ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         )}
       </Box>
       <Divider />
       <List sx={{ flex: 1, py: 2 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
+          <ListItem key={item.key} disablePadding>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => handleNavigation(item.path)}
               sx={{
                 mx: 1,
+                /* mirror icon/text order on RTL */
+                flexDirection: isRTL ? 'row-reverse' : 'row',
                 borderRadius: 2,
                 '&.Mui-selected': {
                   backgroundColor: 'primary.light',
@@ -159,15 +182,19 @@ export default function Layout({ children }: LayoutProps) {
                 sx={{
                   minWidth: 40,
                   color: location.pathname === item.path ? 'inherit' : 'text.secondary',
+                  /* keep spacing correct when reversing order */
+                  mr: isRTL ? 0 : 1,
+                  ml: isRTL ? 1 : 0,
                 }}
               >
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={item.text}
+                primary={t(`app.${item.key}`)}
                 primaryTypographyProps={{
                   fontSize: '0.9rem',
                   fontWeight: location.pathname === item.path ? 600 : 400,
+                  textAlign: isRTL ? 'right' : 'left',
                 }}
               />
             </ListItemButton>
@@ -179,22 +206,29 @@ export default function Layout({ children }: LayoutProps) {
         {user ? (
           <ListItemButton
             onClick={handleLogout}
-            sx={{ borderRadius: 2, color: 'error.main' }}
+            sx={{ 
+              borderRadius: 2, 
+              color: 'error.main',
+              flexDirection: isRTL ? 'row-reverse' : 'row',
+            }}
           >
-            <ListItemIcon sx={{ minWidth: 40, color: 'error.main' }}>
+            <ListItemIcon sx={{ minWidth: 40, color: 'error.main', mr: isRTL ? 0 : 1, ml: isRTL ? 1 : 0 }}>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText primary="Logout" />
+            <ListItemText primary={t('app.logout')} primaryTypographyProps={{ textAlign: isRTL ? 'right' : 'left' }} />
           </ListItemButton>
         ) : (
           <ListItemButton
             onClick={() => handleNavigation('/login')}
-            sx={{ borderRadius: 2 }}
+            sx={{ 
+              borderRadius: 2,
+              flexDirection: isRTL ? 'row-reverse' : 'row',
+            }}
           >
-            <ListItemIcon sx={{ minWidth: 40 }}>
+            <ListItemIcon sx={{ minWidth: 40, mr: isRTL ? 0 : 1, ml: isRTL ? 1 : 0 }}>
               <LoginIcon />
             </ListItemIcon>
-            <ListItemText primary="Login" />
+            <ListItemText primary={t('app.login')} primaryTypographyProps={{ textAlign: isRTL ? 'right' : 'left' }} />
           </ListItemButton>
         )}
       </Box>
@@ -202,14 +236,22 @@ export default function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box
+      dir={isRTL ? 'rtl' : 'ltr'}
+      sx={{
+        display: 'flex',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+      }}
+    >
       <AppBar
         position="fixed"
         sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
+          width: '100%',
           bgcolor: 'background.paper',
           color: 'text.primary',
+          zIndex: theme.zIndex.drawer + 2,
         }}
       >
         <Toolbar>
@@ -218,13 +260,40 @@ export default function Layout({ children }: LayoutProps) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            sx={{ [isRTL ? 'ml' : 'mr']: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {menuItems.find((item) => item.path === location.pathname)?.text || 'Dashboard'}
+            {t(`app.${menuItems.find((item) => item.path === location.pathname)?.key || 'dashboard'}`)}
           </Typography>
+          
+          {/* Language Selector */}
+          <IconButton 
+            onClick={handleLangOpen} 
+            sx={{ 
+              [isRTL ? 'ml' : 'mr']: 1,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 2,
+              px: 1.5,
+              fontSize: '0.875rem',
+              fontWeight: 600
+            }}
+          >
+            {isRTL ? 'AR' : 'EN'}
+          </IconButton>
+          <Menu 
+            anchorEl={langAnchor} 
+            open={Boolean(langAnchor)} 
+            onClose={handleLangClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: isRTL ? 'left' : 'right' }}
+          >
+            <MenuItem onClick={()=>changeLang('en')} selected={!isRTL}>EN - English</MenuItem>
+            <MenuItem onClick={()=>changeLang('ar')} selected={isRTL}>AR - عربي</MenuItem>
+          </Menu>
+
           {user && (
             <>
               <IconButton onClick={handleProfileMenuOpen} sx={{ p: 0 }}>
@@ -244,11 +313,11 @@ export default function Layout({ children }: LayoutProps) {
                 onClose={handleProfileMenuClose}
                 anchorOrigin={{
                   vertical: 'bottom',
-                  horizontal: 'right',
+                  horizontal: isRTL ? 'left' : 'right',
                 }}
                 transformOrigin={{
                   vertical: 'top',
-                  horizontal: 'right',
+                  horizontal: isRTL ? 'left' : 'right',
                 }}
               >
                 <MenuItem disabled>
@@ -259,7 +328,7 @@ export default function Layout({ children }: LayoutProps) {
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" />
                   </ListItemIcon>
-                  Logout
+                  {t('app.logout')}
                 </MenuItem>
               </Menu>
             </>
@@ -272,6 +341,7 @@ export default function Layout({ children }: LayoutProps) {
       >
         <Drawer
           variant="temporary"
+          anchor={drawerAnchor}
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
@@ -279,17 +349,52 @@ export default function Layout({ children }: LayoutProps) {
           }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            /* Force the drawer paper to the correct side explicitly to avoid
+               inconsistencies with CSS direction or other overrides. */
+            '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                  left: isRTL ? 'auto' : 0,
+                  right: isRTL ? 0 : 'auto',
+                },
+              /* also strongly enforce paper placement so RTL renders on right */
+              '& .MuiDrawer-paper.MuiDrawer-paperAnchorRight': {
+                left: 'auto !important',
+                right: 0,
+              },
+              '& .MuiDrawer-paper.MuiDrawer-paperAnchorLeft': {
+                right: 'auto !important',
+                left: 0,
+              },
           }}
+          PaperProps={{ sx: { position: 'fixed', top: '64px', height: 'calc(100% - 64px)', left: isRTL ? 'auto' : 0, right: isRTL ? 0 : 'auto' } }}
         >
           {drawer}
         </Drawer>
         <Drawer
+          anchor={drawerAnchor}
           variant="permanent"
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                  left: isRTL ? 'auto' : 0,
+                  right: isRTL ? 0 : 'auto',
+                },
+              /* enforce placement rules for permanent drawer */
+              '& .MuiDrawer-paper.MuiDrawer-paperAnchorRight': {
+                left: 'auto !important',
+                right: 0,
+              },
+              '& .MuiDrawer-paper.MuiDrawer-paperAnchorLeft': {
+                right: 'auto !important',
+                left: 0,
+              },
+              /* remove root overrides - instead we'll explicitly position the paper via PaperProps */
           }}
+           /* permanent drawer should remain in normal flow so it pushes main content
+             (when permanent, don't use fixed positioning - let flexbox & nav width reserve the space) */
           open
         >
           {drawer}
@@ -300,8 +405,14 @@ export default function Layout({ children }: LayoutProps) {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
           mt: '64px',
+          /* let flexbox handle width; nav Box provides the reserved drawer width */
+          width: 'auto',
+          /* Reserve space for the permanent drawer on the correct side
+             - LTR: drawer on left, so main content needs NO left margin (drawer takes space)
+             - RTL: drawer on right, so main content needs NO right margin (drawer takes space)
+             The margin is already handled by flexbox row-reverse, so we don't need extra margins
+          */
         }}
       >
         {children}
@@ -309,3 +420,4 @@ export default function Layout({ children }: LayoutProps) {
     </Box>
   );
 }
+

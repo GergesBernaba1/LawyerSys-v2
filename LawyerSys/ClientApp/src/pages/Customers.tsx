@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Card,
@@ -41,6 +42,7 @@ type UserDto = { id: number; fullName?: string; userName?: string };
 type Customer = { id: number; usersId: number; user?: UserDto };
 
 export default function Customers() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
@@ -62,7 +64,7 @@ export default function Customers() {
       setItems(customersRes.data);
       setUsers(usersRes.data);
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to load data', severity: 'error' });
+      setSnackbar({ open: true, message: t('customers.failedLoad'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ export default function Customers() {
 
   async function create() {
     if (!selectedUser) {
-      setSnackbar({ open: true, message: 'Please select a user', severity: 'error' });
+      setSnackbar({ open: true, message: t('customers.pleaseSelectUser'), severity: 'error' });
       return;
     }
     try {
@@ -82,20 +84,20 @@ export default function Customers() {
       await load();
       setSelectedUser('');
       setOpenDialog(false);
-      setSnackbar({ open: true, message: 'Customer created successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('customers.customerCreated'), severity: 'success' });
     } catch (err: any) {
-      setSnackbar({ open: true, message: err?.response?.data?.message ?? 'Failed to create customer', severity: 'error' });
+      setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedCreate'), severity: 'error' });
     }
   }
 
   async function remove(id: number) {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
+    if (!confirm(t('customers.confirmDelete'))) return;
     try {
       await api.delete(`/Customers/${id}`);
       await load();
-      setSnackbar({ open: true, message: 'Customer deleted successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('customers.customerDeleted'), severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to delete customer', severity: 'error' });
+      setSnackbar({ open: true, message: t('customers.failedDelete'), severity: 'error' });
     }
   }
 
@@ -106,17 +108,17 @@ export default function Customers() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <PeopleIcon sx={{ fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h5" fontWeight={600}>
-            Customers Management
+            {t('customers.management')}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh">
+          <Tooltip title={t('cases.refresh')}>
             <IconButton onClick={load} disabled={loading}>
               <RefreshIcon />
             </IconButton>
           </Tooltip>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDialog(true)}>
-            New Customer
+            {t('customers.newCustomer')}
           </Button>
         </Box>
       </Box>
@@ -125,7 +127,7 @@ export default function Customers() {
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ py: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            Total Customers: <strong>{items.length}</strong>
+            {t('customers.totalCustomers')}: <strong>{items.length}</strong>
           </Typography>
         </CardContent>
       </Card>
@@ -136,9 +138,9 @@ export default function Customers() {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>User ID</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>{t('customers.customer')}</TableCell>
+              <TableCell>{t('customers.userId')}</TableCell>
+              <TableCell align="right">{t('cases.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -157,9 +159,9 @@ export default function Customers() {
                 <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
                   <Box sx={{ color: 'text.secondary' }}>
                     <PeopleIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                    <Typography>No customers found</Typography>
+                    <Typography>{t('customers.noCustomers')}</Typography>
                     <Button variant="contained" size="small" sx={{ mt: 2 }} onClick={() => setOpenDialog(true)}>
-                      Create First Customer
+                      {t('customers.createFirst')}
                     </Button>
                   </Box>
                 </TableCell>
@@ -180,7 +182,7 @@ export default function Customers() {
                   </TableCell>
                   <TableCell>{item.usersId}</TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Delete">
+                    <Tooltip title={t('app.delete')}>
                       <IconButton color="error" onClick={() => remove(item.id)}>
                         <DeleteIcon />
                       </IconButton>
@@ -195,13 +197,13 @@ export default function Customers() {
 
       {/* Create Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Customer</DialogTitle>
+        <DialogTitle>{t('customers.createNew')}</DialogTitle>
         <DialogContent>
           <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Select User</InputLabel>
+            <InputLabel>{t('customers.selectUser')}</InputLabel>
             <Select
               value={selectedUser}
-              label="Select User"
+              label={t('customers.selectUser')}
               onChange={(e) => setSelectedUser(Number(e.target.value) || '')}
             >
               <MenuItem value="">
@@ -216,9 +218,9 @@ export default function Customers() {
           </FormControl>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={() => setOpenDialog(false)}>{t('app.cancel')}</Button>
           <Button variant="contained" onClick={create} disabled={!selectedUser}>
-            Create
+            {t('app.create')}
           </Button>
         </DialogActions>
       </Dialog>

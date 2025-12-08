@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { ThemeProvider, CssBaseline } from '@mui/material'
-import theme from './theme'
+import getTheme from './theme'
+import i18n from './i18n'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -23,6 +24,25 @@ import Governments from './pages/Governments'
 import { AuthProvider } from './services/auth'
 
 export default function App() {
+  const [lng, setLng] = useState(i18n.language || 'en')
+  
+  useEffect(() => {
+    const onChange = (l:string) => {
+      setLng(l)
+      const dir = l.startsWith('ar') ? 'rtl' : 'ltr'
+      document.documentElement.dir = dir
+      document.body.dir = dir
+    }
+    i18n.on('languageChanged', onChange)
+    // Set initial direction
+    const initialDir = lng.startsWith('ar') ? 'rtl' : 'ltr'
+    document.documentElement.dir = initialDir
+    document.body.dir = initialDir
+    return () => { i18n.off('languageChanged', onChange) }
+  }, [])
+
+  const theme = getTheme(lng.startsWith('ar') ? 'rtl' : 'ltr')
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

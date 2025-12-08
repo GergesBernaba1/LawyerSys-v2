@@ -26,7 +26,8 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function Files() {
-  const [items, setItems] = useState<FileDto[]>([]);
+  const { t } = useTranslation();
+  const [items, setItems] = useState<FileItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | undefined>();
   const [code, setCode] = useState('');
@@ -39,7 +40,7 @@ export default function Files() {
       const r = await api.get('/Files');
       setItems(r.data);
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to load files', severity: 'error' });
+      setSnackbar({ open: true, message: t('files.failedLoad'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -68,13 +69,13 @@ export default function Files() {
   }
 
   async function remove(id: number) {
-    if (!confirm('Delete file?')) return;
+    if (!confirm(t('files.confirmDelete'))) return;
     try {
       await api.delete(`/Files/${id}`);
       await load();
-      setSnackbar({ open: true, message: 'File deleted', severity: 'success' });
+      setSnackbar({ open: true, message: t('files.fileDeleted'), severity: 'success' });
     } catch (err) {
-      setSnackbar({ open: true, message: 'Failed to delete', severity: 'error' });
+      setSnackbar({ open: true, message: t('files.failedDelete'), severity: 'error' });
     }
   }
 
@@ -83,11 +84,11 @@ export default function Files() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <FolderIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h5" fontWeight={600}>Files Management</Typography>
+          <Typography variant="h5" fontWeight={600}>{t('files.management')}</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Refresh"><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
-          <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={() => setOpenDialog(true)}>Upload File</Button>
+          <Tooltip title={t('cases.refresh')}><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
+          <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={() => setOpenDialog(true)}>{t('files.upload')}</Button>
         </Box>
       </Box>
 
@@ -134,7 +135,7 @@ export default function Files() {
       </TableContainer>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Upload New File</DialogTitle>
+        <DialogTitle>{t('files.upload')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12 }}>
