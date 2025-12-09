@@ -10,7 +10,8 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('lawyersys-token')
+  // guard for server-side rendering — localStorage only available in browser
+  const token = (typeof window !== 'undefined') ? localStorage.getItem('lawyersys-token') : null
   if (token && config.headers) config.headers.Authorization = `Bearer ${token}`
   return config
 })

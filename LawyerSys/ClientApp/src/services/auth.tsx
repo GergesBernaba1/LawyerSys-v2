@@ -33,7 +33,14 @@ function parseJwt(token: string): any {
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('lawyersys-token'))
+  // avoid reading localStorage during SSR — initialize on client
+  const [token, setToken] = useState<string | null>(null)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lawyersys-token')
+      if (saved) setToken(saved)
+    }
+  }, [])
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {

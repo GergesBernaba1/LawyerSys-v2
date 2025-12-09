@@ -1,14 +1,12 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { CacheProvider } from '@emotion/react'
 import createCache from '@emotion/cache'
 import rtlPlugin from 'stylis-plugin-rtl'
-import { BrowserRouter } from 'react-router-dom'
-import App from '../src/App'
+import dynamic from 'next/dynamic'
 import i18n from '../src/i18n'
 
-const cacheLtr = createCache({ key: 'css', prepend: true })
-const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [rtlPlugin], prepend: true })
+// create caches inside the client component so no browser APIs run at module-eval time
 
 export default function Page() {
   // detect locale prefix (e.g. /ar/... or /en/...) — default to 'en'
@@ -42,13 +40,14 @@ export default function Page() {
     setBasename(m ? `/${m[1]}` : '')
   }, [])
 
-  const activeCache = lng.startsWith('ar') ? cacheRtl : cacheLtr
+  const activeCache = useMemo(() => createCache({ key: lng.startsWith('ar') ? 'muirtl' : 'css', stylisPlugins: lng.startsWith('ar') ? [rtlPlugin] : [], prepend: true }), [lng])
+
+  // ensure the SPA bundle (react-router, document usage) is only loaded client-side
+  const AppClient = dynamic(() => import('../src/client/App.client'), { ssr: false })
 
   return (
     <CacheProvider value={activeCache}>
-      <BrowserRouter basename={basename}>
-        <App />
-      </BrowserRouter>
+      <AppClient basename={basename} />
     </CacheProvider>
   )
 }
