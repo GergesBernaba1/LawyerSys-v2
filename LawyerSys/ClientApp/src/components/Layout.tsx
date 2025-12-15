@@ -88,10 +88,19 @@ export default function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
+  const [lng, setLng] = useState(i18n.language || 'ar')
+
+  // keep layout reactive to language changes so elements like the drawer
+  // reposition immediately when switching between LTR/RTL
+  React.useEffect(() => {
+    const onChange = (l: string) => setLng(l)
+    i18n.on('languageChanged', onChange)
+    return () => { i18n.off('languageChanged', onChange) }
+  }, [i18n])
   // prefer using theme direction (keeps in sync with ThemeProvider) but
   // fall back to i18n language or the document dir attribute if theme isn't updated yet
   const docDir = typeof document !== 'undefined' ? document.documentElement.getAttribute('dir') : null
-  const isRTL = theme.direction === 'rtl' || i18n.language.startsWith('ar') || docDir === 'rtl'
+  const isRTL = theme.direction === 'rtl' || (lng && lng.startsWith('ar')) || docDir === 'rtl'
   // Use the effective isRTL boolean so drawer anchor follows the same
   // runtime detection (i18n or theme) and doesn't get out of sync.
   const drawerAnchor = isRTL ? 'right' : 'left'
@@ -162,8 +171,6 @@ export default function Layout({ children }: LayoutProps) {
               onClick={() => handleNavigation(item.path)}
               sx={{
                 mx: 1,
-                /* mirror icon/text order on RTL */
-                flexDirection: isRTL ? 'row-reverse' : 'row',
                 borderRadius: 2,
                 '&.Mui-selected': {
                   backgroundColor: 'primary.light',
@@ -208,7 +215,6 @@ export default function Layout({ children }: LayoutProps) {
             sx={{ 
               borderRadius: 2, 
               color: 'error.main',
-              flexDirection: isRTL ? 'row-reverse' : 'row',
             }}
           >
             <ListItemIcon sx={{ minWidth: 40, color: 'error.main', mr: isRTL ? 0 : 1, ml: isRTL ? 1 : 0 }}>
@@ -221,7 +227,6 @@ export default function Layout({ children }: LayoutProps) {
             onClick={() => handleNavigation('/login')}
             sx={{ 
               borderRadius: 2,
-              flexDirection: isRTL ? 'row-reverse' : 'row',
             }}
           >
             <ListItemIcon sx={{ minWidth: 40, mr: isRTL ? 0 : 1, ml: isRTL ? 1 : 0 }}>
@@ -338,7 +343,7 @@ export default function Layout({ children }: LayoutProps) {
                   <Box component="span" sx={{ fontWeight: 700 }}>{docDir || theme.direction}</Box>
                   <Box component="span" sx={{ opacity: 0.6 }}>|</Box>
                   <Box component="span" sx={{ opacity: 0.85 }}>i18n:</Box>
-                  <Box component="span" sx={{ fontWeight: 700 }}>{i18n.language}</Box>
+                  <Box component="span" sx={{ fontWeight: 700 }}>{lng}</Box>
                   <Box component="span" sx={{ opacity: 0.6 }}>|</Box>
                   <Box component="span" sx={{ opacity: 0.85 }}>isRTL:</Box>
                   <Box component="span" sx={{ fontWeight: 700 }}>{isRTL ? 'true' : 'false'}</Box>
@@ -353,6 +358,7 @@ export default function Layout({ children }: LayoutProps) {
         sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
       >
         <Drawer
+          key={`drawer-temp-${isRTL ? 'rtl' : 'ltr'}`}
           variant="temporary"
           anchor={drawerAnchor}
           open={mobileOpen}
@@ -385,6 +391,7 @@ export default function Layout({ children }: LayoutProps) {
           {drawer}
         </Drawer>
         <Drawer
+          key={`drawer-perm-${isRTL ? 'rtl' : 'ltr'}`}
           anchor={drawerAnchor}
           variant="permanent"
           sx={{

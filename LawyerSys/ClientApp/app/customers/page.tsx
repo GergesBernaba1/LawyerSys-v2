@@ -38,9 +38,9 @@ import {
   Refresh as RefreshIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
-import api from '../../../src/services/api';
+import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '../../../src/services/auth';
+import { useAuth } from '../../src/services/auth';
 
 type UserDto = { id: number; fullName?: string; userName?: string };
 type Customer = { id: number; usersId: number; user?: UserDto };

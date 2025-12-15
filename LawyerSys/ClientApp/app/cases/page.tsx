@@ -35,9 +35,9 @@ import {
   Gavel as GavelIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import api from '../../../src/services/api';
+import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '../../../src/services/auth';
+import { useAuth } from '../../src/services/auth';
 
 type CaseItem = {
   id: number;

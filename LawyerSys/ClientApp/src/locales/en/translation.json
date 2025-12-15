@@ -59,10 +59,13 @@
     "quickActions": "Quick Actions",
     "newCase": "New Case",
     "newCustomer": "New Customer",
+    "viewAll": "View All",
     "viewBilling": "View Billing",
     "adminTasks": "Admin Tasks",
     "upcomingSitings": "Upcoming Sitings",
     "statistics": "Statistics"
+  ,
+    "trendsComingSoon": "Trends coming soon"
   },
   "cases": {
     "title": "Cases",

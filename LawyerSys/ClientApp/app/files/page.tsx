@@ -12,9 +12,9 @@ import {
   CloudUpload as CloudUploadIcon, Download as DownloadIcon, Folder as FolderIcon,
   Add as AddIcon, Delete as DeleteIcon, Refresh as RefreshIcon, InsertDriveFile as FileIcon
 } from '@mui/icons-material';
-import api from '../../../src/services/api';
+import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '../../../src/services/auth';
+import { useAuth } from '../../src/services/auth';
 
 type FileDto = { id: number; path?: string; code?: string; type?: boolean };
 

@@ -59,10 +59,13 @@
     "quickActions": "إجراءات سريعة",
     "newCase": "قضية جديدة",
     "newCustomer": "عميل جديد",
+    "viewAll": "عرض الكل",
     "viewBilling": "عرض الفواتير",
     "adminTasks": "مهام الإدارة",
     "upcomingSitings": "الجلسات القادمة",
     "statistics": "الإحصائيات"
+  ,
+    "trendsComingSoon": "المخططات - قريباً"
   },
   "cases": {
     "title": "القضايا",

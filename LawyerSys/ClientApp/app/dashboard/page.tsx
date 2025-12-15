@@ -32,8 +32,8 @@ import {
   ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import { useRouter, useParams } from 'next/navigation';
-import api from '../../../src/services/api';
-import { useAuth } from '../../../src/services/auth';
+import api from '../../src/services/api';
+import { useAuth } from '../../src/services/auth';
 
 function StatCard({ title, value, icon, color, loading, onClick }: any) {
   return (

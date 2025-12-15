@@ -18,21 +18,33 @@ export default function CatchAll() {
     return () => { i18n.off('languageChanged', onChange) }
   }, [])
 
+  // For quick local testing: allow forcing a language via `?lang=ar|en` query param
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      const q = url.searchParams.get('lang')
+      if (q && (q === 'ar' || q === 'en')) {
+        i18n.changeLanguage(q)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr')
     }
   }, [lng])
 
-  const activeCache = useMemo(
-    () =>
-      createCache({
-        key: lng.startsWith('ar') ? 'muirtl' : 'css',
-        stylisPlugins: lng.startsWith('ar') ? [rtlPlugin] : [],
-        prepend: true,
-      }),
-    [lng]
-  )
+  const activeCache = useMemo(() => {
+    // stylis-plugin-rtl ships as CommonJS; normalize default export to a function
+    // so it works both in dev (ESM interop) and prod (CJS).
+    const plugin: any = (rtlPlugin && (rtlPlugin as any).default) ? (rtlPlugin as any).default : rtlPlugin
+    return createCache({
+      key: lng.startsWith('ar') ? 'muirtl' : 'css',
+      stylisPlugins: lng.startsWith('ar') ? [plugin] : [],
+      prepend: true,
+    })
+  }, [lng])
 
   return (
     <CacheProvider value={activeCache}>

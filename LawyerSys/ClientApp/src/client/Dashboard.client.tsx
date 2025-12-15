@@ -153,7 +153,7 @@ export default function Dashboard() {
                 <Paper sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="h6">{t('dashboard.quickActions')}</Typography>
-                    <Button variant="text" size="small" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/cases')}>{t('dashboard.viewAll')}</Button>
+                    <Button variant="text" size="small" endIcon={<ArrowForwardIcon />} onClick={() => navigate('/cases')}>{t('app.viewAll')}</Button>
                   </Box>
                   <Grid container spacing={2}>
                     {quickActions.map((q, i) => (
