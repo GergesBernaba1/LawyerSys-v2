@@ -9,14 +9,14 @@ import i18n from '../src/i18n'
 // create caches inside the client component so no browser APIs run at module-eval time
 
 export default function Page() {
-  // detect locale prefix (e.g. /ar/... or /en/...) — default to 'en'
+  // detect locale prefix (e.g. /ar/... or /en/...) — default to 'ar'
   const detectLocaleFromPath = () => {
-    if (typeof window === 'undefined') return 'en'
+    if (typeof window === 'undefined') return 'ar'
     const m = window.location.pathname.match(/^\/(en|ar)(?:\/|$)/)
-    return m ? m[1] : 'en'
+    return m ? m[1] : 'ar'
   }
 
-  const [lng, setLng] = useState(() => detectLocaleFromPath() || i18n.language || 'en')
+  const [lng, setLng] = useState(() => detectLocaleFromPath() || i18n.language || 'ar')
   const [basename, setBasename] = useState(() => {
     if (typeof window === 'undefined') return ''
     const m = window.location.pathname.match(/^\/(en|ar)(?:\/|$)/)

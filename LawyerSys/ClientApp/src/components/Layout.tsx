@@ -107,20 +107,9 @@ export default function Layout({ children }: LayoutProps) {
   const handleLangOpen = (event: React.MouseEvent<HTMLElement>) => setLangAnchor(event.currentTarget)
   const handleLangClose = () => setLangAnchor(null)
   const changeLang = (lng: string) => {
-    // set document direction immediately so UI reacts right away
     try { document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr') } catch {}
-
-    // compute new route by replacing existing /en or /ar prefix (if present)
-    let path = '/'
-    try { path = window.location.pathname } catch {}
-    const withoutPrefix = path.replace(/^\/(en|ar)/, '') || '/'
-    const newPath = `/${lng}${withoutPrefix}`.replace(/\/+/g, '/')
-
     i18n.changeLanguage(lng);
     handleLangClose();
-
-    // reload the page so Next's locale routing and basename update correctly
-    try { window.location.href = newPath } catch (e) { window.location.pathname = newPath }
   }
 
   const handleProfileMenuClose = () => {
@@ -134,25 +123,6 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const handleNavigation = (path: string) => {
-    // For progressively-migrated pages we want to navigate to Next's native app routes
-    // so that the app router serves those pages (full page navigation). Keep SPA
-    // navigation for everything else.
-    const migratedMap: Record<string, string> = {
-      '/': '/dashboard',
-      '/cases': '/cases',
-      '/customers': '/customers',
-      '/employees': '/employees',
-      '/files': '/files',
-    }
-
-    const mapped = migratedMap[path];
-    if (mapped) {
-      const lng = i18n.language?.startsWith('ar') ? 'ar' : 'en'
-      const newPath = `/${lng}${mapped}`.replace(/\/+/g, '/');
-      try { window.location.href = newPath } catch (e) { window.location.pathname = newPath }
-      return
-    }
-
     if (isMobile) {
       setMobileOpen(false);
     }
@@ -463,4 +433,3 @@ export default function Layout({ children }: LayoutProps) {
     </Box>
   );
 }
-

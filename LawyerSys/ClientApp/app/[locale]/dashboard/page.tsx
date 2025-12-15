@@ -76,7 +76,7 @@ export default function DashboardPageClient() {
   const { t } = useTranslation();
   const router = useRouter();
   const params = useParams() as { locale?: string } | undefined;
-  const locale = params?.locale || 'en';
+  const locale = params?.locale || 'ar';
   const { isAuthenticated, user } = useAuth();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');

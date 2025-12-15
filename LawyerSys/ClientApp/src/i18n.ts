@@ -12,7 +12,7 @@ const resources = {
 
 const initOptions: any = {
   resources,
-  fallbackLng: 'en',
+  fallbackLng: 'ar',
   debug: false,
   interpolation: { escapeValue: false },
   detection: {

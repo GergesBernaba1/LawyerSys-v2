@@ -34,7 +34,7 @@ export default function FilesPageClient() {
   const { t } = useTranslation();
   const theme = useTheme();
   const params = useParams() as { locale?: string } | undefined;
-  const locale = params?.locale || 'en';
+  const locale = params?.locale || 'ar';
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated } = useAuth();

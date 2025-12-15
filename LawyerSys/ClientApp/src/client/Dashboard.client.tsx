@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -115,8 +115,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <BrowserRouter>
-      <Box dir={isRTL ? 'rtl' : 'ltr'}>
+    <Box dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Welcome Section */}
         <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #42a5f5 100%)', color: 'white', borderRadius: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -195,6 +194,5 @@ export default function Dashboard() {
           </Grid>
         </Grid>
       </Box>
-    </BrowserRouter>
   );
 }

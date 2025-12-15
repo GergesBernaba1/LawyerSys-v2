@@ -10,7 +10,7 @@ import i18n from '../i18n'
 
 interface ProvidersProps { locale?: string; children: React.ReactNode }
 
-export default function Providers({ locale = 'en', children }: ProvidersProps) {
+export default function Providers({ locale = 'ar', children }: ProvidersProps) {
   const isRTL = locale.startsWith('ar')
   const cache = useMemo(() => createCache({ key: isRTL ? 'muirtl' : 'css', stylisPlugins: isRTL ? [rtlPlugin] : [], prepend: true }), [isRTL])
 

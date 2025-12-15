@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css'
 import i18n from './i18n'
@@ -12,7 +11,7 @@ const cacheLtr = createCache({ key: 'css', prepend: true })
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [rtlPlugin], prepend: true })
 
 function Root() {
-  const [lng, setLng] = useState(i18n.language || 'en')
+  const [lng, setLng] = useState(i18n.language || 'ar')
 
   useEffect(() => {
     const onChange = (l: string) => setLng(l)
@@ -29,9 +28,7 @@ function Root() {
   return (
     <React.StrictMode>
       <CacheProvider value={activeCache}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <App />
       </CacheProvider>
     </React.StrictMode>
   )

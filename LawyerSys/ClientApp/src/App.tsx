@@ -24,7 +24,7 @@ import Governments from './pages/Governments'
 import { AuthProvider } from './services/auth'
 
 export default function App() {
-  const [lng, setLng] = useState(i18n.language || 'en')
+  const [lng, setLng] = useState(i18n.language || 'ar')
   
   useEffect(() => {
     const onChange = (l:string) => {
