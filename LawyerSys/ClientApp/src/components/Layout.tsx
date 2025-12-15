@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Box,
   Drawer,
@@ -83,8 +83,8 @@ export default function Layout({ children }: LayoutProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
@@ -119,14 +119,14 @@ export default function Layout({ children }: LayoutProps) {
   const handleLogout = () => {
     logout();
     handleProfileMenuClose();
-    navigate('/login');
+    router.push('/login');
   };
 
   const handleNavigation = (path: string) => {
     if (isMobile) {
       setMobileOpen(false);
     }
-    navigate(path);
+    router.push(path);
   };
 
   const drawer = (
@@ -158,7 +158,7 @@ export default function Layout({ children }: LayoutProps) {
         {menuItems.map((item) => (
           <ListItem key={item.key} disablePadding>
             <ListItemButton
-              selected={location.pathname === item.path}
+              selected={pathname === item.path}
               onClick={() => handleNavigation(item.path)}
               sx={{
                 mx: 1,
@@ -180,7 +180,7 @@ export default function Layout({ children }: LayoutProps) {
               <ListItemIcon
                 sx={{
                   minWidth: 40,
-                  color: location.pathname === item.path ? 'inherit' : 'text.secondary',
+                  color: pathname === item.path ? 'inherit' : 'text.secondary',
                   /* keep spacing correct when reversing order */
                   mr: isRTL ? 0 : 1,
                   ml: isRTL ? 1 : 0,
@@ -192,7 +192,7 @@ export default function Layout({ children }: LayoutProps) {
                 primary={t(`app.${item.key}`)}
                 primaryTypographyProps={{
                   fontSize: '0.9rem',
-                  fontWeight: location.pathname === item.path ? 600 : 400,
+                  fontWeight: pathname === item.path ? 600 : 400,
                   textAlign: isRTL ? 'right' : 'left',
                 }}
               />
@@ -264,7 +264,7 @@ export default function Layout({ children }: LayoutProps) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {t(`app.${menuItems.find((item) => item.path === location.pathname)?.key || 'dashboard'}`)}
+            {t(`app.${menuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
           </Typography>
           
           {/* Language Selector */}

@@ -6,8 +6,8 @@ export const metadata = {
   description: 'Next.js front-end for LawyerSys',
 }
 
-export default function RootLayout({ children, params }: { children: React.ReactNode; params?: { locale?: string } }) {
-  const locale = params?.locale || 'ar'
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = 'ar'
 
   return (
     <html lang={locale}>

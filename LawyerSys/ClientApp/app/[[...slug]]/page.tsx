@@ -8,9 +8,8 @@ import i18n from '../../src/i18n'
 
 const AppClient = dynamic(() => import('../../src/client/App.client'), { ssr: false })
 
-export default function DefaultCatchAll() {
-  const defaultLocale = 'ar'
-  const [lng, setLng] = useState(defaultLocale)
+export default function CatchAll() {
+  const [lng, setLng] = useState(i18n.language || 'ar')
   const basename = ''
 
   useEffect(() => {
