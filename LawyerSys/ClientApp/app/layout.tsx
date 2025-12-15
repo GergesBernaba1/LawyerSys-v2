@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const locale = 'ar'
 
   return (
-    <html lang={locale}>
+    <html lang={locale} dir={locale.startsWith('ar') ? 'rtl' : 'ltr'}>
       <body>
         <Providers locale={locale}>
           {children}
