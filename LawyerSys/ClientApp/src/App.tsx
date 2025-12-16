@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import getTheme from './theme'
 import i18n from './i18n'
-import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import { AuthProvider } from './services/auth'
 
@@ -30,9 +29,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <Layout>
-          <Dashboard />
-        </Layout>
+        <Dashboard />
       </AuthProvider>
     </ThemeProvider>
   )

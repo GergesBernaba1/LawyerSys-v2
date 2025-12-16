@@ -5,6 +5,7 @@ import createCache from '@emotion/cache'
 import rtlPlugin from 'stylis-plugin-rtl'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import getTheme from '../theme'
+import Layout from '../components/Layout'
 import { AuthProvider } from '../services/auth'
 import i18n from '../i18n'
 
@@ -34,7 +35,9 @@ export default function Providers({ locale: initialLocale = 'ar', children }: Pr
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          {children}
+          <Layout>
+            {children}
+          </Layout>
         </AuthProvider>
       </ThemeProvider>
     </CacheProvider>

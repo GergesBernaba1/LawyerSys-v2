@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -16,6 +17,9 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Button,
+  Tooltip,
+  Breadcrumbs,
   useTheme,
   useMediaQuery,
   Collapse,
@@ -43,6 +47,9 @@ import {
   ExpandMore,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
+  NavigateNext as NavigateNextIcon,
+  NavigateBefore as NavigateBeforeIcon,
+  Home as HomeIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
@@ -138,6 +145,16 @@ export default function Layout({ children }: LayoutProps) {
     router.push(path);
   };
 
+  const collapsedWidth = 72;
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    try { return localStorage.getItem('layout.sidebarCollapsed') === 'true' }
+    catch { return false }
+  });
+
+  React.useEffect(() => {
+    try { localStorage.setItem('layout.sidebarCollapsed', collapsed ? 'true' : 'false') } catch {}
+  }, [collapsed]);
+
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box
@@ -151,89 +168,117 @@ export default function Layout({ children }: LayoutProps) {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <GavelIcon sx={{ color: 'primary.main', fontSize: 32 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            LawyerSys
-          </Typography>
+          {!collapsed && (
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
+              LawyerSys
+            </Typography>
+          )}
         </Box>
-        {isMobile && (
-          <IconButton onClick={handleDrawerToggle}>
-            {/* use a mirrored icon when RTL */}
-            {isRTL ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* collapse toggle on md+ */}
+          <IconButton
+            onClick={() => setCollapsed(!collapsed)}
+            sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+            size="small"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isRTL ? (collapsed ? <ChevronLeftIcon /> : <ChevronRightIcon />) : (collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)}
           </IconButton>
-        )}
+          {/* mobile only close button */}
+          {isMobile && (
+            <IconButton onClick={handleDrawerToggle}>
+              {/* use a mirrored icon when RTL */}
+              {isRTL ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          )}
+        </Box>
       </Box>
       <Divider />
       <List sx={{ flex: 1, py: 2 }}>
         {menuItems.map((item) => (
           <ListItem key={item.key} disablePadding>
-            <ListItemButton
-              selected={pathname === item.path}
-              onClick={() => handleNavigation(item.path)}
-              sx={{
-                mx: 1,
-                borderRadius: 2,
-                '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  color: 'white',
-                  '& .MuiListItemIcon-root': {
-                    color: 'white',
-                  },
-                  '&:hover': {
-                    backgroundColor: 'primary.main',
-                  },
-                },
-              }}
-            >
-              <ListItemIcon
+            <Tooltip title={t(`app.${item.key}`)} placement={isRTL ? 'right' : 'left'} disableHoverListener={!collapsed}>
+              <ListItemButton
+                selected={pathname === item.path}
+                onClick={() => handleNavigation(item.path)}
                 sx={{
-                  minWidth: 40,
-                  color: pathname === item.path ? 'inherit' : 'text.secondary',
-                  /* keep spacing correct when reversing order */
-                  mr: isRTL ? 0 : 1,
-                  ml: isRTL ? 1 : 0,
+                  mx: collapsed ? 0 : 1,
+                  borderRadius: 2,
+                  justifyContent: collapsed ? 'center' : undefined,
+                  px: collapsed ? 1.5 : undefined,
+                  '&.Mui-selected': {
+                    backgroundColor: 'primary.light',
+                    color: 'white',
+                    '& .MuiListItemIcon-root': {
+                      color: 'white',
+                    },
+                    '&:hover': {
+                      backgroundColor: 'primary.main',
+                    },
+                  },
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={t(`app.${item.key}`)}
-                primaryTypographyProps={{
-                  fontSize: '0.9rem',
-                  fontWeight: pathname === item.path ? 600 : 400,
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
-              />
-            </ListItemButton>
+                <ListItemIcon
+                  sx={{
+                    minWidth: collapsed ? 'auto' : 40,
+                    color: pathname === item.path ? 'inherit' : 'text.secondary',
+                    /* keep spacing correct when reversing order */
+                    mr: isRTL ? 0 : (collapsed ? 0 : 1),
+                    ml: isRTL ? (collapsed ? 0 : 1) : 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {!collapsed && (
+                  <ListItemText
+                    primary={t(`app.${item.key}`)}
+                    primaryTypographyProps={{
+                      fontSize: '0.9rem',
+                      fontWeight: pathname === item.path ? 600 : 400,
+                      textAlign: isRTL ? 'right' : 'left',
+                    }}
+                  />
+                )}
+              </ListItemButton>
+            </Tooltip>
           </ListItem>
         ))}
       </List>
       <Divider />
       <Box sx={{ p: 2 }}>
         {user ? (
-          <ListItemButton
-            onClick={handleLogout}
-            sx={{ 
-              borderRadius: 2, 
-              color: 'error.main',
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 40, color: 'error.main', mr: isRTL ? 0 : 1, ml: isRTL ? 1 : 0 }}>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary={t('app.logout')} primaryTypographyProps={{ textAlign: isRTL ? 'right' : 'left' }} />
-          </ListItemButton>
+          <Tooltip title={t('app.logout')} placement={isRTL ? 'right' : 'left'} disableHoverListener={!collapsed}>
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{ 
+                borderRadius: 2, 
+                color: 'error.main',
+                justifyContent: collapsed ? 'center' : undefined,
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 40, color: 'error.main', mr: isRTL ? 0 : (collapsed ? 0 : 1), ml: isRTL ? (collapsed ? 0 : 1) : 0 }}>
+                <LogoutIcon />
+              </ListItemIcon>
+              {!collapsed && <ListItemText primary={t('app.logout')} primaryTypographyProps={{ textAlign: isRTL ? 'right' : 'left' }} />}
+            </ListItemButton>
+          </Tooltip>
         ) : (
-          <ListItemButton
-            onClick={() => handleNavigation('/login')}
-            sx={{ 
-              borderRadius: 2,
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 40, mr: isRTL ? 0 : 1, ml: isRTL ? 1 : 0 }}>
-              <LoginIcon />
-            </ListItemIcon>
-            <ListItemText primary={t('app.login')} primaryTypographyProps={{ textAlign: isRTL ? 'right' : 'left' }} />
-          </ListItemButton>
+          <Tooltip title={t('app.login')} placement={isRTL ? 'right' : 'left'} disableHoverListener={!collapsed}>
+            <ListItemButton
+              onClick={() => handleNavigation('/login')}
+              sx={{ 
+                borderRadius: 2,
+                justifyContent: collapsed ? 'center' : undefined,
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 40, mr: isRTL ? 0 : (collapsed ? 0 : 1), ml: isRTL ? (collapsed ? 0 : 1) : 0 }}>
+                <LoginIcon />
+              </ListItemIcon>
+              {!collapsed && <ListItemText primary={t('app.login')} primaryTypographyProps={{ textAlign: isRTL ? 'right' : 'left' }} />}
+            </ListItemButton>
+          </Tooltip>
         )}
       </Box>
     </Box>
@@ -244,7 +289,6 @@ export default function Layout({ children }: LayoutProps) {
       dir={isRTL ? 'rtl' : 'ltr'}
       sx={{
         display: 'flex',
-        flexDirection: isRTL ? 'row-reverse' : 'row',
         minHeight: '100vh',
         bgcolor: 'background.default',
       }}
@@ -355,7 +399,10 @@ export default function Layout({ children }: LayoutProps) {
       </AppBar>
       <Box
         component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+        sx={{
+          flexShrink: 0,
+        }}
+        aria-label="sidebar navigation"
       >
         <Drawer
           key={`drawer-temp-${isRTL ? 'rtl' : 'ltr'}`}
@@ -368,57 +415,40 @@ export default function Layout({ children }: LayoutProps) {
           }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            /* Force the drawer paper to the correct side explicitly to avoid
-               inconsistencies with CSS direction or other overrides. */
             '& .MuiDrawer-paper': {
-                  boxSizing: 'border-box',
-                  width: drawerWidth,
-                  left: isRTL ? 'auto' : 0,
-                  right: isRTL ? 0 : 'auto',
-                },
-              /* also strongly enforce paper placement so RTL renders on right */
-              '& .MuiDrawer-paper.MuiDrawer-paperAnchorRight': {
-                left: 'auto !important',
-                right: 0,
-              },
-              '& .MuiDrawer-paper.MuiDrawer-paperAnchorLeft': {
-                right: 'auto !important',
-                left: 0,
-              },
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
           }}
-          PaperProps={{ sx: { position: 'fixed', top: '64px', height: 'calc(100% - 64px)', left: isRTL ? 'auto' : 0, right: isRTL ? 0 : 'auto' } }}
+          PaperProps={{ sx: { position: 'fixed', top: '64px', height: 'calc(100% - 64px)' } }}
         >
           {drawer}
         </Drawer>
-        <Drawer
-          key={`drawer-perm-${isRTL ? 'rtl' : 'ltr'}`}
-          anchor={drawerAnchor}
-          variant="permanent"
+
+        {/* Desktop sidebar - uses CSS logical properties for RTL */}
+        <Box
+          key={`sidebar-perm-${isRTL ? 'rtl' : 'ltr'}`}
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-                  boxSizing: 'border-box',
-                  width: drawerWidth,
-                  left: isRTL ? 'auto' : 0,
-                  right: isRTL ? 0 : 'auto',
-                },
-              /* enforce placement rules for permanent drawer */
-              '& .MuiDrawer-paper.MuiDrawer-paperAnchorRight': {
-                left: 'auto !important',
-                right: 0,
-              },
-              '& .MuiDrawer-paper.MuiDrawer-paperAnchorLeft': {
-                right: 'auto !important',
-                left: 0,
-              },
-              /* remove root overrides - instead we'll explicitly position the paper via PaperProps */
+            position: 'fixed',
+            top: '64px',
+            height: 'calc(100% - 64px)',
+            width: collapsed ? collapsedWidth : drawerWidth,
+            // Use insetInlineStart for RTL-aware positioning
+            insetInlineStart: 0,
+            insetInlineEnd: 'auto',
+            boxSizing: 'border-box',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            backgroundColor: theme.palette.background.paper,
+            // Use borderInlineEnd for RTL-aware border
+            borderInlineEnd: `1px solid ${theme.palette.divider}`,
+            transition: theme.transitions.create('width', { easing: theme.transitions.easing.sharp, duration: theme.transitions.duration.shortest }),
+            zIndex: theme.zIndex.drawer,
           }}
-           /* permanent drawer should remain in normal flow so it pushes main content
-             (when permanent, don't use fixed positioning - let flexbox & nav width reserve the space) */
-          open
         >
           {drawer}
-        </Drawer>
+        </Box>
       </Box>
       <Box
         component="main"
@@ -426,15 +456,41 @@ export default function Layout({ children }: LayoutProps) {
           flexGrow: 1,
           p: 3,
           mt: '64px',
-          /* let flexbox handle width; nav Box provides the reserved drawer width */
-          width: 'auto',
-          /* Reserve space for the permanent drawer on the correct side
-             - LTR: drawer on left, so main content needs NO left margin (drawer takes space)
-             - RTL: drawer on right, so main content needs NO right margin (drawer takes space)
-             The margin is already handled by flexbox row-reverse, so we don't need extra margins
-          */
+          width: { xs: '100%', md: `calc(100% - ${collapsed ? collapsedWidth : drawerWidth}px)` },
+          // Use marginInlineStart for RTL-aware margin
+          marginInlineStart: { xs: 0, md: `${collapsed ? collapsedWidth : drawerWidth}px` },
+          marginInlineEnd: 0,
         }}
       >
+        {/* Breadcrumb Navigation */}
+        <Breadcrumbs
+          separator={isRTL ? <NavigateBeforeIcon fontSize="small" /> : <NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
+          sx={{ mb: 2 }}
+        >
+          <Box
+            component="a"
+            href="/"
+            onClick={(e: React.MouseEvent) => { e.preventDefault(); handleNavigation('/'); }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              color: 'text.secondary',
+              textDecoration: 'none',
+              '&:hover': { color: 'primary.main', textDecoration: 'underline' },
+            }}
+          >
+            <HomeIcon fontSize="small" />
+            {t('app.dashboard')}
+          </Box>
+          {pathname !== '/' && (
+            <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {menuItems.find((item) => item.path === pathname)?.icon}
+              {t(`app.${menuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
+            </Typography>
+          )}
+        </Breadcrumbs>
         {children}
       </Box>
     </Box>
