@@ -386,6 +386,12 @@ export default function Layout({ children }: LayoutProps) {
                   <Typography variant="body2">{user.email}</Typography>
                 </MenuItem>
                 <Divider />
+                <MenuItem onClick={() => {/* TODO: Navigate to profile */}}>
+                  <ListItemIcon>
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  {t('app.profile')}
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" />

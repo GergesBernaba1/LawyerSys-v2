@@ -10,6 +10,7 @@ interface AuthContextValue {
   token: string | null;
   user: User | null;
   login: (user: string, pass: string) => Promise<boolean>;
+  register: (user: string, email: string, pass: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -72,6 +73,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  async function register(userName: string, email: string, pass: string) {
+    try {
+      await api.post('/Account/register', { userName, email, password: pass })
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
   function logout() {
     localStorage.removeItem('lawyersys-token')
     setToken(null)
@@ -81,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, user, login, register, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   )
