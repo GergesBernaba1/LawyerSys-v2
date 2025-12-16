@@ -48,6 +48,24 @@
     "remove": "Remove",
     "update": "Update"
   },
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "invalidCredentials": "Invalid username or password",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account? Sign up"
+  },
+  "register": {
+    "title": "Sign Up",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "passwordMismatch": "Passwords do not match",
+    "registrationFailed": "Registration failed",
+    "signUp": "Sign Up",
+    "haveAccount": "Already have an account? Sign in"
+  },
   "dashboard": {
     "welcomeBack": "Welcome back",
     "subtitle": "Manage your law firm's cases, clients, and documents efficiently.",

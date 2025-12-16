@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -22,6 +23,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -35,6 +37,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -76,6 +79,7 @@ public class AccountController : ControllerBase
     }
 
         [HttpPost("request-password-reset")]
+        [AllowAnonymous]
         public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetRequest model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
@@ -87,6 +91,7 @@ public class AccountController : ControllerBase
         }
 
         [HttpPost("reset-password")]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);

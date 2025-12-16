@@ -7,6 +7,7 @@ using System.Text;
 using LawyerSys.Data;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,7 @@ builder.Services.AddIdentity<ApplicationUser, Microsoft.AspNetCore.Identity.Iden
 {
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
 })
@@ -85,7 +87,7 @@ builder.Services.AddIdentity<ApplicationUser, Microsoft.AspNetCore.Identity.Iden
     .AddDefaultTokenProviders();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var secret = jwtSection.GetValue<string>("Key") ?? "ChangeThisToASecureKey123!";
+var secret = jwtSection.GetValue<string>("Key") ?? "ChangeThisToASecureKeyWithAtLeast32Characters!";
 var key = Encoding.UTF8.GetBytes(secret);
 
 builder.Services.AddAuthentication(options =>
@@ -133,6 +135,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Seed admin user
+await DataSeeder.SeedAdminUser(app.Services);
 
 app.Run();
 

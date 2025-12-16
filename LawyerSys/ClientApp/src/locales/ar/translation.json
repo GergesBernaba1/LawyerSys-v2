@@ -48,6 +48,24 @@
     "remove": "إزالة",
     "update": "تحديث"
   },
+  "login": {
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "invalidCredentials": "اسم المستخدم أو كلمة المرور غير صحيحة",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟ أنشئ حساباً"
+  },
+  "register": {
+    "title": "إنشاء حساب",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "registrationFailed": "فشل في التسجيل",
+    "signUp": "إنشاء حساب",
+    "haveAccount": "لديك حساب بالفعل؟ تسجيل الدخول"
+  },
   "dashboard": {
     "welcomeBack": "مرحباً بعودتك",
     "subtitle": "إدارة قضايا وعملاء ومستندات مكتبك القانوني بكفاءة.",

@@ -92,10 +92,22 @@ export default function Layout({ children }: LayoutProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
   const [lng, setLng] = useState(i18n.language || 'ar')
+
+  // Redirect to login if not authenticated
+  React.useEffect(() => {
+    if (!isAuthenticated && pathname !== '/login' && pathname !== '/register') {
+      router.push('/login');
+    }
+  }, [isAuthenticated, pathname, router]);
+
+  // For auth pages, don't show layout
+  if (pathname === '/login' || pathname === '/register') {
+    return <>{children}</>;
+  }
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL
