@@ -175,7 +175,7 @@ export default function Dashboard() {
                         <React.Fragment key={c.id}>
                           <ListItem sx={{ p: 1 }}>
                             <ListItemAvatar><Avatar><GavelIcon /></Avatar></ListItemAvatar>
-                            <ListItemText primary={c.title || 'Untitled'} secondary={c.customerName || ''} />
+                            <ListItemText primary={c.title || t('common.untitled')} secondary={c.customerName || ''} />
                           </ListItem>
                           <Divider component="li" />
                         </React.Fragment>

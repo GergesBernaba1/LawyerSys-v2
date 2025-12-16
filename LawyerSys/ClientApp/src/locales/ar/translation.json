@@ -63,9 +63,16 @@
     "viewBilling": "عرض الفواتير",
     "adminTasks": "مهام الإدارة",
     "upcomingSitings": "الجلسات القادمة",
-    "statistics": "الإحصائيات"
-  ,
-    "trendsComingSoon": "المخططات - قريباً"
+    "statistics": "الإحصائيات",
+    "trends": "المخططات",
+    "trendsComingSoon": "المخططات - قريباً",
+    "noRecentCases": "لا توجد قضايا حديثة",
+    "createFirstCase": "إنشاء أول قضية",
+    "systemInfo": "معلومات النظام",
+    "apiBaseUrl": "عنوان API الأساسي",
+    "authenticated": "مصادق",
+    "notAuthenticated": "غير مصادق",
+    "jwtStoredIn": "رمز JWT مخزن في localStorage كـ"
   },
   "cases": {
     "title": "القضايا",
@@ -91,6 +98,9 @@
     "createFirst": "إنشاء أول قضية",
     "caseCreated": "تم إنشاء القضية بنجاح",
     "caseDeleted": "تم حذف القضية بنجاح",
+    "caseNumber": "قضية رقم",
+    "noCaseNumber": "بدون رقم قضية",
+    "general": "عام",
     "failedLoad": "فشل تحميل القضايا",
     "failedCreate": "فشل إنشاء القضية",
     "failedDelete": "فشل حذف القضية",
@@ -159,7 +169,9 @@
     "failedLoad": "فشل تحميل الملفات",
     "failedUpload": "فشل رفع الملف",
     "failedDelete": "فشل حذف الملف",
-    "confirmDelete": "هل أنت متأكد من حذف هذا الملف؟"
+    "confirmDelete": "هل أنت متأكد من حذف هذا الملف؟",
+    "code": "الرمز",
+    "chooseFile": "اختر ملف"
   },
   "login": {
     "title": "مرحباً بعودتك",
@@ -195,7 +207,9 @@
     "created": "تم الإنشاء بنجاح",
     "deleted": "تم الحذف بنجاح",
     "confirmDelete": "هل أنت متأكد من الحذف؟",
-    "chooseFile": "اختر ملف"
+    "chooseFile": "اختر ملف",
+    "untitled": "بدون عنوان",
+    "unknown": "غير معروف"
   },
   "courts": {
     "title": "المحاكم",
@@ -238,7 +252,15 @@
   },
   "consultations": {
     "title": "الاستشارات",
-    "management": "إدارة الاستشارات"
+    "management": "إدارة الاستشارات",
+    "state": "الحالة",
+    "type": "النوع",
+    "subject": "الموضوع",
+    "description": "الوصف",
+    "feedback": "الملاحظات",
+    "dateTime": "التاريخ/الوقت",
+    "noConsultations": "لا توجد استشارات",
+    "createFirst": "إنشاء أول استشارة"
   },
   "judicial": {
     "title": "المستندات القضائية",

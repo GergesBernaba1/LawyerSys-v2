@@ -27,33 +27,33 @@ export default function Consultations(){
 
   async function create(){ try{ await api.post('/Consulations', { consultionState: state, type: ctype, subject, description: desc, feedback, notes, dateTime: dateTime || undefined }); setState(''); setCtype(''); setSubject(''); setDesc(''); setFeedback(''); setNotes(''); setDateTime(''); await load() }catch(e:any){alert(e?.response?.data?.message||'Failed') } }
 
-  async function remove(id:number){ if (!confirm('Delete consultation?')) return; await api.delete(`/Consulations/${id}`); await load() }
+  async function remove(id:number){ if (!confirm(t('common.confirmDelete'))) return; await api.delete(`/Consulations/${id}`); await load() }
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom fontWeight={600}>Consultations</Typography>
+      <Typography variant="h5" gutterBottom fontWeight={600}>{t('consultations.title')}</Typography>
       <Card sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="State" value={state} onChange={e=>setState(e.target.value)} />
+            <TextField fullWidth size="small" label={t('consultations.state')} value={state} onChange={e=>setState(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Type" value={ctype} onChange={e=>setCtype(e.target.value)} />
+            <TextField fullWidth size="small" label={t('consultations.type')} value={ctype} onChange={e=>setCtype(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Subject" value={subject} onChange={e=>setSubject(e.target.value)} />
+            <TextField fullWidth size="small" label={t('consultations.subject')} value={subject} onChange={e=>setSubject(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Description" value={desc} onChange={e=>setDesc(e.target.value)} />
+            <TextField fullWidth size="small" label={t('consultations.description')} value={desc} onChange={e=>setDesc(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Feedback" value={feedback} onChange={e=>setFeedback(e.target.value)} />
+            <TextField fullWidth size="small" label={t('consultations.feedback')} value={feedback} onChange={e=>setFeedback(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <TextField fullWidth size="small" label="Date/Time" type="datetime-local" slotProps={{ inputLabel: { shrink: true } }} value={dateTime} onChange={e=>setDateTime(e.target.value)} />
+            <TextField fullWidth size="small" label={t('consultations.dateTime')} type="datetime-local" slotProps={{ inputLabel: { shrink: true } }} value={dateTime} onChange={e=>setDateTime(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <Button variant="contained" fullWidth onClick={create}>Create</Button>
+            <Button variant="contained" fullWidth onClick={create}>{t('app.create')}</Button>
           </Grid>
         </Grid>
       </Card>

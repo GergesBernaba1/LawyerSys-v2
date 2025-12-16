@@ -183,8 +183,8 @@ export default function DashboardPageClient() {
                     <React.Fragment key={c.caseId}>
                       <ListItem sx={{ px: 0, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, borderRadius: 1 }} onClick={() => navigate('/cases')}>
                         <ListItemAvatar><Avatar sx={{ bgcolor: 'primary.light' }}><GavelIcon /></Avatar></ListItemAvatar>
-                        <ListItemText primary={c.caseName || `Case #${c.caseId}`} secondary={c.caseNumber || 'No case number'} />
-                        <Chip label={c.caseType || 'General'} size="small" variant="outlined" />
+                        <ListItemText primary={c.caseName || `${t('cases.caseNumber')} ${c.caseId}`} secondary={c.caseNumber || t('cases.noCaseNumber')} />
+                        <Chip label={c.caseType || t('cases.general')} size="small" variant="outlined" />
                       </ListItem>
                       {index < recentCases.length - 1 && <Divider />}
                     </React.Fragment>
@@ -193,8 +193,8 @@ export default function DashboardPageClient() {
               ) : (
                 <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
                   <GavelIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                  <Typography>No cases found</Typography>
-                  <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate('/cases')}>Create First Case</Button>
+                  <Typography>{t('dashboard.noRecentCases')}</Typography>
+                  <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate('/cases')}>{t('dashboard.createFirstCase')}</Button>
                 </Box>
               )}
             </CardContent>
@@ -205,12 +205,12 @@ export default function DashboardPageClient() {
       {/* System Info */}
       <Paper sx={{ mt: 3, p: 2 }}>
         <Typography component="div" variant="body2" color="text.secondary">
-          <strong>System Info:</strong> API Base URL: {process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'} •
-          JWT stored in localStorage as <code>lawyersys-token</code> •
+          <strong>{t('dashboard.systemInfo')}:</strong> {t('dashboard.apiBaseUrl')}: {process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'} •
+          {t('dashboard.jwtStoredIn')} <code>lawyersys-token</code> •
           {isAuthenticated ? (
-            <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}><Chip label="Authenticated" size="small" color="success" /></Box>
+            <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}><Chip label={t('dashboard.authenticated')} size="small" color="success" /></Box>
           ) : (
-            <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}><Chip label="Not Authenticated" size="small" color="warning" /></Box>
+            <Box component="span" sx={{ display: 'inline-flex', ml: 1 }}><Chip label={t('dashboard.notAuthenticated')} size="small" color="warning" /></Box>
           )}
         </Typography>
       </Paper>

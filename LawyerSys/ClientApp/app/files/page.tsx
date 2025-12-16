@@ -137,8 +137,8 @@ export default function FilesPageClient() {
                   <TableCell>{it.code || '-'}</TableCell>
                   <TableCell><Chip label={it.type ? 'Yes' : 'No'} size="small" color={it.type ? 'success' : 'default'} /></TableCell>
                   <TableCell align={isRTL ? 'left' : 'right'}>
-                    <Tooltip title="Download"><IconButton color="primary" component="a" href={downloadUrl(it.id)} target="_blank"><DownloadIcon /></IconButton></Tooltip>
-                    <Tooltip title="Delete"><IconButton color="error" onClick={() => remove(it.id)}><DeleteIcon /></IconButton></Tooltip>
+                    <Tooltip title={t('files.download')}><IconButton color="primary" component="a" href={downloadUrl(it.id)} target="_blank"><DownloadIcon /></IconButton></Tooltip>
+                    <Tooltip title={t('app.delete')}><IconButton color="error" onClick={() => remove(it.id)}><DeleteIcon /></IconButton></Tooltip>
                   </TableCell>
                 </TableRow>
               ))}

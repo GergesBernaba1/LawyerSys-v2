@@ -105,7 +105,7 @@ export default function Files() {
           <TableBody>
             {loading ? [...Array(3)].map((_, i) => (<TableRow key={i}>{[...Array(5)].map((_, j) => (<TableCell key={j}><Skeleton /></TableCell>))}</TableRow>))
               : items.length === 0 ? (
-                <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}><FolderIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} /><Typography>No files found</Typography></TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}><FolderIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} /><Typography>{t('files.noFiles')}</Typography></TableCell></TableRow>
               ) : items.map((it) => (
                 <TableRow key={it.id} hover>
                   <TableCell><Chip label={`#${it.id}`} size="small" variant="outlined" /></TableCell>
@@ -118,12 +118,12 @@ export default function Files() {
                   <TableCell>{it.code || '-'}</TableCell>
                   <TableCell><Chip label={it.type ? 'Yes' : 'No'} size="small" color={it.type ? 'success' : 'default'} /></TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Download">
+                    <Tooltip title={t('files.download')}>
                       <IconButton color="primary" component="a" href={`${process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'}/Files/${it.id}/download`} target="_blank">
                         <DownloadIcon />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Delete">
+                    <Tooltip title={t('app.delete')}>
                       <IconButton color="error" onClick={() => remove(it.id)}>
                         <DeleteIcon />
                       </IconButton>
@@ -147,18 +147,18 @@ export default function Files() {
                 fullWidth
                 sx={{ py: 2 }}
               >
-                {file ? file.name : 'Choose File'}
+                {file ? file.name : t('files.chooseFile')}
                 <VisuallyHiddenInput type="file" onChange={(e) => setFile(e.target.files?.[0])} />
               </Button>
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TextField fullWidth label="Code" value={code} onChange={(e) => setCode(e.target.value)} />
+              <TextField fullWidth label={t('files.code')} value={code} onChange={(e) => setCode(e.target.value)} />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={submitUpload} disabled={!file}>Upload</Button>
+          <Button onClick={() => setOpenDialog(false)}>{t('app.cancel')}</Button>
+          <Button variant="contained" onClick={submitUpload} disabled={!file}>{t('files.upload')}</Button>
         </DialogActions>
       </Dialog>
 

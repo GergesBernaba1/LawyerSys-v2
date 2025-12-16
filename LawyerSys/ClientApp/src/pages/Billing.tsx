@@ -305,7 +305,7 @@ export default function Billing() {
                         <TableCell>{p.customerName || p.customerId || '-'}</TableCell>
                         <TableCell>{p.notes || '-'}</TableCell>
                         <TableCell align="right">
-                          <Tooltip title="Delete">
+                          <Tooltip title={t('app.delete')}>
                             <IconButton color="error" onClick={() => removePayment(p.id)}>
                               <DeleteIcon />
                             </IconButton>
