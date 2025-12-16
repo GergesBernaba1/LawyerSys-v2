@@ -13,6 +13,7 @@ type Cons = { id:number; consultionState?:string; type?:string; subject?:string;
 export default function Consultations(){
   const [items,setItems] = useState<Cons[]>([])
   const [loading,setLoading] = useState(false)
+  const { t } = useTranslation()
 
   const [state,setState] = useState('')
   const [ctype,setCtype] = useState('')

@@ -11,7 +11,6 @@ import {
   Link as MuiLink,
   Container,
   Avatar,
-  Grid,
   IconButton,
   InputAdornment,
 } from '@mui/material';
@@ -165,13 +164,11 @@ export default function RegisterPage() {
             >
               {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <MuiLink href="/login" variant="body2">
-                  {t('register.haveAccount') || 'Already have an account? Sign in'}
-                </MuiLink>
-              </Grid>
-            </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+              <MuiLink href="/login" variant="body2">
+                {t('register.haveAccount') || 'Already have an account? Sign in'}
+              </MuiLink>
+            </Box>
           </Box>
         </Paper>
       </Box>

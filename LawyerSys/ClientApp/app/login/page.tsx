@@ -11,7 +11,6 @@ import {
   Link as MuiLink,
   Container,
   Avatar,
-  Grid,
   IconButton,
   InputAdornment,
 } from '@mui/material';
@@ -125,18 +124,14 @@ export default function LoginPage() {
             >
               {loading ? (t('app.loading') || 'Loading...') : t('app.login')}
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <MuiLink href="#" variant="body2">
-                  {t('login.forgotPassword') || 'Forgot password?'}
-                </MuiLink>
-              </Grid>
-              <Grid item>
-                <MuiLink href="/register" variant="body2">
-                  {t('login.noAccount') || "Don't have an account? Sign Up"}
-                </MuiLink>
-              </Grid>
-            </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <MuiLink href="#" variant="body2">
+                {t('login.forgotPassword') || 'Forgot password?'}
+              </MuiLink>
+              <MuiLink href="/register" variant="body2">
+                {t('login.noAccount') || "Don't have an account? Sign Up"}
+              </MuiLink>
+            </Box>
           </Box>
         </Paper>
       </Box>
