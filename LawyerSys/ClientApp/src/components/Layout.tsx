@@ -312,9 +312,6 @@ export default function Layout({ children }: LayoutProps) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {t(`app.${menuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
-          </Typography>
           
           {/* Language Selector */}
           <IconButton 
@@ -329,7 +326,7 @@ export default function Layout({ children }: LayoutProps) {
               fontWeight: 600
             }}
           >
-            {isRTL ? 'AR' : 'EN'}
+            {isRTL ? 'العربية' : 'English'}
           </IconButton>
           <Menu 
             anchorEl={langAnchor} 
@@ -338,12 +335,29 @@ export default function Layout({ children }: LayoutProps) {
             anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: isRTL ? 'left' : 'right' }}
           >
-            <MenuItem onClick={()=>changeLang('en')} selected={!isRTL}>EN - English</MenuItem>
-            <MenuItem onClick={()=>changeLang('ar')} selected={isRTL}>AR - عربي</MenuItem>
+            <MenuItem onClick={()=>changeLang('en')} selected={!isRTL}>English</MenuItem>
+            <MenuItem onClick={()=>changeLang('ar')} selected={isRTL}>العربية</MenuItem>
           </Menu>
 
           {user && (
             <>
+              {/* Logout Button */}
+              <Tooltip title={t('app.logout')}>
+                <IconButton 
+                  onClick={handleLogout}
+                  sx={{ 
+                    [isRTL ? 'ml' : 'mr']: 1,
+                    color: 'error.main',
+                    '&:hover': {
+                      bgcolor: 'error.light',
+                      color: 'white',
+                    }
+                  }}
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </Tooltip>
+
               <IconButton onClick={handleProfileMenuOpen} sx={{ p: 0 }}>
                 <Avatar
                   sx={{
