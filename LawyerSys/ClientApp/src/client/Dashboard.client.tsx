@@ -249,11 +249,11 @@ export default function Dashboard() {
               {t('dashboard.quickActions')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {quickActions.map((action) => (
+              {quickActions.map((action, index) => (
                 <Button 
-                  key={action.label} 
+                  key={action.path || index} 
                   variant="outlined" 
-                  startIcon={!isRTL ? action.icon : undefined} 
+                  startIcon={!isRTL ? action.icon : undefined}  
                   endIcon={isRTL ? action.icon : undefined} 
                   onClick={() => navigate(action.path)} 
                   sx={{ 
@@ -315,7 +315,7 @@ export default function Dashboard() {
             ) : recentCases.length > 0 ? (
               <List disablePadding>
                 {recentCases.map((c, index) => (
-                  <React.Fragment key={c.caseId}>
+                  <React.Fragment key={c.caseId || index}>
                     <ListItem 
                       sx={{ 
                         px: 3, 

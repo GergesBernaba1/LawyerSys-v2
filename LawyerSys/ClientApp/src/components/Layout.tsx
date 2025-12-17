@@ -162,10 +162,16 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const collapsedWidth = 72;
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
-    try { return localStorage.getItem('layout.sidebarCollapsed') === 'true' }
-    catch { return false }
-  });
+  const [collapsed, setCollapsed] = useState(false);
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('layout.sidebarCollapsed');
+      if (saved === 'true') {
+        setCollapsed(true);
+      }
+    } catch {}
+  }, []);
 
   React.useEffect(() => {
     try { localStorage.setItem('layout.sidebarCollapsed', collapsed ? 'true' : 'false') } catch {}
@@ -351,7 +357,13 @@ export default function Layout({ children }: LayoutProps) {
       <AppBar
         position="fixed"
         sx={{
-          width: '100%',
+          width: { xs: '100%', md: `calc(100% - ${collapsed ? collapsedWidth : drawerWidth}px)` },
+          ml: { md: isRTL ? 0 : `${collapsed ? collapsedWidth : drawerWidth}px` },
+          mr: { md: isRTL ? `${collapsed ? collapsedWidth : drawerWidth}px` : 0 },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.shortest,
+          }),
           bgcolor: 'rgba(255, 255, 255, 0.8)',
           backdropFilter: 'blur(20px)',
           color: 'text.primary',
