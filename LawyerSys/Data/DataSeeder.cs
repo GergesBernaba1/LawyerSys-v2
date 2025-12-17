@@ -12,10 +12,14 @@ public static class DataSeeder
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         
-        // Ensure Admin role exists
-        if (!await roleManager.RoleExistsAsync("Admin"))
+        // Ensure roles exist
+        var roles = new[] { "Admin", "Employee", "Customer" };
+        foreach (var role in roles)
         {
-            await roleManager.CreateAsync(new IdentityRole("Admin"));
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
         }
         
         // Create admin user if not exists

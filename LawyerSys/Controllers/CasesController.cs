@@ -97,6 +97,27 @@ public class CasesController : ControllerBase
         return Ok(new { message = "Case deleted" });
     }
 
+    // POST: api/cases/{code}/assign-employee
+    [HttpPost("{code}/assign-employee")]
+    public async Task<IActionResult> AssignEmployee(int code, [FromBody] AssignEmployeeDto dto)
+    {
+        var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
+        if (caseEntity == null) return NotFound(new { message = "Case not found" });
+
+        var employee = await _context.Employees.FindAsync(dto.EmployeeId);
+        if (employee == null) return NotFound(new { message = "Employee not found" });
+
+        // Remove existing assignments for this case to ensure single employee assignment
+        var existing = _context.Cases_Employees.Where(ce => ce.Case_Code == code);
+        _context.Cases_Employees.RemoveRange(existing);
+
+        var assign = new Cases_Employee { Case_Code = code, Employee_Id = employee.id };
+        _context.Cases_Employees.Add(assign);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Employee assigned" });
+    }
+
     private static CaseDto MapToDto(Case c) => new()
     {
         Id = c.Id,

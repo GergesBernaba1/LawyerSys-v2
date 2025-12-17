@@ -3,4 +3,20 @@
   <data name="Healthy" xml:space="preserve">
     <value>سليم</value>
   </data>
+  <data name="AccountCreatedSubject" xml:space="preserve">
+    <value>تم إنشاء حسابك على قضايا</value>
+  </data>
+  <data name="AccountCreatedBody" xml:space="preserve">
+    <value><![CDATA[<h3>تم إنشاء حسابك على قضايا</h3>
+<p><strong>الاسم الكامل:</strong> {FullName}</p>
+<p><strong>البريد الإلكتروني:</strong> {Email}</p>
+<p><strong>اسم المستخدم:</strong> {UserName}</p>
+<p><strong>كلمة مرور مؤقتة:</strong> {Password}</p>
+<p><strong>الهاتف:</strong> {Phone}</p>
+<p><strong>الوظيفة:</strong> {Job}</p>
+<p><strong>العنوان:</strong> {Address}</p>
+<p><strong>تاريخ الميلاد:</strong> {DateOfBirth}</p>
+<p><strong>الرقم القومي:</strong> {SSN}</p>
+<p>يرجى تغيير كلمة المرور عند أول تسجيل دخول. إذا لم تطلب هذا الحساب، اتصل بالدعم.</p>]]></value>
+  </data>
 </root>

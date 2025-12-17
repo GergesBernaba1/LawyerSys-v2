@@ -1,0 +1,95 @@
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Threading.Tasks;
+using LawyerSys.Controllers;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+
+namespace LawyerSys.Services
+{
+    public class AccountService : IAccountService
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
+
+        public AccountService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        {
+            _userManager = userManager;
+            _configuration = configuration;
+        }
+
+        public async Task<(string Token, DateTime Expires)> LoginAsync(LoginRequest model)
+        {
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(model.UserName);
+            }
+
+            if (user == null) throw new UnauthorizedAccessException("Invalid credentials");
+
+            if (user.RequiresPasswordReset)
+            {
+                throw new InvalidOperationException("Password reset required. Please reset your password before logging in.");
+            }
+
+            var valid = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!valid) throw new UnauthorizedAccessException("Invalid credentials");
+
+            var jwtSection = _configuration.GetSection("Jwt");
+            var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key") ?? "ChangeThisToASecureKey123!");
+            var issuer = jwtSection.GetValue<string>("Issuer");
+            var audience = jwtSection.GetValue<string>("Audience");
+            var expireMinutes = jwtSection.GetValue<int>("ExpireMinutes");
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+                new Claim("fullName", user.FullName ?? string.Empty),
+            };
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                var list = new System.Collections.Generic.List<Claim>(claims) { new Claim(JwtRegisteredClaimNames.Email, user.Email) };
+                claims = list.ToArray();
+            }
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expireMinutes <= 0 ? 60 : expireMinutes),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return (jwt, token.ValidTo);
+        }
+
+        public async Task<string> RequestPasswordResetAsync(string userNameOrEmail)
+        {
+            var user = await _userManager.FindByNameAsync(userNameOrEmail) ?? await _userManager.FindByEmailAsync(userNameOrEmail);
+            if (user == null) throw new ArgumentException("User not found");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            return token;
+        }
+
+        public async Task ResetPasswordAsync(string userNameOrEmail, string token, string newPassword)
+        {
+            var user = await _userManager.FindByNameAsync(userNameOrEmail) ?? await _userManager.FindByEmailAsync(userNameOrEmail);
+            if (user == null) throw new ArgumentException("User not found");
+
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded) throw new InvalidOperationException(string.Join(", ", result.Errors));
+
+            user.RequiresPasswordReset = false;
+            await _userManager.UpdateAsync(user);
+            await _userManager.UpdateSecurityStampAsync(user);
+        }
+    }
+}

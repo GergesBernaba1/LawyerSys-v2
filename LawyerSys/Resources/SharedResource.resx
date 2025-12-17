@@ -3,4 +3,20 @@
   <data name="Healthy" xml:space="preserve">
     <value>healthy</value>
   </data>
+  <data name="AccountCreatedSubject" xml:space="preserve">
+    <value>Your LawyerSys account</value>
+  </data>
+  <data name="AccountCreatedBody" xml:space="preserve">
+    <value><![CDATA[<h3>Your LawyerSys account has been created</h3>
+<p><strong>Full name:</strong> {FullName}</p>
+<p><strong>Email:</strong> {Email}</p>
+<p><strong>Username:</strong> {UserName}</p>
+<p><strong>Temporary password:</strong> {Password}</p>
+<p><strong>Phone:</strong> {Phone}</p>
+<p><strong>Job:</strong> {Job}</p>
+<p><strong>Address:</strong> {Address}</p>
+<p><strong>Date of birth:</strong> {DateOfBirth}</p>
+<p><strong>SSN:</strong> {SSN}</p>
+<p>Please change your password on first login. If you did not request this account, contact support.</p>]]></value>
+  </data>
 </root>

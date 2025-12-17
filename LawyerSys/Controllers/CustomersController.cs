@@ -2,8 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
+using Microsoft.AspNetCore.Identity;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using Microsoft.Extensions.Localization;
+using LawyerSys.Resources;
+using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
 
@@ -11,62 +15,55 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class CustomersController : ControllerBase
 {
-    private readonly LegacyDbContext _context;
+    private readonly ICustomerService _customerService;
 
-    public CustomersController(LegacyDbContext context)
+    public CustomersController(ICustomerService customerService)
     {
-        _context = context;
+        _customerService = customerService;
     }
 
     // GET: api/customers
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers()
     {
-        var customers = await _context.Customers
-            .Include(c => c.Users)
-            .ToListAsync();
-
-        return Ok(customers.Select(MapToDto));
+        var dtos = (await _customerService.GetCustomersAsync()).ToList();
+        return Ok(dtos);
     }
 
     // GET: api/customers/{id}
     [HttpGet("{id}")]
     public async Task<ActionResult<CustomerDto>> GetCustomer(int id)
     {
-        var customer = await _context.Customers
-            .Include(c => c.Users)
-            .FirstOrDefaultAsync(c => c.Id == id);
+        var dto = await _customerService.GetCustomerAsync(id);
+        if (dto == null) return NotFound(new { message = "Customer not found" });
+        return Ok(dto);
+    }
 
-        if (customer == null)
-            return NotFound(new { message = "Customer not found" });
-
-        return Ok(MapToDto(customer));
+    // GET: api/customers/{id}/profile
+    [HttpGet("{id}/profile")]
+    public async Task<ActionResult<CustomerProfileDto>> GetCustomerProfile(int id)
+    {
+        var dto = await _customerService.GetCustomerProfileAsync(id);
+        if (dto == null) return NotFound(new { message = "Customer not found" });
+        return Ok(dto);
     }
 
     // POST: api/customers
     [HttpPost]
-    public async Task<ActionResult<CustomerDto>> CreateCustomer([FromBody] CreateCustomerDto dto)
+    public async Task<ActionResult<CustomerDto>> CreateCustomer([FromBody] CreateCustomerDto createDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        // Check if user exists
-        var user = await _context.Users.FindAsync(dto.UsersId);
-        if (user == null)
-            return BadRequest(new { message = "User not found" });
-
-        var customer = new Customer
+        try
         {
-            Users_Id = dto.UsersId
-        };
-
-        _context.Customers.Add(customer);
-        await _context.SaveChangesAsync();
-
-        // Reload with user data
-        await _context.Entry(customer).Reference(c => c.Users).LoadAsync();
-
-        return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, MapToDto(customer));
+            var dto = await _customerService.CreateCustomerAsync(createDto);
+            return CreatedAtAction(nameof(GetCustomer), new { id = dto.Id }, dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     // POST: api/customers/withuser - Create customer with new user
@@ -76,14 +73,25 @@ public class CustomersController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        // Check if username exists
-        if (await _context.Users.AnyAsync(u => u.User_Name == dto.UserName))
-            return BadRequest(new { message = "Username already exists" });
+        try
+        {
+            var (customer, tempCredentials) = await _customerService.CreateCustomerWithUserAsync(dto);
+            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, new { customer = customer, tempCredentials = new { userName = tempCredentials.UserName, password = tempCredentials.Password } });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
 
-        // Get max user ID and increment
+#if false
+        // Check if username/email already exists in legacy users or identity users
+        if (await _context.Users.AnyAsync(u => u.User_Name == createdUserName) || (await _userManager.FindByNameAsync(createdUserName)) != null || (!string.IsNullOrWhiteSpace(dto.Email) && (await _userManager.FindByEmailAsync(dto.Email)) != null))
+            return BadRequest(new { message = "Username or email already exists" });
+
+        // Create legacy user (same as before) but ensure User_Name matches the created identity username
         var maxId = await _context.Users.MaxAsync(u => (int?)u.Id) ?? 0;
 
-        var user = new User
+        var legacyUser = new User
         {
             Id = maxId + 1,
             Full_Name = dto.FullName,
@@ -92,62 +100,124 @@ public class CustomersController : ControllerBase
             Phon_Number = int.TryParse(dto.PhoneNumber, out var phone) ? phone : 0,
             Date_Of_Birth = dto.DateOfBirth,
             SSN = int.TryParse(dto.SSN, out var ssn) ? ssn : 0,
-            User_Name = dto.UserName,
-            Password = dto.Password // Note: In production, hash this password
+            User_Name = createdUserName,
+            Password = dto.Password // note: legacy stores plaintext; keep current behavior
         };
 
-        _context.Users.Add(user);
+        _context.Users.Add(legacyUser);
         await _context.SaveChangesAsync();
 
         var customer = new Customer
         {
-            Users_Id = user.Id
+            Users_Id = legacyUser.Id
         };
 
         _context.Customers.Add(customer);
         await _context.SaveChangesAsync();
 
-        customer.Users = user;
+        customer.Users = legacyUser;
 
-        return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, MapToDto(customer));
+        // Create ApplicationUser (Identity) if UserManager available
+        string generatedPassword = dto.Password;
+
+        if (_userManager != null)
+        {
+            // If password not provided, generate a secure temp password
+            if (string.IsNullOrWhiteSpace(generatedPassword))
+            {
+                generatedPassword = "Temp@" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            }
+
+            var appUser = new ApplicationUser
+            {
+                UserName = createdUserName,
+                Email = dto.Email ?? string.Empty,
+                FullName = dto.FullName,
+                EmailConfirmed = !string.IsNullOrWhiteSpace(dto.Email),
+                RequiresPasswordReset = true
+            };
+
+            var result = await _userManager.CreateAsync(appUser, generatedPassword);
+            if (result.Succeeded)
+            {
+                if (_roleManager != null && await _roleManager.RoleExistsAsync("Customer"))
+                {
+                    await _userManager.AddToRoleAsync(appUser, "Customer");
+                }
+
+                // Optionally email credentials and full customer data (localized)
+                if (_emailSender != null && !string.IsNullOrWhiteSpace(dto.Email))
+                {
+                    var emailAddr = dto.Email;
+                    var subject = _localizer["AccountCreatedSubject"].Value;
+                    var template = _localizer["AccountCreatedBody"].Value;
+                    var body = template.Replace("{FullName}", dto.FullName)
+                                       .Replace("{Email}", emailAddr)
+                                       .Replace("{UserName}", appUser.UserName ?? string.Empty)
+                                       .Replace("{Password}", generatedPassword)
+                                       .Replace("{Phone}", dto.PhoneNumber)
+                                       .Replace("{Job}", dto.Job)
+                                       .Replace("{Address}", dto.Address ?? "N/A")
+                                       .Replace("{DateOfBirth}", dto.DateOfBirth.ToString("yyyy-MM-dd"))
+                                       .Replace("{SSN}", dto.SSN);
+
+                    await _emailSender.SendEmailAsync(emailAddr, subject, body);
+                }
+                else
+                {
+                    // No email provided - log that the account was created and requires password reset
+                    Console.WriteLine($"Account created for {appUser.UserName} but no email was provided to send credentials.");
+                }
+            }
+            else
+            {
+                // Log errors but continue; admin can see legacy user created
+                Console.WriteLine("Failed to create identity user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
+        var responseDto = MapToDto(customer);
+
+        // Attach identity info if available
+        var createdAppUser = await _userManager.FindByNameAsync(createdUserName);
+        if (createdAppUser != null)
+        {
+            responseDto.Identity = new IdentityUserInfoDto
+            {
+                Id = createdAppUser.Id,
+                UserName = createdAppUser.UserName ?? string.Empty,
+                Email = createdAppUser.Email ?? string.Empty,
+                FullName = createdAppUser.FullName ?? string.Empty,
+                EmailConfirmed = createdAppUser.EmailConfirmed,
+                RequiresPasswordReset = createdAppUser.RequiresPasswordReset
+            };
+        }
+
+#endif
+        // legacy create-with-user implementation removed (migrated to CustomerService)
     }
 
     // PUT: api/customers/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDto dto)
     {
-        var customer = await _context.Customers
-            .Include(c => c.Users)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (customer == null)
-            return NotFound(new { message = "Customer not found" });
-
-        if (dto.UsersId.HasValue)
+        try
         {
-            var user = await _context.Users.FindAsync(dto.UsersId.Value);
-            if (user == null)
-                return BadRequest(new { message = "User not found" });
-
-            customer.Users_Id = dto.UsersId.Value;
+            var updated = await _customerService.UpdateCustomerAsync(id, dto);
+            return Ok(updated);
         }
-
-        await _context.SaveChangesAsync();
-
-        return Ok(MapToDto(customer));
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     // DELETE: api/customers/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCustomer(int id)
     {
-        var customer = await _context.Customers.FindAsync(id);
-        if (customer == null)
-            return NotFound(new { message = "Customer not found" });
-
-        _context.Customers.Remove(customer);
-        await _context.SaveChangesAsync();
-
+        var ok = await _customerService.DeleteCustomerAsync(id);
+        if (!ok) return NotFound(new { message = "Customer not found" });
         return Ok(new { message = "Customer deleted" });
     }
 

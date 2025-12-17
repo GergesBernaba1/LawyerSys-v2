@@ -75,6 +75,16 @@ builder.Services.AddCors(options =>
 });
 
 // ASP.NET Identity + JWT
+
+// Email sender
+builder.Services.Configure<LawyerSys.Services.Email.EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<LawyerSys.Services.Email.IEmailSender, LawyerSys.Services.Email.SmtpEmailSender>();
+
+// Application services
+builder.Services.AddScoped<LawyerSys.Services.ICustomerService, LawyerSys.Services.CustomerService>();
+builder.Services.AddScoped<LawyerSys.Services.IEmployeeService, LawyerSys.Services.EmployeeService>();
+builder.Services.AddScoped<LawyerSys.Services.IAccountService, LawyerSys.Services.AccountService>();
+
 builder.Services.AddIdentity<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;

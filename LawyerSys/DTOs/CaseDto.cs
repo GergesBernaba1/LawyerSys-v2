@@ -29,3 +29,8 @@ public class UpdateCaseDto
     public int? TotalAmount { get; set; }
     public string? Notes { get; set; }
 }
+
+public class AssignEmployeeDto
+{
+    public int EmployeeId { get; set; }
+}
