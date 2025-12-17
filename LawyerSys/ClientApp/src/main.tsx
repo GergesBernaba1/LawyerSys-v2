@@ -8,7 +8,8 @@ import createCache from '@emotion/cache'
 import rtlPlugin from 'stylis-plugin-rtl'
 
 const cacheLtr = createCache({ key: 'css', prepend: true })
-const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [rtlPlugin], prepend: true })
+// keep the same key for both caches to ensure className prefix does not differ
+const cacheRtl = createCache({ key: 'css', stylisPlugins: [rtlPlugin], prepend: true })
 
 function Root() {
   const [lng, setLng] = useState(i18n.language || 'ar')

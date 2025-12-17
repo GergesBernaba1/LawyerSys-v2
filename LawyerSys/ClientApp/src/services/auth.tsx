@@ -59,16 +59,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   async function login(userName: string, pass: string) {
+    console.log('Login attempt:', { userName, passwordLength: pass.length })
     try {
       const r = await api.post('/Account/login', { userName, password: pass })
+      console.log('Login response:', r.data)
       const t = r.data?.token
       if (t) {
         localStorage.setItem('lawyersys-token', t)
         setToken(t)
         return true
       }
+      console.warn('No token in response')
       return false
-    } catch (e) {
+    } catch (e: any) {
+      console.error('Login error:', e.response?.data || e.message)
       return false
     }
   }

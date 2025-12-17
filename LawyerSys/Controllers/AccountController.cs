@@ -113,16 +113,33 @@ public class AccountController : ControllerBase
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
+            Console.WriteLine($"Reset password attempt for user: {model.UserName}");
+            
             var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user == null) return NotFound(new { message = "User not found" });
+            if (user == null)
+            {
+                Console.WriteLine("User not found for password reset");
+                return NotFound(new { message = "User not found" });
+            }
 
+            Console.WriteLine($"User found: {user.UserName}, attempting reset with token");
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-            if (!result.Succeeded) return BadRequest(result.Errors);
+            
+            if (!result.Succeeded)
+            {
+                Console.WriteLine($"Password reset failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                return BadRequest(result.Errors);
+            }
 
+            Console.WriteLine("Password reset successful, clearing RequiresPasswordReset flag");
             // Clear the migration flag if present
             user.RequiresPasswordReset = false;
             await _userManager.UpdateAsync(user);
-
+            
+            // Update security stamp to invalidate old tokens
+            await _userManager.UpdateSecurityStampAsync(user);
+            
+            Console.WriteLine("Password reset complete");
             return Ok(new { message = "Password updated" });
         }
 }

@@ -40,7 +40,8 @@ export default function CatchAll() {
     // so it works both in dev (ESM interop) and prod (CJS).
     const plugin: any = (rtlPlugin && (rtlPlugin as any).default) ? (rtlPlugin as any).default : rtlPlugin
     return createCache({
-      key: lng.startsWith('ar') ? 'muirtl' : 'css',
+      // keep the key stable so server and client class names match
+      key: 'css',
       stylisPlugins: lng.startsWith('ar') ? [plugin] : [],
       prepend: true,
     })

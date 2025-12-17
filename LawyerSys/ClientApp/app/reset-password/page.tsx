@@ -8,8 +8,10 @@ import { useTranslation } from 'react-i18next'
 
 export default function ResetPasswordPage(){
   const search = useSearchParams()
-  const initialToken = search.get('token') || ''
-  const initialUser = search.get('userName') || ''
+  // guard in case useSearchParams returns something unexpected
+  const safeSearch = (search && typeof (search as any).get === 'function') ? search : null
+  const initialToken = safeSearch ? (safeSearch.get('token') || '') : ''
+  const initialUser = safeSearch ? (safeSearch.get('userName') || '') : ''
   const [userName, setUserName] = useState(initialUser)
   const [token, setToken] = useState(initialToken)
   const [password, setPassword] = useState('')
@@ -17,10 +19,14 @@ export default function ResetPasswordPage(){
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  // debug render trace to help locate hook mismatch
+  console.debug('ResetPassword render', { token, userName, success, loading })
   const router = useRouter()
   const { t } = useTranslation()
 
   useEffect(()=>{
+    console.debug('ResetPassword effect: initialToken, initialUser', { initialToken, initialUser })
     if (initialToken) setToken(initialToken)
     if (initialUser) setUserName(initialUser)
   }, [initialToken, initialUser])
@@ -30,11 +36,21 @@ export default function ResetPasswordPage(){
     setError('')
     if (password !== confirm) { setError(t('register.passwordMismatch') || 'Passwords do not match'); return }
     setLoading(true)
+    
+    console.log('Submitting password reset:', { userName, tokenLength: token.length })
+    
     try{
-      await api.post('/Account/reset-password', { userName, token, newPassword: password })
+      const response = await api.post('/Account/reset-password', { userName, token, newPassword: password })
+      console.log('Password reset response:', response.data)
       setSuccess(true)
     }catch(e:any){
-      setError(e?.response?.data?.message || t('login.errorOccurred') || 'Error')
+      console.error('Password reset error:', e.response?.data || e.message)
+      const errorMsg = e?.response?.data?.message 
+        || (e?.response?.data?.errors ? JSON.stringify(e.response.data.errors) : '')
+        || e?.message 
+        || t('login.errorOccurred') 
+        || 'Error'
+      setError(errorMsg)
     }finally{ setLoading(false) }
   }
 

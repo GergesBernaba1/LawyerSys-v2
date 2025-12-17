@@ -86,12 +86,18 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const pathname = usePathname();
+  
+  // For auth pages, don't show layout - check this BEFORE calling other hooks
+  if (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password') {
+    return <>{children}</>;
+  }
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
-  const pathname = usePathname();
   const { user, logout, isAuthenticated } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
@@ -99,15 +105,10 @@ export default function Layout({ children }: LayoutProps) {
 
   // Redirect to login if not authenticated
   React.useEffect(() => {
-    if (!isAuthenticated && pathname !== '/login' && pathname !== '/register') {
+    if (!isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, pathname, router]);
-
-  // For auth pages, don't show layout
-  if (pathname === '/login' || pathname === '/register') {
-    return <>{children}</>;
-  }
+  }, [isAuthenticated, router]);
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL

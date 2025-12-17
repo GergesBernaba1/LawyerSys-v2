@@ -27,7 +27,8 @@ export default function Providers({ locale: initialLocale = 'ar', children }: Pr
     try { document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr') } catch {}
   }, [isRTL])
 
-  const cache = useMemo(() => createCache({ key: isRTL ? 'muirtl' : 'css', stylisPlugins: isRTL ? [rtlPlugin] : [], prepend: true }), [isRTL])
+  // Use a stable cache key so SSR and client render match className prefixes
+  const cache = useMemo(() => createCache({ key: 'css', stylisPlugins: isRTL ? [rtlPlugin] : [], prepend: true }), [isRTL])
   const theme = useMemo(() => getTheme(isRTL ? 'rtl' : 'ltr'), [isRTL])
 
   return (
