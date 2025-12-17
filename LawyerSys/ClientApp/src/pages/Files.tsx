@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  Box, Typography, Button, Table, TableBody, TableCell,
+  TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, styled, Grid,
+  Tooltip, TextField, styled, Grid, useTheme,
 } from '@mui/material';
 import {
   Add as AddIcon, Delete as DeleteIcon, Folder as FolderIcon, Refresh as RefreshIcon,
   CloudUpload as CloudUploadIcon, Download as DownloadIcon, InsertDriveFile as FileIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 
@@ -28,12 +29,21 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function Files() {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isRTL = theme.direction === 'rtl';
   const [items, setItems] = useState<FileDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | undefined>();
   const [code, setCode] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+
+  const filteredItems = items.filter(item => 
+    item.path?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.id.toString().includes(searchTerm)
+  );
 
   async function load() {
     setLoading(true);
@@ -81,89 +91,349 @@ export default function Files() {
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <FolderIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h5" fontWeight={600}>{t('files.management')}</Typography>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
+      {/* Header Section */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 3, md: 5 }, 
+          mb: 4, 
+          borderRadius: 6, 
+          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 20px 40px rgba(99, 102, 241, 0.2)'
+        }}
+      >
+        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Box sx={{ 
+              width: 70, 
+              height: 70, 
+              borderRadius: 4, 
+              bgcolor: 'rgba(255, 255, 255, 0.2)', 
+              backdropFilter: 'blur(10px)',
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
+            }}>
+              <FolderIcon sx={{ fontSize: 40, color: 'white' }} />
+            </Box>
+            <Box>
+              <Typography variant="h3" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-0.02em' }}>
+                {t('files.management')}
+              </Typography>
+              <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400, maxWidth: 600 }}>
+                {t('files.description', 'Securely store and manage case-related documents and evidence.')}
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Tooltip title={t('common.refresh')}>
+              <IconButton 
+                onClick={load} 
+                disabled={loading}
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' },
+                  backdropFilter: 'blur(10px)',
+                  width: 50,
+                  height: 50
+                }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+            <Button 
+              variant="contained" 
+              startIcon={<CloudUploadIcon />} 
+              onClick={() => setOpenDialog(true)}
+              sx={{ 
+                bgcolor: 'white',
+                color: 'primary.main',
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
+                borderRadius: 3, 
+                px: 4, 
+                py: 1.5,
+                fontWeight: 800,
+                textTransform: 'none',
+                boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
+              }}
+            >
+              {t('files.upload')}
+            </Button>
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title={t('cases.refresh')}><IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton></Tooltip>
-          <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={() => setOpenDialog(true)}>{t('files.upload')}</Button>
-        </Box>
-      </Box>
+        
+        {/* Decorative background elements */}
+        <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', zIndex: 0 }} />
+        <Box sx={{ position: 'absolute', bottom: -30, left: '20%', width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', zIndex: 0 }} />
+      </Paper>
 
-      <Card sx={{ mb: 3 }}><CardContent sx={{ py: 2 }}><Typography variant="body2" color="text.secondary">Total Files: <strong>{items.length}</strong></Typography></CardContent></Card>
+      {/* Search Bar */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: 2, 
+          mb: 4, 
+          borderRadius: 4, 
+          border: '1px solid', 
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+        }}
+      >
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder={t('common.search')}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: <SearchIcon sx={{ color: 'text.disabled', mr: 1 }} />,
+              sx: { borderRadius: 3, bgcolor: 'grey.50' }
+            }
+          }}
+        />
+      </Paper>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell><TableCell>Path</TableCell><TableCell>Code</TableCell><TableCell>Type</TableCell><TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? [...Array(3)].map((_, i) => (<TableRow key={i}>{[...Array(5)].map((_, j) => (<TableCell key={j}><Skeleton /></TableCell>))}</TableRow>))
-              : items.length === 0 ? (
-                <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}><FolderIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} /><Typography>{t('files.noFiles')}</Typography></TableCell></TableRow>
-              ) : items.map((it) => (
-                <TableRow key={it.id} hover>
-                  <TableCell><Chip label={`#${it.id}`} size="small" variant="outlined" /></TableCell>
+      {/* Table Section */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          borderRadius: 5, 
+          overflow: 'hidden', 
+          border: '1px solid', 
+          borderColor: 'divider',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
+        }}
+      >
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: 'primary.50' }}>
+                <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('common.id')}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: 'primary.dark' }}>{t('files.path') || 'Path'}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: 'primary.dark' }}>{t('files.code') || 'Code'}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: 'primary.dark' }}>{t('files.type') || 'Type'}</TableCell>
+                <TableCell align={isRTL ? 'left' : 'right'} sx={{ fontWeight: 800, color: 'primary.dark' }}>{t('common.actions')}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                [...Array(5)].map((_, i) => (
+                  <TableRow key={i}>
+                    {[...Array(5)].map((_, j) => (
+                      <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : filteredItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 12 }}>
+                    <Box sx={{ opacity: 0.5, mb: 2 }}>
+                      <FolderIcon sx={{ fontSize: 64 }} />
+                    </Box>
+                    <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('files.noFiles')}</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : filteredItems.map((it) => (
+                <TableRow key={it.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
+                  <TableCell sx={{ py: 2.5 }}>
+                    <Chip 
+                      label={`#${it.id}`} 
+                      size="small" 
+                      sx={{ 
+                        borderRadius: 2, 
+                        fontWeight: 800,
+                        bgcolor: 'grey.100',
+                        color: 'text.primary',
+                        border: '1px solid',
+                        borderColor: 'grey.200',
+                        px: 1
+                      }} 
+                    />
+                  </TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <FileIcon fontSize="small" color="action" />
-                      {it.path || '-'}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box sx={{ 
+                        width: 36, 
+                        height: 36, 
+                        borderRadius: 2, 
+                        bgcolor: 'primary.50', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        color: 'primary.main'
+                      }}>
+                        <FileIcon fontSize="small" />
+                      </Box>
+                      <Typography variant="body1" fontWeight={700} color="primary.main">
+                        {it.path || '-'}
+                      </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell>{it.code || '-'}</TableCell>
-                  <TableCell><Chip label={it.type ? 'Yes' : 'No'} size="small" color={it.type ? 'success' : 'default'} /></TableCell>
-                  <TableCell align="right">
-                    <Tooltip title={t('files.download')}>
-                      <IconButton color="primary" component="a" href={`${process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'}/Files/${it.id}/download`} target="_blank">
-                        <DownloadIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t('app.delete')}>
-                      <IconButton color="error" onClick={() => remove(it.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      {it.code || '-'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={it.type ? (t('app.yes') || 'Yes') : (t('app.no') || 'No')} 
+                      size="small" 
+                      color={it.type ? 'success' : 'default'} 
+                      sx={{ fontWeight: 700, borderRadius: 1.5 }}
+                    />
+                  </TableCell>
+                  <TableCell align={isRTL ? 'left' : 'right'}>
+                    <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', gap: 1 }}>
+                      <Tooltip title={t('files.download')}>
+                        <IconButton 
+                          color="primary" 
+                          component="a" 
+                          href={`${process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'}/Files/${it.id}/download`} 
+                          target="_blank"
+                          sx={{ 
+                            bgcolor: 'primary.50',
+                            '&:hover': { bgcolor: 'primary.100', transform: 'scale(1.1)' },
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <DownloadIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title={t('common.delete')}>
+                        <IconButton 
+                          color="error" 
+                          onClick={() => remove(it.id)}
+                          sx={{ 
+                            bgcolor: 'error.50',
+                            '&:hover': { bgcolor: 'error.100', transform: 'scale(1.1)' },
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('files.upload')}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid size={{ xs: 12 }}>
+      {/* Upload Dialog */}
+      <Dialog 
+        open={openDialog} 
+        onClose={() => setOpenDialog(false)} 
+        maxWidth="sm" 
+        fullWidth 
+        PaperProps={{ sx: { borderRadius: 6, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800, px: 4, pt: 4, pb: 1, fontSize: '1.5rem' }}>{t('files.upload')}</DialogTitle>
+        <DialogContent sx={{ px: 4 }}>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontWeight: 500 }}>
+            {t('files.uploadSubtitle', 'Select a file to upload and provide an optional code for identification.')}
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
               <Button
                 component="label"
                 variant="outlined"
                 startIcon={<CloudUploadIcon />}
                 fullWidth
-                sx={{ py: 2 }}
+                sx={{ 
+                  py: 6, 
+                  borderRadius: 4, 
+                  borderStyle: 'dashed',
+                  borderWidth: 2,
+                  bgcolor: file ? 'primary.50' : 'grey.50',
+                  borderColor: file ? 'primary.main' : 'divider',
+                  '&:hover': {
+                    borderStyle: 'dashed',
+                    borderWidth: 2,
+                    bgcolor: 'primary.50',
+                  }
+                }}
               >
-                {file ? file.name : t('files.chooseFile')}
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h6" fontWeight={800} color={file ? 'primary.main' : 'text.primary'}>
+                    {file ? file.name : t('files.chooseFile')}
+                  </Typography>
+                  {!file && (
+                    <Typography variant="body2" color="text.secondary">
+                      {t('files.dragDrop', 'or drag and drop here')}
+                    </Typography>
+                  )}
+                </Box>
                 <VisuallyHiddenInput type="file" onChange={(e) => setFile(e.target.files?.[0])} />
               </Button>
             </Grid>
-            <Grid size={{ xs: 12 }}>
-              <TextField fullWidth label={t('files.code')} value={code} onChange={(e) => setCode(e.target.value)} />
+            <Grid item xs={12}>
+              <TextField 
+                fullWidth 
+                label={t('files.code')} 
+                value={code} 
+                onChange={(e) => setCode(e.target.value)} 
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+              />
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)}>{t('app.cancel')}</Button>
-          <Button variant="contained" onClick={submitUpload} disabled={!file}>{t('files.upload')}</Button>
+        <DialogActions sx={{ p: 4, pt: 2, gap: 1 }}>
+          <Button 
+            onClick={() => setOpenDialog(false)}
+            sx={{ borderRadius: 3, px: 3, fontWeight: 700, color: 'text.secondary' }}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={submitUpload} 
+            disabled={!file}
+            sx={{ 
+              borderRadius: 3, 
+              px: 5, 
+              py: 1.5,
+              fontWeight: 800,
+              boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)'
+            }}
+          >
+            {t('files.upload')}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={4000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })} 
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity} 
+          variant="filled"
+          sx={{ borderRadius: 3, boxShadow: '0 10px 20px rgba(0,0,0,0.1)', fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+        <Alert severity={snackbar.severity} variant="filled" sx={{ width: '100%', borderRadius: 2 }}>
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </Box>
   );

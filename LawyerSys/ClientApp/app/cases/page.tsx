@@ -197,86 +197,193 @@ export default function CasesPageClient() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          <GavelIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h5" fontWeight={600}>{t('cases.management')}</Typography>
+      {/* Header */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 4,
+          flexDirection: isRTL ? 'row-reverse' : 'row' 
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <Box 
+            sx={{ 
+              bgcolor: 'primary.main', 
+              color: 'white', 
+              p: 1.5, 
+              borderRadius: 3, 
+              display: 'flex',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+            }}
+          >
+            <GavelIcon fontSize="medium" />
+          </Box>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+              {t('cases.management')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('cases.totalCases')}: <strong>{items.length}</strong>
+            </Typography>
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('cases.refresh')}>
-            <IconButton onClick={load} disabled={loading}><RefreshIcon /></IconButton>
+            <IconButton 
+              onClick={load} 
+              disabled={loading}
+              sx={{ 
+                bgcolor: 'background.paper', 
+                border: '1px solid', 
+                borderColor: 'divider',
+                '&:hover': { bgcolor: 'grey.50' }
+              }}
+            >
+              <RefreshIcon fontSize="small" />
+            </IconButton>
           </Tooltip>
           <Button
             variant="contained"
             startIcon={!isRTL ? <AddIcon /> : undefined}
             endIcon={isRTL ? <AddIcon /> : undefined}
             onClick={() => setOpenDialog(true)}
+            sx={{ 
+              borderRadius: 2.5, 
+              px: 3,
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+            }}
           >
             {t('cases.newCase')}
           </Button>
         </Box>
       </Box>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent sx={{ py: 2 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: isRTL ? 'right' : 'left' }}>
-            {t('cases.totalCases')}: <strong>{items.length}</strong>
-          </Typography>
-        </CardContent>
-      </Card>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{t('cases.code')}</TableCell>
-              <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{t('cases.type')}</TableCell>
-              <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{t('cases.date')}</TableCell>
-              <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{t('cases.amount')}</TableCell>
-              <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{t('cases.notes')}</TableCell>
-              <TableCell align={isRTL ? 'left' : 'right'}>{t('cases.actions')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              [...Array(5)].map((_, i) => (
-                <TableRow key={i}>{[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton /></TableCell>)}</TableRow>
-              ))
-            ) : items.length === 0 ? (
+      {/* Table */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          borderRadius: 4, 
+          border: '1px solid', 
+          borderColor: 'divider',
+          overflow: 'hidden',
+          bgcolor: 'background.paper',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <TableContainer>
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                  <Box sx={{ color: 'text.secondary' }}>
-                    <GavelIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                    <Typography>{t('cases.noCases')}</Typography>
-                    <Button variant="contained" size="small" sx={{ mt: 2 }} onClick={() => setOpenDialog(true)}>{t('cases.createFirst')}</Button>
-                  </Box>
-                </TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.code')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.type')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.date')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.amount')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.notes')}</TableCell>
+                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5 }}>{t('cases.actions')}</TableCell>
               </TableRow>
-            ) : (
-              items.map((item) => (
-                <TableRow key={item.id} hover>
-                  <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={item.code} size="small" color="primary" variant="outlined" /></TableCell>
-                  <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.invitionType || '-'}</TableCell>
-                  <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.invitionDate?.slice(0,10) || '-'}</TableCell>
-                  <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.totalAmount ? `$${item.totalAmount.toLocaleString()}` : '-'}</TableCell>
-                  <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', textAlign: isRTL ? 'right' : 'left' }}>{item.notes || '-'}</TableCell>
-                  <TableCell align={isRTL ? 'left' : 'right'}>
-                    <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
-                      <Button size="small" onClick={()=>navigate(`/cases/${item.code}`)}>{t('app.details') || 'Details'}</Button>
-                      <Tooltip title={t('app.delete')}>
-                        <IconButton color="error" onClick={() => remove(item.id)}><DeleteIcon /></IconButton>
-                      </Tooltip>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                Array.from(new Array(5)).map((_, i) => (
+                  <TableRow key={i}>
+                    {[...Array(6)].map((__, j) => (
+                      <TableCell key={j} sx={{ textAlign: isRTL ? 'right' : 'left' }}>
+                        <Skeleton variant="text" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
+                    <Box sx={{ opacity: 0.5 }}>
+                      <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
+                        <GavelIcon fontSize="inherit" />
+                      </Box>
+                      <Typography variant="h6" gutterBottom>{t('cases.noCases')}</Typography>
+                      <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => setOpenDialog(true)}>
+                        {t('cases.createFirst')}
+                      </Button>
                     </Box>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              ) : (
+                items.map((item) => (
+                  <TableRow 
+                    key={item.id}
+                    sx={{ 
+                      '&:hover': { bgcolor: 'grey.50' },
+                      transition: 'background 0.2s ease'
+                    }}
+                  >
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                      <Chip 
+                        label={item.code} 
+                        size="small" 
+                        color="primary" 
+                        variant="outlined" 
+                        sx={{ borderRadius: 1.5, fontWeight: 600 }}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.invitionType || '-'}</TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.invitionDate?.slice(0,10) || '-'}</TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                      {item.totalAmount ? (
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
+                          ${item.totalAmount.toLocaleString()}
+                        </Typography>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell sx={{ py: 2, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', textAlign: isRTL ? 'right' : 'left' }}>
+                      {item.notes || '-'}
+                    </TableCell>
+                    <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+                        <Button 
+                          size="small" 
+                          variant="text"
+                          onClick={()=>navigate(`/cases/${item.code}`)}
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {t('app.details') || 'Details'}
+                        </Button>
+                        <Tooltip title={t('app.delete')}>
+                          <IconButton 
+                            color="error" 
+                            onClick={() => remove(item.id)}
+                            sx={{ 
+                              '&:hover': { bgcolor: 'error.light', color: 'white' },
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left' }}>{t('cases.createNew')}</DialogTitle>
+      <Dialog 
+        open={openDialog} 
+        onClose={() => setOpenDialog(false)} 
+        maxWidth="sm" 
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 4, p: 1 }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.5rem', pb: 1, textAlign: isRTL ? 'right' : 'left' }}>
+          {t('cases.createNew')}
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -422,14 +529,38 @@ export default function CasesPageClient() {
           </DialogActions>
         </Dialog>
 
-        <DialogActions sx={{ p: 2, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'flex-end' }}>
-          <Button onClick={() => setOpenDialog(false)}>{t('app.cancel')}</Button>
-          <Button variant="contained" onClick={create} disabled={!code}>{t('app.create')}</Button>
+        <DialogActions sx={{ p: 3, pt: 1, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 600 }}>{t('app.cancel')}</Button>
+          <Button 
+            variant="contained" 
+            onClick={create} 
+            disabled={!code}
+            sx={{ 
+              borderRadius: 2.5, 
+              px: 4,
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+            }}
+          >
+            {t('app.create')}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })} 
+        anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity} 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: 3, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
+        >
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </Box>
   );
