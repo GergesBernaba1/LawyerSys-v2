@@ -34,13 +34,31 @@ function parseJwt(token: string): any {
   }
 }
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const decoded = parseJwt(token);
+    if (!decoded || !decoded.exp) return true;
+    
+    // exp is in seconds, Date.now() is in milliseconds
+    const currentTime = Math.floor(Date.now() / 1000);
+    return decoded.exp < currentTime;
+  } catch {
+    return true;
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // avoid reading localStorage during SSR — initialize on client
   const [token, setToken] = useState<string | null>(null)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('lawyersys-token')
-      if (saved) setToken(saved)
+      if (saved && !isTokenExpired(saved)) {
+        setToken(saved)
+      } else if (saved) {
+        // Token exists but is expired, remove it
+        localStorage.removeItem('lawyersys-token')
+      }
     }
   }, [])
   const [user, setUser] = useState<User | null>(null)

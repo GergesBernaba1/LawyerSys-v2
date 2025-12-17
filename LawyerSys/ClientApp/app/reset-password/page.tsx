@@ -5,6 +5,7 @@ import { Box, Paper, TextField, Button, Typography, Alert, Container, Avatar } f
 import { Key as KeyIcon } from '@mui/icons-material'
 import api from '../../src/services/api'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../../src/services/auth'
 
 function ResetPasswordForm() {
   const search = useSearchParams()

@@ -1,10 +1,11 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Paper, TextField, Button, Typography, Alert, Container, Avatar } from '@mui/material'
 import { LockReset as LockResetIcon } from '@mui/icons-material'
 import api from '../../src/services/api'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../../src/services/auth'
 
 export default function ForgotPasswordPage(){
   const [userName, setUserName] = useState('')
@@ -13,6 +14,14 @@ export default function ForgotPasswordPage(){
   const [success, setSuccess] = useState<any>(null)
   const router = useRouter()
   const { t } = useTranslation()
+  const { isAuthenticated } = useAuth()
+
+  // Redirect authenticated users away from forgot-password page
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
