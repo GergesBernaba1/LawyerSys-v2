@@ -121,7 +121,7 @@ export default function Dashboard() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
             <Box sx={{ textAlign: isRTL ? 'right' : 'left' }}>
               <Typography variant="h4" fontWeight={700} gutterBottom>
-                {t('dashboard.welcomeBack')}{user ? `, ${user.fullName || user.email.split('@')[0]}` : ''}!
+                {t('dashboard.welcomeBack')}{user ? `, ${user.fullName || user.userName || 'User'}` : ''}!
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>{t('dashboard.subtitle')}</Typography>
             </Box>

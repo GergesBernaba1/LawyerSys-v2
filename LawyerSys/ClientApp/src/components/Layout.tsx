@@ -379,7 +379,7 @@ export default function Layout({ children }: LayoutProps) {
                     height: 36,
                   }}
                 >
-                  {(user.fullName?.charAt(0) || user.email?.split('@')[0]?.charAt(0) || 'U').toUpperCase()}
+                  {(user.fullName?.charAt(0) || user.userName?.charAt(0) || 'U').toUpperCase()}
                 </Avatar>
               </IconButton>
               <Menu
@@ -396,7 +396,7 @@ export default function Layout({ children }: LayoutProps) {
                 }}
               >
                 <MenuItem disabled>
-                  <Typography variant="body2">{user.fullName || user.email?.split('@')[0] || 'User'}</Typography>
+                  <Typography variant="body2">{user.fullName || user.userName || 'User'}</Typography>
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={() => {/* TODO: Navigate to profile */}}>

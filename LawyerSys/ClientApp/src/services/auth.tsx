@@ -4,6 +4,7 @@ import api from './api'
 interface User {
   email: string;
   fullName: string;
+  userName: string;
   token: string;
 }
 
@@ -66,12 +67,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (token) {
       const decoded = parseJwt(token);
+      console.log('Decoded JWT:', decoded);
       if (decoded) {
-        setUser({
+        const userInfo = {
           email: decoded.email || decoded.sub || 'User',
           fullName: decoded.fullName || '',
+          userName: decoded.unique_name || decoded.preferred_username || decoded.sub || '',
           token,
-        });
+        };
+        console.log('Setting user info:', userInfo);
+        setUser(userInfo);
       }
     } else {
       setUser(null);
