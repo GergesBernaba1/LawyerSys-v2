@@ -25,7 +25,15 @@ import {
   Alert,
   Snackbar,
   Tooltip,
-  // Grid: using Unstable_Grid2 import below
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  List,
+  ListItem,
+  ListItemText,
+  Avatar,
   useTheme,
 } from '@mui/material';
 import Grid from '@mui/material/Grid'
@@ -69,11 +77,34 @@ export default function CasesPageClient() {
     severity: 'success',
   });
 
+  // New states for relations
+  const [courts, setCourts] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [contenders, setContenders] = useState<any[]>([]);
+  const [selectedCourt, setSelectedCourt] = useState<number | ''>('');
+  const [primaryCustomer, setPrimaryCustomer] = useState<number | ''>('');
+  const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
+  const [selectedContenders, setSelectedContenders] = useState<number[]>([]);
+  const [sitingDialogOpen, setSitingDialogOpen] = useState(false);
+  const [contenderDialogOpen, setContenderDialogOpen] = useState(false);
+  const [newSiting, setNewSiting] = useState({ date: '', time: '', judgeName: '', notes: '' });
+  const [newContender, setNewContender] = useState({ fullName: '', ssn: '', birthDate: '' });
+  const [pendingSitings, setPendingSitings] = useState<any[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+
   async function load() {
     setLoading(true);
     try {
-      const r = await api.get('/Cases');
+      const [r, courtsRes, customersRes, contendersRes] = await Promise.all([
+        api.get('/Cases'),
+        api.get('/Courts'),
+        api.get('/Customers'),
+        api.get('/Contenders')
+      ]);
       setItems(r.data || []);
+      setCourts(courtsRes.data || []);
+      setCustomers(customersRes.data || []);
+      setContenders(contendersRes.data || []);
     } catch (err) {
       setSnackbar({ open: true, message: t('cases.failedLoad'), severity: 'error' });
     } finally {
@@ -85,13 +116,68 @@ export default function CasesPageClient() {
 
   async function create() {
     try {
-      await api.post('/Cases', { code, notes });
+      // 1) Create case
+      const created = await api.post('/Cases', { code, notes });
+      const createdCase = created.data;
+      const caseCode = createdCase.code ?? createdCase.Code ?? code;
+
+      // 2) Link court
+      if (selectedCourt) {
+        await api.post(`/cases/${caseCode}/courts/${selectedCourt}`);
+      }
+
+      // 3) Link customers (primary and additional)
+      if (primaryCustomer) {
+        await api.post(`/cases/${caseCode}/customers/${primaryCustomer}`);
+        // ensure primary included in selected
+        if (!selectedCustomers.includes(Number(primaryCustomer))) setSelectedCustomers(prev => [...prev, Number(primaryCustomer)]);
+      }
+      for (const cid of selectedCustomers) {
+        try { await api.post(`/cases/${caseCode}/customers/${cid}`); } catch (e) { /* ignore duplicates */ }
+      }
+
+      // 4) Link contenders
+      for (const cont of selectedContenders) {
+        try { await api.post(`/cases/${caseCode}/contenders/${cont}`); } catch (e) { }
+      }
+
+      // 5) Create and link sitings
+      for (const s of pendingSitings) {
+        // create siting
+        const sitDto = {
+          SitingTime: new Date(`${s.date}T${s.time}`),
+          SitingDate: s.date,
+          SitingNotification: new Date(`${s.date}T${s.time}`),
+          JudgeName: s.judgeName,
+          Notes: s.notes
+        };
+        const r = await api.post('/Sitings', sitDto);
+        const sitingId = r.data.id;
+        await api.post(`/cases/${caseCode}/sitings/${sitingId}`);
+      }
+
+      // 6) Upload and link files
+      for (const f of pendingFiles) {
+        const fd = new FormData();
+        fd.append('file', f);
+        const uploadRes = await api.post('/Files/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const fileId = uploadRes.data.id;
+        await api.post(`/cases/${caseCode}/files/${fileId}`);
+      }
+
       await load();
       setCode(0);
       setNotes('');
+      setSelectedCourt('');
+      setPrimaryCustomer('');
+      setSelectedCustomers([]);
+      setSelectedContenders([]);
+      setPendingSitings([]);
+      setPendingFiles([]);
       setOpenDialog(false);
       setSnackbar({ open: true, message: t('cases.caseCreated'), severity: 'success' });
     } catch (err: any) {
+      console.error(err);
       setSnackbar({ open: true, message: err?.response?.data?.message ?? t('cases.failedCreate'), severity: 'error' });
     }
   }
@@ -175,9 +261,12 @@ export default function CasesPageClient() {
                   <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.totalAmount ? `$${item.totalAmount.toLocaleString()}` : '-'}</TableCell>
                   <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', textAlign: isRTL ? 'right' : 'left' }}>{item.notes || '-'}</TableCell>
                   <TableCell align={isRTL ? 'left' : 'right'}>
-                    <Tooltip title={t('app.delete')}>
-                      <IconButton color="error" onClick={() => remove(item.id)}><DeleteIcon /></IconButton>
-                    </Tooltip>
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+                      <Button size="small" onClick={()=>navigate(`/cases/${item.code}`)}>{t('app.details') || 'Details'}</Button>
+                      <Tooltip title={t('app.delete')}>
+                        <IconButton color="error" onClick={() => remove(item.id)}><DeleteIcon /></IconButton>
+                      </Tooltip>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))
@@ -193,11 +282,146 @@ export default function CasesPageClient() {
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label={t('cases.code')} type="number" value={code || ''} onChange={(e) => setCode(Number(e.target.value))} />
             </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>{t('courts.name')}</InputLabel>
+                <Select value={selectedCourt} label={t('courts.name')} onChange={(e)=>setSelectedCourt(Number(e.target.value) || '')}>
+                  <MenuItem value=""><em>--</em></MenuItem>
+                  {courts.map(c=> (<MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>{t('customers.customer')}</InputLabel>
+                <Select value={primaryCustomer} label={t('customers.customer')} onChange={(e)=>setPrimaryCustomer(Number(e.target.value) || '')}>
+                  <MenuItem value=""><em>--</em></MenuItem>
+                  {customers.map(c=> (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || c.identity?.email || ('#'+c.usersId)}</MenuItem>))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>{t('customers.management')}</InputLabel>
+                <Select multiple value={selectedCustomers} onChange={(e)=>{
+                  const value = e.target.value as unknown as number[];
+                  setSelectedCustomers(value);
+                }} inputProps={{ 'aria-label': 'select multiple customers' }} renderValue={(selected)=> (selected as number[]).map(id => (customers.find(c=>c.id===id)?.identity?.fullName || customers.find(c=>c.id===id)?.user?.fullName || ('#'+id))).join(', ')}>
+                  {customers.map(c => (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedCustomers.indexOf(c.id) > -1} /><ListItemText primary={c.identity?.fullName || c.user?.fullName || ('#'+c.usersId)} /></MenuItem>))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>{t('contenders.title') || 'Contenders'}</InputLabel>
+                <Select multiple value={selectedContenders} onChange={(e)=>{ const value = e.target.value as unknown as number[]; setSelectedContenders(value); }} renderValue={(sel)=> (sel as number[]).map(id => contenders.find(c=>c.id===id)?.fullName || ('#'+id)).join(', ')}>
+                  {contenders.map(c=> (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedContenders.indexOf(c.id) > -1} /><ListItemText primary={c.fullName} /></MenuItem>))}
+                </Select>
+                <Box sx={{ mt:1 }}>
+                  <Button size="small" onClick={()=>setContenderDialogOpen(true)}>{t('contenders.title')}: {t('app.add') || 'Add'}</Button>
+                </Box>
+              </FormControl>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Box>
+                <Typography variant="subtitle2">{t('cases.sitings') || 'Sitings'}</Typography>
+                <List dense>
+                  {pendingSitings.map((s, idx)=>(
+                    <ListItem key={idx} secondaryAction={<Button size="small" onClick={()=>setPendingSitings(prev=>prev.filter((_,i)=>i!==idx))}>{t('app.delete')}</Button>}>
+                      <ListItemText primary={`${s.date} ${s.time} - ${s.judgeName}`} secondary={s.notes} />
+                    </ListItem>
+                  ))}
+                </List>
+                <Button size="small" onClick={()=>setSitingDialogOpen(true)}>{t('cases.createNewSiting') || 'Add Siting'}</Button>
+              </Box>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Box>
+                <Typography variant="subtitle2">{t('files.title') || 'Files'}</Typography>
+                <input type="file" multiple onChange={(e)=>{
+                  if(!e.target.files) return;
+                  const list = Array.from(e.target.files);
+                  setPendingFiles(prev => [...prev, ...list]);
+                }} />
+                <List dense>
+                  {pendingFiles.map((f, idx)=> (<ListItem key={idx} secondaryAction={<Button size="small" onClick={()=>setPendingFiles(prev=>prev.filter((_,i)=>i!==idx))}>{t('app.delete')}</Button>}><ListItemText primary={f.name} /></ListItem>))}
+                </List>
+              </Box>
+            </Grid>
+
             <Grid size={{ xs: 12 }}>
               <TextField fullWidth label={t('cases.notes')} multiline rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </Grid>
           </Grid>
         </DialogContent>
+
+        {/* New Contender Dialog */}
+        <Dialog open={contenderDialogOpen} onClose={() => setContenderDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>{t('contenders.title')}</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid size={{ xs: 12 }}>
+                <TextField fullWidth label={t('contenders.title')} value={newContender.fullName} onChange={(e)=>setNewContender({...newContender, fullName: e.target.value})} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label={t('customers.ssn')} value={newContender.ssn} onChange={(e)=>setNewContender({...newContender, ssn: e.target.value})} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label={t('customers.dateOfBirth')} type="date" InputLabelProps={{ shrink: true }} value={newContender.birthDate} onChange={(e)=>setNewContender({...newContender, birthDate: e.target.value})} />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={()=>setContenderDialogOpen(false)}>{t('app.cancel')}</Button>
+            <Button variant="contained" onClick={async ()=>{
+              try{
+                const payload = { FullName: newContender.fullName, SSN: newContender.ssn, BirthDate: newContender.birthDate };
+                const r = await api.post('/Contenders', payload);
+                setSelectedContenders(prev => [...prev, r.data.id]);
+                setContenders(prev => [...prev, r.data]);
+                setContenderDialogOpen(false);
+                setNewContender({ fullName: '', ssn: '', birthDate: '' });
+                setSnackbar({ open: true, message: t('contenders.title') + ' created', severity: 'success' });
+              }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? 'Failed to create contender', severity: 'error' }); }
+            }}>{t('app.create')}</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* New Siting Dialog (local add) */}
+        <Dialog open={sitingDialogOpen} onClose={() => setSitingDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>{t('cases.createNewSiting') || 'Add Siting'}</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label={t('cases.date') }
+                  type="date" InputLabelProps={{ shrink: true }} value={newSiting.date} onChange={(e)=>setNewSiting({...newSiting, date: e.target.value})} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label={t('cases.time') || 'Time'} type="time" value={newSiting.time} onChange={(e)=>setNewSiting({...newSiting, time: e.target.value})} />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField fullWidth label={t('cases.judge') || 'Judge'} value={newSiting.judgeName} onChange={(e)=>setNewSiting({...newSiting, judgeName: e.target.value})} />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField fullWidth label={t('cases.notes')} value={newSiting.notes} onChange={(e)=>setNewSiting({...newSiting, notes: e.target.value})} />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={()=>setSitingDialogOpen(false)}>{t('app.cancel')}</Button>
+            <Button variant="contained" onClick={()=>{
+              setPendingSitings(prev => [...prev, newSiting]);
+              setSitingDialogOpen(false);
+              setNewSiting({ date: '', time: '', judgeName: '', notes: '' });
+            }}>{t('app.create')}</Button>
+          </DialogActions>
+        </Dialog>
+
         <DialogActions sx={{ p: 2, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'flex-end' }}>
           <Button onClick={() => setOpenDialog(false)}>{t('app.cancel')}</Button>
           <Button variant="contained" onClick={create} disabled={!code}>{t('app.create')}</Button>

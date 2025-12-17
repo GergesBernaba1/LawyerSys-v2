@@ -126,7 +126,19 @@
     "failedCreate": "Failed to create case",
     "failedDelete": "Failed to delete case",
     "confirmDelete": "Are you sure you want to delete this case?",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "sitings": "Sitings",
+    "createNewSiting": "Add Siting",
+    "time": "Time",
+    "judge": "Judge",
+    "details": "Details",
+    "save": "Save",
+    "updateSuccess": "Updated successfully",
+    "sitingCreated": "Siting created",
+    "contenderUpdated": "Contender updated",
+    "employeeAssigned": "Employee assigned",
+    "sitingUpdated": "Siting updated",
+    "fileUpdated": "File updated"
   },
   "customers": {
     "title": "Customers",

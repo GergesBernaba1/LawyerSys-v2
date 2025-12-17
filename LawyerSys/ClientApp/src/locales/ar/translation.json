@@ -126,7 +126,19 @@
     "failedCreate": "فشل إنشاء القضية",
     "failedDelete": "فشل حذف القضية",
     "confirmDelete": "هل أنت متأكد من حذف هذه القضية؟",
-    "refresh": "تحديث"
+    "refresh": "تحديث",
+    "sitings": "الجلسات",
+    "createNewSiting": "إضافة جلسة",
+    "time": "الوقت",
+    "judge": "القاضي",
+    "details": "تفاصيل",
+    "save": "حفظ",
+    "updateSuccess": "تم التحديث",
+    "sitingCreated": "تم إضافة الجلسة",
+    "contenderUpdated": "تم تحديث الخصم",
+    "employeeAssigned": "تم تعيين الموظف",
+    "sitingUpdated": "تم تحديث الجلسة",
+    "fileUpdated": "تم تحديث الملف"
   },
   "customers": {
     "title": "العملاء",
