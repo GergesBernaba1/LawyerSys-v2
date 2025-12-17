@@ -37,40 +37,58 @@ const base = {
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Poppins", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: 14,
     h1: {
       fontWeight: 700,
-      fontSize: '2.5rem',
+      fontSize: '2.25rem',
+      lineHeight: 1.2,
     },
     h2: {
       fontWeight: 600,
-      fontSize: '2rem',
+      fontSize: '1.875rem',
+      lineHeight: 1.3,
     },
     h3: {
       fontWeight: 600,
-      fontSize: '1.75rem',
+      fontSize: '1.5rem',
+      lineHeight: 1.4,
     },
     h4: {
       fontWeight: 600,
-      fontSize: '1.5rem',
+      fontSize: '1.25rem',
+      lineHeight: 1.4,
     },
     h5: {
       fontWeight: 600,
-      fontSize: '1.25rem',
+      fontSize: '1.125rem',
+      lineHeight: 1.5,
     },
     h6: {
       fontWeight: 600,
       fontSize: '1rem',
+      lineHeight: 1.5,
     },
     body1: {
       fontSize: '1rem',
+      lineHeight: 1.6,
     },
     body2: {
       fontSize: '0.875rem',
+      lineHeight: 1.5,
     },
     button: {
       textTransform: 'none',
       fontWeight: 600,
+      fontSize: '0.875rem',
+    },
+    subtitle1: {
+      fontSize: '1rem',
+      fontWeight: 500,
+    },
+    subtitle2: {
+      fontSize: '0.875rem',
+      fontWeight: 500,
     },
   },
   shape: {
