@@ -379,7 +379,7 @@ export default function Layout({ children }: LayoutProps) {
                     height: 36,
                   }}
                 >
-                  {user.email?.charAt(0).toUpperCase() || 'U'}
+                  {(user.fullName?.charAt(0) || user.email?.split('@')[0]?.charAt(0) || 'U').toUpperCase()}
                 </Avatar>
               </IconButton>
               <Menu
@@ -396,7 +396,7 @@ export default function Layout({ children }: LayoutProps) {
                 }}
               >
                 <MenuItem disabled>
-                  <Typography variant="body2">{user.email}</Typography>
+                  <Typography variant="body2">{user.fullName || user.email?.split('@')[0] || 'User'}</Typography>
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={() => {/* TODO: Navigate to profile */}}>
@@ -412,20 +412,6 @@ export default function Layout({ children }: LayoutProps) {
                   {t('app.logout')}
                 </MenuItem>
               </Menu>
-
-              {/* DEV DEBUG: show detected RTL/language state (dev only) */}
-              {process.env.NODE_ENV !== 'production' && (
-                <Box sx={{ ml: 2, px: 1, py: 0.5, borderRadius: 1, bgcolor: 'primary.light', color: 'white', fontSize: '0.75rem', display: 'inline-flex', gap: 1, alignItems: 'center' }}>
-                  <Box component="span" sx={{ opacity: 0.85 }}>dir:</Box>
-                  <Box component="span" sx={{ fontWeight: 700 }}>{docDir || theme.direction}</Box>
-                  <Box component="span" sx={{ opacity: 0.6 }}>|</Box>
-                  <Box component="span" sx={{ opacity: 0.85 }}>i18n:</Box>
-                  <Box component="span" sx={{ fontWeight: 700 }}>{lng}</Box>
-                  <Box component="span" sx={{ opacity: 0.6 }}>|</Box>
-                  <Box component="span" sx={{ opacity: 0.85 }}>isRTL:</Box>
-                  <Box component="span" sx={{ fontWeight: 700 }}>{isRTL ? 'true' : 'false'}</Box>
-                </Box>
-              )}
             </>
           )}
         </Toolbar>

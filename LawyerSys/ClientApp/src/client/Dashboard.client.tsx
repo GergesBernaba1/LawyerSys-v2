@@ -125,7 +125,6 @@ export default function Dashboard() {
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>{t('dashboard.subtitle')}</Typography>
             </Box>
-            <Button variant="contained" startIcon={isRTL ? <OpenInNewIcon /> : undefined} endIcon={!isRTL ? <OpenInNewIcon /> : undefined} href="/swagger" target="_blank" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}>{t('dashboard.apiDocs')}</Button>
           </Box>
         </Paper>
 
