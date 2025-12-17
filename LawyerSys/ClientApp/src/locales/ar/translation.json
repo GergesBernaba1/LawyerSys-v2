@@ -46,7 +46,8 @@
     "address": "العنوان",
     "add": "إضافة",
     "remove": "إزالة",
-    "update": "تحديث"
+    "update": "تحديث",
+    "undo": "تراجع"
   },
   "login": {
     "username": "اسم المستخدم",
@@ -164,7 +165,11 @@
     "unassigned": "غير معين",
     "assignEmployee": "تعيين موظف",
     "loading": "جارٍ التحميل...",
-    "requiresPasswordReset": "إجبار تغيير كلمة المرور عند الدخول لأول مرة"
+    "requiresPasswordReset": "إجبار تغيير كلمة المرور عند الدخول لأول مرة",
+    "assignmentSuccess": "تم تعيين الموظف",
+    "assignmentUndone": "تم التراجع عن التعيين",
+    "failedAssign": "فشل في تعيين الموظف",
+    "failedUndo": "فشل في التراجع عن التعيين"
   },
   "employees": {
     "title": "الموظفين",
@@ -189,6 +194,7 @@
     "confirmDelete": "هل أنت متأكد من حذف هذا الموظف؟"
   },
   "files": {
+    "undo": "تراجع",
     "title": "الملفات",
     "management": "إدارة الملفات",
     "fileName": "اسم الملف",

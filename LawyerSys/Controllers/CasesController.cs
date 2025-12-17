@@ -118,6 +118,43 @@ public class CasesController : ControllerBase
         return Ok(new { message = "Employee assigned" });
     }
 
+    // DELETE: api/cases/{code}/assign-employee
+    [HttpDelete("{code}/assign-employee")]
+    public async Task<IActionResult> UnassignEmployee(int code)
+    {
+        var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
+        if (caseEntity == null) return NotFound(new { message = "Case not found" });
+
+        var existing = _context.Cases_Employees.Where(ce => ce.Case_Code == code);
+        _context.Cases_Employees.RemoveRange(existing);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Assignment removed" });
+    }
+
+    // GET: api/cases/assignments
+    [HttpGet("assignments")]
+    public async Task<ActionResult<IEnumerable<object>>> GetAssignments()
+    {
+        var assignments = await _context.Cases_Employees
+            .Include(ce => ce.Employee)
+                .ThenInclude(e => e.Users)
+            .Select(ce => new
+            {
+                caseCode = ce.Case_Code,
+                employeeId = ce.Employee_Id,
+                employee = ce.Employee != null && ce.Employee.Users != null ? new
+                {
+                    id = ce.Employee.Users.Id,
+                    fullName = ce.Employee.Users.Full_Name,
+                    userName = ce.Employee.Users.User_Name
+                } : null
+            })
+            .ToListAsync();
+
+        return Ok(assignments);
+    }
+
     private static CaseDto MapToDto(Case c) => new()
     {
         Id = c.Id,

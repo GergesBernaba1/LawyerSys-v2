@@ -34,3 +34,10 @@ public class AssignEmployeeDto
 {
     public int EmployeeId { get; set; }
 }
+
+public class CaseAssignmentDto
+{
+    public int CaseCode { get; set; }
+    public int EmployeeId { get; set; }
+    public LegacyUserDto? Employee { get; set; }
+}
