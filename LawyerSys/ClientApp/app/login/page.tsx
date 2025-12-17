@@ -29,10 +29,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  // Debug translations
-  console.log('Current language:', i18n.language);
-  console.log('forgotPassword translation:', t('login.forgotPassword'));
-  console.log('noAccount translation:', t('login.noAccount'));
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -125,7 +121,7 @@ export default function LoginPage() {
               {loading ? (t('app.loading') || 'Loading...') : t('app.login')}
             </Button>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <MuiLink href="#" variant="body2">
+              <MuiLink href="/forgot-password" variant="body2">
                 {t('login.forgotPassword') || 'Forgot password?'}
               </MuiLink>
               <MuiLink href="/register" variant="body2">

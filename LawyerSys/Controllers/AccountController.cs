@@ -40,19 +40,38 @@ public class AccountController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        Console.WriteLine($"Login attempt for user: {model.UserName}");
+        
+        if (!ModelState.IsValid) 
+        {
+            Console.WriteLine("Model state invalid");
+            return BadRequest(ModelState);
+        }
 
         var user = await _userManager.FindByNameAsync(model.UserName);
-        if (user == null) return Unauthorized(new { message = "Invalid credentials" });
+        Console.WriteLine($"User found: {user != null}");
+        
+        if (user == null) 
+        {
+            Console.WriteLine("User not found");
+            return Unauthorized(new { message = "Invalid credentials" });
+        }
 
         // If the user was migrated and must reset password, block login and instruct reset
         if (user.RequiresPasswordReset)
         {
+            Console.WriteLine("Password reset required");
             return StatusCode(403, new { message = "Password reset required. Please reset your password before logging in." });
         }
 
         var valid = await _userManager.CheckPasswordAsync(user, model.Password);
-        if (!valid) return Unauthorized(new { message = "Invalid credentials" });
+        Console.WriteLine($"Password valid: {valid}");
+        
+        if (!valid) 
+        {
+            Console.WriteLine("Invalid password");
+            return Unauthorized(new { message = "Invalid credentials" });
+        }
 
         var jwtSection = _configuration.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key") ?? "ChangeThisToASecureKey123!");

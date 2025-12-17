@@ -67,7 +67,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactClient", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173", "https://localhost:5173")
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:5173", "https://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -137,7 +137,16 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed admin user
-await DataSeeder.SeedAdminUser(app.Services);
+try
+{
+    await DataSeeder.SeedAdminUser(app.Services);
+    Console.WriteLine("Admin user seeding completed successfully.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error during admin user seeding: {ex.Message}");
+    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+}
 
 app.Run();
 

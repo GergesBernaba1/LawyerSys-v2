@@ -201,7 +201,14 @@
     "dontHaveAccount": "ليس لديك حساب؟",
     "createOne": "إنشاء حساب",
     "invalidCredentials": "اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة أخرى.",
-    "errorOccurred": "حدث خطأ. يرجى المحاولة مرة أخرى لاحقاً."
+    "errorOccurred": "حدث خطأ. يرجى المحاولة مرة أخرى لاحقاً.",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟ أنشئ حساباً",
+    "requestReset": "طلب إعادة تعيين",
+    "passwordResetRequested": "تم إصدار رمز إعادة التعيين (للاختبار).",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "resetToken": "الرمز",
+    "passwordResetSuccess": "تم تحديث كلمة المرور"
   },
   "register": {
     "title": "إنشاء حساب",

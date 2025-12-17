@@ -201,7 +201,14 @@
     "dontHaveAccount": "Don't have an account?",
     "createOne": "Create one",
     "invalidCredentials": "Invalid username or password. Please try again.",
-    "errorOccurred": "An error occurred. Please try again later."
+    "errorOccurred": "An error occurred. Please try again later.",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account? Sign up",
+    "requestReset": "Request reset",
+    "passwordResetRequested": "Password reset token issued (for testing).",
+    "resetPassword": "Reset password",
+    "resetToken": "Token",
+    "passwordResetSuccess": "Password updated"
   },
   "register": {
     "title": "Create Account",
