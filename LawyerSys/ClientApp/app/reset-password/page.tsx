@@ -1,12 +1,12 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Box, Paper, TextField, Button, Typography, Alert, Container, Avatar } from '@mui/material'
 import { Key as KeyIcon } from '@mui/icons-material'
 import api from '../../src/services/api'
 import { useTranslation } from 'react-i18next'
 
-export default function ResetPasswordPage(){
+function ResetPasswordForm() {
   const search = useSearchParams()
   // guard in case useSearchParams returns something unexpected
   const safeSearch = (search && typeof (search as any).get === 'function') ? search : null
@@ -86,5 +86,13 @@ export default function ResetPasswordPage(){
         </Paper>
       </Box>
     </Container>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }

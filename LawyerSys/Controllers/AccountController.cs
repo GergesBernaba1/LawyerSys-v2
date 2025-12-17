@@ -28,7 +28,13 @@ public class AccountController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var user = new ApplicationUser { UserName = model.UserName, Email = model.Email, EmailConfirmed = false, RequiresPasswordReset = false };
+        var user = new ApplicationUser { 
+            UserName = model.UserName, 
+            Email = model.Email, 
+            FullName = model.FullName,
+            EmailConfirmed = false, 
+            RequiresPasswordReset = false 
+        };
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
@@ -83,6 +89,7 @@ public class AccountController : ControllerBase
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+            new Claim("fullName", user.FullName ?? string.Empty),
         };
 
         var token = new JwtSecurityToken(
@@ -149,6 +156,7 @@ public class RegisterRequest
     public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
 }
 
 public class RequestPasswordResetRequest

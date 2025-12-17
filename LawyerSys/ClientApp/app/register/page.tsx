@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 export default function RegisterPage() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +43,7 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const success = await register(userName, email, password);
+    const success = await register(userName, email, password, fullName);
     if (success) {
       router.push('/login');
     } else {
@@ -87,6 +88,17 @@ export default function RegisterPage() {
               autoFocus
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="fullName"
+              label={t('register.fullName') || 'Full Name'}
+              name="fullName"
+              autoComplete="name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
             <TextField
               margin="normal"

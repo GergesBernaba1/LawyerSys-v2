@@ -3,6 +3,7 @@ import api from './api'
 
 interface User {
   email: string;
+  fullName: string;
   token: string;
 }
 
@@ -10,7 +11,7 @@ interface AuthContextValue {
   token: string | null;
   user: User | null;
   login: (user: string, pass: string) => Promise<boolean>;
-  register: (user: string, email: string, pass: string) => Promise<boolean>;
+  register: (user: string, email: string, pass: string, fullName: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (decoded) {
         setUser({
           email: decoded.email || decoded.sub || 'User',
+          fullName: decoded.fullName || '',
           token,
         });
       }
@@ -77,9 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  async function register(userName: string, email: string, pass: string) {
+  async function register(userName: string, email: string, pass: string, fullName: string) {
     try {
-      await api.post('/Account/register', { userName, email, password: pass })
+      await api.post('/Account/register', { userName, email, password: pass, fullName })
       return true
     } catch (e) {
       return false
