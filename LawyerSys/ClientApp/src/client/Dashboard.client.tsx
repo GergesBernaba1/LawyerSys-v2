@@ -397,24 +397,7 @@ export default function Dashboard() {
           borderColor: alpha(theme.palette.primary.main, 0.2)
         }}
       >
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 3 }}>
-          <Typography variant="body1" fontWeight={800} color="text.secondary">
-            {t('dashboard.systemStatus', 'System Status')}:
-          </Typography>
-          <Chip 
-            label={isAuthenticated ? t('dashboard.authenticated') : t('dashboard.notAuthenticated')} 
-            size="small" 
-            color={isAuthenticated ? "success" : "warning"} 
-            sx={{ fontWeight: 800, borderRadius: 2 }}
-          />
-          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-            <strong>API:</strong> {process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-            <strong>Session:</strong> {isAuthenticated ? 'Active' : 'None'}
-          </Typography>
-        </Box>
+    
       </Paper>
     </Box>
   );

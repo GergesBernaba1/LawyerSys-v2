@@ -47,7 +47,12 @@
     "add": "Add",
     "remove": "Remove",
     "update": "Update",
-    "undo": "Undo"
+    "undo": "Undo",
+    "menu": "Menu",
+    "currency": "$",
+    "newCase": "New Case",
+    "yes": "Yes",
+    "no": "No"
   },
   "login": {
     "username": "Username",
@@ -270,7 +275,18 @@
     "confirmDelete": "Are you sure you want to delete this?",
     "chooseFile": "Choose File",
     "untitled": "Untitled",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "refresh": "Refresh",
+    "search": "Search",
+    "id": "ID",
+    "name": "Name",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "noData": "No data",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "filter": "Filter",
+    "create": "Create"
   },
   "courts": {
     "title": "Courts",

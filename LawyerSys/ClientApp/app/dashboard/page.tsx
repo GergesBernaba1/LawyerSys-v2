@@ -353,24 +353,6 @@ export default function DashboardPageClient() {
           borderColor: alpha(theme.palette.primary.main, 0.2)
         }}
       >
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
-          <Typography variant="body2" fontWeight={700} color="text.secondary">
-            {t('dashboard.systemStatus') || 'System Status'}:
-          </Typography>
-          <Chip 
-            label={isAuthenticated ? t('dashboard.authenticated') : t('dashboard.notAuthenticated')} 
-            size="small" 
-            color={isAuthenticated ? "success" : "warning"} 
-            sx={{ fontWeight: 700 }}
-          />
-          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-          <Typography variant="caption" color="text.secondary">
-            <strong>API:</strong> {process?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api'}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            <strong>Session:</strong> {isAuthenticated ? 'Active' : 'None'}
-          </Typography>
-        </Box>
       </Paper>
     </Box>
   )

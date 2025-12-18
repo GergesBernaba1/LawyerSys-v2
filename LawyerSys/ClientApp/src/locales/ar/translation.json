@@ -47,7 +47,12 @@
     "add": "إضافة",
     "remove": "إزالة",
     "update": "تحديث",
-    "undo": "تراجع"
+    "undo": "تراجع",
+    "menu": "القائمة",
+    "currency": "$",
+    "newCase": "قضية جديدة",
+    "yes": "نعم",
+    "no": "لا"
   },
   "login": {
     "username": "اسم المستخدم",
@@ -270,7 +275,18 @@
     "confirmDelete": "هل أنت متأكد من الحذف؟",
     "chooseFile": "اختر ملف",
     "untitled": "بدون عنوان",
-    "unknown": "غير معروف"
+    "unknown": "غير معروف",
+    "refresh": "تحديث",
+    "search": "بحث",
+    "id": "ID",
+    "name": "الاسم",
+    "actions": "الإجراءات",
+    "loading": "جارٍ التحميل...",
+    "noData": "لا توجد بيانات",
+    "delete": "حذف",
+    "cancel": "إلغاء",
+    "filter": "تصفية",
+    "create": "إنشاء"
   },
   "courts": {
     "title": "المحاكم",
