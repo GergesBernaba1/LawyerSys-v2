@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import api from '../services/api'
 import { 
   Box, Typography, TextField, Button, CircularProgress, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Paper, IconButton, Grid, useTheme, Tooltip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Grid, useTheme, Tooltip,
   Dialog, DialogTitle, DialogContent, DialogActions, Stack
 } from '@mui/material'
 import { Delete, Add, Refresh as RefreshIcon, Group as GroupIcon } from '@mui/icons-material'
@@ -62,12 +62,19 @@ export default function LegacyUsers(){
   }
 
   const [searchTerm, setSearchTerm] = useState('')
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filteredItems = items.filter(u => 
     u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.phoneNumber?.includes(searchTerm)
   )
+
+  React.useEffect(() => { setPage(0); }, [searchTerm, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -194,8 +201,8 @@ export default function LegacyUsers(){
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ maxHeight: '60vh', overflow: 'auto' }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('common.id')}</TableCell>
@@ -207,12 +214,9 @@ export default function LegacyUsers(){
             </TableHead>
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 12 }}>
-                    <CircularProgress size={48} thickness={4} sx={{ color: 'primary.main' }} />
-                    <Typography sx={{ mt: 2, color: 'text.secondary', fontWeight: 600 }}>{t('common.loading')}</Typography>
-                  </TableCell>
-                </TableRow>
+                [...Array(rowsPerPage)].map((_, i) => (
+                  <TableRow key={i}><TableCell colSpan={5} align="center" sx={{ py: 4 }}><Skeleton variant="text" /></TableCell></TableRow>
+                ))
               ) : filteredItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 12 }}>
@@ -222,7 +226,7 @@ export default function LegacyUsers(){
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('common.noData')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((u) => (
+              ) : pageItems.map((u) => (
                 <TableRow key={u.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ fontWeight: 800, color: 'primary.main' }}>#{u.id}</TableCell>
                   <TableCell>
@@ -264,6 +268,7 @@ export default function LegacyUsers(){
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination component="div" count={filteredItems.length} page={page} onPageChange={handleChangePage} rowsPerPage={rowsPerPage} onRowsPerPageChange={handleChangeRowsPerPage} rowsPerPageOptions={[5,10,25]} />
       </Paper>
 
       {/* Create Dialog */}

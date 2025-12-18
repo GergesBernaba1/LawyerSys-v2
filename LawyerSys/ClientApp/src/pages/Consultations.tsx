@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api'
 import {
   Box, Typography, TextField, Button, CircularProgress,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton,
   Tooltip, Skeleton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, useTheme,
   alpha, Avatar, Grid
 } from '@mui/material'
@@ -36,6 +36,13 @@ export default function Consultations(){
   const [dateTime,setDateTime] = useState('')
   const [openDialog, setOpenDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  React.useEffect(() => { setPage(0); }, [searchQuery, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
 
   async function load(){ setLoading(true); try{ const r = await api.get('/Consulations'); setItems(r.data); }finally{setLoading(false)} }
   useEffect(()=>{ load() },[])
@@ -194,8 +201,8 @@ export default function Consultations(){
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ maxHeight: '60vh', overflow: 'auto' }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('consultations.subject')}</TableCell>
@@ -207,7 +214,7 @@ export default function Consultations(){
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(5)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
@@ -223,7 +230,7 @@ export default function Consultations(){
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('common.noData')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((item) => (
+              ) : pageItems.map((item) => (
                 <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -300,6 +307,7 @@ export default function Consultations(){
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination component="div" count={filteredItems.length} page={page} onPageChange={handleChangePage} rowsPerPage={rowsPerPage} onRowsPerPageChange={handleChangeRowsPerPage} rowsPerPageOptions={[5,10,25]} />
       </Paper>
 
       {/* Add Dialog */}

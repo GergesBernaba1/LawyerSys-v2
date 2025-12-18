@@ -190,16 +190,26 @@ export default function DashboardPageClient() {
             </Typography>
           </Box>
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-            <Button 
-              variant="contained" 
-              sx={{ 
-                bgcolor: 'white', 
-                color: 'primary.main', 
-                fontWeight: 700,
-                px: 3,
-                py: 1.5,
+            <Button
+              aria-label="view-all-cases"
+              variant="contained"
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.95)',
+                color: 'rgba(255,255,255,0.95)',
+                fontWeight: 800,
+                px: { xs: 2.5, md: 3 },
+                py: { xs: 1, md: 1.5 },
+                minWidth: 160,
                 borderRadius: 3,
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
+                boxShadow: '0 8px 20px -12px rgba(0,0,0,0.18)',
+                border: '1px solid',
+                borderColor: alpha('#ffffff', 0.18),
+                transition: 'transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 12px 28px -16px rgba(0,0,0,0.22)'
+                }
               }}
               onClick={() => navigate('/cases')}
             >

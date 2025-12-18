@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, useTheme, alpha, Avatar, Grid
 } from '@mui/material';
@@ -31,6 +31,8 @@ export default function Sitings() {
   const [judge, setJudge] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   async function load() {
@@ -64,6 +66,11 @@ export default function Sitings() {
     item.judgeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.sitingDate?.includes(searchQuery)
   );
+
+  React.useEffect(() => { setPage(0); }, [searchQuery, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -203,8 +210,8 @@ export default function Sitings() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ maxHeight: '60vh', overflow: 'auto' }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('sitings.date')}</TableCell>
@@ -216,7 +223,7 @@ export default function Sitings() {
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(5)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
@@ -232,7 +239,7 @@ export default function Sitings() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('common.noData')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((item) => (
+              ) : pageItems.map((item) => (
                 <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -297,6 +304,7 @@ export default function Sitings() {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination component="div" count={filteredItems.length} page={page} onPageChange={handleChangePage} rowsPerPage={rowsPerPage} onRowsPerPageChange={handleChangeRowsPerPage} rowsPerPageOptions={[5,10,25]} />
       </Paper>
 
       {/* Add Dialog */}

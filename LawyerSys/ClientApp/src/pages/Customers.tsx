@@ -10,6 +10,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Paper,
   IconButton,
   Skeleton,
@@ -103,12 +104,21 @@ export default function Customers() {
   }
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filteredItems = items.filter(item => 
     item.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.user?.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.id.toString().includes(searchTerm)
   );
+
+  // Reset page when filter changes
+  React.useEffect(() => { setPage(0); }, [searchTerm, items]);
+
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_event: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(event.target.value, 10)); setPage(0); };
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -235,8 +245,8 @@ export default function Customers() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ maxHeight: '60vh', overflow: 'auto' }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('common.id')}</TableCell>
@@ -247,7 +257,7 @@ export default function Customers() {
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(4)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
@@ -263,65 +273,76 @@ export default function Customers() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('customers.noCustomers')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((item) => (
-                <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
-                  <TableCell sx={{ py: 2.5 }}>
-                    <Chip 
-                      label={`#${item.id}`} 
-                      size="small" 
-                      sx={{ 
-                        borderRadius: 2, 
-                        fontWeight: 800,
-                        bgcolor: 'grey.100',
-                        color: 'text.primary',
-                        border: '1px solid',
-                        borderColor: 'grey.200',
-                        px: 1
-                      }} 
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32, fontSize: '0.875rem', fontWeight: 700 }}>
-                        {item.user?.fullName?.charAt(0) || <PersonIcon />}
-                      </Avatar>
-                      <Typography variant="body1" fontWeight={700} color="primary.main">
-                        {item.user?.fullName || item.user?.userName || 'Unknown'}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={item.usersId} 
-                      size="small" 
-                      sx={{ 
-                        fontWeight: 700, 
-                        bgcolor: 'primary.50', 
-                        color: 'primary.main',
-                        borderRadius: 1.5
-                      }} 
-                    />
-                  </TableCell>
-                  <TableCell align={isRTL ? 'left' : 'right'}>
-                    <Tooltip title={t('common.delete')}>
-                      <IconButton 
-                        color="error" 
-                        onClick={() => remove(item.id)}
+              ) : (
+                pageItems.map((item) => (
+                  <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
+                    <TableCell sx={{ py: 2.5 }}>
+                      <Chip 
+                        label={`#${item.id}`} 
+                        size="small" 
                         sx={{ 
-                          bgcolor: 'error.50',
-                          '&:hover': { bgcolor: 'error.100', transform: 'scale(1.1)' },
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
+                          borderRadius: 2, 
+                          fontWeight: 800,
+                          bgcolor: 'grey.100',
+                          color: 'text.primary',
+                          border: '1px solid',
+                          borderColor: 'grey.200',
+                          px: 1
+                        }} 
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32, fontSize: '0.875rem', fontWeight: 700 }}>
+                          {item.user?.fullName?.charAt(0) || <PersonIcon />}
+                        </Avatar>
+                        <Typography variant="body1" fontWeight={700} color="primary.main">
+                          {item.user?.fullName || item.user?.userName || 'Unknown'}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={item.usersId} 
+                        size="small" 
+                        sx={{ 
+                          fontWeight: 700, 
+                          bgcolor: 'primary.50', 
+                          color: 'primary.main',
+                          borderRadius: 1.5
+                        }} 
+                      />
+                    </TableCell>
+                    <TableCell align={isRTL ? 'left' : 'right'}>
+                      <Tooltip title={t('common.delete')}>
+                        <IconButton 
+                          color="error" 
+                          onClick={() => remove(item.id)}
+                          sx={{ 
+                            bgcolor: 'error.50',
+                            '&:hover': { bgcolor: 'error.100', transform: 'scale(1.1)' },
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          component="div"
+          count={filteredItems.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5,10,25,50]}
+        />
       </Paper>
 
       {/* Create Dialog */}

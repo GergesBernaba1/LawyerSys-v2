@@ -13,6 +13,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Paper,
   IconButton,
   Skeleton,
@@ -103,11 +104,19 @@ export default function Cases() {
 
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const filteredItems = items.filter(item => 
     item.code.toString().includes(searchTerm) ||
     item.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.invitionType?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  React.useEffect(() => { setPage(0); }, [searchTerm, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -234,8 +243,8 @@ export default function Cases() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ maxHeight: '60vh', overflow: 'auto' }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('common.id')}</TableCell>
@@ -249,7 +258,7 @@ export default function Cases() {
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(7)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
@@ -265,7 +274,7 @@ export default function Cases() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('cases.noCases')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((item) => (
+              ) : pageItems.map((item) => (
                 <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Chip 
@@ -337,6 +346,7 @@ export default function Cases() {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination component="div" count={filteredItems.length} page={page} onPageChange={handleChangePage} rowsPerPage={rowsPerPage} onRowsPerPageChange={handleChangeRowsPerPage} rowsPerPageOptions={[5,10,25]} />
       </Paper>
 
       {/* Create Dialog */}

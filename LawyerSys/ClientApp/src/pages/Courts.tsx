@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Grid from '@mui/material/Grid'
 import {
   Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, useTheme
 } from '@mui/material';
@@ -68,12 +68,19 @@ export default function Courts() {
   const isRTL = theme.direction === 'rtl';
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filteredItems = items.filter(c => 
     c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.governmentName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  React.useEffect(() => { setPage(0); }, [searchTerm, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -200,8 +207,8 @@ export default function Courts() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('courts.name')}</TableCell>
@@ -229,7 +236,7 @@ export default function Courts() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('courts.noCourts')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((c) => (
+              ) : pageItems.map((c, index) => (
                 <TableRow key={c.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Typography variant="body1" fontWeight={700} color="primary.main">
@@ -272,6 +279,15 @@ export default function Courts() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            rowsPerPageOptions={[5,10,25]}
+            component="div"
+            count={filteredItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </TableContainer>
       </Paper>
 
