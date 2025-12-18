@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Grid,
   Tab, Tabs, useTheme, alpha, Avatar, Card, CardContent
@@ -42,6 +42,22 @@ export default function Billing() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+
+  // Pagination for payments
+  const [paymentsPage, setPaymentsPage] = useState(0);
+  const [paymentsRowsPerPage, setPaymentsRowsPerPage] = useState(10);
+  React.useEffect(() => { setPaymentsPage(0); }, [payments]);
+  const paymentsPageItems = payments.slice(paymentsPage * paymentsRowsPerPage, paymentsPage * paymentsRowsPerPage + paymentsRowsPerPage);
+  const handlePaymentsPageChange = (_: any, newPage: number) => setPaymentsPage(newPage);
+  const handlePaymentsRowsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => { setPaymentsRowsPerPage(parseInt(e.target.value, 10)); setPaymentsPage(0); };
+
+  // Pagination for receipts
+  const [receiptsPage, setReceiptsPage] = useState(0);
+  const [receiptsRowsPerPage, setReceiptsRowsPerPage] = useState(10);
+  React.useEffect(() => { setReceiptsPage(0); }, [receipts]);
+  const receiptsPageItems = receipts.slice(receiptsPage * receiptsRowsPerPage, receiptsPage * receiptsRowsPerPage + receiptsRowsPerPage);
+  const handleReceiptsPageChange = (_: any, newPage: number) => setReceiptsPage(newPage);
+  const handleReceiptsRowsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => { setReceiptsRowsPerPage(parseInt(e.target.value, 10)); setReceiptsPage(0); }; 
 
   const [payAmount, setPayAmount] = useState<number | ''>('');
   const [payDate, setPayDate] = useState('');
@@ -391,8 +407,8 @@ export default function Billing() {
                 {t('billing.newPayment')}
               </Button>
             </Box>
-            <TableContainer>
-              <Table>
+            <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+              <Table stickyHeader>
                 <TableHead>
                   <TableRow sx={{ bgcolor: 'primary.50' }}>
                     <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('billing.amount')}</TableCell>
@@ -404,7 +420,7 @@ export default function Billing() {
                 </TableHead>
                 <TableBody>
                   {loading ? (
-                    [...Array(5)].map((_, i) => (
+                    [...Array(paymentsRowsPerPage)].map((_, i) => (
                       <TableRow key={i}>
                         {[...Array(5)].map((_, j) => (
                           <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
@@ -421,7 +437,7 @@ export default function Billing() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    payments.map((p) => (
+                    paymentsPageItems.map((p) => (
                       <TableRow key={p.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                         <TableCell sx={{ py: 2.5 }}>
                           <Chip 
@@ -490,6 +506,15 @@ export default function Billing() {
                   )}
                 </TableBody>
               </Table>
+              <TablePagination
+                rowsPerPageOptions={[5,10,25]}
+                component="div"
+                count={payments.length}
+                rowsPerPage={paymentsRowsPerPage}
+                page={paymentsPage}
+                onPageChange={handlePaymentsPageChange}
+                onRowsPerPageChange={handlePaymentsRowsPerPageChange}
+              />
             </TableContainer>
           </Box>
         </TabPanel>
@@ -512,8 +537,8 @@ export default function Billing() {
                 {t('billing.newReceipt')}
               </Button>
             </Box>
-            <TableContainer>
-              <Table>
+            <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+              <Table stickyHeader>
                 <TableHead>
                   <TableRow sx={{ bgcolor: 'primary.50' }}>
                     <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('billing.amount')}</TableCell>
@@ -525,7 +550,7 @@ export default function Billing() {
                 </TableHead>
                 <TableBody>
                   {loading ? (
-                    [...Array(5)].map((_, i) => (
+                    [...Array(receiptsRowsPerPage)].map((_, i) => (
                       <TableRow key={i}>
                         {[...Array(5)].map((_, j) => (
                           <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
@@ -542,7 +567,7 @@ export default function Billing() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    receipts.map((r) => (
+                    receiptsPageItems.map((r) => (
                       <TableRow key={r.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                         <TableCell sx={{ py: 2.5 }}>
                           <Chip 
@@ -611,6 +636,15 @@ export default function Billing() {
                   )}
                 </TableBody>
               </Table>
+              <TablePagination
+                rowsPerPageOptions={[5,10,25]}
+                component="div"
+                count={receipts.length}
+                rowsPerPage={receiptsRowsPerPage}
+                page={receiptsPage}
+                onPageChange={handleReceiptsPageChange}
+                onRowsPerPageChange={handleReceiptsRowsPerPageChange}
+              />
             </TableContainer>
           </Box>
         </TabPanel>

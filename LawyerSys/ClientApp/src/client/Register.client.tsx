@@ -284,6 +284,3 @@ export default function Register() {
     </Box>
   );
 }
-    </Box>
-  );
-}

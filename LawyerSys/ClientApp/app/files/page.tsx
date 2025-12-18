@@ -98,7 +98,6 @@ export default function FilesPageClient() {
   const downloadUrl = (id: number) => `${base}/Files/${id}/download`;
 
   return (
-  return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
       {/* Header Section */}
       <Box 
@@ -369,8 +368,6 @@ export default function FilesPageClient() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
-  );
     </Box>
   );
 }

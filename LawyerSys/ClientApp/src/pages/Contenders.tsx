@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Grid from '@mui/material/Grid'
 import {
   Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, FormControlLabel, Checkbox, useTheme
 } from '@mui/material';
@@ -53,11 +53,17 @@ export default function Contenders() {
   const isRTL = theme.direction === 'rtl';
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filteredItems = items.filter(c => 
     c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.ssn?.includes(searchTerm)
   );
+  React.useEffect(() => { setPage(0); }, [searchTerm, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }; 
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -184,8 +190,8 @@ export default function Contenders() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('contenders.fullName')}</TableCell>
@@ -197,14 +203,14 @@ export default function Contenders() {
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(5)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
                     ))}
                   </TableRow>
                 ))
-              ) : filteredItems.length === 0 ? (
+              ) : pageItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 12 }}>
                     <Box sx={{ opacity: 0.5, mb: 2 }}>
@@ -213,7 +219,7 @@ export default function Contenders() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('contenders.noContenders')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((c) => (
+              ) : pageItems.map((c) => (
                 <TableRow key={c.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Typography variant="body1" fontWeight={700} color="primary.main">
@@ -249,6 +255,15 @@ export default function Contenders() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            rowsPerPageOptions={[5,10,25]}
+            component="div"
+            count={filteredItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </TableContainer>
       </Paper>
 
@@ -356,101 +371,6 @@ export default function Contenders() {
           severity={snackbar.severity} 
           variant="filled"
           sx={{ borderRadius: 3, boxShadow: '0 10px 20px rgba(0,0,0,0.1)', fontWeight: 600 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
-  );
-
-      {/* Create Dialog */}
-      <Dialog 
-        open={openDialog} 
-        onClose={() => setOpenDialog(false)} 
-        maxWidth="sm" 
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: 3, p: 1 }
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>{t('contenders.newContender')}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            {t('contenders.addDescription', 'Enter the details of the new contender below.')}
-          </Typography>
-          <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12 }}>
-              <TextField 
-                fullWidth 
-                label={t('contenders.fullName')} 
-                value={fullName} 
-                onChange={(e) => setFullName(e.target.value)} 
-                variant="outlined"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField 
-                fullWidth 
-                label={t('contenders.ssn')} 
-                value={ssn} 
-                onChange={(e) => setSsn(e.target.value)} 
-                variant="outlined"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField 
-                fullWidth 
-                label={t('contenders.birthDate')} 
-                type="date" 
-                value={birthDate} 
-                onChange={(e) => setBirthDate(e.target.value)} 
-                InputLabelProps={{ shrink: true }} 
-                variant="outlined"
-              />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <FormControlLabel 
-                control={
-                  <Checkbox 
-                    checked={ctype} 
-                    onChange={(e) => setCtype(e.target.checked)} 
-                    color="primary"
-                  />
-                } 
-                label={t('contenders.type')} 
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button 
-            onClick={() => setOpenDialog(false)}
-            sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={create} 
-            disabled={!fullName}
-            sx={{ borderRadius: 2, px: 4, fontWeight: 600 }}
-          >
-            {t('common.create')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={4000} 
-        onClose={() => setSnackbar({ ...snackbar, open: false })} 
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
-          severity={snackbar.severity} 
-          variant="filled"
-          sx={{ borderRadius: 2, boxShadow: 3 }}
         >
           {snackbar.message}
         </Alert>

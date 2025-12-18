@@ -371,6 +371,4 @@ export default function EmployeesPageClient() {
       </Snackbar>
     </Box>
   );
-    </Box>
-  );
 }

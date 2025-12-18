@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, useTheme, alpha, Avatar, Grid
 } from '@mui/material';
@@ -33,6 +33,18 @@ export default function AdminTasks() {
   const [searchQuery, setSearchQuery] = useState('');
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  React.useEffect(() => { setPage(0); }, [searchQuery, items]);
+  const filteredItems = items.filter(item => 
+    item.taskName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.employeeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.type?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
+
   async function load() {
     setLoading(true);
     try {
@@ -58,12 +70,6 @@ export default function AdminTasks() {
     try { await api.delete(`/AdminTasks/${id}`); await load(); setSnackbar({ open: true, message: t('tasks.deleted'), severity: 'success' }); }
     catch (err) { setSnackbar({ open: true, message: t('tasks.failed'), severity: 'error' }); }
   }
-
-  const filteredItems = items.filter(item => 
-    item.taskName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.employeeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.type?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -203,8 +209,8 @@ export default function AdminTasks() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('tasks.taskName')}</TableCell>
@@ -216,14 +222,14 @@ export default function AdminTasks() {
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(5)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
                     ))}
                   </TableRow>
                 ))
-              ) : filteredItems.length === 0 ? (
+              ) : pageItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 12 }}>
                     <Box sx={{ opacity: 0.5, mb: 2 }}>
@@ -232,7 +238,7 @@ export default function AdminTasks() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('common.noData')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((task) => (
+              ) : pageItems.map((task) => (
                 <TableRow key={task.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -304,6 +310,15 @@ export default function AdminTasks() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            rowsPerPageOptions={[5,10,25]}
+            component="div"
+            count={filteredItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </TableContainer>
       </Paper>
 

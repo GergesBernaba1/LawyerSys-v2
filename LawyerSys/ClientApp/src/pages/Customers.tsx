@@ -415,43 +415,4 @@ export default function Customers() {
       </Snackbar>
     </Box>
   );
-        <DialogTitle sx={{ fontWeight: 700, px: 3, pt: 3 }}>{t('customers.createNew')}</DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>{t('customers.selectUser')}</InputLabel>
-            <Select
-              value={selectedUser}
-              label={t('customers.selectUser')}
-              onChange={(e) => setSelectedUser(Number(e.target.value) || '')}
-              sx={{ borderRadius: 2.5 }}
-            >
-              <MenuItem value="">
-                <em>-- {t('common.selectPlaceholder', 'Select a user')} --</em>
-              </MenuItem>
-              {users.map((u) => (
-                <MenuItem key={u.id} value={u.id}>
-                  {u.fullName || u.userName} (#{u.id})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpenDialog(false)} color="inherit" sx={{ fontWeight: 600 }}>{t('common.cancel')}</Button>
-          <Button onClick={create} variant="contained" sx={{ borderRadius: 2, px: 4, fontWeight: 600 }}>{t('common.create')}</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%', borderRadius: 2 }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
-  );
 }

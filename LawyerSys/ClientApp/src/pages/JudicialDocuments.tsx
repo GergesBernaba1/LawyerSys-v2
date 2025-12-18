@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import {
   Box, Typography, TextField, Button, CircularProgress,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton,
   FormControl, InputLabel, Select, MenuItem, Grid, Tooltip, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, useTheme, alpha, Avatar
 } from '@mui/material'
@@ -37,6 +37,18 @@ export default function JudicialDocuments(){
   const [openDialog, setOpenDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  React.useEffect(() => { setPage(0); }, [searchQuery, items]);
+  const filteredItems = items.filter(item => 
+    item.docType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.docNum?.toString().includes(searchQuery)
+  );
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }; 
+
   async function load(){ setLoading(true); try{ const r = await api.get('/JudicialDocuments'); setItems(r.data); const c = await api.get('/Customers'); setCustomers(c.data); }finally{setLoading(false)} }
   useEffect(()=>{ load() },[])
 
@@ -50,12 +62,6 @@ export default function JudicialDocuments(){
   }
 
   async function remove(id:number){ if (!confirm(t('judicial.confirmDelete'))) return; await api.delete(`/JudicialDocuments/${id}`); await load() }
-
-  const filteredItems = items.filter(item => 
-    item.docType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.docNum?.toString().includes(searchQuery)
-  );
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -195,8 +201,8 @@ export default function JudicialDocuments(){
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('judicial.type')}</TableCell>
@@ -208,14 +214,14 @@ export default function JudicialDocuments(){
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(5)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
                     ))}
                   </TableRow>
                 ))
-              ) : filteredItems.length === 0 ? (
+              ) : pageItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 12 }}>
                     <Box sx={{ opacity: 0.5, mb: 2 }}>
@@ -224,7 +230,7 @@ export default function JudicialDocuments(){
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('common.noData')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((item) => (
+              ) : pageItems.map((item) => (
                 <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -258,6 +264,24 @@ export default function JudicialDocuments(){
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <NumbersIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
                       <Typography variant="body2" fontWeight={700} color="text.primary">
+                      
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[5,10,25]}
+            component="div"
+            count={filteredItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </TableContainer>
+      </Paper>
                         {item.docNum || '-'}
                       </Typography>
                     </Box>

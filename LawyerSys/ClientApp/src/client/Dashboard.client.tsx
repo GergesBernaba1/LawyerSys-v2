@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
-  Grid,
+  Grid as Grid,
   Card,
   CardContent,
   Typography,

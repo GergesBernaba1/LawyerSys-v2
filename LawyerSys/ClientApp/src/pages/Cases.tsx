@@ -429,44 +429,5 @@ export default function Cases() {
       </Snackbar>
     </Box>
   );
-        <DialogTitle sx={{ fontWeight: 700, px: 3, pt: 3 }}>{t('cases.createNew')}</DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField
-              fullWidth
-              label={t('cases.code')}
-              type="number"
-              value={code || ''}
-              onChange={(e) => setCode(Number(e.target.value))}
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              label={t('cases.notes')}
-              multiline
-              rows={4}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              variant="outlined"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpenDialog(false)} color="inherit" sx={{ fontWeight: 600 }}>{t('common.cancel')}</Button>
-          <Button onClick={create} variant="contained" sx={{ borderRadius: 2, px: 4, fontWeight: 600 }}>{t('common.create')}</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%', borderRadius: 2 }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
-  );
 }
+

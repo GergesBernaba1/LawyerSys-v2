@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Grid from '@mui/material/Grid'
 import {
   Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, useTheme
 } from '@mui/material';
@@ -49,11 +49,17 @@ export default function Governments() {
   const isRTL = theme.direction === 'rtl';
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filteredItems = items.filter(g => 
     g.govName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     g.id.toString().includes(searchTerm)
   );
+  React.useEffect(() => { setPage(0); }, [searchTerm, items]);
+  const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const handleChangePage = (_: any, newPage: number) => setPage(newPage);
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }; 
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -180,8 +186,8 @@ export default function Governments() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
-        <TableContainer>
-          <Table>
+        <TableContainer component={Paper} sx={{ maxHeight: 520 }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.50' }}>
                 <TableCell sx={{ fontWeight: 800, color: 'primary.dark', py: 2.5 }}>{t('common.id')}</TableCell>
@@ -191,14 +197,14 @@ export default function Governments() {
             </TableHead>
             <TableBody>
               {loading ? (
-                [...Array(5)].map((_, i) => (
+                [...Array(rowsPerPage)].map((_, i) => (
                   <TableRow key={i}>
                     {[...Array(3)].map((_, j) => (
                       <TableCell key={j} sx={{ py: 2.5 }}><Skeleton variant="text" height={24} /></TableCell>
                     ))}
                   </TableRow>
                 ))
-              ) : filteredItems.length === 0 ? (
+              ) : pageItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} align="center" sx={{ py: 12 }}>
                     <Box sx={{ opacity: 0.5, mb: 2 }}>
@@ -207,7 +213,7 @@ export default function Governments() {
                     <Typography variant="h6" color="text.secondary" fontWeight={600}>{t('governments.noGovernments')}</Typography>
                   </TableCell>
                 </TableRow>
-              ) : filteredItems.map((g) => (
+              ) : pageItems.map((g) => (
                 <TableRow key={g.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 }, transition: 'background-color 0.2s' }}>
                   <TableCell sx={{ py: 2.5 }}>
                     <Chip 
@@ -248,6 +254,15 @@ export default function Governments() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            rowsPerPageOptions={[5,10,25]}
+            component="div"
+            count={filteredItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </TableContainer>
       </Paper>
 
@@ -317,64 +332,5 @@ export default function Governments() {
       </Snackbar>
     </Box>
   );
-
-      {/* Create Dialog */}
-      <Dialog 
-        open={openDialog} 
-        onClose={() => setOpenDialog(false)} 
-        maxWidth="sm" 
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: 3, p: 1 }
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>{t('governments.newGovernment')}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            {t('governments.addDescription', 'Enter the name of the new government/region below.')}
-          </Typography>
-          <TextField 
-            fullWidth 
-            label={t('governments.name')} 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
-            variant="outlined"
-            autoFocus
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button 
-            onClick={() => setOpenDialog(false)}
-            sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={create} 
-            disabled={!name}
-            sx={{ borderRadius: 2, px: 4, fontWeight: 600 }}
-          >
-            {t('common.create')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={4000} 
-        onClose={() => setSnackbar({ ...snackbar, open: false })} 
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
-          severity={snackbar.severity} 
-          variant="filled"
-          sx={{ borderRadius: 2, boxShadow: 3 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
-  );
 }
+

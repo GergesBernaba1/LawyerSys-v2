@@ -342,42 +342,7 @@ export default function LegacyUsers(){
     </Box>
   )
 
-      {/* Create Dialog */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 4 } }}>
-        <DialogTitle sx={{ fontWeight: 700, px: 3, pt: 3 }}>{t('legacyUsers.createNew', 'Create New Legacy User')}</DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.fullName')} value={fullName} onChange={e=>setFullName(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.username')} value={userName} onChange={e=>setUserName(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.password')} type="password" value={password} onChange={e=>setPassword(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.phone')} value={phone} onChange={e=>setPhone(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.job')} value={job} onChange={e=>setJob(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.ssn')} value={ssn} onChange={e=>setSsn(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('legacyUsers.dateOfBirth')} type="date" slotProps={{ inputLabel: { shrink: true } }} value={dob} onChange={e=>setDob(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <TextField fullWidth multiline rows={2} label={t('legacyUsers.address')} value={address} onChange={e=>setAddress(e.target.value)} />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpen(false)} color="inherit" sx={{ fontWeight: 600 }}>{t('common.cancel')}</Button>
-          <Button onClick={create} variant="contained" sx={{ borderRadius: 2, px: 4, fontWeight: 600 }}>{t('common.create')}</Button>
-        </DialogActions>
-      </Dialog>
+
     </Box>
-  )
+  );
 }

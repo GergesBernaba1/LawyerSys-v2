@@ -439,10 +439,4 @@ export default function Files() {
       </Snackbar>
     </Box>
   );
-        <Alert severity={snackbar.severity} variant="filled" sx={{ width: '100%', borderRadius: 2 }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
-  );
 }
