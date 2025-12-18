@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "npx playwright test --project=chromium --retries=0"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
@@ -26,6 +27,7 @@
     "stylis-plugin-rtl": "^2.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^20.8.7",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",

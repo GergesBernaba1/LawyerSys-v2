@@ -199,7 +199,7 @@ export default function DashboardPageClient() {
                 px: 3,
                 py: 1.5,
                 borderRadius: 3,
-                '&:hover': { bgcolor: alpha('#white', 0.9) }
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
               }}
               onClick={() => navigate('/cases')}
             >

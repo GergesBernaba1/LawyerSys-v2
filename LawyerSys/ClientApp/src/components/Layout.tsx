@@ -383,6 +383,15 @@ export default function Layout({ children }: LayoutProps) {
             >
               <MenuIcon />
             </IconButton>
+
+            {/* Desktop collapse toggle in header */}
+            <IconButton
+              aria-label="toggle sidebar"
+              onClick={() => setCollapsed(!collapsed)}
+              sx={{ display: { xs: 'none', md: 'inline-flex' }, bgcolor: 'transparent', color: 'text.primary', mr: 1 }}
+            >
+              {isRTL ? (collapsed ? <ChevronLeftIcon /> : <ChevronRightIcon />) : (collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)}
+            </IconButton>
             
             {/* Search Bar */}
             <Box
