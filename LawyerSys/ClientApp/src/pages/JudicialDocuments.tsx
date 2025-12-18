@@ -264,8 +264,9 @@ export default function JudicialDocuments(){
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <NumbersIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
                       <Typography variant="body2" fontWeight={700} color="text.primary">
-                      
-                    </Typography>
+                        {item.docNum || '-'}
+                      </Typography>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -280,44 +281,6 @@ export default function JudicialDocuments(){
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
-        </TableContainer>
-      </Paper>
-                        {item.docNum || '-'}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <PersonIcon sx={{ fontSize: 18, color: 'primary.main' }} />
-                      <Typography variant="body2" fontWeight={700}>{item.customerName || '-'}</Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
-                      {item.docDetails || '-'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align={isRTL ? 'left' : 'right'}>
-                    <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', gap: 1 }}>
-                      <Tooltip title={t('common.delete')}>
-                        <IconButton 
-                          color="error" 
-                          onClick={() => remove(item.id)}
-                          sx={{ 
-                            bgcolor: 'error.50',
-                            '&:hover': { bgcolor: 'error.100', transform: 'scale(1.1)' },
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
         </TableContainer>
       </Paper>
 

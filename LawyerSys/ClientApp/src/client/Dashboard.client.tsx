@@ -213,24 +213,16 @@ export default function Dashboard() {
       </Paper>
 
       {/* Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color="#a855f7" loading={loading} onClick={() => navigate('/customers')} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color="#06b6d4" loading={loading} onClick={() => navigate('/employees')} />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color="#f59e0b" loading={loading} onClick={() => navigate('/files')} />
-        </Grid>
-      </Grid>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} /></Box>
+        <Box><StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color="#a855f7" loading={loading} onClick={() => navigate('/customers')} /></Box>
+        <Box><StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color="#06b6d4" loading={loading} onClick={() => navigate('/employees')} /></Box>
+        <Box><StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color="#f59e0b" loading={loading} onClick={() => navigate('/files')} /></Box>
+      </Box>
 
       {/* Quick Actions & Recent Cases */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
+        <Box>
           <Paper 
             elevation={0} 
             sx={{ 
@@ -281,8 +273,8 @@ export default function Dashboard() {
               ))}
             </Box>
           </Paper>
-        </Grid>
-        <Grid item xs={12} md={8}>
+        </Box>
+        <Box>
           <Paper 
             elevation={0} 
             sx={{ 
@@ -321,11 +313,10 @@ export default function Dashboard() {
                         px: 3, 
                         py: 2.5,
                         cursor: 'pointer', 
-                        '&:hover': { bgcolor: 'primary.50', transform: 'scale(1.01)' }, 
                         borderRadius: 4,
                         mb: 2,
                         border: '1px solid transparent',
-                        '&:hover': { borderColor: 'primary.100', bgcolor: 'primary.50' },
+                        '&:hover': { bgcolor: 'primary.50', transform: 'scale(1.01)', borderColor: 'primary.100' },
                         transition: 'all 0.2s'
                       }} 
                       onClick={() => navigate('/cases')}
@@ -382,8 +373,8 @@ export default function Dashboard() {
               </Box>
             )}
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* System Info */}
       <Paper 

@@ -181,8 +181,8 @@ function ResetPasswordForm() {
               )}
 
               <Box component="form" onSubmit={handleSubmit}>
-                <Grid container spacing={2.5}>
-                  <Grid item xs={12}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2.5 }}>
+                  <Box sx={{ gridColumn: '1 / -1' }}>
                     <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                       {t('login.username')}
                     </Typography>
@@ -201,8 +201,9 @@ function ResetPasswordForm() {
                         ),
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
+                  </Box>
+
+                  <Box sx={{ gridColumn: '1 / -1' }}>
                     <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                       {t('login.resetToken')}
                     </Typography>
@@ -221,8 +222,9 @@ function ResetPasswordForm() {
                         ),
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Box>
+
+                  <Box>
                     <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                       {t('register.password')}
                     </Typography>
@@ -242,8 +244,9 @@ function ResetPasswordForm() {
                         ),
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Box>
+
+                  <Box>
                     <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                       {t('register.confirmPassword')}
                     </Typography>
@@ -270,8 +273,8 @@ function ResetPasswordForm() {
                         ),
                       }}
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
 
                 <Button 
                   type="submit" 

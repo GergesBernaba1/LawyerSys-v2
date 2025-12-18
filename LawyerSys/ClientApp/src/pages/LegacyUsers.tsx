@@ -340,9 +340,5 @@ export default function LegacyUsers(){
         </DialogActions>
       </Dialog>
     </Box>
-  )
-
-
-    </Box>
   );
 }

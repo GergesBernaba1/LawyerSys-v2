@@ -20,7 +20,7 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2'
+import { Grid } from '@mui/material'
 import {
   Gavel as GavelIcon,
   People as PeopleIcon,
@@ -152,7 +152,7 @@ export default function DashboardPageClient() {
   ];
 
   return (
-    <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+    <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4, minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Welcome Section */}
       <Paper 
         elevation={0}
@@ -219,25 +219,17 @@ export default function DashboardPageClient() {
         </Box>
       </Paper>
 
-      {/* Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color="#a855f7" loading={loading} onClick={() => navigate('/customers')} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color="#06b6d4" loading={loading} onClick={() => navigate('/employees')} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color="#f59e0b" loading={loading} onClick={() => navigate('/files')} />
-        </Grid>
-      </Grid>
-
+      <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 0 } }}>
+        {/* Stats Grid */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+          <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} /></Box>
+          <Box><StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color="#a855f7" loading={loading} onClick={() => navigate('/customers')} /></Box>
+          <Box><StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color="#06b6d4" loading={loading} onClick={() => navigate('/employees')} /></Box>
+          <Box><StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color="#f59e0b" loading={loading} onClick={() => navigate('/files')} /></Box>
+        </Box>
       {/* Quick Actions & Recent Cases */}
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 4 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
+        <Box>
           <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
             <Typography variant="h6" fontWeight={800} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
               <OpenInNewIcon sx={{ color: 'primary.main' }} />
@@ -273,9 +265,9 @@ export default function DashboardPageClient() {
               ))}
             </Box>
           </Paper>
-        </Grid>
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+        </Box>
+        <Box>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%', maxHeight: 520, overflowY: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <GavelIcon sx={{ color: 'primary.main' }} />
@@ -348,8 +340,8 @@ export default function DashboardPageClient() {
               </Box>
             )}
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* System Info */}
       <Paper 
@@ -365,5 +357,6 @@ export default function DashboardPageClient() {
       >
       </Paper>
     </Box>
+  </Box>
   )
 }
