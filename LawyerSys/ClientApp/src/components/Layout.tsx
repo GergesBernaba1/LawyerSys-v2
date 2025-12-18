@@ -162,15 +162,11 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const collapsedWidth = 72;
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(false);
 
+  // Ensure sidebar defaults to expanded. Clear any previous saved collapsed state on mount.
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('layout.sidebarCollapsed');
-      if (saved === 'true') {
-        setCollapsed(true);
-      }
-    } catch {}
+    try { localStorage.setItem('layout.sidebarCollapsed', 'false') } catch {}
   }, []);
 
   React.useEffect(() => {
@@ -216,7 +212,10 @@ export default function Layout({ children }: LayoutProps) {
             sx={{ 
               bgcolor: 'primary.50',
               color: 'primary.main',
-              '&:hover': { bgcolor: 'primary.100' }
+              '&:hover': { bgcolor: 'primary.100' },
+              position: 'relative',
+              zIndex: 3,
+              p: 1
             }}
           >
             {isRTL ? (collapsed ? <ChevronLeftIcon /> : <ChevronRightIcon />) : (collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)}
