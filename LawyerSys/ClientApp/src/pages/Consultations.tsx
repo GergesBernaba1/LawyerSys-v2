@@ -5,7 +5,7 @@ import {
   Box, Typography, TextField, Button, CircularProgress,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton,
   Tooltip, Skeleton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, useTheme,
-  alpha, Avatar, Grid
+  alpha, Avatar
 } from '@mui/material'
 import { 
   Delete as DeleteIcon, 
@@ -40,6 +40,12 @@ export default function Consultations(){
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   React.useEffect(() => { setPage(0); }, [searchQuery, items]);
+
+  const filteredItems = items.filter(item => 
+    item.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.type?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const pageItems = filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   const handleChangePage = (_: any, newPage: number) => setPage(newPage);
   const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
@@ -57,11 +63,6 @@ export default function Consultations(){
   }
 
   async function remove(id:number){ if (!confirm(t('common.confirmDelete'))) return; await api.delete(`/Consulations/${id}`); await load() }
-
-  const filteredItems = items.filter(item => 
-    item.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.type?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1600, margin: '0 auto' }}>
@@ -320,8 +321,8 @@ export default function Consultations(){
       >
         <DialogTitle sx={{ fontWeight: 800, px: 4, pt: 4, pb: 1, fontSize: '1.5rem' }}>{t('consultations.add')}</DialogTitle>
         <DialogContent sx={{ px: 4 }}>
-          <Grid container spacing={3} sx={{ mt: 0.5 }}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mt: 0.5 }}>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('consultations.subject')} 
@@ -329,8 +330,8 @@ export default function Consultations(){
                 onChange={(e)=>setSubject(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={6}>
+            </Box>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('consultations.type')} 
@@ -338,8 +339,8 @@ export default function Consultations(){
                 onChange={(e)=>setCtype(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={6}>
+            </Box>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('consultations.state')} 
@@ -347,8 +348,8 @@ export default function Consultations(){
                 onChange={(e)=>setState(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 label={t('consultations.dateTime')} 
@@ -358,8 +359,8 @@ export default function Consultations(){
                 InputLabelProps={{ shrink: true }} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 multiline 
@@ -369,8 +370,8 @@ export default function Consultations(){
                 onChange={(e)=>setDesc(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 multiline 
@@ -380,8 +381,8 @@ export default function Consultations(){
                 onChange={(e)=>setFeedback(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 multiline 
@@ -391,8 +392,8 @@ export default function Consultations(){
                 onChange={(e)=>setNotes(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ p: 4, pt: 2, gap: 1 }}>
           <Button 

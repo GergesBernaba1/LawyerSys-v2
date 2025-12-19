@@ -145,8 +145,8 @@ export default function Register() {
           )}
 
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2.5}>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2.5 }}>
+              <Box sx={{ gridColumn: '1 / -1' }}>
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                   {t('register.username')}
                 </Typography>
@@ -165,8 +165,8 @@ export default function Register() {
                     ),
                   }}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ gridColumn: '1 / -1' }}>
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                   {t('register.email')}
                 </Typography>
@@ -186,8 +186,8 @@ export default function Register() {
                     ),
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                   {t('register.password')}
                 </Typography>
@@ -207,8 +207,8 @@ export default function Register() {
                     ),
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
                   {t('register.confirmPassword')}
                 </Typography>
@@ -235,8 +235,8 @@ export default function Register() {
                     ),
                   }}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Button
               fullWidth

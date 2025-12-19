@@ -4,7 +4,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, useTheme, alpha, Avatar, Grid
+  Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, useTheme, alpha, Avatar
 } from '@mui/material';
 import {
   Add as AddIcon, Delete as DeleteIcon, Task as TaskIcon, Refresh as RefreshIcon, 
@@ -332,8 +332,8 @@ export default function AdminTasks() {
       >
         <DialogTitle sx={{ fontWeight: 800, px: 4, pt: 4, pb: 1, fontSize: '1.5rem' }}>{t('tasks.newTask')}</DialogTitle>
         <DialogContent sx={{ px: 4 }}>
-          <Grid container spacing={3} sx={{ mt: 0.5 }}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mt: 0.5 }}>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('tasks.taskName')} 
@@ -341,8 +341,8 @@ export default function AdminTasks() {
                 onChange={(e)=>setTaskName(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('tasks.type')} 
@@ -350,8 +350,8 @@ export default function AdminTasks() {
                 onChange={(e)=>setType(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('tasks.taskDate')} 
@@ -361,8 +361,8 @@ export default function AdminTasks() {
                 InputLabelProps={{ shrink: true }} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('tasks.reminder')} 
@@ -372,8 +372,8 @@ export default function AdminTasks() {
                 InputLabelProps={{ shrink: true }} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}>
                 <InputLabel>{t('tasks.employee')}</InputLabel>
                 <Select 
@@ -385,8 +385,8 @@ export default function AdminTasks() {
                   {employees.map(e=> <MenuItem key={e.id} value={e.id}>#{e.id} {e.user?.fullName ?? ''}</MenuItem>)}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 multiline 
@@ -396,8 +396,8 @@ export default function AdminTasks() {
                 onChange={(e)=>setNotes(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ p: 4, pt: 2, gap: 1 }}>
           <Button 

@@ -28,7 +28,6 @@ import {
   MenuItem,
   TextField,
   Avatar,
-  Grid,
   useTheme,
 } from '@mui/material';
 import {
@@ -326,8 +325,8 @@ export default function Employees() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontWeight: 500 }}>
             {t('employees.addDescription', 'Select a user and set their salary to register them as an employee.')}
           </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gap: 3 }}>
+            <Box>
               <FormControl fullWidth variant="outlined">
                 <InputLabel>{t('employees.selectUser')}</InputLabel>
                 <Select
@@ -343,8 +342,8 @@ export default function Employees() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label={t('employees.salary')}

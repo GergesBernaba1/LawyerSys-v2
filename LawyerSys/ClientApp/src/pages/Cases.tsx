@@ -362,8 +362,8 @@ export default function Cases() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontWeight: 500 }}>
             {t('cases.addDescription', 'Enter the details for the new legal case below.')}
           </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gap: 3 }}>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('cases.code')} 
@@ -373,8 +373,8 @@ export default function Cases() {
                 variant="outlined"
                 slotProps={{ input: { sx: { borderRadius: 3 } } }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box>
               <TextField 
                 fullWidth 
                 label={t('cases.notes')} 
@@ -385,8 +385,8 @@ export default function Cases() {
                 variant="outlined"
                 slotProps={{ input: { sx: { borderRadius: 3 } } }}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ p: 4, pt: 2, gap: 1 }}>
           <Button 

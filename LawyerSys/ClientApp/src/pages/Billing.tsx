@@ -4,7 +4,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, TablePagination, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Grid,
+  Tooltip, TextField, FormControl, InputLabel, Select, MenuItem,
   Tab, Tabs, useTheme, alpha, Avatar, Card, CardContent
 } from '@mui/material';
 import {
@@ -235,8 +235,8 @@ export default function Billing() {
       </Paper>
 
       {/* Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
+        <Box>
           <Card sx={{ 
             borderRadius: 5, 
             bgcolor: 'background.paper',
@@ -272,8 +272,8 @@ export default function Billing() {
             </CardContent>
             <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, bgcolor: 'success.main' }} />
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box>
           <Card sx={{ 
             borderRadius: 5, 
             bgcolor: 'background.paper',
@@ -309,8 +309,8 @@ export default function Billing() {
             </CardContent>
             <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, bgcolor: 'error.main' }} />
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box>
           <Card sx={{ 
             borderRadius: 5, 
             bgcolor: 'background.paper',
@@ -346,8 +346,8 @@ export default function Billing() {
             </CardContent>
             <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, bgcolor: 'primary.main' }} />
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Tabs Section */}
       <Paper 
@@ -660,8 +660,8 @@ export default function Billing() {
       >
         <DialogTitle sx={{ fontWeight: 800, px: 4, pt: 4, pb: 1, fontSize: '1.5rem' }}>{t('billing.newPayment')}</DialogTitle>
         <DialogContent sx={{ px: 4 }}>
-          <Grid container spacing={3} sx={{ mt: 0.5 }}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mt: 0.5 }}>
+            <Box>
               <TextField
                 fullWidth
                 label={t('billing.amount')}
@@ -671,8 +671,8 @@ export default function Billing() {
                 InputProps={{ startAdornment: <Typography sx={{ mr: 1, fontWeight: 800, color: 'success.main' }}>$</Typography> }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label={t('billing.date')}
@@ -682,8 +682,8 @@ export default function Billing() {
                 InputLabelProps={{ shrink: true }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}>
                 <InputLabel>{t('billing.customer')}</InputLabel>
                 <Select value={payCustomer} label={t('billing.customer')} onChange={(e) => setPayCustomer(Number(e.target.value) || '')}>
@@ -693,8 +693,8 @@ export default function Billing() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 label={t('billing.notes')} 
@@ -704,8 +704,8 @@ export default function Billing() {
                 onChange={(e) => setPayNotes(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ p: 4, pt: 2, gap: 1 }}>
           <Button 
@@ -741,8 +741,8 @@ export default function Billing() {
       >
         <DialogTitle sx={{ fontWeight: 800, px: 4, pt: 4, pb: 1, fontSize: '1.5rem' }}>{t('billing.newReceipt')}</DialogTitle>
         <DialogContent sx={{ px: 4 }}>
-          <Grid container spacing={3} sx={{ mt: 0.5 }}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mt: 0.5 }}>
+            <Box>
               <TextField
                 fullWidth
                 label={t('billing.amount')}
@@ -752,8 +752,8 @@ export default function Billing() {
                 InputProps={{ startAdornment: <Typography sx={{ mr: 1, fontWeight: 800, color: 'error.main' }}>$</Typography> }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label={t('billing.date')}
@@ -763,8 +763,8 @@ export default function Billing() {
                 InputLabelProps={{ shrink: true }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}>
                 <InputLabel>{t('billing.employee')}</InputLabel>
                 <Select value={recEmployee} label={t('billing.employee')} onChange={(e) => setRecEmployee(Number(e.target.value) || '')}>
@@ -774,8 +774,8 @@ export default function Billing() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
                 fullWidth 
                 label={t('billing.notes')} 
@@ -785,8 +785,8 @@ export default function Billing() {
                 onChange={(e) => setRecNotes(e.target.value)} 
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }} 
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ p: 4, pt: 2, gap: 1 }}>
           <Button 
