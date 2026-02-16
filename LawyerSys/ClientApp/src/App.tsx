@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import getTheme from './theme'
 import i18n from './i18n'
-import Dashboard from './pages/Dashboard'
+import Dashboard from './client/Dashboard.client'
 import { AuthProvider } from './services/auth'
 
 export default function App() {

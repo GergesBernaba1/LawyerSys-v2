@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
@@ -6,6 +7,7 @@ using LawyerSys.DTOs;
 
 namespace LawyerSys.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class SitingsController : ControllerBase

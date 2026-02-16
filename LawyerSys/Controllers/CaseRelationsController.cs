@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
@@ -5,6 +6,7 @@ using LawyerSys.Data.ScaffoldedModels;
 
 namespace LawyerSys.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/cases")]
 public class CaseRelationsController : ControllerBase

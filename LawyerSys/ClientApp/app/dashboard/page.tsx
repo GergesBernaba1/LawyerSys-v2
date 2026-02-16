@@ -38,6 +38,7 @@ import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 
 function StatCard({ title, value, icon, color, loading, onClick }: any) {
+  const { t } = useTranslation();
   const theme = useTheme();
   return (
     <Card
@@ -93,7 +94,7 @@ function StatCard({ title, value, icon, color, loading, onClick }: any) {
               +12%
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-              {title.toLowerCase().includes('cases') ? 'this month' : 'since last week'}
+              {title.toLowerCase().includes('cases') ? t('dashboard.thisMonth') : t('dashboard.sinceLastWeek')}
             </Typography>
           </Box>
         )}
@@ -329,7 +330,7 @@ export default function DashboardPageClient() {
                   <GavelIcon sx={{ fontSize: 40, opacity: 0.3 }} />
                 </Avatar>
                 <Typography variant="h6" fontWeight={700}>{t('dashboard.noRecentCases')}</Typography>
-                <Typography variant="body2" sx={{ mb: 3 }}>Start by adding your first legal case.</Typography>
+                <Typography variant="body2" sx={{ mb: 3 }}>{t('dashboard.startFirstCase')}</Typography>
                 <Button 
                   variant="contained" 
                   sx={{ borderRadius: 3, px: 4, py: 1.5, fontWeight: 700 }} 

@@ -268,16 +268,16 @@ if (_userManager != null)
                                                .Replace("{SSN}", dto.SSN ?? string.Empty);
 
                             await _emailSender.SendEmailAsync(dto.Email ?? string.Empty, subject, body);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Account created for {appUser.UserName} but no email was provided to send credentials.");
+                        }
                     }
                     else
                     {
-                        Console.WriteLine($"Account created for {appUser.UserName} but no email was provided to send credentials.");
+                        Console.WriteLine("Failed to create identity user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Failed to create identity user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-                }
             }
 
             var responseDto = MapToDto(customer);

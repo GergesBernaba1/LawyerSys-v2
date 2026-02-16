@@ -11,6 +11,7 @@ using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class CustomersController : ControllerBase

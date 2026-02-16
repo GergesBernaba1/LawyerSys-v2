@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
@@ -6,6 +7,7 @@ using LawyerSys.DTOs;
 
 namespace LawyerSys.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class GovernmentsController : ControllerBase
@@ -40,7 +42,12 @@ public class GovernmentsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var gov = new Governament { Gov_Name = dto.GovName };
+        // Governament.Id uses ValueGeneratedNever, so we must assign it manually
+        var maxId = await _context.Governaments.AnyAsync()
+            ? await _context.Governaments.MaxAsync(g => g.Id)
+            : 0;
+
+        var gov = new Governament { Id = maxId + 1, Gov_Name = dto.GovName };
         _context.Governaments.Add(gov);
         await _context.SaveChangesAsync();
 

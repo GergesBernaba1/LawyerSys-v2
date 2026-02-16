@@ -7,6 +7,7 @@ using LawyerSys.DTOs;
 
 namespace LawyerSys.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class LegacyUsersController : ControllerBase

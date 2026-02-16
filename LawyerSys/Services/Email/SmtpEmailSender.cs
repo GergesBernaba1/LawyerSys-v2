@@ -25,7 +25,7 @@ public class SmtpEmailSender : IEmailSender
         _settings = options.Value;
     }
 
-    public Task SendEmailAsync(string to, string subject, string body)
+    public async Task SendEmailAsync(string to, string subject, string body)
     {
         using var client = new SmtpClient(_settings.Host, _settings.Port)
         {
@@ -42,6 +42,6 @@ public class SmtpEmailSender : IEmailSender
         };
         message.To.Add(to);
 
-        return client.SendMailAsync(message);
+        await client.SendMailAsync(message);
     }
 }

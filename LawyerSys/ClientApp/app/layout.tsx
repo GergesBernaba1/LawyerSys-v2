@@ -2,8 +2,8 @@ import './globals.css'
 import Providers from '../src/providers/Providers'
 
 export const metadata = {
-  title: 'LawyerSys Client',
-  description: 'Next.js front-end for LawyerSys',
+  title: 'Qadaya - قضايا',
+  description: 'Lawyer Management System - نظام إدارة المحاماة',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
