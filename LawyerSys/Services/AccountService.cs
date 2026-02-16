@@ -45,23 +45,31 @@ namespace LawyerSys.Services
             var audience = jwtSection.GetValue<string>("Audience");
             var expireMinutes = jwtSection.GetValue<int>("ExpireMinutes");
 
-            var claims = new[]
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claimsList = new System.Collections.Generic.List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
                 new Claim("fullName", user.FullName ?? string.Empty),
             };
 
+            // Add role claims
+            foreach (var role in roles)
+            {
+                claimsList.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
-                var list = new System.Collections.Generic.List<Claim>(claims) { new Claim(JwtRegisteredClaimNames.Email, user.Email) };
-                claims = list.ToArray();
+                claimsList.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
             }
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
                 audience: audience,
-                claims: claims,
+                claims: claimsList,
                 expires: DateTime.UtcNow.AddMinutes(expireMinutes <= 0 ? 60 : expireMinutes),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             );

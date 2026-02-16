@@ -36,6 +36,7 @@ public class ConsulationsController : ControllerBase
         return Ok(MapToDto(consulation));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<ConsulationDto>> CreateConsulation([FromBody] CreateConsulationDto dto)
     {
@@ -59,6 +60,7 @@ public class ConsulationsController : ControllerBase
         return CreatedAtAction(nameof(GetConsulation), new { id = consulation.Id }, MapToDto(consulation));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateConsulation(int id, [FromBody] UpdateConsulationDto dto)
     {
@@ -78,6 +80,7 @@ public class ConsulationsController : ControllerBase
         return Ok(MapToDto(consulation));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteConsulation(int id)
     {

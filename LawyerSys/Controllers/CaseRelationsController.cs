@@ -37,6 +37,7 @@ public class CaseRelationsController : ControllerBase
         }));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("{caseCode}/customers/{customerId}")]
     public async Task<ActionResult> AddCustomerToCase(int caseCode, int customerId)
     {
@@ -59,6 +60,7 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = "Customer added to case", id = relation.Id });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{caseCode}/customers/{customerId}")]
     public async Task<ActionResult> RemoveCustomerFromCase(int caseCode, int customerId)
     {
@@ -92,6 +94,7 @@ public class CaseRelationsController : ControllerBase
         }));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("{caseCode}/contenders/{contenderId}")]
     public async Task<ActionResult> AddContenderToCase(int caseCode, int contenderId)
     {
@@ -113,6 +116,7 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = "Contender added to case", id = relation.Id });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{caseCode}/contenders/{contenderId}")]
     public async Task<ActionResult> RemoveContenderFromCase(int caseCode, int contenderId)
     {
@@ -146,6 +150,7 @@ public class CaseRelationsController : ControllerBase
         }));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("{caseCode}/courts/{courtId}")]
     public async Task<ActionResult> AddCourtToCase(int caseCode, int courtId)
     {
@@ -167,6 +172,7 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = "Court added to case", id = relation.Id });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{caseCode}/courts/{courtId}")]
     public async Task<ActionResult> RemoveCourtFromCase(int caseCode, int courtId)
     {
@@ -201,6 +207,7 @@ public class CaseRelationsController : ControllerBase
         }));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost("{caseCode}/employees/{employeeId}")]
     public async Task<ActionResult> AddEmployeeToCase(int caseCode, int employeeId)
     {
@@ -222,6 +229,7 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = "Employee added to case", id = relation.Id });
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{caseCode}/employees/{employeeId}")]
     public async Task<ActionResult> RemoveEmployeeFromCase(int caseCode, int employeeId)
     {
@@ -256,6 +264,7 @@ public class CaseRelationsController : ControllerBase
         }));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("{caseCode}/sitings/{sitingId}")]
     public async Task<ActionResult> AddSitingToCase(int caseCode, int sitingId)
     {
@@ -277,6 +286,7 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = "Siting added to case", id = relation.Id });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{caseCode}/sitings/{sitingId}")]
     public async Task<ActionResult> RemoveSitingFromCase(int caseCode, int sitingId)
     {
@@ -311,6 +321,7 @@ public class CaseRelationsController : ControllerBase
         }));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("{caseCode}/files/{fileId}")]
     public async Task<ActionResult> AddFileToCase(int caseCode, int fileId)
     {
@@ -332,6 +343,7 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = "File added to case", id = relation.Id });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{caseCode}/files/{fileId}")]
     public async Task<ActionResult> RemoveFileFromCase(int caseCode, int fileId)
     {

@@ -36,6 +36,7 @@ public class ContendersController : ControllerBase
         return Ok(MapToDto(contender));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<ContenderDto>> CreateContender([FromBody] CreateContenderDto dto)
     {
@@ -56,6 +57,7 @@ public class ContendersController : ControllerBase
         return CreatedAtAction(nameof(GetContender), new { id = contender.Id }, MapToDto(contender));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateContender(int id, [FromBody] UpdateContenderDto dto)
     {
@@ -72,6 +74,7 @@ public class ContendersController : ControllerBase
         return Ok(MapToDto(contender));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteContender(int id)
     {

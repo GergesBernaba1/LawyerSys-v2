@@ -41,6 +41,7 @@ public class CourtsController : ControllerBase
         return Ok(MapToDto(court));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<CourtDto>> CreateCourt([FromBody] CreateCourtDto dto)
     {
@@ -63,6 +64,7 @@ public class CourtsController : ControllerBase
         return CreatedAtAction(nameof(GetCourt), new { id = court.Id }, MapToDto(court));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCourt(int id, [FromBody] UpdateCourtDto dto)
     {
@@ -80,6 +82,7 @@ public class CourtsController : ControllerBase
         return Ok(MapToDto(court));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCourt(int id)
     {

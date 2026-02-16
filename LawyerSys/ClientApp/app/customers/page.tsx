@@ -58,7 +58,7 @@ export default function CustomersPageClient() {
   const locale = params?.locale || 'ar';
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasRole } = useAuth();
 
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
@@ -146,20 +146,22 @@ export default function CustomersPageClient() {
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Button 
-            variant="contained" 
-            startIcon={!isRTL ? <AddIcon /> : undefined} 
-            endIcon={isRTL ? <AddIcon /> : undefined} 
-            onClick={() => setOpenCreateWithUser(true)}
-            sx={{ 
-              borderRadius: 2.5, 
-              px: 3,
-              fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
-            }}
-          >
-            {t('customers.createNewWithUser')}
-          </Button>
+          {hasRole('Admin') && (
+            <Button 
+              variant="contained" 
+              startIcon={!isRTL ? <AddIcon /> : undefined} 
+              endIcon={isRTL ? <AddIcon /> : undefined} 
+              onClick={() => setOpenCreateWithUser(true)}
+              sx={{ 
+                borderRadius: 2.5, 
+                px: 3,
+                fontWeight: 700,
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              }}
+            >
+              {t('customers.createNewWithUser')}
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -253,18 +255,20 @@ export default function CustomersPageClient() {
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.usersId}</TableCell>
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
-                        <Tooltip title={t('app.delete')}>
-                          <IconButton 
-                            color="error" 
-                            onClick={() => remove(item.id)}
-                            sx={{ 
-                              '&:hover': { bgcolor: 'error.light', color: 'white' },
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        {hasRole('Admin') && (
+                          <Tooltip title={t('app.delete')}>
+                            <IconButton 
+                              color="error" 
+                              onClick={() => remove(item.id)}
+                              sx={{ 
+                                '&:hover': { bgcolor: 'error.light', color: 'white' },
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>

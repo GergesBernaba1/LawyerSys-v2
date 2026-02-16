@@ -45,6 +45,7 @@ public class BillingController : ControllerBase
         return Ok(MapPayToDto(payment));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost("payments")]
     public async Task<ActionResult<BillingPayDto>> CreatePayment([FromBody] CreateBillingPayDto dto)
     {
@@ -72,6 +73,7 @@ public class BillingController : ControllerBase
         return CreatedAtAction(nameof(GetPayment), new { id = payment.Id }, MapPayToDto(payment));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut("payments/{id}")]
     public async Task<IActionResult> UpdatePayment(int id, [FromBody] UpdateBillingPayDto dto)
     {
@@ -91,6 +93,7 @@ public class BillingController : ControllerBase
         return Ok(MapPayToDto(payment));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("payments/{id}")]
     public async Task<IActionResult> DeletePayment(int id)
     {
@@ -122,6 +125,7 @@ public class BillingController : ControllerBase
         return Ok(MapReceiptToDto(receipt));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost("receipts")]
     public async Task<ActionResult<BillingReceiptDto>> CreateReceipt([FromBody] CreateBillingReceiptDto dto)
     {
@@ -142,6 +146,7 @@ public class BillingController : ControllerBase
         return CreatedAtAction(nameof(GetReceipt), new { id = receipt.Id }, MapReceiptToDto(receipt));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut("receipts/{id}")]
     public async Task<IActionResult> UpdateReceipt(int id, [FromBody] UpdateBillingReceiptDto dto)
     {
@@ -157,6 +162,7 @@ public class BillingController : ControllerBase
         return Ok(MapReceiptToDto(receipt));
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("receipts/{id}")]
     public async Task<IActionResult> DeleteReceipt(int id)
     {

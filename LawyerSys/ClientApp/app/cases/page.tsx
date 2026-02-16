@@ -35,6 +35,7 @@ import {
   ListItemText,
   Avatar,
   useTheme,
+  Pagination,
 } from '@mui/material';
 import Grid from '@mui/material/Grid'
 import {
@@ -64,7 +65,7 @@ export default function CasesPageClient() {
   const locale = params?.locale || 'ar';
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasAnyRole } = useAuth();
 
   const [items, setItems] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -76,6 +77,12 @@ export default function CasesPageClient() {
     message: '',
     severity: 'success',
   });
+
+  // pagination
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [search, setSearch] = useState<string>('');
 
   // New states for relations
   const [courts, setCourts] = useState<any[]>([]);
@@ -92,16 +99,21 @@ export default function CasesPageClient() {
   const [pendingSitings, setPendingSitings] = useState<any[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
-  async function load() {
+  async function load(p = page) {
     setLoading(true);
     try {
       const [r, courtsRes, customersRes, contendersRes] = await Promise.all([
-        api.get('/Cases'),
+        api.get(`/Cases?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`),
         api.get('/Courts'),
         api.get('/Customers'),
         api.get('/Contenders')
       ]);
-      setItems(r.data || []);
+
+      // support legacy array response OR new paged response
+      const casesData = r.data?.items ? r.data.items : r.data;
+      setItems(casesData || []);
+      if (r.data?.totalCount) setTotalCount(r.data.totalCount);
+
       setCourts(courtsRes.data || []);
       setCustomers(customersRes.data || []);
       setContenders(contendersRes.data || []);
@@ -225,7 +237,7 @@ export default function CasesPageClient() {
               {t('cases.management')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {t('cases.totalCases')}: <strong>{items.length}</strong>
+              {t('cases.totalCases')}: <strong>{totalCount || items.length}</strong>
             </Typography>
           </Box>
         </Box>
@@ -244,20 +256,22 @@ export default function CasesPageClient() {
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Button
-            variant="contained"
-            startIcon={!isRTL ? <AddIcon /> : undefined}
-            endIcon={isRTL ? <AddIcon /> : undefined}
-            onClick={() => setOpenDialog(true)}
-            sx={{ 
-              borderRadius: 2.5, 
-              px: 3,
-              fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
-            }}
-          >
-            {t('cases.newCase')}
-          </Button>
+          {hasAnyRole('Admin', 'Employee') && (
+            <Button
+              variant="contained"
+              startIcon={!isRTL ? <AddIcon /> : undefined}
+              endIcon={isRTL ? <AddIcon /> : undefined}
+              onClick={() => setOpenDialog(true)}
+              sx={{ 
+                borderRadius: 2.5, 
+                px: 3,
+                fontWeight: 700,
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              }}
+            >
+              {t('cases.newCase')}
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -304,9 +318,11 @@ export default function CasesPageClient() {
                         <GavelIcon fontSize="inherit" />
                       </Box>
                       <Typography variant="h6" gutterBottom>{t('cases.noCases')}</Typography>
-                      <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => setOpenDialog(true)}>
-                        {t('cases.createFirst')}
-                      </Button>
+                      {hasAnyRole('Admin', 'Employee') && (
+                        <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => setOpenDialog(true)}>
+                          {t('cases.createFirst')}
+                        </Button>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -350,18 +366,20 @@ export default function CasesPageClient() {
                         >
                           {t('app.details') || 'Details'}
                         </Button>
-                        <Tooltip title={t('app.delete')}>
-                          <IconButton 
-                            color="error" 
-                            onClick={() => remove(item.id)}
-                            sx={{ 
-                              '&:hover': { bgcolor: 'error.light', color: 'white' },
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        {hasAnyRole('Admin', 'Employee') && (
+                          <Tooltip title={t('app.delete')}>
+                            <IconButton 
+                              color="error" 
+                              onClick={() => remove(item.id)}
+                              sx={{ 
+                                '&:hover': { bgcolor: 'error.light', color: 'white' },
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -370,6 +388,32 @@ export default function CasesPageClient() {
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* Pagination */}
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+          <Pagination
+            count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
+            page={page}
+            onChange={(_, v) => { setPage(v); load(v); }}
+            color="primary"
+            shape="rounded"
+            showFirstButton
+            showLastButton
+          />
+          <FormControl size="small" sx={{ minWidth: 90 }}>
+            <InputLabel id="pagesize-label">/page</InputLabel>
+            <Select
+              labelId="pagesize-label"
+              value={pageSize}
+              label="/page"
+              onChange={(e) => { const ps = Number(e.target.value); setPageSize(ps); setPage(1); load(1); }}
+            >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Paper>
 
       <Dialog 

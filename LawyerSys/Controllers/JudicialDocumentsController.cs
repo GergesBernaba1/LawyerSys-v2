@@ -55,6 +55,7 @@ public class JudicialDocumentsController : ControllerBase
         return Ok(docs.Select(MapToDto));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<JudicialDocumentDto>> CreateDocument([FromBody] CreateJudicialDocumentDto dto)
     {
@@ -84,6 +85,7 @@ public class JudicialDocumentsController : ControllerBase
         return CreatedAtAction(nameof(GetDocument), new { id = doc.Id }, MapToDto(doc));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateDocument(int id, [FromBody] UpdateJudicialDocumentDto dto)
     {
@@ -105,6 +107,7 @@ public class JudicialDocumentsController : ControllerBase
         return Ok(MapToDto(doc));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteDocument(int id)
     {

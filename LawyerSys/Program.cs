@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddEndpointsApiExplorer();
 
@@ -78,26 +79,49 @@ builder.Services.AddCors(options =>
 
 // Email sender
 builder.Services.Configure<LawyerSys.Services.Email.EmailSettings>(builder.Configuration.GetSection("Email"));
+var emailPassword = builder.Configuration.GetValue<string>("Email:Password");
+if (string.IsNullOrWhiteSpace(emailPassword) || emailPassword.StartsWith("<"))
+{
+    var msg = "Email:Password is not configured. Set Email:Password in user-secrets or environment variable.";
+    if (!builder.Environment.IsDevelopment()) throw new InvalidOperationException(msg);
+    Console.WriteLine("WARNING: " + msg);
+}
 builder.Services.AddScoped<LawyerSys.Services.Email.IEmailSender, LawyerSys.Services.Email.SmtpEmailSender>();
 
 // Application services
+builder.Services.AddScoped<LawyerSys.Services.IUserContext, LawyerSys.Services.UserContext>();
 builder.Services.AddScoped<LawyerSys.Services.ICustomerService, LawyerSys.Services.CustomerService>();
 builder.Services.AddScoped<LawyerSys.Services.IEmployeeService, LawyerSys.Services.EmployeeService>();
 builder.Services.AddScoped<LawyerSys.Services.IAccountService, LawyerSys.Services.AccountService>();
 
 builder.Services.AddIdentity<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole>(options =>
 {
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+    options.Lockout.DefaultLockoutTimeSpan = System.TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.User.RequireUniqueEmail = true;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var secret = jwtSection.GetValue<string>("Key") ?? "ChangeThisToASecureKeyWithAtLeast32Characters!";
+var secret = jwtSection.GetValue<string>("Key") ?? string.Empty;
+if (string.IsNullOrWhiteSpace(secret))
+{
+    var msg = "JWT signing key is not configured. Set Jwt:Key via user-secrets or environment variable.";
+    if (!builder.Environment.IsDevelopment()) throw new InvalidOperationException(msg);
+    Console.WriteLine("WARNING: " + msg);
+}
+else if (secret.Length < 32)
+{
+    var msg = "JWT signing key length is less than 32 characters — increase entropy.";
+    if (!builder.Environment.IsDevelopment()) throw new InvalidOperationException(msg);
+    Console.WriteLine("WARNING: " + msg);
+}
 var key = Encoding.UTF8.GetBytes(secret);
 
 builder.Services.AddAuthentication(options =>
@@ -118,6 +142,14 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(key),
         };
     });
+
+// Authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("EmployeeOrAdmin", policy => policy.RequireRole("Admin", "Employee"));
+    options.AddPolicy("CustomerAccess", policy => policy.RequireRole("Admin", "Employee", "Customer"));
+});
 
 var app = builder.Build();
 

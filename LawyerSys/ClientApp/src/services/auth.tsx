@@ -6,6 +6,7 @@ interface User {
   fullName: string;
   userName: string;
   token: string;
+  roles: string[];
 }
 
 interface AuthContextValue {
@@ -15,6 +16,8 @@ interface AuthContextValue {
   register: (user: string, email: string, pass: string, fullName: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  hasRole: (role: string) => boolean;
+  hasAnyRole: (...roles: string[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -69,10 +72,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const decoded = parseJwt(token);
       console.log('Decoded JWT:', decoded);
       if (decoded) {
+        // Extract roles from JWT claims
+        // Roles can be in 'role' claim or 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+        let roles: string[] = [];
+        const roleClaim = decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        if (roleClaim) {
+          // Role can be a string or an array
+          roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
+        }
+
         const userInfo = {
           email: decoded.email || decoded.sub || 'User',
           fullName: decoded.fullName || '',
           userName: decoded.unique_name || decoded.preferred_username || decoded.sub || '',
+          roles,
           token,
         };
         console.log('Setting user info:', userInfo);
@@ -117,10 +130,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null)
   }
 
+  function hasRole(role: string): boolean {
+    return user?.roles?.includes(role) ?? false;
+  }
+
+  function hasAnyRole(...roles: string[]): boolean {
+    return roles.some(role => user?.roles?.includes(role)) ?? false;
+  }
+
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, user, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, user, login, register, logout, isAuthenticated, hasRole, hasAnyRole }}>
       {children}
     </AuthContext.Provider>
   )

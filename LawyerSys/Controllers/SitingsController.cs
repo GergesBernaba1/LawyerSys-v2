@@ -36,6 +36,7 @@ public class SitingsController : ControllerBase
         return Ok(MapToDto(siting));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<SitingDto>> CreateSiting([FromBody] CreateSitingDto dto)
     {
@@ -57,6 +58,7 @@ public class SitingsController : ControllerBase
         return CreatedAtAction(nameof(GetSiting), new { id = siting.Id }, MapToDto(siting));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSiting(int id, [FromBody] UpdateSitingDto dto)
     {
@@ -74,6 +76,7 @@ public class SitingsController : ControllerBase
         return Ok(MapToDto(siting));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSiting(int id)
     {

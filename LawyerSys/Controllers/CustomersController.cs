@@ -50,6 +50,7 @@ public class CustomersController : ControllerBase
     }
 
     // POST: api/customers
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<ActionResult<CustomerDto>> CreateCustomer([FromBody] CreateCustomerDto createDto)
     {
@@ -68,6 +69,7 @@ public class CustomersController : ControllerBase
     }
 
     // POST: api/customers/withuser - Create customer with new user
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost("withuser")]
     public async Task<ActionResult<CustomerDto>> CreateCustomerWithUser([FromBody] CreateCustomerWithUserDto dto)
     {
@@ -199,6 +201,7 @@ public class CustomersController : ControllerBase
     }
 
     // PUT: api/customers/{id}
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDto dto)
     {
@@ -214,6 +217,7 @@ public class CustomersController : ControllerBase
     }
 
     // DELETE: api/customers/{id}
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCustomer(int id)
     {

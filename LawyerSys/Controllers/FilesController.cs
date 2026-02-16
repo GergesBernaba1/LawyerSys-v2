@@ -41,6 +41,7 @@ public class FilesController : ControllerBase
     }
 
     // POST: api/files
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<FileDto>> CreateFile([FromBody] CreateFileDto dto)
     {
@@ -61,6 +62,7 @@ public class FilesController : ControllerBase
     }
 
     // POST: api/files/upload
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("upload")]
     public async Task<ActionResult<FileDto>> UploadFile(IFormFile file, [FromForm] string? code)
     {
@@ -100,6 +102,7 @@ public class FilesController : ControllerBase
     }
 
     // PUT: api/files/{id}
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateFile(int id, [FromBody] UpdateFileDto dto)
     {
@@ -117,6 +120,7 @@ public class FilesController : ControllerBase
     }
 
     // DELETE: api/files/{id}
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteFile(int id)
     {

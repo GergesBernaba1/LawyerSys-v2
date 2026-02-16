@@ -36,6 +36,7 @@ public class GovernmentsController : ControllerBase
         return Ok(new GovernamentDto { Id = gov.Id, GovName = gov.Gov_Name });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<GovernamentDto>> CreateGovernment([FromBody] CreateGovernamentDto dto)
     {
@@ -54,6 +55,7 @@ public class GovernmentsController : ControllerBase
         return CreatedAtAction(nameof(GetGovernment), new { id = gov.Id }, new GovernamentDto { Id = gov.Id, GovName = gov.Gov_Name });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateGovernment(int id, [FromBody] CreateGovernamentDto dto)
     {
@@ -67,6 +69,7 @@ public class GovernmentsController : ControllerBase
         return Ok(new GovernamentDto { Id = gov.Id, GovName = gov.Gov_Name });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteGovernment(int id)
     {

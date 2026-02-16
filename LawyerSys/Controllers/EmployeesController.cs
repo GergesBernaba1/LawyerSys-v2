@@ -41,6 +41,7 @@ public class EmployeesController : ControllerBase
     }
 
     // POST: api/employees
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<ActionResult<EmployeeDto>> CreateEmployee([FromBody] CreateEmployeeDto dto)
     {
@@ -59,6 +60,7 @@ public class EmployeesController : ControllerBase
     }
 
     // POST: api/employees/withuser - Create employee with new user
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost("withuser")]
     public async Task<ActionResult<EmployeeDto>> CreateEmployeeWithUser([FromBody] CreateEmployeeWithUserDto dto)
     {
@@ -185,6 +187,7 @@ public class EmployeesController : ControllerBase
     }
 
     // PUT: api/employees/{id}
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEmployee(int id, [FromBody] UpdateEmployeeDto dto)
     {
@@ -200,6 +203,7 @@ public class EmployeesController : ControllerBase
     }
 
     // DELETE: api/employees/{id}
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEmployee(int id)
     {

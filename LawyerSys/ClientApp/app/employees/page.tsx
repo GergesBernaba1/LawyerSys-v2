@@ -55,7 +55,7 @@ export default function EmployeesPageClient() {
   const locale = params?.locale || 'ar';
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasRole } = useAuth();
 
   const [items, setItems] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
@@ -166,20 +166,22 @@ export default function EmployeesPageClient() {
               <RefreshIcon />
             </IconButton>
           </Tooltip>
-          <Button 
-            variant="contained" 
-            startIcon={!isRTL ? <AddIcon /> : undefined} 
-            endIcon={isRTL ? <AddIcon /> : undefined} 
-            onClick={() => setOpenDialog(true)}
-            sx={{ 
-              borderRadius: 2.5, 
-              px: 3,
-              fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
-            }}
-          >
-            {t('employees.newEmployee')}
-          </Button>
+          {hasRole('Admin') && (
+            <Button 
+              variant="contained" 
+              startIcon={!isRTL ? <AddIcon /> : undefined} 
+              endIcon={isRTL ? <AddIcon /> : undefined} 
+              onClick={() => setOpenDialog(true)}
+              sx={{ 
+                borderRadius: 2.5, 
+                px: 3,
+                fontWeight: 700,
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+              }}
+            >
+              {t('employees.newEmployee')}
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -268,18 +270,20 @@ export default function EmployeesPageClient() {
                     </TableCell>
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
-                        <Tooltip title={t('app.delete')}>
-                          <IconButton 
-                            color="error" 
-                            onClick={() => remove(item.id)}
-                            sx={{ 
-                              '&:hover': { bgcolor: 'error.light', color: 'white' },
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        {hasRole('Admin') && (
+                          <Tooltip title={t('app.delete')}>
+                            <IconButton 
+                              color="error" 
+                              onClick={() => remove(item.id)}
+                              sx={{ 
+                                '&:hover': { bgcolor: 'error.light', color: 'white' },
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>

@@ -50,6 +50,7 @@ public class LegacyUsersController : ControllerBase
     }
 
     // POST: api/legacyusers
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<ActionResult<LegacyUserDto>> CreateUser([FromBody] CreateLegacyUserDto dto)
     {
@@ -83,6 +84,7 @@ public class LegacyUsersController : ControllerBase
     }
 
     // PUT: api/legacyusers/{id}
+    [Authorize(Policy = "AdminOnly")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateLegacyUserDto dto)
     {
@@ -103,6 +105,7 @@ public class LegacyUsersController : ControllerBase
     }
 
     // DELETE: api/legacyusers/{id}
+    [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {

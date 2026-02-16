@@ -69,6 +69,7 @@ public class AdminTasksController : ControllerBase
         return Ok(tasks.Select(MapToDto));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<AdminTaskDto>> CreateAdminTask([FromBody] CreateAdminTaskDto dto)
     {
@@ -98,6 +99,7 @@ public class AdminTasksController : ControllerBase
         return CreatedAtAction(nameof(GetAdminTask), new { id = task.Id }, MapToDto(task));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAdminTask(int id, [FromBody] UpdateAdminTaskDto dto)
     {
@@ -120,6 +122,7 @@ public class AdminTasksController : ControllerBase
         return Ok(MapToDto(task));
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAdminTask(int id)
     {
