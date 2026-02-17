@@ -1,17 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using LawyerSys.Data;
 
 namespace LawyerSys.Services;
-
-public interface IUserContext
-{
-    string? GetUserId();
-    string? GetUserName();
-    string? GetEmail();
-    Task<bool> IsInRoleAsync(string role);
-    Task<IList<string>> GetUserRolesAsync();
-}
 
 public class UserContext : IUserContext
 {

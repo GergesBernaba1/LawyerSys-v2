@@ -82,9 +82,11 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var conn = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=.\\SQLEXPRESS;Database=Lawer;Trusted_Connection=True;TrustServerCertificate=True";
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(conn));
-builder.Services.AddDbContext<LegacyDbContext>(options => options.UseSqlServer(conn));
+    ?? "Host=localhost;Port=5432;Database=Lawer;Username=postgres;Password=postgres";
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(conn, b => b.MigrationsAssembly("LawyerSys.Infrastructure")));
+builder.Services.AddDbContext<LegacyDbContext>(options =>
+    options.UseNpgsql(conn, b => b.MigrationsAssembly("LawyerSys.Infrastructure")));
 
 builder.Services.AddCors(options =>
 {

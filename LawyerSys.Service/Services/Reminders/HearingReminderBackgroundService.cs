@@ -2,6 +2,9 @@ using LawyerSys.Data;
 using LawyerSys.Services.Email;
 using LawyerSys.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace LawyerSys.Services.Reminders;

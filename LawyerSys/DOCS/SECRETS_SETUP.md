@@ -9,7 +9,7 @@ From `LawyerSys/`:
 
 ```powershell
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=.\\SQLEXPRESS;Database=Lawer;Trusted_Connection=True;TrustServerCertificate=True"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=Lawer;Username=postgres;Password=postgres"
 dotnet user-secrets set "Jwt:Key" "your-very-long-random-jwt-signing-key-at-least-32-chars"
 dotnet user-secrets set "Email:User" "smtp-user@example.com"
 dotnet user-secrets set "Email:Password" "smtp-password"

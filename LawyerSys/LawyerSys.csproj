@@ -4,11 +4,27 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>LawyerSys</AssemblyName>
+    <AssemblyName>LawyerSys.API</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <Reference Include="LawyerSys.Domain">
+      <HintPath>..\LawyerSys.Domain\bin\$(Configuration)\net8.0\LawyerSys.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="LawyerSys.Service">
+      <HintPath>..\LawyerSys.Service\bin\$(Configuration)\net8.0\LawyerSys.Service.dll</HintPath>
+    </Reference>
+    <Reference Include="LawyerSys.Infrastructure">
+      <HintPath>..\LawyerSys.Infrastructure\bin\$(Configuration)\net8.0\LawyerSys.Infrastructure.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\MigrationsBackup\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
