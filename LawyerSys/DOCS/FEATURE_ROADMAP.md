@@ -49,10 +49,10 @@
 | # | Feature | Description | Status |
 |---|---|---|---|
 | 6 | **Case Status Tracking** | Add a `Status` field to cases (New â†’ In Progress â†’ Awaiting Hearing â†’ Closed â†’ Won â†’ Lost) with status history log | ðŸ”„ |
-| 7 | **Consultation â†” Customer/Employee linking** | Wire the existing junction tables (`Consltitions_Custmor`, `Consulations_Employee`) with API endpoints + UI, so consultations can be assigned to specific clients and lawyers | âŒ |
-| 8 | **Hearing Notifications/Reminders** | `Siting.Siting_Notification` exists but is unused â€” add a background job (Hangfire/Quartz) to send email/push reminders before hearing dates | âŒ |
-| 9 | **Task Reminders** | Similar to hearings â€” `AdminstrativeTask.Task_Reminder_Date` should trigger email notifications | âŒ |
-| 10 | **File Attachments on Cases** | Currently files are linked to cases via junction table, but the upload flow is separate. Add drag-and-drop file upload directly from the case detail page | âŒ |
+| 7 | **Consultation â†” Customer/Employee linking** | Wire the existing junction tables (`Consltitions_Custmor`, `Consulations_Employee`) with API endpoints + UI, so consultations can be assigned to specific clients and lawyers | ✅ |
+| 8 | **Hearing Notifications/Reminders** | `Siting.Siting_Notification` exists but is unused â€” add a background job (Hangfire/Quartz) to send email/push reminders before hearing dates | ✅ |
+| 9 | **Task Reminders** | Similar to hearings â€” `AdminstrativeTask.Task_Reminder_Date` should trigger email notifications | ✅ |
+| 10 | **File Attachments on Cases** | Currently files are linked to cases via junction table, but the upload flow is separate. Add drag-and-drop file upload directly from the case detail page | ✅ |
 
 ---
 
@@ -60,7 +60,7 @@
 
 | # | Feature | Description | Status |
 |---|---|---|---|
-| 11 | **Real Dashboard Analytics** | Replace hardcoded "+12%" with actual computed trends â€” cases opened this month vs last, revenue from billing, upcoming hearings count, overdue tasks | âŒ |
+| 11 | **Real Dashboard Analytics** | Replace hardcoded "+12%" with actual computed trends â€” cases opened this month vs last, revenue from billing, upcoming hearings count, overdue tasks | ✅ |
 | 12 | **Financial Reports** | Generate PDF/Excel reports: monthly billing summary (payments vs receipts), per-customer billing history, outstanding balances | âŒ |
 | 13 | **Case Timeline** | Visual timeline view per case showing: creation â†’ hearings â†’ documents â†’ status changes â†’ billing events | âŒ |
 | 14 | **Calendar View** | Full calendar (FullCalendar or MUI Date Calendar) showing hearings, task deadlines, and reminders in a monthly/weekly view | âŒ |
@@ -103,4 +103,10 @@ Phase 5: 25 â†’ 23 â†’ 21 â†’ 22 â†’ 24
 ```
 
 **Highest priority path:** 1 (RBAC) â†’ 2 (Pagination) â†’ 3 (Customer CRUD) â†’ 6 (Case Status) â†’ 11 (Dashboard Analytics) â†’ 14 (Calendar) â†’ 7 (Consultation Linking) â†’ 8 (Reminders) â†’ 15 (Doc Generation) â†’ 16 (Client Portal)
+
+
+
+
+
+
 

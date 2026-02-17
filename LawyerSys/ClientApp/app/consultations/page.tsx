@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme,
+  Tooltip, TextField, useTheme, Autocomplete,
 } from '@mui/material';
 import {
   Chat as ChatIcon,
@@ -16,6 +16,7 @@ import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 
 type ConsultationDto = { id: number; consultionState: string; type: string; subject: string; description: string; feedback: string; notes: string; dateTime: string };
+type RelationOption = { id: number; name: string };
 
 export default function ConsultationsPage() {
   const { t } = useTranslation();
@@ -28,6 +29,10 @@ export default function ConsultationsPage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [editItem, setEditItem] = useState<ConsultationDto | null>(null);
   const [form, setForm] = useState({ consultionState: '', type: '', subject: '', description: '', feedback: '', notes: '', dateTime: '' });
+  const [allCustomers, setAllCustomers] = useState<RelationOption[]>([]);
+  const [allEmployees, setAllEmployees] = useState<RelationOption[]>([]);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<number[]>([]);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   async function load() {
@@ -44,13 +49,36 @@ export default function ConsultationsPage() {
 
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    async function loadRelationsSource() {
+      try {
+        const [custRes, empRes] = await Promise.all([
+          api.get('/Customers'),
+          api.get('/Employees'),
+        ]);
+
+        const customers = Array.isArray(custRes.data) ? custRes.data : custRes.data?.items || [];
+        const employees = Array.isArray(empRes.data) ? empRes.data : empRes.data?.items || [];
+
+        setAllCustomers(customers.map((c: any) => ({ id: Number(c.id), name: c.user?.fullName || `#${c.id}` })));
+        setAllEmployees(employees.map((e: any) => ({ id: Number(e.id), name: e.user?.fullName || `#${e.id}` })));
+      } catch {
+        // keep page usable even if reference lookups fail
+      }
+    }
+
+    loadRelationsSource();
+  }, []);
+
   function openCreate() {
     setEditItem(null);
     setForm({ consultionState: '', type: '', subject: '', description: '', feedback: '', notes: '', dateTime: '' });
+    setSelectedCustomerIds([]);
+    setSelectedEmployeeIds([]);
     setOpenDialog(true);
   }
 
-  function openEdit(item: ConsultationDto) {
+  async function openEdit(item: ConsultationDto) {
     setEditItem(item);
     setForm({
       consultionState: item.consultionState,
@@ -61,7 +89,46 @@ export default function ConsultationsPage() {
       notes: item.notes,
       dateTime: item.dateTime ? new Date(item.dateTime).toISOString().substring(0, 16) : '',
     });
+    try {
+      const [customersRes, employeesRes] = await Promise.all([
+        api.get(`/Consulations/${item.id}/customers`),
+        api.get(`/Consulations/${item.id}/employees`),
+      ]);
+
+      const customerIds = (customersRes.data || []).map((x: any) => Number(x.customerId)).filter((x: number) => !Number.isNaN(x));
+      const employeeIds = (employeesRes.data || []).map((x: any) => Number(x.employeeId)).filter((x: number) => !Number.isNaN(x));
+      setSelectedCustomerIds(customerIds);
+      setSelectedEmployeeIds(employeeIds);
+    } catch {
+      setSelectedCustomerIds([]);
+      setSelectedEmployeeIds([]);
+    }
     setOpenDialog(true);
+  }
+
+  async function syncRelations(consulationId: number) {
+    const [customersRes, employeesRes] = await Promise.all([
+      api.get(`/Consulations/${consulationId}/customers`),
+      api.get(`/Consulations/${consulationId}/employees`),
+    ]);
+
+    const existingCustomerIds = new Set<number>((customersRes.data || []).map((x: any) => Number(x.customerId)));
+    const existingEmployeeIds = new Set<number>((employeesRes.data || []).map((x: any) => Number(x.employeeId)));
+
+    const selectedCustomers = new Set<number>(selectedCustomerIds);
+    const selectedEmployees = new Set<number>(selectedEmployeeIds);
+
+    const customerAdds = Array.from(selectedCustomers).filter(x => !existingCustomerIds.has(x));
+    const customerRemoves = Array.from(existingCustomerIds).filter(x => !selectedCustomers.has(x));
+    const employeeAdds = Array.from(selectedEmployees).filter(x => !existingEmployeeIds.has(x));
+    const employeeRemoves = Array.from(existingEmployeeIds).filter(x => !selectedEmployees.has(x));
+
+    await Promise.all([
+      ...customerAdds.map(id => api.post(`/Consulations/${consulationId}/customers/${id}`)),
+      ...customerRemoves.map(id => api.delete(`/Consulations/${consulationId}/customers/${id}`)),
+      ...employeeAdds.map(id => api.post(`/Consulations/${consulationId}/employees/${id}`)),
+      ...employeeRemoves.map(id => api.delete(`/Consulations/${consulationId}/employees/${id}`)),
+    ]);
   }
 
   async function handleSubmit() {
@@ -70,13 +137,22 @@ export default function ConsultationsPage() {
         ...form,
         dateTime: form.dateTime ? new Date(form.dateTime).toISOString() : new Date().toISOString(),
       };
+      let consulationId: number | null = null;
+
       if (editItem) {
         await api.put(`/Consulations/${editItem.id}`, payload);
+        consulationId = editItem.id;
         setSnackbar({ open: true, message: t('consultations.updated'), severity: 'success' });
       } else {
-        await api.post('/Consulations', payload);
+        const res = await api.post('/Consulations', payload);
+        consulationId = Number(res.data?.id ?? res.data?.Id);
         setSnackbar({ open: true, message: t('consultations.created'), severity: 'success' });
       }
+
+      if (consulationId) {
+        await syncRelations(consulationId);
+      }
+
       setOpenDialog(false);
       load();
     } catch {
@@ -169,7 +245,7 @@ export default function ConsultationsPage() {
                   <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                     <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
                       <Tooltip title={t('common.edit')}>
-                        <IconButton color="primary" onClick={() => openEdit(item)} sx={{ '&:hover': { bgcolor: 'primary.light', color: 'white' }, transition: 'all 0.2s ease' }}>
+                        <IconButton color="primary" onClick={() => { void openEdit(item); }} sx={{ '&:hover': { bgcolor: 'primary.light', color: 'white' }, transition: 'all 0.2s ease' }}>
                           <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
@@ -206,6 +282,26 @@ export default function ConsultationsPage() {
             </Box>
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField fullWidth label={t('consultations.notes')} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} variant="outlined" multiline rows={2} />
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
+              <Autocomplete
+                multiple
+                options={allCustomers}
+                value={allCustomers.filter(c => selectedCustomerIds.includes(c.id))}
+                getOptionLabel={(option) => option.name}
+                onChange={(_, value) => setSelectedCustomerIds(value.map(v => v.id))}
+                renderInput={(params) => <TextField {...params} label={t('customers.customers') || 'Customers'} />}
+              />
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
+              <Autocomplete
+                multiple
+                options={allEmployees}
+                value={allEmployees.filter(e => selectedEmployeeIds.includes(e.id))}
+                getOptionLabel={(option) => option.name}
+                onChange={(_, value) => setSelectedEmployeeIds(value.map(v => v.id))}
+                renderInput={(params) => <TextField {...params} label={t('employees.employees') || 'Employees'} />}
+              />
             </Box>
           </Box>
         </DialogContent>

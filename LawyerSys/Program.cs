@@ -8,6 +8,7 @@ using LawyerSys.Data;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using System.Threading.Tasks;
+using LawyerSys.Services.Reminders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,6 +88,11 @@ if (string.IsNullOrWhiteSpace(emailPassword) || emailPassword.StartsWith("<"))
     Console.WriteLine("WARNING: " + msg);
 }
 builder.Services.AddScoped<LawyerSys.Services.Email.IEmailSender, LawyerSys.Services.Email.SmtpEmailSender>();
+builder.Services.AddSingleton<ReminderDispatchStore>();
+builder.Services.Configure<HearingReminderOptions>(builder.Configuration.GetSection("Reminders:Hearing"));
+builder.Services.AddHostedService<HearingReminderBackgroundService>();
+builder.Services.Configure<TaskReminderOptions>(builder.Configuration.GetSection("Reminders:Task"));
+builder.Services.AddHostedService<TaskReminderBackgroundService>();
 
 // Application services
 builder.Services.AddScoped<LawyerSys.Services.IUserContext, LawyerSys.Services.UserContext>();

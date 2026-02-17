@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
@@ -27,7 +27,7 @@ import {
   MenuItem,
   Chip,
 } from '@mui/material';
-import { ArrowBack, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon } from '@mui/icons-material';
+import { ArrowBack, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import api from '../../../src/services/api';
 import { useAuth } from '../../../src/services/auth';
 
@@ -52,6 +52,8 @@ export default function CaseDetailsPage() {
   const [selectedCustomerToAdd, setSelectedCustomerToAdd] = useState<number | ''>('');
 
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [isDraggingFiles, setIsDraggingFiles] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // siting dialog
   const [createSitingOpen, setCreateSitingOpen] = useState(false);
@@ -195,14 +197,27 @@ export default function CaseDetailsPage() {
 
   async function removeSiting(sitingId:number){ try{ await api.delete(`/cases/${code}/sitings/${sitingId}`); await load(); setSnackbar({ open:true, message: 'Siting removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove siting', severity:'error' }); } }
 
-  async function uploadFiles(files:FileList | null){ if(!files) return; try{
-    for(const f of Array.from(files)){
+  async function uploadFileArray(files:File[]){
+    if(files.length === 0) return;
+    try{
+    for(const f of files){
       const fd = new FormData(); fd.append('file', f); const r = await api.post('/Files/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } }); const fileId = r.data.id; await api.post(`/cases/${code}/files/${fileId}`);
     }
     setFileInputKey(k=>k+1);
     setSnackbar({ open:true, message: 'Files uploaded', severity:'success' });
     await load();
   }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to upload', severity:'error' }); } }
+
+  async function uploadFiles(files:FileList | null){
+    if(!files) return;
+    await uploadFileArray(Array.from(files));
+  }
+
+  async function handleDropFiles(e: React.DragEvent<HTMLDivElement>){
+    e.preventDefault();
+    setIsDraggingFiles(false);
+    await uploadFileArray(Array.from(e.dataTransfer.files || []));
+  }
 
   async function removeFile(fileId:number){ try{ await api.delete(`/cases/${code}/files/${fileId}`); setSnackbar({ open:true, message: 'File removed', severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove file', severity:'error' }); } }
 
@@ -333,11 +348,38 @@ export default function CaseDetailsPage() {
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{t('files.title') || 'Files'}</Typography>
                 <Box>
-                  <Button size="small" onClick={()=>setFileInputKey(k=>k+1)} startIcon={<AddIcon/>}>{t('files.upload') || 'Upload'}</Button>
+                  <Button size="small" onClick={()=>fileInputRef.current?.click()} startIcon={<AddIcon/>}>{t('files.upload') || 'Upload'}</Button>
                 </Box>
               </Box>
-              <Box sx={{ mt:1 }}>
-                <input key={fileInputKey} type="file" multiple onChange={(e)=>uploadFiles(e.target.files)} />
+              <Box
+                sx={{
+                  mt: 1,
+                  p: 2.5,
+                  border: '2px dashed',
+                  borderColor: isDraggingFiles ? 'primary.main' : 'divider',
+                  borderRadius: 2,
+                  bgcolor: isDraggingFiles ? 'action.hover' : 'transparent',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'center',
+                  cursor: 'pointer'
+                }}
+                onDragOver={(e)=>{ e.preventDefault(); setIsDraggingFiles(true); }}
+                onDragLeave={(e)=>{ e.preventDefault(); setIsDraggingFiles(false); }}
+                onDrop={(e)=>{ void handleDropFiles(e); }}
+                onClick={()=>fileInputRef.current?.click()}
+              >
+                <CloudUploadIcon color={isDraggingFiles ? 'primary' : 'disabled'} sx={{ fontSize: 28 }} />
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {t('files.dragOrClick') || 'Drag files here or click to choose'}
+                </Typography>
+                <input
+                  ref={fileInputRef}
+                  key={fileInputKey}
+                  type="file"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={(e)=>{ void uploadFiles(e.target.files); }}
+                />
               </Box>
               <List>
                 {data.Files.map((f:any)=> (

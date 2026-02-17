@@ -37,7 +37,7 @@ import { useRouter, useParams } from 'next/navigation';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 
-function StatCard({ title, value, icon, color, loading, onClick }: any) {
+function StatCard({ title, value, icon, color, loading, onClick, trend, trendLabel }: any) {
   const { t } = useTranslation();
   const theme = useTheme();
   return (
@@ -87,14 +87,14 @@ function StatCard({ title, value, icon, color, loading, onClick }: any) {
             {React.cloneElement(icon, { sx: { fontSize: 28 } })}
           </Avatar>
         </Box>
-        {!loading && (
+        {!loading && typeof trend === 'number' && (
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <TrendingUpIcon sx={{ fontSize: 16, color: 'success.main' }} />
-            <Typography variant="caption" fontWeight={700} color="success.main">
-              +12%
+            <TrendingUpIcon sx={{ fontSize: 16, color: trend >= 0 ? 'success.main' : 'error.main' }} />
+            <Typography variant="caption" fontWeight={700} color={trend >= 0 ? 'success.main' : 'error.main'}>
+              {trend >= 0 ? '+' : ''}{trend}%
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-              {title.toLowerCase().includes('cases') ? t('dashboard.thisMonth') : t('dashboard.sinceLastWeek')}
+              {trendLabel || t('dashboard.thisMonth')}
             </Typography>
           </Box>
         )}
@@ -111,28 +111,65 @@ export default function DashboardPageClient() {
   const { isAuthenticated, user } = useAuth();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
-  const [stats, setStats] = useState({ cases: 0, customers: 0, employees: 0, files: 0 });
+  const [stats, setStats] = useState({
+    cases: 0,
+    customers: 0,
+    employees: 0,
+    files: 0,
+    casesTrend: 0,
+    revenueThisMonth: 0,
+    revenueTrend: 0,
+    upcomingHearings: 0,
+    overdueTasks: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [recentCases, setRecentCases] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [casesRes, customersRes, employeesRes, filesRes] = await Promise.all([
-          api.get('/Cases').catch(() => ({ data: [] })),
-          api.get('/Customers').catch(() => ({ data: [] })),
-          api.get('/Employees').catch(() => ({ data: [] })),
-          api.get('/Files').catch(() => ({ data: [] })),
-        ]);
+        const analyticsRes = await api.get('/Dashboard/analytics');
+        const analytics = analyticsRes.data || {};
+
         setStats({
-          cases: casesRes.data?.length || 0,
-          customers: customersRes.data?.length || 0,
-          employees: employeesRes.data?.length || 0,
-          files: filesRes.data?.length || 0,
+          cases: analytics.totals?.cases || 0,
+          customers: analytics.totals?.customers || 0,
+          employees: analytics.totals?.employees || 0,
+          files: analytics.totals?.files || 0,
+          casesTrend: analytics.trends?.casesChangePercent || 0,
+          revenueThisMonth: analytics.trends?.revenueThisMonth || 0,
+          revenueTrend: analytics.trends?.revenueChangePercent || 0,
+          upcomingHearings: analytics.alerts?.upcomingHearings || 0,
+          overdueTasks: analytics.alerts?.overdueTasks || 0,
         });
-        setRecentCases((casesRes.data || []).slice(0, 5));
+
+        const casesRes = await api.get('/Cases?page=1&pageSize=5').catch(() => ({ data: { items: [] } }));
+        const caseItems = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || []);
+        setRecentCases(caseItems.slice(0, 5));
       } catch (e) {
-        console.error('Error fetching stats:', e);
+        // fallback if analytics endpoint is unavailable
+        try {
+          const [casesRes, customersRes, employeesRes, filesRes] = await Promise.all([
+            api.get('/Cases').catch(() => ({ data: [] })),
+            api.get('/Customers').catch(() => ({ data: [] })),
+            api.get('/Employees').catch(() => ({ data: [] })),
+            api.get('/Files').catch(() => ({ data: [] })),
+          ]);
+          const casesData = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || []);
+          const customersData = Array.isArray(customersRes.data) ? customersRes.data : (customersRes.data?.items || []);
+          const employeesData = Array.isArray(employeesRes.data) ? employeesRes.data : (employeesRes.data?.items || []);
+          const filesData = Array.isArray(filesRes.data) ? filesRes.data : (filesRes.data?.items || []);
+          setStats(prev => ({
+            ...prev,
+            cases: casesData.length || 0,
+            customers: customersData.length || 0,
+            employees: employeesData.length || 0,
+            files: filesData.length || 0,
+          }));
+          setRecentCases(casesData.slice(0, 5));
+        } catch {
+          console.error('Error fetching stats');
+        }
       } finally {
         setLoading(false);
       }
@@ -223,10 +260,30 @@ export default function DashboardPageClient() {
       <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 0 } }}>
         {/* Stats Grid */}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-          <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} /></Box>
+          <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} trend={stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
           <Box><StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color="#a855f7" loading={loading} onClick={() => navigate('/customers')} /></Box>
           <Box><StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color="#06b6d4" loading={loading} onClick={() => navigate('/employees')} /></Box>
           <Box><StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color="#f59e0b" loading={loading} onClick={() => navigate('/files')} /></Box>
+        </Box>
+
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('billing.title') || 'Billing'}</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
+              {stats.revenueThisMonth.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+            </Typography>
+            <Typography variant="caption" color={stats.revenueTrend >= 0 ? 'success.main' : 'error.main'} fontWeight={700}>
+              {stats.revenueTrend >= 0 ? '+' : ''}{stats.revenueTrend}% {t('dashboard.thisMonth')}
+            </Typography>
+          </Paper>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('sitings.upcoming') || 'Upcoming Hearings'}</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{stats.upcomingHearings}</Typography>
+          </Paper>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('tasks.overdue') || 'Overdue Tasks'}</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{stats.overdueTasks}</Typography>
+          </Paper>
         </Box>
       {/* Quick Actions & Recent Cases */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>

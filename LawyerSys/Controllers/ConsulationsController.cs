@@ -116,6 +116,144 @@ public class ConsulationsController : ControllerBase
         return Ok(new { message = "Consultation deleted" });
     }
 
+    // ========== CONSULTATION - CUSTOMER RELATIONS ==========
+
+    [HttpGet("{id}/customers")]
+    public async Task<ActionResult> GetConsulationCustomers(int id)
+    {
+        var exists = await _context.Consulations.AnyAsync(c => c.Id == id);
+        if (!exists)
+            return NotFound(new { message = "Consultation not found" });
+
+        var relations = await _context.Consltitions_Custmors
+            .Include(r => r.Customer)
+                .ThenInclude(c => c.Users)
+            .Where(r => r.Consl_Id == id)
+            .ToListAsync();
+
+        return Ok(relations.Select(r => new
+        {
+            Id = r.Id,
+            CustomerId = r.Customer_Id,
+            CustomerName = r.Customer?.Users?.Full_Name
+        }));
+    }
+
+    [Authorize(Policy = "EmployeeOrAdmin")]
+    [HttpPost("{id}/customers/{customerId}")]
+    public async Task<ActionResult> AddCustomerToConsulation(int id, int customerId)
+    {
+        var consulationExists = await _context.Consulations.AnyAsync(c => c.Id == id);
+        if (!consulationExists)
+            return NotFound(new { message = "Consultation not found" });
+
+        var customerExists = await _context.Customers.AnyAsync(c => c.Id == customerId);
+        if (!customerExists)
+            return NotFound(new { message = "Customer not found" });
+
+        var exists = await _context.Consltitions_Custmors
+            .AnyAsync(r => r.Consl_Id == id && r.Customer_Id == customerId);
+
+        if (exists)
+            return BadRequest(new { message = "Customer already linked to this consultation" });
+
+        var relation = new Consltitions_Custmor
+        {
+            Consl_Id = id,
+            Customer_Id = customerId
+        };
+
+        _context.Consltitions_Custmors.Add(relation);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Customer added to consultation", id = relation.Id });
+    }
+
+    [Authorize(Policy = "EmployeeOrAdmin")]
+    [HttpDelete("{id}/customers/{customerId}")]
+    public async Task<ActionResult> RemoveCustomerFromConsulation(int id, int customerId)
+    {
+        var relation = await _context.Consltitions_Custmors
+            .FirstOrDefaultAsync(r => r.Consl_Id == id && r.Customer_Id == customerId);
+
+        if (relation == null)
+            return NotFound(new { message = "Relation not found" });
+
+        _context.Consltitions_Custmors.Remove(relation);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Customer removed from consultation" });
+    }
+
+    // ========== CONSULTATION - EMPLOYEE RELATIONS ==========
+
+    [HttpGet("{id}/employees")]
+    public async Task<ActionResult> GetConsulationEmployees(int id)
+    {
+        var exists = await _context.Consulations.AnyAsync(c => c.Id == id);
+        if (!exists)
+            return NotFound(new { message = "Consultation not found" });
+
+        var relations = await _context.Consulations_Employees
+            .Include(r => r.Employee)
+                .ThenInclude(e => e.Users)
+            .Where(r => r.Consl_ID == id)
+            .ToListAsync();
+
+        return Ok(relations.Select(r => new
+        {
+            Id = r.Id,
+            EmployeeId = r.Employee_Id,
+            EmployeeName = r.Employee?.Users?.Full_Name
+        }));
+    }
+
+    [Authorize(Policy = "EmployeeOrAdmin")]
+    [HttpPost("{id}/employees/{employeeId}")]
+    public async Task<ActionResult> AddEmployeeToConsulation(int id, int employeeId)
+    {
+        var consulationExists = await _context.Consulations.AnyAsync(c => c.Id == id);
+        if (!consulationExists)
+            return NotFound(new { message = "Consultation not found" });
+
+        var employeeExists = await _context.Employees.AnyAsync(e => e.id == employeeId);
+        if (!employeeExists)
+            return NotFound(new { message = "Employee not found" });
+
+        var exists = await _context.Consulations_Employees
+            .AnyAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId);
+
+        if (exists)
+            return BadRequest(new { message = "Employee already linked to this consultation" });
+
+        var relation = new Consulations_Employee
+        {
+            Consl_ID = id,
+            Employee_Id = employeeId
+        };
+
+        _context.Consulations_Employees.Add(relation);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Employee added to consultation", id = relation.Id });
+    }
+
+    [Authorize(Policy = "EmployeeOrAdmin")]
+    [HttpDelete("{id}/employees/{employeeId}")]
+    public async Task<ActionResult> RemoveEmployeeFromConsulation(int id, int employeeId)
+    {
+        var relation = await _context.Consulations_Employees
+            .FirstOrDefaultAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId);
+
+        if (relation == null)
+            return NotFound(new { message = "Relation not found" });
+
+        _context.Consulations_Employees.Remove(relation);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Employee removed from consultation" });
+    }
+
     private static ConsulationDto MapToDto(Consulation c) => new()
     {
         Id = c.Id,
