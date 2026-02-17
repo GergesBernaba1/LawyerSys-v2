@@ -1,5 +1,6 @@
 import './globals.css'
 import Providers from '../src/providers/Providers'
+import ServiceWorkerRegister from '../src/components/ServiceWorkerRegister'
 
 export const metadata = {
   title: 'Qadaya - قضايا',
@@ -12,6 +13,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={locale} dir={locale.startsWith('ar') ? 'rtl' : 'ltr'}>
       <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#4f46e5" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -21,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <Providers locale={locale}>
+          <ServiceWorkerRegister />
           {children}
         </Providers>
       </body>

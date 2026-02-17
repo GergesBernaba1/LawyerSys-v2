@@ -1,5 +1,6 @@
 using LawyerSys.Data;
 using LawyerSys.Services.Email;
+using LawyerSys.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -64,6 +65,7 @@ public sealed class HearingReminderBackgroundService : BackgroundService
         var legacy = scope.ServiceProvider.GetRequiredService<LegacyDbContext>();
         var appDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+        var externalMessageSender = scope.ServiceProvider.GetRequiredService<IExternalMessageSender>();
 
         var now = DateTime.Now;
         var from = now.AddMinutes(-Math.Max(0, _options.Value.GraceMinutes));
@@ -131,6 +133,7 @@ public sealed class HearingReminderBackgroundService : BackgroundService
                 continue;
 
             var subject = $"Hearing reminder - case(s): {string.Join(", ", caseCodes)}";
+            var plainMessage = $"Hearing reminder for case(s): {string.Join(", ", caseCodes)}. Judge: {siting.Judge_Name}. Date: {siting.Siting_Date:yyyy-MM-dd}. Time: {siting.Siting_Time:yyyy-MM-dd HH:mm}.";
             var body = $@"
 <p>This is a reminder for an upcoming hearing.</p>
 <ul>
@@ -160,6 +163,46 @@ public sealed class HearingReminderBackgroundService : BackgroundService
                 {
                     await _dispatchStore.RecordAttemptAsync(legacy, "Hearing", reminderKey, email, subject, "Failed", ex.Message, cancellationToken);
                     _logger.LogWarning(ex, "Failed to send hearing reminder for siting {SitingId} to {Email}", siting.Id, email);
+                }
+            }
+
+            var phones = await legacy.Users
+                .Where(u => userNames.Contains(u.User_Name))
+                .Select(u => u.Phon_Number.ToString())
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            foreach (var phone in phones)
+            {
+                var smsRecipient = $"sms:{phone}";
+                if (!await _dispatchStore.HasSuccessfulDispatchAsync(legacy, "Hearing", reminderKey, smsRecipient, cancellationToken))
+                {
+                    var sentSms = await externalMessageSender.SendSmsAsync(phone, plainMessage, cancellationToken);
+                    await _dispatchStore.RecordAttemptAsync(
+                        legacy,
+                        "Hearing",
+                        reminderKey,
+                        smsRecipient,
+                        subject,
+                        sentSms ? "Sent" : "Failed",
+                        sentSms ? null : "SMS dispatch failed",
+                        cancellationToken);
+                }
+
+                var whatsappRecipient = $"whatsapp:{phone}";
+                if (!await _dispatchStore.HasSuccessfulDispatchAsync(legacy, "Hearing", reminderKey, whatsappRecipient, cancellationToken))
+                {
+                    var sentWhatsApp = await externalMessageSender.SendWhatsAppAsync(phone, plainMessage, cancellationToken);
+                    await _dispatchStore.RecordAttemptAsync(
+                        legacy,
+                        "Hearing",
+                        reminderKey,
+                        whatsappRecipient,
+                        subject,
+                        sentWhatsApp ? "Sent" : "Failed",
+                        sentWhatsApp ? null : "WhatsApp dispatch failed",
+                        cancellationToken);
                 }
             }
         }

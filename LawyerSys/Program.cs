@@ -1,5 +1,7 @@
 using LawyerSys.Data;
 using LawyerSys.Services.Auditing;
+using LawyerSys.Services.MultiTenancy;
+using LawyerSys.Services.Notifications;
 using LawyerSys.Services.Reminders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -105,6 +107,9 @@ if (string.IsNullOrWhiteSpace(emailPassword) || emailPassword.StartsWith("<", St
 }
 
 builder.Services.AddScoped<LawyerSys.Services.Email.IEmailSender, LawyerSys.Services.Email.SmtpEmailSender>();
+builder.Services.Configure<NotificationChannelsOptions>(builder.Configuration.GetSection("Notifications"));
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<IExternalMessageSender, TwilioExternalMessageSender>();
 builder.Services.AddSingleton<ReminderDispatchStore>();
 builder.Services.Configure<HearingReminderOptions>(builder.Configuration.GetSection("Reminders:Hearing"));
 builder.Services.AddHostedService<HearingReminderBackgroundService>();
@@ -203,7 +208,11 @@ try
 {
     using (var scope = app.Services.CreateScope())
     {
-        var initializer = new AuditLogSchemaInitializer(scope.ServiceProvider.GetRequiredService<LegacyDbContext>());
+        var scopedLegacy = scope.ServiceProvider.GetRequiredService<LegacyDbContext>();
+        var tenantInitializer = new MultiTenancySchemaInitializer(scopedLegacy);
+        await tenantInitializer.EnsureCreatedAsync();
+
+        var initializer = new AuditLogSchemaInitializer(scopedLegacy);
         await initializer.EnsureCreatedAsync();
     }
 

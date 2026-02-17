@@ -77,6 +77,7 @@ export default function CaseDetailsPage() {
   const [editingSiting, setEditingSiting] = useState<any | null>(null);
   const [editFileOpen, setEditFileOpen] = useState(false);
   const [editingFile, setEditingFile] = useState<any | null>(null);
+  const [statusOptions, setStatusOptions] = useState<Array<{ value: number; key: string; label: string; next: Array<{ value: number; key: string; label: string }> }>>([]);
 
   async function load() {
     setLoading(true);
@@ -89,6 +90,16 @@ export default function CaseDetailsPage() {
   }
 
   useEffect(() => { if (code) load(); }, [code]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await api.get('/Cases/status-options');
+        setStatusOptions(r.data || []);
+      } catch {
+        setStatusOptions([]);
+      }
+    })();
+  }, []);
 
   // initialize edit fields when data loads
   useEffect(() => {
@@ -221,6 +232,10 @@ export default function CaseDetailsPage() {
 
   async function removeFile(fileId:number){ try{ await api.delete(`/cases/${code}/files/${fileId}`); setSnackbar({ open:true, message: 'File removed', severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove file', severity:'error' }); } }
 
+  const currentStatus = Number(data?.Case?.Status ?? 0);
+  const currentStatusOption = statusOptions.find(s => s.value === currentStatus);
+  const allowedNextValues = new Set<number>([currentStatus, ...(currentStatusOption?.next?.map(n => n.value) ?? [])]);
+
   return (
     <Box sx={{ p: 2 }}>
       <Box sx={{ display:'flex', alignItems:'center', gap:2, mb:2 }}>
@@ -260,12 +275,12 @@ export default function CaseDetailsPage() {
                         } catch (err:any) { setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update status', severity:'error' }); }
                       }}
                     >
-                      <MenuItem value={0}>{t('cases.statuses.new')}</MenuItem>
-                      <MenuItem value={1}>{t('cases.statuses.inprogress')}</MenuItem>
-                      <MenuItem value={2}>{t('cases.statuses.awaitinghearing')}</MenuItem>
-                      <MenuItem value={3}>{t('cases.statuses.closed')}</MenuItem>
-                      <MenuItem value={4}>{t('cases.statuses.won')}</MenuItem>
-                      <MenuItem value={5}>{t('cases.statuses.lost')}</MenuItem>
+                      <MenuItem value={0} disabled={!allowedNextValues.has(0)}>{t('cases.statuses.new')}</MenuItem>
+                      <MenuItem value={1} disabled={!allowedNextValues.has(1)}>{t('cases.statuses.inprogress')}</MenuItem>
+                      <MenuItem value={2} disabled={!allowedNextValues.has(2)}>{t('cases.statuses.awaitinghearing')}</MenuItem>
+                      <MenuItem value={3} disabled={!allowedNextValues.has(3)}>{t('cases.statuses.closed')}</MenuItem>
+                      <MenuItem value={4} disabled={!allowedNextValues.has(4)}>{t('cases.statuses.won')}</MenuItem>
+                      <MenuItem value={5} disabled={!allowedNextValues.has(5)}>{t('cases.statuses.lost')}</MenuItem>
                     </Select>
                   </FormControl>
                 )}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json;
 using LawyerSys.Data.ScaffoldedModels;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,34 @@ public partial class LegacyDbContext : DbContext
 {
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private bool _isSavingAuditLogs;
+    private int CurrentFirmId
+    {
+        get
+        {
+            var httpContext = _httpContextAccessor?.HttpContext;
+            if (httpContext == null)
+            {
+                return 1;
+            }
+
+            var headerValue = httpContext.Request.Headers["X-Firm-Id"].FirstOrDefault();
+            if (int.TryParse(headerValue, out var fromHeader) && fromHeader > 0)
+            {
+                return fromHeader;
+            }
+
+            var claimValue = httpContext.User.FindFirst("firm_id")?.Value
+                             ?? httpContext.User.FindFirst("FirmId")?.Value
+                             ?? httpContext.User.FindFirst("tenant_id")?.Value
+                             ?? httpContext.User.FindFirst(ClaimTypes.GroupSid)?.Value;
+            if (int.TryParse(claimValue, out var fromClaim) && fromClaim > 0)
+            {
+                return fromClaim;
+            }
+
+            return 1;
+        }
+    }
 
     public LegacyDbContext(DbContextOptions<LegacyDbContext> options)
         : base(options)
@@ -120,6 +149,7 @@ public partial class LegacyDbContext : DbContext
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
+        ApplyFirmIdToAddedEntities();
         var pendingAudits = CapturePendingAuditEntries();
         var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
 
@@ -523,7 +553,61 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.ProductVersion).HasMaxLength(32);
         });
 
+        ConfigureTenantEntity<AdminstrativeTask>(modelBuilder);
+        ConfigureTenantEntity<AuditLog>(modelBuilder);
+        ConfigureTenantEntity<Billing_Pay>(modelBuilder);
+        ConfigureTenantEntity<Billing_Receipt>(modelBuilder);
+        ConfigureTenantEntity<Case>(modelBuilder);
+        ConfigureTenantEntity<CaseStatusHistory>(modelBuilder);
+        ConfigureTenantEntity<Cases_Contender>(modelBuilder);
+        ConfigureTenantEntity<Cases_Court>(modelBuilder);
+        ConfigureTenantEntity<Cases_Employee>(modelBuilder);
+        ConfigureTenantEntity<Cases_File>(modelBuilder);
+        ConfigureTenantEntity<Cases_Siting>(modelBuilder);
+        ConfigureTenantEntity<Con_Lawyers_Custmor>(modelBuilder);
+        ConfigureTenantEntity<Consltitions_Custmor>(modelBuilder);
+        ConfigureTenantEntity<Consulation>(modelBuilder);
+        ConfigureTenantEntity<Consulations_Employee>(modelBuilder);
+        ConfigureTenantEntity<Contender>(modelBuilder);
+        ConfigureTenantEntity<Contenders_Custmor>(modelBuilder);
+        ConfigureTenantEntity<Contenders_Lawyer>(modelBuilder);
+        ConfigureTenantEntity<Court>(modelBuilder);
+        ConfigureTenantEntity<Custmors_Case>(modelBuilder);
+        ConfigureTenantEntity<Customer>(modelBuilder);
+        ConfigureTenantEntity<Employee>(modelBuilder);
+        ConfigureTenantEntity<FileEntity>(modelBuilder);
+        ConfigureTenantEntity<Governament>(modelBuilder);
+        ConfigureTenantEntity<Judicial_Document>(modelBuilder);
+        ConfigureTenantEntity<Siting>(modelBuilder);
+        ConfigureTenantEntity<User>(modelBuilder);
+
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    private void ApplyFirmIdToAddedEntities()
+    {
+        var firmId = CurrentFirmId;
+        foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
+        {
+            var firmProperty = entry.Metadata.FindProperty("FirmId");
+            if (firmProperty is null)
+            {
+                continue;
+            }
+
+            var current = entry.Property("FirmId").CurrentValue;
+            if (current is null || (current is int intValue && intValue <= 0))
+            {
+                entry.Property("FirmId").CurrentValue = firmId;
+            }
+        }
+    }
+
+    private void ConfigureTenantEntity<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+    {
+        modelBuilder.Entity<TEntity>().Property<int>("FirmId").HasDefaultValue(1);
+        modelBuilder.Entity<TEntity>().HasIndex("FirmId");
+        modelBuilder.Entity<TEntity>().HasQueryFilter(e => EF.Property<int>(e, "FirmId") == CurrentFirmId);
     }
 
     private List<PendingAuditEntry> CapturePendingAuditEntries()

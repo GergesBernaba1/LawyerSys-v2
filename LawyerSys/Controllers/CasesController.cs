@@ -13,6 +13,16 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class CasesController : ControllerBase
 {
+    private static readonly Dictionary<DTOs.CaseStatus, DTOs.CaseStatus[]> AllowedStatusTransitions = new()
+    {
+        [DTOs.CaseStatus.New] = new[] { DTOs.CaseStatus.InProgress, DTOs.CaseStatus.AwaitingHearing, DTOs.CaseStatus.Closed },
+        [DTOs.CaseStatus.InProgress] = new[] { DTOs.CaseStatus.AwaitingHearing, DTOs.CaseStatus.Closed, DTOs.CaseStatus.Won, DTOs.CaseStatus.Lost },
+        [DTOs.CaseStatus.AwaitingHearing] = new[] { DTOs.CaseStatus.InProgress, DTOs.CaseStatus.Closed, DTOs.CaseStatus.Won, DTOs.CaseStatus.Lost },
+        [DTOs.CaseStatus.Closed] = new[] { DTOs.CaseStatus.Won, DTOs.CaseStatus.Lost, DTOs.CaseStatus.InProgress },
+        [DTOs.CaseStatus.Won] = Array.Empty<DTOs.CaseStatus>(),
+        [DTOs.CaseStatus.Lost] = Array.Empty<DTOs.CaseStatus>()
+    };
+
     private readonly LegacyDbContext _context;
     private readonly IUserContext _userContext;
 
@@ -133,10 +143,19 @@ public class CasesController : ControllerBase
             Invition_Type = dto.InvitionType,
             Invition_Date = dto.InvitionDate,
             Total_Amount = dto.TotalAmount,
-            Notes = dto.Notes ?? string.Empty
+            Notes = dto.Notes ?? string.Empty,
+            Status = (int)DTOs.CaseStatus.New
         };
 
         _context.Cases.Add(caseEntity);
+        _context.CaseStatusHistories.Add(new CaseStatusHistory
+        {
+            Case_Id = caseEntity.Code,
+            OldStatus = (int)DTOs.CaseStatus.New,
+            NewStatus = (int)DTOs.CaseStatus.New,
+            ChangedBy = _userContext.GetUserName() ?? "System",
+            ChangedAt = DateTime.UtcNow
+        });
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetCase), new { code = caseEntity.Code }, MapToDto(caseEntity));
@@ -267,6 +286,13 @@ public class CasesController : ControllerBase
         if (oldStatus == newStatus)
             return BadRequest(new { message = "Case already in requested status" });
 
+        var allowedTargets = AllowedStatusTransitions.GetValueOrDefault(oldStatus, Array.Empty<DTOs.CaseStatus>());
+        if (!allowedTargets.Contains(newStatus))
+        {
+            var allowed = string.Join(", ", allowedTargets.Select(MapStatusLabel));
+            return BadRequest(new { message = $"Invalid status transition from {MapStatusLabel(oldStatus)} to {MapStatusLabel(newStatus)}. Allowed: {allowed}" });
+        }
+
         caseEntity.Status = (int)newStatus;
 
         var history = new CaseStatusHistory
@@ -282,6 +308,23 @@ public class CasesController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(MapToDto(caseEntity));
+    }
+
+    // GET: api/cases/status-options
+    [HttpGet("status-options")]
+    public ActionResult<IEnumerable<object>> GetStatusOptions()
+    {
+        var options = Enum.GetValues<DTOs.CaseStatus>()
+            .Select(s => new
+            {
+                value = (int)s,
+                key = s.ToString(),
+                label = MapStatusLabel(s),
+                next = AllowedStatusTransitions.GetValueOrDefault(s, Array.Empty<DTOs.CaseStatus>())
+                    .Select(n => new { value = (int)n, key = n.ToString(), label = MapStatusLabel(n) })
+            });
+
+        return Ok(options);
     }
 
     // GET: api/cases/{code}/status-history

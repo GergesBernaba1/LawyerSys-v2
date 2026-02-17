@@ -1,5 +1,6 @@
 using LawyerSys.Data;
 using LawyerSys.Services.Email;
+using LawyerSys.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -64,6 +65,7 @@ public sealed class TaskReminderBackgroundService : BackgroundService
         var legacy = scope.ServiceProvider.GetRequiredService<LegacyDbContext>();
         var appDb = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+        var externalMessageSender = scope.ServiceProvider.GetRequiredService<IExternalMessageSender>();
 
         var now = DateTime.Now;
         var from = now.AddMinutes(-Math.Max(0, _options.Value.GraceMinutes));
@@ -109,6 +111,7 @@ public sealed class TaskReminderBackgroundService : BackgroundService
                 continue;
 
             var subject = $"Task reminder - {task.Task_Name}";
+            var plainMessage = $"Task reminder: {task.Task_Name}. Type: {task.Type}. Task date: {task.Task_Date:yyyy-MM-dd}. Reminder: {task.Task_Reminder_Date:yyyy-MM-dd HH:mm}.";
             var body = $@"
 <p>This is a reminder for an upcoming administrative task.</p>
 <ul>
@@ -136,6 +139,44 @@ public sealed class TaskReminderBackgroundService : BackgroundService
             {
                 await _dispatchStore.RecordAttemptAsync(legacy, "Task", reminderKey, toEmail, subject, "Failed", ex.Message, cancellationToken);
                 _logger.LogWarning(ex, "Failed to send task reminder for task {TaskId} to {Email}", task.Id, toEmail);
+            }
+
+            var phone = await legacy.Employees
+                .Where(e => e.id == task.employee_Id.Value)
+                .Select(e => e.Users.Phon_Number.ToString())
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(phone))
+            {
+                var smsRecipient = $"sms:{phone}";
+                if (!await _dispatchStore.HasSuccessfulDispatchAsync(legacy, "Task", reminderKey, smsRecipient, cancellationToken))
+                {
+                    var smsSent = await externalMessageSender.SendSmsAsync(phone, plainMessage, cancellationToken);
+                    await _dispatchStore.RecordAttemptAsync(
+                        legacy,
+                        "Task",
+                        reminderKey,
+                        smsRecipient,
+                        subject,
+                        smsSent ? "Sent" : "Failed",
+                        smsSent ? null : "SMS dispatch failed",
+                        cancellationToken);
+                }
+
+                var whatsappRecipient = $"whatsapp:{phone}";
+                if (!await _dispatchStore.HasSuccessfulDispatchAsync(legacy, "Task", reminderKey, whatsappRecipient, cancellationToken))
+                {
+                    var waSent = await externalMessageSender.SendWhatsAppAsync(phone, plainMessage, cancellationToken);
+                    await _dispatchStore.RecordAttemptAsync(
+                        legacy,
+                        "Task",
+                        reminderKey,
+                        whatsappRecipient,
+                        subject,
+                        waSent ? "Sent" : "Failed",
+                        waSent ? null : "WhatsApp dispatch failed",
+                        cancellationToken);
+                }
             }
         }
     }

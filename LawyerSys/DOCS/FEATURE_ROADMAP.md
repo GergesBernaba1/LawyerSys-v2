@@ -48,7 +48,7 @@
 
 | # | Feature | Description | Status |
 |---|---|---|---|
-| 6 | **Case Status Tracking** | Add a `Status` field to cases (New → In Progress → Awaiting Hearing → Closed → Won → Lost) with status history log | In Progress |
+| 6 | **Case Status Tracking** | Add a `Status` field to cases (New → In Progress → Awaiting Hearing → Closed → Won → Lost) with status history log | Done |
 | 7 | **Consultation ↔ Customer/Employee linking** | Wire the existing junction tables (`Consltitions_Custmor`, `Consulations_Employee`) with API endpoints + UI, so consultations can be assigned to specific clients and lawyers | Done |
 | 8 | **Hearing Notifications/Reminders** | `Siting.Siting_Notification` exists but is unused — add a background job (Hangfire/Quartz) to send email/push reminders before hearing dates | Done |
 | 9 | **Task Reminders** | Similar to hearings — `AdminstrativeTask.Task_Reminder_Date` should trigger email notifications | Done |
@@ -74,9 +74,9 @@
 | 15 | **Document Generation** | Auto-generate legal documents (power of attorney, contracts, court filings) from templates with client/case data merged in (using a DOCX template engine) | Done |
 | 16 | **Client Portal** | Separate customer-facing view where clients can: check case status, view hearings, download documents, see billing — using the `Customer` role | Done |
 | 17 | **Audit Log** | Track who changed what and when — create an `AuditLog` table recording all create/update/delete operations with user ID, timestamp, entity, old/new values | Done |
-| 18 | **Multi-tenancy** | Support multiple law firms on one instance — add a `FirmId` column to scope all data per firm | Not Started |
-| 19 | **WhatsApp/SMS Integration** | Send hearing reminders and case updates via WhatsApp Business API or SMS (common in MENA region law offices) | Not Started |
-| 20 | **Mobile App (PWA)** | Convert to a Progressive Web App with offline capability — lawyers need quick access in courtrooms where connectivity is poor | Not Started |
+| 18 | **Multi-tenancy** | Support multiple law firms on one instance — add a `FirmId` column to scope all data per firm | Done |
+| 19 | **WhatsApp/SMS Integration** | Send hearing reminders and case updates via WhatsApp Business API or SMS (common in MENA region law offices) | Done |
+| 20 | **Mobile App (PWA)** | Convert to a Progressive Web App with offline capability — lawyers need quick access in courtrooms where connectivity is poor | Done |
 
 ---
 
