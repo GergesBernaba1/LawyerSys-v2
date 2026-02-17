@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme, MenuItem, Select, InputLabel, FormControl,
+  Tooltip, TextField, useTheme, MenuItem, Select, InputLabel, FormControl, Pagination,
 } from '@mui/material';
 import {
   Task as TaskIcon,
@@ -32,11 +32,24 @@ export default function AdminTasksPage() {
   const [form, setForm] = useState({ taskName: '', type: '', taskDate: '', taskReminderDate: '', notes: '', employeeId: 0 });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  // pagination & search
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [search, setSearch] = useState<string>('');
+
+  async function load(p = page) {
     setLoading(true);
     try {
-      const [tasksRes, empRes] = await Promise.all([api.get('/AdminTasks'), api.get('/Employees')]);
-      setItems(tasksRes.data || []);
+      const [tasksRes, empRes] = await Promise.all([
+        api.get(`/AdminTasks?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`),
+        api.get('/Employees')
+      ]);
+
+      const tasksData = tasksRes.data?.items ? tasksRes.data.items : tasksRes.data;
+      setItems(tasksData || []);
+      if (tasksRes.data?.totalCount) setTotalCount(tasksRes.data.totalCount);
+
       setEmployees(empRes.data || []);
     } catch {
       setSnackbar({ open: true, message: t('tasks.failedLoad'), severity: 'error' });
@@ -116,12 +129,13 @@ export default function AdminTasksPage() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('tasks.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{t('tasks.totalTasks')}: <strong>{items.length}</strong></Typography>
+            <Typography variant="body2" color="text.secondary">{t('tasks.totalTasks')}: <strong>{totalCount || items.length}</strong></Typography>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <TextField size="small" placeholder={t('app.search') as string} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); load(1); }} sx={{ minWidth: 240 }} />
           <Tooltip title={t('common.refresh')}>
-            <IconButton onClick={load} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
+            <IconButton onClick={() => load()} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -192,6 +206,32 @@ export default function AdminTasksPage() {
           </Table>
         </TableContainer>
       </Paper>
+
+      {/* Pagination */}
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Pagination
+          count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
+          page={page}
+          onChange={(_, v) => { setPage(v); load(v); }}
+          color="primary"
+          shape="rounded"
+          showFirstButton
+          showLastButton
+        />
+        <FormControl size="small" sx={{ minWidth: 90 }}>
+          <InputLabel id="pagesize-label">/page</InputLabel>
+          <Select
+            labelId="pagesize-label"
+            value={pageSize}
+            label="/page"
+            onChange={(e) => { const ps = Number(e.target.value); setPageSize(ps); setPage(1); load(1); }}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
       {/* Create/Edit Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>

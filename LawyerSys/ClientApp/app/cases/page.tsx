@@ -56,6 +56,7 @@ type CaseItem = {
   invitionDate?: string;
   totalAmount?: number;
   notes?: string;
+  status?: number; // matches backend Case.Status (enum int)
 };
 
 export default function CasesPageClient() {
@@ -244,7 +245,7 @@ export default function CasesPageClient() {
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('cases.refresh')}>
             <IconButton 
-              onClick={load} 
+              onClick={() => load() } 
               disabled={loading}
               sx={{ 
                 bgcolor: 'background.paper', 
@@ -293,6 +294,7 @@ export default function CasesPageClient() {
               <TableRow>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.code')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.type')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.status')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.date')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.amount')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.notes')}</TableCell>
@@ -345,6 +347,15 @@ export default function CasesPageClient() {
                       />
                     </TableCell>
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.invitionType || '-'}</TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                      {/* status chip */}
+                      {(() => {
+                        const s = item.status ?? 0;
+                        const labels = ['New','In Progress','Awaiting Hearing','Closed','Won','Lost'];
+                        const colors:any = ['default','primary','warning','success','success','error'];
+                        return <Chip label={t(`cases.statuses.${labels[s].replace(/ /g,'').toLowerCase()}`) ?? labels[s]} size="small" color={colors[s]} variant="outlined" sx={{ fontWeight: 700 }} />;
+                      })()}
+                    </TableCell>
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.invitionDate?.slice(0,10) || '-'}</TableCell>
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       {item.totalAmount ? (

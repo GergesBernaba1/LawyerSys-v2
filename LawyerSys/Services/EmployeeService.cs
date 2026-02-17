@@ -61,6 +61,60 @@ namespace LawyerSys.Services
             return dtos;
         }
 
+        public async Task<PagedResult<EmployeeDto>> GetEmployeesAsync(int page, int pageSize, string? search)
+        {
+            IQueryable<Employee> query = _context.Employees.Include(e => e.Users);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                query = query.Where(e =>
+                    e.id.ToString().Contains(s) ||
+                    e.Users_Id.ToString().Contains(s) ||
+                    e.Salary.ToString().Contains(s) ||
+                    (e.Users != null && (
+                        e.Users.Full_Name.Contains(s) ||
+                        e.Users.User_Name.Contains(s) ||
+                        e.Users.Job.Contains(s) ||
+                        e.Users.Phon_Number.ToString().Contains(s) ||
+                        e.Users.SSN.ToString().Contains(s))));
+            }
+
+            var p = Math.Max(1, page);
+            var ps = Math.Clamp(pageSize, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(e => e.id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+
+            var dtos = items.Select(MapToDto).ToList();
+            foreach (var dto in dtos)
+            {
+                if (dto.User?.UserName != null)
+                {
+                    var appUser = await _userManager.FindByNameAsync(dto.User.UserName);
+                    if (appUser != null)
+                    {
+                        dto.Identity = new IdentityUserInfoDto
+                        {
+                            Id = appUser.Id,
+                            UserName = appUser.UserName ?? string.Empty,
+                            Email = appUser.Email ?? string.Empty,
+                            FullName = appUser.FullName ?? string.Empty,
+                            EmailConfirmed = appUser.EmailConfirmed,
+                            RequiresPasswordReset = appUser.RequiresPasswordReset
+                        };
+                    }
+                }
+            }
+
+            return new PagedResult<EmployeeDto>
+            {
+                Items = dtos,
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            };
+        }
+
         public async Task<EmployeeDto?> GetEmployeeAsync(int id)
         {
             var employee = await _context.Employees
@@ -205,18 +259,22 @@ namespace LawyerSys.Services
             }
 
             var responseDto = MapToDto(employee);
-            var createdAppUser = await _userManager.FindByNameAsync(createdUserName);
-            if (createdAppUser != null)
+            ApplicationUser? createdAppUser = null;
+            if (_userManager != null)
             {
-                responseDto.Identity = new IdentityUserInfoDto
+                createdAppUser = await _userManager.FindByNameAsync(createdUserName);
+                if (createdAppUser is not null)
                 {
-                    Id = createdAppUser.Id,
-                    UserName = createdAppUser.UserName ?? string.Empty,
-                    Email = createdAppUser.Email ?? string.Empty,
-                    FullName = createdAppUser.FullName ?? string.Empty,
-                    EmailConfirmed = createdAppUser.EmailConfirmed,
-                    RequiresPasswordReset = createdAppUser.RequiresPasswordReset
-                };
+                    responseDto.Identity = new IdentityUserInfoDto
+                    {
+                        Id = createdAppUser.Id,
+                        UserName = createdAppUser.UserName ?? string.Empty,
+                        Email = createdAppUser.Email ?? string.Empty,
+                        FullName = createdAppUser.FullName ?? string.Empty,
+                        EmailConfirmed = createdAppUser.EmailConfirmed,
+                        RequiresPasswordReset = createdAppUser.RequiresPasswordReset
+                    };
+                }
             }
 
             return (responseDto, (createdUserName, generatedPassword));

@@ -20,9 +20,32 @@ public class SitingsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SitingDto>>> GetSitings()
+    public async Task<ActionResult<IEnumerable<SitingDto>>> GetSitings([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var sitings = await _context.Sitings.ToListAsync();
+        IQueryable<Siting> query = _context.Sitings;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(st => st.Judge_Name.Contains(s) || st.Notes.Contains(s));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(st => st.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<SitingDto>
+            {
+                Items = items.Select(MapToDto),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var sitings = await query.OrderBy(st => st.Id).ToListAsync();
         return Ok(sitings.Select(MapToDto));
     }
 

@@ -20,11 +20,37 @@ public class CourtsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CourtDto>>> GetCourts()
+    public async Task<ActionResult<IEnumerable<CourtDto>>> GetCourts([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var courts = await _context.Courts
-            .Include(c => c.Gov)
-            .ToListAsync();
+        IQueryable<Court> query = _context.Courts.Include(c => c.Gov);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(c =>
+                c.Name.Contains(s) ||
+                c.Address.Contains(s) ||
+                c.Telephone.Contains(s) ||
+                c.Notes.Contains(s) ||
+                (c.Gov != null && c.Gov.Gov_Name.Contains(s)));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(c => c.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<CourtDto>
+            {
+                Items = items.Select(MapToDto),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var courts = await query.OrderBy(c => c.Id).ToListAsync();
         return Ok(courts.Select(MapToDto));
     }
 

@@ -20,9 +20,32 @@ public class GovernmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GovernamentDto>>> GetGovernments()
+    public async Task<ActionResult<IEnumerable<GovernamentDto>>> GetGovernments([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var govs = await _context.Governaments.ToListAsync();
+        IQueryable<Governament> query = _context.Governaments;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(g => g.Gov_Name.Contains(s));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(g => g.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<GovernamentDto>
+            {
+                Items = items.Select(g => new GovernamentDto { Id = g.Id, GovName = g.Gov_Name }),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var govs = await query.OrderBy(g => g.Id).ToListAsync();
         return Ok(govs.Select(g => new GovernamentDto { Id = g.Id, GovName = g.Gov_Name }));
     }
 

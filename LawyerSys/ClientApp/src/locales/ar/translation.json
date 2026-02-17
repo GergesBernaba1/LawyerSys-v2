@@ -198,7 +198,15 @@
                   "addContender":  "إضافة خصم",
                   "addEmployee":  "إضافة موظف",
                   "addFile":  "إضافة ملف",
-                  "addSiting":  "إضافة جلسة"
+                  "addSiting":  "إضافة جلسة",
+                  "statuses": {
+                      "new": "جديدة",
+                      "inprogress": "قيد المعالجة",
+                      "awaitinghearing": "انتظار الجلسة",
+                      "closed": "مغلقة",
+                      "won": "مكتسبة",
+                      "lost": "مفقودة"
+                  }
               },
     "customers":  {
                       "title":  "العملاء",

@@ -20,12 +20,40 @@ public class AdminTasksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AdminTaskDto>>> GetAdminTasks()
+    public async Task<ActionResult<IEnumerable<AdminTaskDto>>> GetAdminTasks([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var tasks = await _context.AdminstrativeTasks
+        IQueryable<AdminstrativeTask> query = _context.AdminstrativeTasks
             .Include(t => t.employee)
-                .ThenInclude(e => e!.Users)
-            .ToListAsync();
+                .ThenInclude(e => e!.Users);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(t => t.Task_Name.Contains(s)
+                                     || t.Type.Contains(s)
+                                     || t.Notes.Contains(s)
+                                     || (t.employee != null && t.employee.Users != null && t.employee.Users.Full_Name.Contains(s)));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(t => t.Task_Reminder_Date).Skip((p - 1) * ps).Take(ps).ToListAsync();
+
+            var dtoItems = items.Select(MapToDto);
+            var paged = new PagedResult<AdminTaskDto>
+            {
+                Items = dtoItems,
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            };
+            return Ok(paged);
+        }
+
+        var tasks = await query.OrderBy(t => t.Task_Reminder_Date).ToListAsync();
         return Ok(tasks.Select(MapToDto));
     }
 

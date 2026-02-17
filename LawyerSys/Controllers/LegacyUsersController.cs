@@ -21,9 +21,37 @@ public class LegacyUsersController : ControllerBase
 
     // GET: api/legacyusers
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<LegacyUserDto>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<LegacyUserDto>>> GetUsers([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var users = await _context.Users.ToListAsync();
+        IQueryable<User> query = _context.Users;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(u =>
+                u.Full_Name.Contains(s) ||
+                u.User_Name.Contains(s) ||
+                u.Job.Contains(s) ||
+                u.Phon_Number.ToString().Contains(s) ||
+                u.SSN.ToString().Contains(s));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(u => u.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<LegacyUserDto>
+            {
+                Items = items.Select(MapToDto),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var users = await query.OrderBy(u => u.Id).ToListAsync();
         return Ok(users.Select(MapToDto));
     }
 

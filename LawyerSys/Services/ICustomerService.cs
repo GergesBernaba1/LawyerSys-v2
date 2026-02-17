@@ -7,6 +7,7 @@ namespace LawyerSys.Services
     public interface ICustomerService
     {
         Task<IEnumerable<CustomerDto>> GetCustomersAsync();
+        Task<PagedResult<CustomerDto>> GetCustomersAsync(int page, int pageSize, string? search);
         Task<CustomerDto?> GetCustomerAsync(int id);
         Task<CustomerProfileDto?> GetCustomerProfileAsync(int id);
         Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto dto);

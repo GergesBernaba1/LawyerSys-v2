@@ -404,6 +404,12 @@ public class CaseRelationsController : ControllerBase
             .Select(cf => new { cf.File.Id, cf.File.Path, cf.File.Code })
             .ToListAsync();
 
+        var statusHistory = await _context.CaseStatusHistories
+            .Where(h => h.Case_Id == caseCode)
+            .OrderByDescending(h => h.ChangedAt)
+            .Select(h => new { h.Id, h.OldStatus, h.NewStatus, h.ChangedBy, h.ChangedAt })
+            .ToListAsync();
+
         return Ok(new
         {
             Case = new
@@ -414,14 +420,16 @@ public class CaseRelationsController : ControllerBase
                 InvitionType = caseEntity.Invition_Type,
                 InvitionDate = caseEntity.Invition_Date,
                 TotalAmount = caseEntity.Total_Amount,
-                caseEntity.Notes
+                caseEntity.Notes,
+                Status = caseEntity.Status
             },
             Customers = customers,
             Contenders = contenders,
             Courts = courts,
             Employees = employees,
             Sitings = sitings,
-            Files = files
+            Files = files,
+            StatusHistory = statusHistory
         });
     }
 }

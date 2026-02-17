@@ -245,6 +245,61 @@ public class CasesController : ControllerBase
         return Ok(assignments);
     }
 
+    // POST: api/cases/{code}/status
+    [Authorize(Policy = "EmployeeOrAdmin")]
+    [HttpPost("{code}/status")]
+    public async Task<IActionResult> ChangeCaseStatus(int code, [FromBody] DTOs.ChangeCaseStatusDto dto)
+    {
+        var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
+        if (caseEntity == null) return NotFound(new { message = "Case not found" });
+
+        // permission check: employees can only modify their assigned cases
+        if (!await CanModifyCase(code))
+            return Forbid();
+
+        if (string.IsNullOrWhiteSpace(dto.Status))
+            return BadRequest(new { message = "Status is required" });
+
+        if (!System.Enum.TryParse<DTOs.CaseStatus>(dto.Status, true, out var newStatus))
+            return BadRequest(new { message = "Invalid status value" });
+
+        var oldStatus = (DTOs.CaseStatus)caseEntity.Status;
+        if (oldStatus == newStatus)
+            return BadRequest(new { message = "Case already in requested status" });
+
+        caseEntity.Status = (int)newStatus;
+
+        var history = new CaseStatusHistory
+        {
+            Case_Id = caseEntity.Code,
+            OldStatus = (int)oldStatus,
+            NewStatus = (int)newStatus,
+            ChangedBy = _userContext.GetUserName(),
+            ChangedAt = DateTime.UtcNow
+        };
+
+        _context.CaseStatusHistories.Add(history);
+        await _context.SaveChangesAsync();
+
+        return Ok(MapToDto(caseEntity));
+    }
+
+    // GET: api/cases/{code}/status-history
+    [HttpGet("{code}/status-history")]
+    public async Task<ActionResult<IEnumerable<DTOs.CaseStatusHistoryDto>>> GetStatusHistory(int code)
+    {
+        var exists = await _context.Cases.AnyAsync(c => c.Code == code);
+        if (!exists) return NotFound(new { message = "Case not found" });
+
+        var list = await _context.CaseStatusHistories
+            .Where(h => h.Case_Id == code)
+            .OrderByDescending(h => h.ChangedAt)
+            .Select(h => new DTOs.CaseStatusHistoryDto { Id = h.Id, CaseId = h.Case_Id, OldStatus = (DTOs.CaseStatus)h.OldStatus, NewStatus = (DTOs.CaseStatus)h.NewStatus, ChangedBy = h.ChangedBy, ChangedAt = h.ChangedAt })
+            .ToListAsync();
+
+        return Ok(list);
+    }
+
     private async Task<bool> CanAccessCase(int caseCode)
     {
         var roles = await _userContext.GetUserRolesAsync();
@@ -311,6 +366,7 @@ public class CasesController : ControllerBase
         InvitionType = c.Invition_Type,
         InvitionDate = c.Invition_Date,
         TotalAmount = c.Total_Amount,
-        Notes = c.Notes
+        Notes = c.Notes,
+        Status = (DTOs.CaseStatus)c.Status
     };
 }

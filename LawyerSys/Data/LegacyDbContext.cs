@@ -47,6 +47,8 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<Cases_Siting> Cases_Sitings { get; set; }
 
+    public virtual DbSet<CaseStatusHistory> CaseStatusHistories { get; set; }
+
     public virtual DbSet<Con_Lawyers_Custmor> Con_Lawyers_Custmors { get; set; }
 
     public virtual DbSet<Consltitions_Custmor> Consltitions_Custmors { get; set; }
@@ -209,6 +211,18 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.Invition_Type).HasMaxLength(50);
             entity.Property(e => e.Invitions_Statment).HasMaxLength(50);
             entity.Property(e => e.Notes).HasMaxLength(50);
+            entity.Property(e => e.Status).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<CaseStatusHistory>(entity =>
+        {
+            entity.ToTable("CaseStatusHistory");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ChangedAt).HasColumnType("datetime");
+            entity.HasOne(d => d.Case).WithMany(p => p.CaseStatusHistories)
+                .HasForeignKey(d => d.Case_Id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CaseStatusHistory_Cases");
         });
 
         modelBuilder.Entity<Cases_Contender>(entity =>

@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme, MenuItem, Select, InputLabel, FormControl,
+  Tooltip, TextField, useTheme, MenuItem, Select, InputLabel, FormControl, Pagination,
 } from '@mui/material';
 import {
   Description as DescriptionIcon,
@@ -32,11 +32,25 @@ export default function JudicialDocumentsPage() {
   const [form, setForm] = useState({ docType: '', docNum: 0, docDetails: '', notes: '', numOfAgent: 0, customerId: 0 });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  // pagination & search
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [search, setSearch] = useState<string>('');
+
+  async function load(p = page) {
     setLoading(true);
     try {
-      const [docsRes, custRes] = await Promise.all([api.get('/JudicialDocuments'), api.get('/Customers')]);
-      setItems(docsRes.data || []);
+      const [docsRes, custRes] = await Promise.all([
+        api.get(`/JudicialDocuments?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`),
+        api.get('/Customers')
+      ]);
+
+      // support legacy array response OR paged response
+      const docsData = docsRes.data?.items ? docsRes.data.items : docsRes.data;
+      setItems(docsData || []);
+      if (docsRes.data?.totalCount) setTotalCount(docsRes.data.totalCount);
+
       setCustomers(custRes.data || []);
     } catch {
       setSnackbar({ open: true, message: t('judicial.failedLoad'), severity: 'error' });
@@ -96,12 +110,13 @@ export default function JudicialDocumentsPage() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('judicial.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{t('judicial.totalDocuments')}: <strong>{items.length}</strong></Typography>
+            <Typography variant="body2" color="text.secondary">{t('judicial.totalDocuments')}: <strong>{totalCount || items.length}</strong></Typography>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+          <TextField size="small" placeholder={t('app.search') as string} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); load(1); }} sx={{ minWidth: 240 }} />
           <Tooltip title={t('common.refresh')}>
-            <IconButton onClick={load} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
+            <IconButton onClick={() => load()} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -170,6 +185,32 @@ export default function JudicialDocumentsPage() {
           </Table>
         </TableContainer>
       </Paper>
+
+      {/* Pagination */}
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Pagination
+          count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
+          page={page}
+          onChange={(_, v) => { setPage(v); load(v); }}
+          color="primary"
+          shape="rounded"
+          showFirstButton
+          showLastButton
+        />
+        <FormControl size="small" sx={{ minWidth: 90 }}>
+          <InputLabel id="pagesize-label">/page</InputLabel>
+          <Select
+            labelId="pagesize-label"
+            value={pageSize}
+            label="/page"
+            onChange={(e) => { const ps = Number(e.target.value); setPageSize(ps); setPage(1); load(1); }}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
       {/* Create/Edit Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>

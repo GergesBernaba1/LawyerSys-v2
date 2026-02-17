@@ -20,9 +20,32 @@ public class ConsulationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ConsulationDto>>> GetConsulations()
+    public async Task<ActionResult<IEnumerable<ConsulationDto>>> GetConsulations([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var consulations = await _context.Consulations.ToListAsync();
+        IQueryable<Consulation> query = _context.Consulations;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(c => c.Consultion_State.Contains(s) || c.Type.Contains(s) || c.Subject.Contains(s) || c.Descraption.Contains(s));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(c => c.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<ConsulationDto>
+            {
+                Items = items.Select(MapToDto),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var consulations = await query.OrderBy(c => c.Id).ToListAsync();
         return Ok(consulations.Select(MapToDto));
     }
 

@@ -22,12 +22,38 @@ public class BillingController : ControllerBase
     // ========== PAYMENTS ==========
 
     [HttpGet("payments")]
-    public async Task<ActionResult<IEnumerable<BillingPayDto>>> GetPayments()
+    public async Task<ActionResult<IEnumerable<BillingPayDto>>> GetPayments([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var payments = await _context.Billing_Pays
+        IQueryable<Billing_Pay> query = _context.Billing_Pays
             .Include(p => p.Custmor)
-                .ThenInclude(c => c.Users)
-            .ToListAsync();
+                .ThenInclude(c => c.Users);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(p =>
+                p.Id.ToString().Contains(s) ||
+                p.Amount.ToString().Contains(s) ||
+                p.Notes.Contains(s) ||
+                (p.Custmor != null && p.Custmor.Users != null && p.Custmor.Users.Full_Name.Contains(s)));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(x => x.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<BillingPayDto>
+            {
+                Items = items.Select(MapPayToDto),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var payments = await query.OrderBy(x => x.Id).ToListAsync();
         return Ok(payments.Select(MapPayToDto));
     }
 
@@ -109,9 +135,36 @@ public class BillingController : ControllerBase
     // ========== RECEIPTS ==========
 
     [HttpGet("receipts")]
-    public async Task<ActionResult<IEnumerable<BillingReceiptDto>>> GetReceipts()
+    public async Task<ActionResult<IEnumerable<BillingReceiptDto>>> GetReceipts([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var receipts = await _context.Billing_Receipts.ToListAsync();
+        IQueryable<Billing_Receipt> query = _context.Billing_Receipts;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(r =>
+                r.Id.ToString().Contains(s) ||
+                r.Amount.ToString().Contains(s) ||
+                r.Notes.Contains(s) ||
+                r.Employee_Id.ToString().Contains(s));
+        }
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(x => x.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+            return Ok(new PagedResult<BillingReceiptDto>
+            {
+                Items = items.Select(MapReceiptToDto),
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            });
+        }
+
+        var receipts = await query.OrderBy(x => x.Id).ToListAsync();
         return Ok(receipts.Select(MapReceiptToDto));
     }
 

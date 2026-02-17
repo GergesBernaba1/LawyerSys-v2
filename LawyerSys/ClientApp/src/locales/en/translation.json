@@ -198,7 +198,15 @@
                   "addContender":  "Add Contender",
                   "addEmployee":  "Add Employee",
                   "addFile":  "Add File",
-                  "addSiting":  "Add Hearing"
+                  "addSiting":  "Add Hearing",
+                  "statuses": {
+                      "new": "New",
+                      "inprogress": "In Progress",
+                      "awaitinghearing": "Awaiting Hearing",
+                      "closed": "Closed",
+                      "won": "Won",
+                      "lost": "Lost"
+                  }
               },
     "customers":  {
                       "title":  "Customers",

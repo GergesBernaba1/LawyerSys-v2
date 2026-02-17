@@ -61,6 +61,59 @@ namespace LawyerSys.Services
             return dtos;
         }
 
+        public async Task<PagedResult<CustomerDto>> GetCustomersAsync(int page, int pageSize, string? search)
+        {
+            IQueryable<Customer> query = _context.Customers.Include(c => c.Users);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                query = query.Where(c =>
+                    c.Id.ToString().Contains(s) ||
+                    c.Users_Id.ToString().Contains(s) ||
+                    (c.Users != null && (
+                        c.Users.Full_Name.Contains(s) ||
+                        c.Users.User_Name.Contains(s) ||
+                        c.Users.Job.Contains(s) ||
+                        c.Users.Phon_Number.ToString().Contains(s) ||
+                        c.Users.SSN.ToString().Contains(s))));
+            }
+
+            var p = Math.Max(1, page);
+            var ps = Math.Clamp(pageSize, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(c => c.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+
+            var dtos = items.Select(MapToDto).ToList();
+            foreach (var dto in dtos)
+            {
+                if (dto.User?.UserName != null)
+                {
+                    var appUser = await _userManager.FindByNameAsync(dto.User.UserName);
+                    if (appUser != null)
+                    {
+                        dto.Identity = new IdentityUserInfoDto
+                        {
+                            Id = appUser.Id,
+                            UserName = appUser.UserName ?? string.Empty,
+                            Email = appUser.Email ?? string.Empty,
+                            FullName = appUser.FullName ?? string.Empty,
+                            EmailConfirmed = appUser.EmailConfirmed,
+                            RequiresPasswordReset = appUser.RequiresPasswordReset
+                        };
+                    }
+                }
+            }
+
+            return new PagedResult<CustomerDto>
+            {
+                Items = dtos,
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            };
+        }
+
         public async Task<CustomerDto?> GetCustomerAsync(int id)
         {
             var customer = await _context.Customers

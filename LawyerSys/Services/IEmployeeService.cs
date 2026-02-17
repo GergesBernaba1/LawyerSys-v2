@@ -7,6 +7,7 @@ namespace LawyerSys.Services
     public interface IEmployeeService
     {
         Task<IEnumerable<EmployeeDto>> GetEmployeesAsync();
+        Task<PagedResult<EmployeeDto>> GetEmployeesAsync(int page, int pageSize, string? search);
         Task<EmployeeDto?> GetEmployeeAsync(int id);
         Task<EmployeeDto> CreateEmployeeAsync(CreateEmployeeDto dto);
         Task<(EmployeeDto Employee, (string UserName, string Password) TempCredentials)> CreateEmployeeWithUserAsync(CreateEmployeeWithUserDto dto);

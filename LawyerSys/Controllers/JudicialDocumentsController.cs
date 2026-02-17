@@ -20,13 +20,39 @@ public class JudicialDocumentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<JudicialDocumentDto>>> GetDocuments()
+    public async Task<ActionResult<IEnumerable<JudicialDocumentDto>>> GetDocuments([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        var docs = await _context.Judicial_Documents
+        IQueryable<Judicial_Document> query = _context.Judicial_Documents
             .Include(d => d.Customers)
-                .ThenInclude(c => c.Users)
-            .ToListAsync();
-        return Ok(docs.Select(MapToDto));
+                .ThenInclude(c => c.Users);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(d => d.Doc_Type.Contains(s) || d.Doc_Num.ToString().Contains(s) || d.Doc_Details.Contains(s) || (d.Customers != null && d.Customers.Users != null && d.Customers.Users.Full_Name.Contains(s)));
+        }
+
+        // If pagination params provided, return paged response (backward-compatible)
+        if (page.HasValue && pageSize.HasValue)
+        {
+            var p = Math.Max(1, page.Value);
+            var ps = Math.Clamp(pageSize.Value, 1, 200);
+            var total = await query.CountAsync();
+            var items = await query.OrderBy(d => d.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
+
+            var dtoItems = items.Select(MapToDto);
+            var paged = new PagedResult<JudicialDocumentDto>
+            {
+                Items = dtoItems,
+                TotalCount = total,
+                Page = p,
+                PageSize = ps
+            };
+            return Ok(paged);
+        }
+
+        var list = await query.OrderBy(d => d.Id).ToListAsync();
+        return Ok(list.Select(MapToDto));
     }
 
     [HttpGet("{id}")]

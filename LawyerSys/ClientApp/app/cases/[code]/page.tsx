@@ -25,9 +25,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
 } from '@mui/material';
 import { ArrowBack, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon } from '@mui/icons-material';
 import api from '../../../src/services/api';
+import { useAuth } from '../../../src/services/auth';
 
 export default function CaseDetailsPage() {
   const { t } = useTranslation();
@@ -35,6 +37,7 @@ export default function CaseDetailsPage() {
   const code = Number(params?.code);
   const router = useRouter();
 
+  const { hasAnyRole } = useAuth();
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success'|'error' }>({ open: false, message: '', severity: 'success' });
@@ -222,6 +225,35 @@ export default function CaseDetailsPage() {
               </Box>
 
               <Typography>{t('cases.code')}: <strong>{data.Case.Code}</strong></Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>{t('cases.status')}: </Typography>
+                <Chip label={t(`cases.statuses.${['new','inprogress','awaitinghearing','closed','won','lost'][data.Case.Status]}`) || ['New','In Progress','Awaiting Hearing','Closed','Won','Lost'][data.Case.Status]} size="small" color="default" variant="outlined" />
+                {hasAnyRole('Admin', 'Employee') && (
+                  <FormControl size="small" sx={{ ml: 1, minWidth: 160 }}>
+                    <InputLabel id="case-status-label">{t('cases.status')}</InputLabel>
+                    <Select
+                      labelId="case-status-label"
+                      value={data.Case.Status ?? 0}
+                      label={t('cases.status')}
+                      onChange={async (e) => {
+                        const newStatus = Number(e.target.value);
+                        try {
+                          await api.post(`/Cases/${code}/status`, { status: ['New','InProgress','AwaitingHearing','Closed','Won','Lost'][newStatus] });
+                          setSnackbar({ open: true, message: 'Status updated', severity: 'success' });
+                          await load();
+                        } catch (err:any) { setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update status', severity:'error' }); }
+                      }}
+                    >
+                      <MenuItem value={0}>{t('cases.statuses.new')}</MenuItem>
+                      <MenuItem value={1}>{t('cases.statuses.inprogress')}</MenuItem>
+                      <MenuItem value={2}>{t('cases.statuses.awaitinghearing')}</MenuItem>
+                      <MenuItem value={3}>{t('cases.statuses.closed')}</MenuItem>
+                      <MenuItem value={4}>{t('cases.statuses.won')}</MenuItem>
+                      <MenuItem value={5}>{t('cases.statuses.lost')}</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+              </Box>
 
               {!editing ? (
                 <>
@@ -316,6 +348,16 @@ export default function CaseDetailsPage() {
                   </Box>}>
                     <ListItemText primary={`${f.FileCode || f.FileId}`} secondary={f.FilePath} />
                   </ListItem>
+                ))}
+              </List>
+            </CardContent></Card>
+
+            {/* Status history */}
+            <Card sx={{ mt:2 }}><CardContent>
+              <Typography variant="h6">{t('cases.status')} {t('history') || 'History'}</Typography>
+              <List>
+                {(data.StatusHistory || []).map((h:any) => (
+                  <ListItem key={h.Id}><ListItemText primary={`${h.ChangedAt ? new Date(h.ChangedAt).toLocaleString() : ''} — ${t(`cases.statuses.${['new','inprogress','awaitinghearing','closed','won','lost'][h.OldStatus]}`) || h.OldStatus} → ${t(`cases.statuses.${['new','inprogress','awaitinghearing','closed','won','lost'][h.NewStatus]}`) || h.NewStatus}`} secondary={h.ChangedBy || ''} /></ListItem>
                 ))}
               </List>
             </CardContent></Card>
