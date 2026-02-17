@@ -10,6 +10,7 @@ public static class DataSeeder
     {
         using var scope = serviceProvider.CreateScope();
         var services = scope.ServiceProvider;
+        var configuration = services.GetRequiredService<IConfiguration>();
 
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -23,31 +24,24 @@ public static class DataSeeder
             }
         }
 
-        var adminEmail = "gergesbernaba2@gmail.com";
+        var adminEmail = configuration.GetValue<string>("AdminSeed:Email") ?? "gergesbernaba2@gmail.com";
+        var adminPassword = configuration.GetValue<string>("AdminSeed:Password") ?? "Gerges@GoGoAdmin123";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
         if (adminUser is null)
         {
-            var configuration = services.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>();
-            var adminPassword = configuration.GetValue<string>("AdminSeed:Password") ?? "Admin@1234";
-            var requireReset = adminPassword == "Admin@1234";
-
             adminUser = new ApplicationUser
             {
                 UserName = adminEmail,
                 Email = adminEmail,
                 EmailConfirmed = true,
-                RequiresPasswordReset = requireReset
+                RequiresPasswordReset = false
             };
 
             var result = await userManager.CreateAsync(adminUser, adminPassword);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
-                Log.Information("Admin user created successfully. defaultPassword={DefaultPassword}", requireReset);
-                if (requireReset)
-                {
-                    Log.Warning("Admin account seeded with default password - change immediately.");
-                }
+                Log.Information("Admin user created successfully.");
             }
             else
             {
@@ -60,6 +54,28 @@ public static class DataSeeder
         }
         else
         {
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+            var resetResult = await userManager.ResetPasswordAsync(adminUser, resetToken, adminPassword);
+            if (!resetResult.Succeeded)
+            {
+                foreach (var error in resetResult.Errors)
+                {
+                    Log.Error("Failed to set seeded admin password. {ErrorDescription}", error.Description);
+                }
+            }
+
+            if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+            {
+                var addRoleResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+                if (!addRoleResult.Succeeded)
+                {
+                    foreach (var error in addRoleResult.Errors)
+                    {
+                        Log.Error("Failed adding existing admin user to role. {ErrorDescription}", error.Description);
+                    }
+                }
+            }
+
             Log.Information("Admin user already exists.");
         }
     }

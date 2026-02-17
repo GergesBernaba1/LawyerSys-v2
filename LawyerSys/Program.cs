@@ -208,22 +208,17 @@ app.MapControllers();
 
 try
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var scopedLegacy = scope.ServiceProvider.GetRequiredService<LegacyDbContext>();
-        var tenantInitializer = new MultiTenancySchemaInitializer(scopedLegacy);
-        await tenantInitializer.EnsureCreatedAsync();
+    using var scope = app.Services.CreateScope();
+    var scopedLegacy = scope.ServiceProvider.GetRequiredService<LegacyDbContext>();
+    var tenantInitializer = new MultiTenancySchemaInitializer(scopedLegacy);
+    await tenantInitializer.EnsureCreatedAsync();
 
-        var initializer = new AuditLogSchemaInitializer(scopedLegacy);
-        await initializer.EnsureCreatedAsync();
-    }
-
-    await DataSeeder.SeedAdminUser(app.Services);
-    Log.Information("Admin user seeding completed successfully.");
+    var initializer = new AuditLogSchemaInitializer(scopedLegacy);
+    await initializer.EnsureCreatedAsync();
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "Error during admin user seeding");
+    Log.Error(ex, "Error during startup schema initialization");
 }
 
 app.Run();
