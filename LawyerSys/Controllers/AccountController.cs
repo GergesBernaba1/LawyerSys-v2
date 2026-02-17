@@ -7,6 +7,7 @@ using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
+using Serilog;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -45,11 +46,11 @@ public class AccountController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest model)
     {
-        Console.WriteLine($"Login attempt for user: {model.UserName}");
+        Log.Information("Login attempt for user: {UserName}", model.UserName);
         
         if (!ModelState.IsValid) 
         {
-            Console.WriteLine("Model state invalid");
+            Log.Warning("Model state invalid during login attempt");
             return BadRequest(ModelState);
         }
 

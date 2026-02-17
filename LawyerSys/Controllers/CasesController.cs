@@ -300,6 +300,117 @@ public class CasesController : ControllerBase
         return Ok(list);
     }
 
+    // GET: api/cases/{code}/timeline
+    [HttpGet("{code}/timeline")]
+    public async Task<ActionResult<DTOs.CaseTimelineDto>> GetCaseTimeline(int code)
+    {
+        var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
+        if (caseEntity == null)
+            return NotFound(new { message = "Case not found" });
+
+        if (!await CanAccessCase(code))
+            return Forbid();
+
+        var events = new List<DTOs.CaseTimelineEventDto>
+        {
+            new()
+            {
+                Category = "Case",
+                OccurredAt = caseEntity.Invition_Date.ToDateTime(TimeOnly.MinValue),
+                Title = "Case opened",
+                Description = $"Case type: {caseEntity.Invition_Type}"
+            }
+        };
+
+        var hearings = await _context.Cases_Sitings
+            .Include(cs => cs.Siting)
+            .Where(cs => cs.Case_Code == code)
+            .Select(cs => new
+            {
+                cs.Siting_Id,
+                cs.Siting.Siting_Time,
+                cs.Siting.Judge_Name,
+                cs.Siting.Notes
+            })
+            .ToListAsync();
+
+        events.AddRange(hearings.Select(h => new DTOs.CaseTimelineEventDto
+        {
+            Category = "Hearing",
+            OccurredAt = h.Siting_Time,
+            Title = "Hearing scheduled",
+            Description = $"Judge: {h.Judge_Name}. {h.Notes}",
+            EntityId = h.Siting_Id
+        }));
+
+        var customerIds = await _context.Custmors_Cases
+            .Where(cc => cc.Case_Id == code)
+            .Select(cc => cc.Custmors_Id)
+            .Distinct()
+            .ToListAsync();
+
+        var documents = await _context.Judicial_Documents
+            .Where(d => customerIds.Contains(d.Customers_Id))
+            .Select(d => new
+            {
+                d.Id,
+                d.Doc_Type,
+                d.Doc_Details
+            })
+            .ToListAsync();
+
+        events.AddRange(documents.Select(d => new DTOs.CaseTimelineEventDto
+        {
+            Category = "Document",
+            OccurredAt = DateTime.UtcNow,
+            Title = "Judicial document attached",
+            Description = $"{d.Doc_Type}: {d.Doc_Details}",
+            EntityId = d.Id
+        }));
+
+        var statusChanges = await _context.CaseStatusHistories
+            .Where(h => h.Case_Id == code)
+            .OrderBy(h => h.ChangedAt)
+            .ToListAsync();
+
+        events.AddRange(statusChanges.Select(s => new DTOs.CaseTimelineEventDto
+        {
+            Category = "Status",
+            OccurredAt = s.ChangedAt,
+            Title = "Case status changed",
+            Description = $"{MapStatusLabel((DTOs.CaseStatus)s.OldStatus)} -> {MapStatusLabel((DTOs.CaseStatus)s.NewStatus)} (by {s.ChangedBy ?? "Unknown"})",
+            EntityId = s.Id
+        }));
+
+        var billingEvents = await _context.Billing_Pays
+            .Where(p => customerIds.Contains(p.Custmor_Id))
+            .OrderBy(p => p.Date_Of_Opreation)
+            .Select(p => new
+            {
+                p.Id,
+                p.Date_Of_Opreation,
+                p.Amount,
+                p.Notes
+            })
+            .ToListAsync();
+
+        events.AddRange(billingEvents.Select(b => new DTOs.CaseTimelineEventDto
+        {
+            Category = "Billing",
+            OccurredAt = b.Date_Of_Opreation.ToDateTime(TimeOnly.MinValue),
+            Title = "Payment recorded",
+            Description = $"Amount: {b.Amount:F2}. {b.Notes}",
+            EntityId = b.Id
+        }));
+
+        return Ok(new DTOs.CaseTimelineDto
+        {
+            CaseCode = caseEntity.Code,
+            CaseType = caseEntity.Invition_Type,
+            Events = events.OrderBy(e => e.OccurredAt).ToList()
+        });
+    }
+
     private async Task<bool> CanAccessCase(int caseCode)
     {
         var roles = await _userContext.GetUserRolesAsync();
@@ -368,5 +479,16 @@ public class CasesController : ControllerBase
         TotalAmount = c.Total_Amount,
         Notes = c.Notes,
         Status = (DTOs.CaseStatus)c.Status
+    };
+
+    private static string MapStatusLabel(DTOs.CaseStatus status) => status switch
+    {
+        DTOs.CaseStatus.New => "New",
+        DTOs.CaseStatus.InProgress => "In Progress",
+        DTOs.CaseStatus.AwaitingHearing => "Awaiting Hearing",
+        DTOs.CaseStatus.Closed => "Closed",
+        DTOs.CaseStatus.Won => "Won",
+        DTOs.CaseStatus.Lost => "Lost",
+        _ => "Unknown"
     };
 }

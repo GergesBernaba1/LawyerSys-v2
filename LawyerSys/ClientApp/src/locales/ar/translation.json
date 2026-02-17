@@ -14,6 +14,8 @@
                 "judicial":  "المستندات القضائية",
                 "tasks":  "المهام الإدارية",
                 "billing":  "الفواتير",
+                "reports":  "التقارير",
+                "calendar":  "التقويم",
                 "legacyusers":  "المستخدمون (قديم)",
                 "caserelations":  "علاقات القضايا",
                 "login":  "تسجيل الدخول",
@@ -68,7 +70,10 @@
                 "info":  "معلومات",
                 "required":  "مطلوب",
                 "optional":  "اختياري",
-                "total":  "الإجمالي"
+                "total":  "الإجمالي",
+                "auditlogs":  "سجل المراجعة",
+                "documentgeneration":  "توليد المستندات",
+                "clientportal":  "بوابة العميل"
             },
     "login":  {
                   "title":  "مرحباً بعودتك",
@@ -199,14 +204,14 @@
                   "addEmployee":  "إضافة موظف",
                   "addFile":  "إضافة ملف",
                   "addSiting":  "إضافة جلسة",
-                  "statuses": {
-                      "new": "جديدة",
-                      "inprogress": "قيد المعالجة",
-                      "awaitinghearing": "انتظار الجلسة",
-                      "closed": "مغلقة",
-                      "won": "مكتسبة",
-                      "lost": "مفقودة"
-                  }
+                  "statuses":  {
+                                   "new":  "جديدة",
+                                   "inprogress":  "قيد المعالجة",
+                                   "awaitinghearing":  "انتظار الجلسة",
+                                   "closed":  "مغلقة",
+                                   "won":  "مكتسبة",
+                                   "lost":  "مفقودة"
+                               }
               },
     "customers":  {
                       "title":  "العملاء",

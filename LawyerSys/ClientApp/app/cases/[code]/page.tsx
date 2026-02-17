@@ -228,6 +228,7 @@ export default function CaseDetailsPage() {
           <IconButton onClick={()=>router.push('/cases')}><ArrowBack/></IconButton>
         </Tooltip>
         <Typography variant="h5">{t('cases.details') || 'Case Details'} - #{data?.Case?.Code ?? code}</Typography>
+        <Button size="small" variant="outlined" onClick={() => router.push(`/cases/${code}/timeline`)}>Timeline</Button>
       </Box>
 
       {data ? (

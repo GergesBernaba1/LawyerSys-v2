@@ -1,19 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using LawyerSys.Data.ScaffoldedModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using FileEntity = LawyerSys.Data.ScaffoldedModels.File;
 
 namespace LawyerSys.Data;
 
 public partial class LegacyDbContext : DbContext
 {
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+    private bool _isSavingAuditLogs;
+
     public LegacyDbContext(DbContextOptions<LegacyDbContext> options)
         : base(options)
     {
     }
 
+    public LegacyDbContext(DbContextOptions<LegacyDbContext> options, IHttpContextAccessor httpContextAccessor)
+        : base(options)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     public virtual DbSet<AdminstrativeTask> AdminstrativeTasks { get; set; }
+
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
     public virtual DbSet<App_Page> App_Pages { get; set; }
 
@@ -83,6 +98,56 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<__EFMigrationsHistory_Legacy> __EFMigrationsHistory_Legacies { get; set; }
 
+    public override int SaveChanges()
+    {
+        return SaveChangesAsync().GetAwaiter().GetResult();
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        return SaveChangesAsync(acceptAllChangesOnSuccess).GetAwaiter().GetResult();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return SaveChangesAsync(true, cancellationToken);
+    }
+
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        if (_isSavingAuditLogs)
+        {
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        var pendingAudits = CapturePendingAuditEntries();
+        var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+
+        if (pendingAudits.Count == 0)
+        {
+            return result;
+        }
+
+        var finalizedLogs = FinalizeAuditEntries(pendingAudits);
+        if (finalizedLogs.Count == 0)
+        {
+            return result;
+        }
+
+        try
+        {
+            _isSavingAuditLogs = true;
+            AuditLogs.AddRange(finalizedLogs);
+            await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+        finally
+        {
+            _isSavingAuditLogs = false;
+        }
+
+        return result;
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AdminstrativeTask>(entity =>
@@ -95,6 +160,19 @@ public partial class LegacyDbContext : DbContext
             entity.HasOne(d => d.employee).WithMany(p => p.AdminstrativeTasks)
                 .HasForeignKey(d => d.employee_Id)
                 .HasConstraintName("FK_AdminstrativeTasks_AdminstrativeTasks");
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.ToTable("AuditLogs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EntityName).HasMaxLength(128);
+            entity.Property(e => e.Action).HasMaxLength(16);
+            entity.Property(e => e.EntityId).HasMaxLength(256);
+            entity.Property(e => e.UserId).HasMaxLength(256);
+            entity.Property(e => e.UserName).HasMaxLength(256);
+            entity.Property(e => e.RequestPath).HasMaxLength(512);
+            entity.Property(e => e.Timestamp).HasColumnType("datetime2");
         });
 
         modelBuilder.Entity<App_Page>(entity =>
@@ -446,6 +524,147 @@ public partial class LegacyDbContext : DbContext
         });
 
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    private List<PendingAuditEntry> CapturePendingAuditEntries()
+    {
+        ChangeTracker.DetectChanges();
+
+        var now = DateTime.UtcNow;
+        var httpContext = _httpContextAccessor?.HttpContext;
+        var userId = httpContext?.User?.FindFirst("sub")?.Value
+                     ?? httpContext?.User?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        var userName = httpContext?.User?.Identity?.Name;
+        var requestPath = httpContext?.Request?.Path.Value;
+
+        var list = new List<PendingAuditEntry>();
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.State is EntityState.Detached or EntityState.Unchanged)
+            {
+                continue;
+            }
+
+            if (entry.Entity is AuditLog)
+            {
+                continue;
+            }
+
+            if (entry.State is not (EntityState.Added or EntityState.Modified or EntityState.Deleted))
+            {
+                continue;
+            }
+
+            var pending = new PendingAuditEntry
+            {
+                Entry = entry,
+                EntityName = entry.Metadata.ClrType.Name,
+                Action = entry.State switch
+                {
+                    EntityState.Added => "Create",
+                    EntityState.Modified => "Update",
+                    EntityState.Deleted => "Delete",
+                    _ => "Unknown"
+                },
+                UserId = userId,
+                UserName = userName,
+                RequestPath = requestPath,
+                Timestamp = now
+            };
+
+            foreach (var property in entry.Properties)
+            {
+                if (property.Metadata.IsPrimaryKey())
+                {
+                    if (property.IsTemporary)
+                    {
+                        pending.TemporaryProperties.Add(property);
+                    }
+                    else
+                    {
+                        pending.KeyValues[property.Metadata.Name] = property.CurrentValue;
+                    }
+
+                    continue;
+                }
+
+                var isSensitive = property.Metadata.Name.Contains("Password", StringComparison.OrdinalIgnoreCase);
+                var originalValue = isSensitive ? "***" : property.OriginalValue;
+                var currentValue = isSensitive ? "***" : property.CurrentValue;
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        pending.NewValues[property.Metadata.Name] = currentValue;
+                        break;
+                    case EntityState.Deleted:
+                        pending.OldValues[property.Metadata.Name] = originalValue;
+                        break;
+                    case EntityState.Modified:
+                        if (!property.IsModified)
+                        {
+                            break;
+                        }
+
+                        pending.OldValues[property.Metadata.Name] = originalValue;
+                        pending.NewValues[property.Metadata.Name] = currentValue;
+                        break;
+                }
+            }
+
+            list.Add(pending);
+        }
+
+        return list;
+    }
+
+    private List<AuditLog> FinalizeAuditEntries(IEnumerable<PendingAuditEntry> pendingEntries)
+    {
+        var logs = new List<AuditLog>();
+        foreach (var pending in pendingEntries)
+        {
+            foreach (var prop in pending.TemporaryProperties)
+            {
+                if (prop.Metadata.IsPrimaryKey())
+                {
+                    pending.KeyValues[prop.Metadata.Name] = prop.CurrentValue;
+                }
+            }
+
+            var entityId = pending.KeyValues.Count == 0
+                ? null
+                : string.Join(",", pending.KeyValues.Select(kv => $"{kv.Key}:{kv.Value}"));
+
+            logs.Add(new AuditLog
+            {
+                EntityName = pending.EntityName,
+                Action = pending.Action,
+                EntityId = entityId,
+                OldValues = pending.OldValues.Count == 0 ? null : JsonSerializer.Serialize(pending.OldValues),
+                NewValues = pending.NewValues.Count == 0 ? null : JsonSerializer.Serialize(pending.NewValues),
+                UserId = pending.UserId,
+                UserName = pending.UserName,
+                Timestamp = pending.Timestamp,
+                RequestPath = pending.RequestPath
+            });
+        }
+
+        return logs;
+    }
+
+    private sealed class PendingAuditEntry
+    {
+        public required EntityEntry Entry { get; init; }
+        public required string EntityName { get; init; }
+        public required string Action { get; init; }
+        public string? UserId { get; init; }
+        public string? UserName { get; init; }
+        public string? RequestPath { get; init; }
+        public DateTime Timestamp { get; init; }
+        public Dictionary<string, object?> KeyValues { get; } = new();
+        public Dictionary<string, object?> OldValues { get; } = new();
+        public Dictionary<string, object?> NewValues { get; } = new();
+        public List<PropertyEntry> TemporaryProperties { get; } = new();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

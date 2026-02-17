@@ -14,6 +14,8 @@
                 "judicial":  "Judicial Docs",
                 "tasks":  "Admin Tasks",
                 "billing":  "Billing",
+                "reports":  "Reports",
+                "calendar":  "Calendar",
                 "legacyusers":  "Users (Legacy)",
                 "caserelations":  "Case Relations",
                 "login":  "Login",
@@ -68,7 +70,10 @@
                 "info":  "Information",
                 "required":  "Required",
                 "optional":  "Optional",
-                "total":  "Total"
+                "total":  "Total",
+                "auditlogs":  "Audit Logs",
+                "documentgeneration":  "Document Generation",
+                "clientportal":  "Client Portal"
             },
     "login":  {
                   "title":  "Welcome Back",
@@ -199,14 +204,14 @@
                   "addEmployee":  "Add Employee",
                   "addFile":  "Add File",
                   "addSiting":  "Add Hearing",
-                  "statuses": {
-                      "new": "New",
-                      "inprogress": "In Progress",
-                      "awaitinghearing": "Awaiting Hearing",
-                      "closed": "Closed",
-                      "won": "Won",
-                      "lost": "Lost"
-                  }
+                  "statuses":  {
+                                   "new":  "New",
+                                   "inprogress":  "In Progress",
+                                   "awaitinghearing":  "Awaiting Hearing",
+                                   "closed":  "Closed",
+                                   "won":  "Won",
+                                   "lost":  "Lost"
+                               }
               },
     "customers":  {
                       "title":  "Customers",

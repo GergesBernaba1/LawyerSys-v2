@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using LawyerSys.Services.Email;
 using Microsoft.Extensions.Localization;
 using LawyerSys.Resources;
+using Serilog;
 
 namespace LawyerSys.Services
 {
@@ -249,12 +250,12 @@ namespace LawyerSys.Services
                     }
                     else
                     {
-                        Console.WriteLine($"Account created for {appUser.UserName} but no email was provided to send credentials.");
+                        Log.Information("Account created for {UserName} but no email was provided to send credentials.", appUser.UserName);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Failed to create identity user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+                    Log.Error("Failed to create identity user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
                 }
             }
 
