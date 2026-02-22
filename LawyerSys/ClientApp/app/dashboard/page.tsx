@@ -124,6 +124,7 @@ export default function DashboardPageClient() {
   });
   const [loading, setLoading] = useState(true);
   const [recentCases, setRecentCases] = useState<any[]>([]);
+  const numberLocale = isRTL ? 'ar' : 'en-US'
 
   useEffect(() => {
     async function fetchStats() {
@@ -270,7 +271,7 @@ export default function DashboardPageClient() {
           <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('billing.title') || 'Billing'}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
-              {stats.revenueThisMonth.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {stats.revenueThisMonth.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}
             </Typography>
             <Typography variant="caption" color={stats.revenueTrend >= 0 ? 'success.main' : 'error.main'} fontWeight={700}>
               {stats.revenueTrend >= 0 ? '+' : ''}{stats.revenueTrend}% {t('dashboard.thisMonth')}

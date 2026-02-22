@@ -18,6 +18,15 @@ export default function Providers({ locale: initialLocale = 'ar', children }: Pr
   useEffect(() => {
     const handleLanguageChange = (lng: string) => setLocale(lng)
     i18n.on('languageChanged', handleLanguageChange)
+
+    // After hydration, optionally restore user language preference.
+    try {
+      const saved = localStorage.getItem('i18nextLng')
+      if (saved && saved !== i18n.language) {
+        i18n.changeLanguage(saved)
+      }
+    } catch {}
+
     const detected = i18n.resolvedLanguage || i18n.language
     if (detected && detected !== locale) setLocale(detected)
     return () => { i18n.off('languageChanged', handleLanguageChange) }
