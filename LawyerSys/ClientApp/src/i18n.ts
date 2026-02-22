@@ -12,6 +12,7 @@ const resources = {
 
 const initOptions: any = {
   resources,
+  lng: 'ar',
   fallbackLng: 'ar',
   debug: false,
   interpolation: { escapeValue: false },

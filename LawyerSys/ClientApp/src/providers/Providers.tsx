@@ -12,14 +12,16 @@ import i18n from '../i18n'
 interface ProvidersProps { locale?: string; children: React.ReactNode }
 
 export default function Providers({ locale: initialLocale = 'ar', children }: ProvidersProps) {
-  const [locale, setLocale] = useState(i18n.language || initialLocale)
+  // Keep first client render aligned with SSR locale to avoid hydration mismatch.
+  const [locale, setLocale] = useState(initialLocale)
 
   useEffect(() => {
     const handleLanguageChange = (lng: string) => setLocale(lng)
     i18n.on('languageChanged', handleLanguageChange)
-    if (i18n.language && i18n.language !== locale) setLocale(i18n.language)
+    const detected = i18n.resolvedLanguage || i18n.language
+    if (detected && detected !== locale) setLocale(detected)
     return () => { i18n.off('languageChanged', handleLanguageChange) }
-  }, [])
+  }, [locale])
 
   const isRTL = locale.startsWith('ar')
   

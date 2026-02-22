@@ -138,18 +138,30 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var secret = jwtSection.GetValue<string>("Key") ?? string.Empty;
-if (string.IsNullOrWhiteSpace(secret))
+var configuredSecret = jwtSection.GetValue<string>("Key");
+string secret;
+if (string.IsNullOrWhiteSpace(configuredSecret))
 {
     var msg = "JWT signing key is not configured. Set Jwt:Key via user-secrets or environment variable.";
-    if (!builder.Environment.IsDevelopment()) throw new InvalidOperationException(msg);
-    Log.Warning("{Message}", msg);
+    if (!builder.Environment.IsDevelopment())
+    {
+        throw new InvalidOperationException(msg);
+    }
+
+    // Development-only fallback to keep local auth flow operational.
+    secret = "dev-only-jwt-key-change-me-at-least-32-chars";
+    Log.Warning("{Message} Using development fallback key.", msg);
 }
-else if (secret.Length < 32)
+else
 {
-    var msg = "JWT signing key length is less than 32 characters - increase entropy.";
-    if (!builder.Environment.IsDevelopment()) throw new InvalidOperationException(msg);
-    Log.Warning("{Message}", msg);
+    secret = configuredSecret;
+
+    if (secret.Length < 32)
+    {
+        var msg = "JWT signing key length is less than 32 characters - increase entropy.";
+        if (!builder.Environment.IsDevelopment()) throw new InvalidOperationException(msg);
+        Log.Warning("{Message}", msg);
+    }
 }
 
 var key = Encoding.UTF8.GetBytes(secret);

@@ -114,7 +114,8 @@ export default function Layout({ children }: LayoutProps) {
   const { user, logout, isAuthenticated } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
-  const [lng, setLng] = useState(i18n.language || 'ar')
+  // Start from SSR default language to keep hydrated text identical.
+  const [lng, setLng] = useState('ar')
 
   // Redirect to login if not authenticated
   React.useEffect(() => {
@@ -128,6 +129,8 @@ export default function Layout({ children }: LayoutProps) {
   React.useEffect(() => {
     const onChange = (l: string) => setLng(l)
     i18n.on('languageChanged', onChange)
+    const detected = i18n.resolvedLanguage || i18n.language
+    if (detected) setLng(detected)
     return () => { i18n.off('languageChanged', onChange) }
   }, [i18n])
   // prefer using theme direction (keeps in sync with ThemeProvider) but
