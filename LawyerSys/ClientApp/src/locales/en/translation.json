@@ -76,6 +76,7 @@
                 "auditlogs":  "Audit Logs",
                 "documentgeneration":  "Document Generation",
                 "esign":  "eSignature",
+                "timetracking":  "Time Tracking",
                 "clientportal":  "Client Portal",
                 "administration":  "Administration",
                 "intake":  "Intake"
@@ -739,6 +740,38 @@
                                  "signerRequired":  "Please enter your full name"
                                }
               },
+    "timetracking":  {
+                         "title":  "Time Tracking",
+                         "subtitle":  "Capture work sessions and generate billing suggestions",
+                         "startTitle":  "Start New Session",
+                         "caseCode":  "Case Code",
+                         "customerId":  "Customer ID",
+                         "workType":  "Work Type",
+                         "description":  "Description",
+                         "hourlyRate":  "Hourly Rate",
+                         "start":  "Start",
+                         "stop":  "Stop",
+                         "running":  "Running",
+                         "stopped":  "Stopped",
+                         "minutes":  "minutes",
+                         "failedLoad":  "Failed to load time tracking data",
+                         "failedStart":  "Failed to start time session",
+                         "failedStop":  "Failed to stop time session",
+                         "runningNotice":  "There are {{count}} running time sessions",
+                         "table":  {
+                                       "entry":  "Entry",
+                                       "status":  "Status",
+                                       "duration":  "Duration",
+                                       "amount":  "Suggested Amount",
+                                       "actions":  "Actions"
+                                   },
+                         "suggestions":  {
+                                             "case":  "Case",
+                                             "customer":  "Customer",
+                                             "minutes":  "Total Minutes",
+                                             "amount":  "Suggested Amount"
+                                         }
+                     },
     "clientPortal":  {
                          "welcome":  "Welcome",
                          "client":  "Client",

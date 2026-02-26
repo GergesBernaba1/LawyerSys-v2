@@ -63,6 +63,7 @@ import {
   AdminPanelSettings as AdminPanelSettingsIcon,
   FactCheck as IntakeIcon,
   BorderColor as ESignIcon,
+  Timer as TimeTrackingIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
@@ -101,6 +102,7 @@ const menuItems: MenuItem[] = [
   { key: 'caserelations', icon: <LinkIcon />, path: '/caserelations' },
   { key: 'intake', icon: <IntakeIcon />, path: '/intake' },
   { key: 'esign', icon: <ESignIcon />, path: '/esign' },
+  { key: 'timetracking', icon: <TimeTrackingIcon />, path: '/timetracking' },
   { key: 'administration', icon: <AdminPanelSettingsIcon />, path: '/administration' },
 ];
 
@@ -127,10 +129,12 @@ export default function Layout({ children }: LayoutProps) {
   const isAdmin = hasRole('Admin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
+  const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
   const visibleMenuItems = menuItems.filter((item) => {
     if (item.key === 'administration') return isAdmin
     if (item.key === 'intake') return canUseIntake
     if (item.key === 'esign') return canUseESign
+    if (item.key === 'timetracking') return canUseTimeTracking
     return true
   })
   // Start from SSR default language to keep hydrated text identical.
@@ -160,6 +164,12 @@ export default function Layout({ children }: LayoutProps) {
       router.push('/dashboard');
     }
   }, [isAuthenticated, pathname, canUseESign, router]);
+
+  React.useEffect(() => {
+    if (isAuthenticated && pathname === '/timetracking' && !canUseTimeTracking) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, pathname, canUseTimeTracking, router]);
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL

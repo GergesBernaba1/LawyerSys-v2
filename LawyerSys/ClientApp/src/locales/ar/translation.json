@@ -76,6 +76,7 @@
                 "auditlogs":  "سجل المراجعة",
                 "documentgeneration":  "توليد المستندات",
                 "esign":  "التوقيع الإلكتروني",
+                "timetracking": "تتبع الوقت",
                 "clientportal":  "بوابة العميل",
                 "administration":  "الإدارة",
                 "intake":  "الاستقبال"
@@ -739,6 +740,38 @@
                                  "signerRequired":  "يرجى إدخال اسمك الكامل"
                                }
               },
+    "timetracking":  {
+                         "title":  "تتبع الوقت",
+                         "subtitle":  "تسجيل جلسات العمل وإنشاء اقتراحات الفوترة",
+                         "startTitle":  "بدء جلسة جديدة",
+                         "caseCode":  "رقم القضية",
+                         "customerId":  "رقم العميل",
+                         "workType":  "نوع العمل",
+                         "description":  "الوصف",
+                         "hourlyRate":  "سعر الساعة",
+                         "start":  "بدء",
+                         "stop":  "إيقاف",
+                         "running":  "قيد التشغيل",
+                         "stopped":  "متوقف",
+                         "minutes":  "دقيقة",
+                         "failedLoad":  "تعذر تحميل بيانات تتبع الوقت",
+                         "failedStart":  "تعذر بدء جلسة الوقت",
+                         "failedStop":  "تعذر إيقاف جلسة الوقت",
+                         "runningNotice":  "يوجد {{count}} جلسات وقت قيد التشغيل",
+                         "table":  {
+                                       "entry":  "السجل",
+                                       "status":  "الحالة",
+                                       "duration":  "المدة",
+                                       "amount":  "المبلغ المقترح",
+                                       "actions":  "الإجراءات"
+                                   },
+                         "suggestions":  {
+                                             "case":  "القضية",
+                                             "customer":  "العميل",
+                                             "minutes":  "إجمالي الدقائق",
+                                             "amount":  "المبلغ المقترح"
+                                         }
+                     },
     "clientPortal":  {
                          "welcome":  "مرحباً",
                          "client":  "العميل",

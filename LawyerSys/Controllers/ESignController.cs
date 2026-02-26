@@ -4,6 +4,7 @@ using LawyerSys.DTOs;
 using LawyerSys.Services.Documents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -196,6 +197,22 @@ public class ESignController : ControllerBase
         request.TokenExpiresAt = expiresAt;
         request.UpdatedAt = DateTime.UtcNow;
 
+        _context.AuditLogs.Add(new AuditLog
+        {
+            EntityName = "ESignatureRequest",
+            Action = "ShareLink",
+            EntityId = request.Id.ToString(),
+            NewValues = JsonSerializer.Serialize(new
+            {
+                tokenFingerprint = GetTokenFingerprint(token),
+                expiresAt,
+                source = "AdminPortal"
+            }),
+            UserName = User.Identity?.Name ?? "Unknown",
+            Timestamp = DateTime.UtcNow,
+            RequestPath = HttpContext?.Request?.Path.Value
+        });
+
         await _context.SaveChangesAsync();
 
         var publicSignUrl = $"{Request.Scheme}://{Request.Host}/esign/sign/{token}";
@@ -209,14 +226,20 @@ public class ESignController : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("PublicSigning")]
     [HttpGet("public/{token}")]
     public async Task<ActionResult<PublicESignRequestDto>> GetPublicRequest(string token)
     {
         var request = await _context.ESignatureRequests.FirstOrDefaultAsync(x => x.PublicToken == token);
-        if (request == null) return NotFound(new { message = "Signing request not found" });
+        if (request == null)
+        {
+            await WritePublicAuditAsync("PublicSignViewInvalid", token, null, new { reason = "NotFound" });
+            return NotFound(new { message = "Signing request not found" });
+        }
 
         if (request.TokenExpiresAt.HasValue && request.TokenExpiresAt.Value < DateTime.UtcNow)
         {
+            await WritePublicAuditAsync("PublicSignViewInvalid", token, request, new { reason = "Expired" });
             return BadRequest(new { message = "Signing link expired" });
         }
 
@@ -234,21 +257,28 @@ public class ESignController : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("PublicSigning")]
     [HttpPost("public/{token}/sign")]
     public async Task<ActionResult<PublicESignRequestDto>> PublicSign(string token, [FromBody] PublicSignESignRequestDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var request = await _context.ESignatureRequests.FirstOrDefaultAsync(x => x.PublicToken == token);
-        if (request == null) return NotFound(new { message = "Signing request not found" });
+        if (request == null)
+        {
+            await WritePublicAuditAsync("PublicSignInvalid", token, null, new { reason = "NotFound" });
+            return NotFound(new { message = "Signing request not found" });
+        }
 
         if (request.TokenExpiresAt.HasValue && request.TokenExpiresAt.Value < DateTime.UtcNow)
         {
+            await WritePublicAuditAsync("PublicSignInvalid", token, request, new { reason = "Expired" });
             return BadRequest(new { message = "Signing link expired" });
         }
 
         if (!request.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
         {
+            await WritePublicAuditAsync("PublicSignInvalid", token, request, new { reason = "NotPending", currentStatus = request.Status });
             return BadRequest(new { message = "Request is not pending" });
         }
 
@@ -338,5 +368,25 @@ public class ESignController : ControllerBase
         var bytes = Encoding.UTF8.GetBytes(token);
         var hash = SHA256.HashData(bytes);
         return Convert.ToHexString(hash)[..16];
+    }
+
+    private async Task WritePublicAuditAsync(string action, string token, ESignatureRequest? request, object details)
+    {
+        _context.AuditLogs.Add(new AuditLog
+        {
+            EntityName = "ESignatureRequest",
+            Action = action,
+            EntityId = request?.Id.ToString(),
+            NewValues = JsonSerializer.Serialize(new
+            {
+                tokenFingerprint = GetTokenFingerprint(token),
+                details
+            }),
+            UserName = "PublicSigner",
+            Timestamp = DateTime.UtcNow,
+            RequestPath = HttpContext?.Request?.Path.Value
+        });
+
+        await _context.SaveChangesAsync();
     }
 }

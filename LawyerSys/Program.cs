@@ -4,6 +4,7 @@ using LawyerSys.Services.ESign;
 using LawyerSys.Services.MultiTenancy;
 using LawyerSys.Services.Notifications;
 using LawyerSys.Services.Reminders;
+using LawyerSys.Services.TimeTracking;
 using LawyerSys.Services.Intake;
 using LawyerSys.Services.TrustAccounting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,6 +47,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("PublicSigning", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -280,6 +292,16 @@ try
     catch (Exception ex)
     {
         Log.Error(ex, "Error during eSignature schema initialization");
+    }
+
+    try
+    {
+        var timeTrackingInitializer = new TimeTrackingSchemaInitializer(scopedLegacy);
+        await timeTrackingInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during time tracking schema initialization");
     }
 }
 catch (Exception ex)

@@ -121,6 +121,8 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<TrustReconciliation> TrustReconciliations { get; set; }
 
+    public virtual DbSet<TimeTrackingEntry> TimeTrackingEntries { get; set; }
+
     public virtual DbSet<__EFMigrationsHistory_Legacy> __EFMigrationsHistory_Legacies { get; set; }
 
     public override int SaveChanges()
@@ -524,6 +526,20 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
         });
 
+        modelBuilder.Entity<TimeTrackingEntry>(entity =>
+        {
+            entity.ToTable("TimeTrackingEntries");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.WorkType).HasMaxLength(64);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Status).HasMaxLength(24);
+            entity.Property(e => e.StartedBy).HasMaxLength(256);
+            entity.Property(e => e.StartedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.EndedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.SuggestedAmount).HasColumnType("numeric(18,2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
+        });
+
         modelBuilder.Entity<IntakeLead>(entity =>
         {
             entity.ToTable("IntakeLeads");
@@ -584,6 +600,7 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<Siting>(modelBuilder);
         ConfigureTenantEntity<TrustLedgerEntry>(modelBuilder);
         ConfigureTenantEntity<TrustReconciliation>(modelBuilder);
+        ConfigureTenantEntity<TimeTrackingEntry>(modelBuilder);
         ConfigureTenantEntity<User>(modelBuilder);
 
         OnModelCreatingPartial(modelBuilder);

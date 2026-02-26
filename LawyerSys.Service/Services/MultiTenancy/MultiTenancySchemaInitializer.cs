@@ -38,6 +38,7 @@ public class MultiTenancySchemaInitializer
         "IntakeLeads",
         "Judicial_Documents",
         "Sitings",
+        "TimeTrackingEntries",
         "TrustLedgerEntries",
         "TrustReconciliations",
         "Users"
