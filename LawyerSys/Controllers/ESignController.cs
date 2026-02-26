@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using FileEntity = LawyerSys.Data.ScaffoldedModels.File;
 
 namespace LawyerSys.Controllers;
@@ -250,12 +252,36 @@ public class ESignController : ControllerBase
             return BadRequest(new { message = "Request is not pending" });
         }
 
+        var previousStatus = request.Status;
+        var previousTokenFingerprint = GetTokenFingerprint(token);
+
         request.Status = "Signed";
         request.SignedByName = dto.SignedByName.Trim();
         request.SignedAt = DateTime.UtcNow;
         request.PublicToken = null;
         request.TokenExpiresAt = null;
         request.UpdatedAt = DateTime.UtcNow;
+
+        _context.AuditLogs.Add(new AuditLog
+        {
+            EntityName = "ESignatureRequest",
+            Action = "PublicSign",
+            EntityId = request.Id.ToString(),
+            OldValues = JsonSerializer.Serialize(new
+            {
+                status = previousStatus,
+                tokenFingerprint = previousTokenFingerprint
+            }),
+            NewValues = JsonSerializer.Serialize(new
+            {
+                status = request.Status,
+                signedByName = request.SignedByName,
+                signedAt = request.SignedAt
+            }),
+            UserName = "PublicSigner",
+            Timestamp = DateTime.UtcNow,
+            RequestPath = HttpContext?.Request?.Path.Value
+        });
 
         await _context.SaveChangesAsync();
 
@@ -305,5 +331,12 @@ public class ESignController : ControllerBase
             .TrimEnd('=')
             .Replace('+', '-')
             .Replace('/', '_');
+    }
+
+    private static string GetTokenFingerprint(string token)
+    {
+        var bytes = Encoding.UTF8.GetBytes(token);
+        var hash = SHA256.HashData(bytes);
+        return Convert.ToHexString(hash)[..16];
     }
 }
