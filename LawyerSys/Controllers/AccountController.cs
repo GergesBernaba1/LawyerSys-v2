@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
 using Serilog;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,11 +16,13 @@ public class AccountController : ControllerBase
 {
     private readonly IAccountService _accountService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
-    public AccountController(IAccountService accountService, UserManager<ApplicationUser> userManager)
+    public AccountController(IAccountService accountService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _accountService = accountService;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     [HttpPost("register")]
@@ -103,6 +106,123 @@ public class AccountController : ControllerBase
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpGet("users")]
+    public async Task<IActionResult> GetIdentityUsers()
+    {
+        var users = await _userManager.Users
+            .OrderBy(u => u.UserName)
+            .ToListAsync();
+
+        var result = new List<IdentityUserManagementDto>(users.Count);
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            var isDisabled = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow;
+            result.Add(new IdentityUserManagementDto
+            {
+                Id = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                FullName = user.FullName,
+                RequiresPasswordReset = user.RequiresPasswordReset,
+                IsEnabled = !isDisabled,
+                Roles = roles.ToArray()
+            });
+        }
+
+        return Ok(result);
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPost("users/{id}/enable")]
+    public async Task<IActionResult> EnableUser(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound(new { message = "User not found" });
+
+        user.LockoutEnabled = true;
+        user.LockoutEnd = null;
+        var update = await _userManager.UpdateAsync(user);
+        if (!update.Succeeded) return BadRequest(update.Errors);
+
+        await _userManager.UpdateSecurityStampAsync(user);
+        return Ok(new { message = "User enabled" });
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPost("users/{id}/disable")]
+    public async Task<IActionResult> DisableUser(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound(new { message = "User not found" });
+
+        var currentUserId = _userManager.GetUserId(User);
+        if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId == user.Id)
+        {
+            return BadRequest(new { message = "You cannot disable your own account." });
+        }
+
+        user.LockoutEnabled = true;
+        user.LockoutEnd = DateTimeOffset.MaxValue;
+        var update = await _userManager.UpdateAsync(user);
+        if (!update.Succeeded) return BadRequest(update.Errors);
+
+        await _userManager.UpdateSecurityStampAsync(user);
+        return Ok(new { message = "User disabled" });
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPut("users/{id}/roles")]
+    public async Task<IActionResult> SetUserRoles(string id, [FromBody] SetUserRolesRequest model)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound(new { message = "User not found" });
+
+        var requestedRoles = (model.Roles ?? Array.Empty<string>())
+            .Where(r => !string.IsNullOrWhiteSpace(r))
+            .Select(r => r.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        foreach (var role in requestedRoles)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                return BadRequest(new { message = $"Role '{role}' does not exist." });
+            }
+        }
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        if (!removeResult.Succeeded) return BadRequest(removeResult.Errors);
+
+        if (requestedRoles.Length > 0)
+        {
+            var addResult = await _userManager.AddToRolesAsync(user, requestedRoles);
+            if (!addResult.Succeeded) return BadRequest(addResult.Errors);
+        }
+
+        await _userManager.UpdateSecurityStampAsync(user);
+        return Ok(new { message = "User roles updated" });
+    }
+}
+
+public class IdentityUserManagementDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public bool RequiresPasswordReset { get; set; }
+    public bool IsEnabled { get; set; }
+    public string[] Roles { get; set; } = Array.Empty<string>();
+}
+
+public class SetUserRolesRequest
+{
+    public string[] Roles { get; set; } = Array.Empty<string>();
 }
 
 public class RegisterRequest

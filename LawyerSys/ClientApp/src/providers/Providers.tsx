@@ -35,8 +35,11 @@ export default function Providers({ locale: initialLocale = 'ar', children }: Pr
   const isRTL = locale.startsWith('ar')
   
   useEffect(() => {
-    try { document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr') } catch {}
-  }, [isRTL])
+    try {
+      document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr')
+      document.documentElement.setAttribute('lang', locale.startsWith('ar') ? 'ar' : 'en')
+    } catch {}
+  }, [isRTL, locale])
 
   // Use a stable cache key so SSR and client render match className prefixes
   const cache = useMemo(() => createCache({ key: 'css', stylisPlugins: isRTL ? [rtlPlugin] : [], prepend: true }), [isRTL])

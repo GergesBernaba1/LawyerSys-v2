@@ -60,6 +60,7 @@ import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   Home as HomeIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
@@ -96,6 +97,7 @@ const menuItems: MenuItem[] = [
   { key: 'auditlogs', icon: <AuditIcon />, path: '/auditlogs' },
   { key: 'legacyusers', icon: <PersonIcon />, path: '/legacyusers' },
   { key: 'caserelations', icon: <LinkIcon />, path: '/caserelations' },
+  { key: 'administration', icon: <AdminPanelSettingsIcon />, path: '/administration' },
 ];
 
 interface LayoutProps {
@@ -115,9 +117,11 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, hasRole } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
+  const isAdmin = hasRole('Admin')
+  const visibleMenuItems = menuItems.filter((item) => item.key !== 'administration' || isAdmin)
   // Start from SSR default language to keep hydrated text identical.
   const [lng, setLng] = useState('ar')
 
@@ -127,6 +131,12 @@ export default function Layout({ children }: LayoutProps) {
       router.push('/login');
     }
   }, [isAuthenticated, router]);
+
+  React.useEffect(() => {
+    if (isAuthenticated && pathname === '/administration' && !isAdmin) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, pathname, isAdmin, router]);
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL
@@ -156,7 +166,10 @@ export default function Layout({ children }: LayoutProps) {
   const handleLangOpen = (event: React.MouseEvent<HTMLElement>) => setLangAnchor(event.currentTarget)
   const handleLangClose = () => setLangAnchor(null)
   const changeLang = (lng: string) => {
-    try { document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr') } catch {}
+    try {
+      document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr')
+      document.documentElement.setAttribute('lang', lng.startsWith('ar') ? 'ar' : 'en')
+    } catch {}
     i18n.changeLanguage(lng);
     handleLangClose();
   }
@@ -249,7 +262,7 @@ export default function Layout({ children }: LayoutProps) {
       </Box>
 
       <List sx={{ flex: 1, px: 2, py: 0 }}>
-        {menuItems.map((item) => (
+        {visibleMenuItems.map((item) => (
           <ListItem key={item.key} disablePadding sx={{ mb: 0.8 }}>
             <Tooltip title={t(`app.${item.key}`)} placement={isRTL ? 'left' : 'right'} disableHoverListener={!collapsed}>
               <ListItemButton
@@ -650,12 +663,12 @@ export default function Layout({ children }: LayoutProps) {
                     borderRadius: 2,
                   }}
                 >
-                  {t(`app.${menuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
+                  {t(`app.${visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
                 </Typography>
               )}
             </Breadcrumbs>
             <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.03em', color: 'text.primary' }}>
-              {pathname === '/' ? t('app.dashboard') : t(`app.${menuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
+              {pathname === '/' ? t('app.dashboard') : t(`app.${visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
             </Typography>
           </Box>
           

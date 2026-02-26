@@ -75,7 +75,8 @@
                 "total":  "الإجمالي",
                 "auditlogs":  "سجل المراجعة",
                 "documentgeneration":  "توليد المستندات",
-                "clientportal":  "بوابة العميل"
+                "clientportal":  "بوابة العميل",
+                "administration":  "الإدارة"
             },
     "login":  {
                   "title":  "مرحباً بعودتك",
@@ -571,6 +572,82 @@
                          "maxBankToBookDifference":  "أعلى فرق مطلق بين البنك والدفتر",
                          "failedLoad":  "فشل تحميل تقارير الأمانات",
                          "noData":  "لا توجد بيانات في الفترة المحددة"
+                     },
+    "administration":  {
+                            "title":  "مركز الإدارة",
+                            "subtitle":  "نظرة مركزية لإدارة أهم إجراءات النظام",
+                            "failedLoad":  "فشل تحميل ملخص الإدارة",
+                            "open":  "فتح",
+                            "yes":  "نعم",
+                            "no":  "لا",
+                            "manageEnabled":  "إدارة",
+                            "manageReadOnly":  "قراءة فقط",
+                            "cards":  {
+                                          "users":  "المستخدمون",
+                                          "employees":  "الموظفون",
+                                          "customers":  "العملاء",
+                                          "cases":  "القضايا",
+                                          "hearings":  "الجلسات",
+                                          "tasks":  "المهام",
+                                          "overdueTasks":  "المهام المتأخرة",
+                                          "auditLogs":  "سجلات المراجعة"
+                                      },
+                            "table":  {
+                                          "module":  "الوحدة",
+                                          "api":  "واجهة API",
+                                          "view":  "عرض",
+                                          "manage":  "إدارة",
+                                          "open":  "فتح الصفحة"
+                                      },
+                            "modules":  {
+                                            "users":  "المستخدمون",
+                                            "employees":  "الموظفون",
+                                            "customers":  "العملاء",
+                                            "cases":  "القضايا",
+                                            "tasks":  "المهام الإدارية",
+                                            "trust":  "حسابات الأمانات",
+                                            "audit":  "سجل المراجعة",
+                                            "reports":  "التقارير"
+                                        },
+                            "accounts":  {
+                                             "title":  "حسابات النظام",
+                                             "user":  "المستخدم",
+                                             "email":  "البريد الإلكتروني",
+                                             "status":  "الحالة",
+                                             "roles":  "الأدوار",
+                                             "actions":  "الإجراءات",
+                                             "enabled":  "مفعل",
+                                             "disabled":  "معطل",
+                                             "enable":  "تفعيل",
+                                             "disable":  "تعطيل",
+                                             "saveRoles":  "حفظ الأدوار"
+                                         }
+                        },
+    "clientPortal":  {
+                         "welcome":  "مرحباً",
+                         "client":  "العميل",
+                         "failedLoad":  "فشل تحميل بيانات البوابة",
+                         "totalCaseValue":  "إجمالي قيمة القضايا",
+                         "totalPaid":  "إجمالي المدفوع",
+                         "outstanding":  "المتبقي",
+                         "myCases":  "قضاياي",
+                         "upcomingHearings":  "الجلسات القادمة",
+                         "myDocuments":  "مستنداتي",
+                         "code":  "الرقم",
+                         "type":  "النوع",
+                         "status":  "الحالة",
+                         "case":  "القضية",
+                         "date":  "التاريخ",
+                         "judge":  "القاضي",
+                         "details":  "التفاصيل",
+                         "statuses":  [
+                                          "جديدة",
+                                          "قيد المعالجة",
+                                          "بانتظار جلسة",
+                                          "مغلقة",
+                                          "مكسوبة",
+                                          "خاسرة"
+                                      ]
                      },
     "legacyUsers":  {
                         "title":  "المستخدمون (قديم)",

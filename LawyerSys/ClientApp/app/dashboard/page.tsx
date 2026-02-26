@@ -234,7 +234,7 @@ export default function DashboardPageClient() {
               variant="contained"
               sx={{
                 bgcolor: 'rgba(255,255,255,0.95)',
-                color: 'rgba(255,255,255,0.95)',
+                color: 'primary.dark',
                 fontWeight: 800,
                 px: { xs: 2.5, md: 3 },
                 py: { xs: 1, md: 1.5 },

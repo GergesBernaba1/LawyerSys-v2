@@ -50,15 +50,22 @@ public class MultiTenancySchemaInitializer
     {
         foreach (var table in TenantScopedTables)
         {
-            var safeConstraint = $"DF_{table}_FirmId";
             var safeIndex = $"IX_{table}_FirmId";
 
-            var sql = $@"
-IF OBJECT_ID(N'dbo.{table}', N'U') IS NOT NULL AND COL_LENGTH('dbo.{table}', 'FirmId') IS NULL
+            var sql = $"""
+DO $$
 BEGIN
-    ALTER TABLE dbo.{table} ADD FirmId INT NOT NULL CONSTRAINT {safeConstraint} DEFAULT(1);
-    CREATE INDEX {safeIndex} ON dbo.{table}(FirmId);
-END";
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND lower(table_name) = lower('{table}')
+    ) THEN
+        EXECUTE 'ALTER TABLE "{table}" ADD COLUMN IF NOT EXISTS "FirmId" INTEGER NOT NULL DEFAULT 1';
+        EXECUTE 'CREATE INDEX IF NOT EXISTS "{safeIndex}" ON "{table}" ("FirmId")';
+    END IF;
+END $$;
+""";
 
             await _context.Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }

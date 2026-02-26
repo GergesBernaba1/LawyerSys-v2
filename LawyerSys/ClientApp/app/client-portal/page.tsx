@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Box,
@@ -14,6 +15,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from '@mui/material';
 import api from '../../src/services/api';
 
@@ -25,11 +27,13 @@ type PortalResponse = {
   billing: { totalPayments: number; casesTotalAmount: number; outstandingBalance: number };
 };
 
-const statusLabels = ['New', 'In Progress', 'Awaiting Hearing', 'Closed', 'Won', 'Lost'];
-
 export default function ClientPortalPage() {
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
+  const isRTL = theme.direction === 'rtl';
   const [data, setData] = useState<PortalResponse | null>(null);
   const [error, setError] = useState('');
+  const statusLabels = t('clientPortal.statuses', { returnObjects: true }) as string[];
 
   useEffect(() => {
     (async () => {
@@ -37,18 +41,21 @@ export default function ClientPortalPage() {
         const response = await api.get('/ClientPortal/overview');
         setData(response.data);
       } catch (err: any) {
-        setError(err?.response?.data?.message || 'Failed to load portal data');
+        setError(err?.response?.data?.message || t('clientPortal.failedLoad'));
       }
     })();
-  }, []);
+  }, [t]);
+
+  const formatNumber = (value: number) =>
+    value.toLocaleString(isRTL ? 'ar' : (i18n.resolvedLanguage || 'en'));
 
   return (
-    <Box>
+    <Box dir={isRTL ? 'rtl' : 'ltr'}>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Typography variant="h5">Welcome, {data?.customerName || 'Client'}</Typography>
+          <Typography variant="h5">{t('clientPortal.welcome')}, {data?.customerName || t('clientPortal.client')}</Typography>
         </CardContent>
       </Card>
 
@@ -56,24 +63,24 @@ export default function ClientPortalPage() {
         <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Total Case Value</Typography>
-              <Typography variant="h6">{data?.billing?.casesTotalAmount ?? 0}</Typography>
+              <Typography variant="subtitle2" color="text.secondary">{t('clientPortal.totalCaseValue')}</Typography>
+              <Typography variant="h6">{formatNumber(data?.billing?.casesTotalAmount ?? 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Total Paid</Typography>
-              <Typography variant="h6">{data?.billing?.totalPayments ?? 0}</Typography>
+              <Typography variant="subtitle2" color="text.secondary">{t('clientPortal.totalPaid')}</Typography>
+              <Typography variant="h6">{formatNumber(data?.billing?.totalPayments ?? 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Outstanding</Typography>
-              <Typography variant="h6">{data?.billing?.outstandingBalance ?? 0}</Typography>
+              <Typography variant="subtitle2" color="text.secondary">{t('clientPortal.outstanding')}</Typography>
+              <Typography variant="h6">{formatNumber(data?.billing?.outstandingBalance ?? 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -83,13 +90,13 @@ export default function ClientPortalPage() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 1 }}>My Cases</Typography>
+              <Typography variant="h6" sx={{ mb: 1 }}>{t('clientPortal.myCases')}</Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Code</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Status</TableCell>
+                    <TableCell>{t('clientPortal.code')}</TableCell>
+                    <TableCell>{t('clientPortal.type')}</TableCell>
+                    <TableCell>{t('clientPortal.status')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -109,20 +116,20 @@ export default function ClientPortalPage() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 1 }}>Upcoming Hearings</Typography>
+              <Typography variant="h6" sx={{ mb: 1 }}>{t('clientPortal.upcomingHearings')}</Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Case</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Judge</TableCell>
+                    <TableCell>{t('clientPortal.case')}</TableCell>
+                    <TableCell>{t('clientPortal.date')}</TableCell>
+                    <TableCell>{t('clientPortal.judge')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {(data?.hearings || []).map((h, i) => (
                     <TableRow key={`${h.caseCode}-${i}`}>
                       <TableCell>{h.caseCode}</TableCell>
-                      <TableCell>{new Date(h.time).toLocaleString()}</TableCell>
+                      <TableCell>{new Date(h.time).toLocaleString(isRTL ? 'ar' : (i18n.resolvedLanguage || 'en'))}</TableCell>
                       <TableCell>{h.judgeName}</TableCell>
                     </TableRow>
                   ))}
@@ -135,13 +142,13 @@ export default function ClientPortalPage() {
 
       <Card sx={{ mt: 2 }}>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 1 }}>My Documents</Typography>
+          <Typography variant="h6" sx={{ mb: 1 }}>{t('clientPortal.myDocuments')}</Typography>
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>#</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Details</TableCell>
+                <TableCell>{t('clientPortal.type')}</TableCell>
+                <TableCell>{t('clientPortal.details')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

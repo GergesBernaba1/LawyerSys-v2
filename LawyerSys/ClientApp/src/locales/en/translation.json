@@ -75,7 +75,8 @@
                 "total":  "Total",
                 "auditlogs":  "Audit Logs",
                 "documentgeneration":  "Document Generation",
-                "clientportal":  "Client Portal"
+                "clientportal":  "Client Portal",
+                "administration":  "Administration"
             },
     "login":  {
                   "title":  "Welcome Back",
@@ -571,6 +572,82 @@
                          "maxBankToBookDifference":  "Max Absolute Bank-Book Difference",
                          "failedLoad":  "Failed to load trust reports",
                          "noData":  "No data in selected period"
+                     },
+    "administration":  {
+                            "title":  "Administration Center",
+                            "subtitle":  "Centralized overview for core management actions",
+                            "failedLoad":  "Failed to load administration overview",
+                            "open":  "Open",
+                            "yes":  "Yes",
+                            "no":  "No",
+                            "manageEnabled":  "Manage",
+                            "manageReadOnly":  "Read Only",
+                            "cards":  {
+                                          "users":  "Users",
+                                          "employees":  "Employees",
+                                          "customers":  "Customers",
+                                          "cases":  "Cases",
+                                          "hearings":  "Hearings",
+                                          "tasks":  "Tasks",
+                                          "overdueTasks":  "Overdue Tasks",
+                                          "auditLogs":  "Audit Logs"
+                                      },
+                            "table":  {
+                                          "module":  "Module",
+                                          "api":  "API",
+                                          "view":  "View",
+                                          "manage":  "Manage",
+                                          "open":  "Open Page"
+                                      },
+                            "modules":  {
+                                            "users":  "Users",
+                                            "employees":  "Employees",
+                                            "customers":  "Customers",
+                                            "cases":  "Cases",
+                                            "tasks":  "Admin Tasks",
+                                            "trust":  "Trust Accounting",
+                                            "audit":  "Audit Logs",
+                                            "reports":  "Reports"
+                                        },
+                            "accounts":  {
+                                             "title":  "Identity Accounts",
+                                             "user":  "User",
+                                             "email":  "Email",
+                                             "status":  "Status",
+                                             "roles":  "Roles",
+                                             "actions":  "Actions",
+                                             "enabled":  "Enabled",
+                                             "disabled":  "Disabled",
+                                             "enable":  "Enable",
+                                             "disable":  "Disable",
+                                             "saveRoles":  "Save Roles"
+                                         }
+                        },
+    "clientPortal":  {
+                         "welcome":  "Welcome",
+                         "client":  "Client",
+                         "failedLoad":  "Failed to load portal data",
+                         "totalCaseValue":  "Total Case Value",
+                         "totalPaid":  "Total Paid",
+                         "outstanding":  "Outstanding",
+                         "myCases":  "My Cases",
+                         "upcomingHearings":  "Upcoming Hearings",
+                         "myDocuments":  "My Documents",
+                         "code":  "Code",
+                         "type":  "Type",
+                         "status":  "Status",
+                         "case":  "Case",
+                         "date":  "Date",
+                         "judge":  "Judge",
+                         "details":  "Details",
+                         "statuses":  [
+                                          "New",
+                                          "In Progress",
+                                          "Awaiting Hearing",
+                                          "Closed",
+                                          "Won",
+                                          "Lost"
+                                      ]
                      },
     "legacyUsers":  {
                         "title":  "Users (Legacy)",

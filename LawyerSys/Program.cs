@@ -27,6 +27,19 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ar-SA") };
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    options.RequestCultureProviders = new IRequestCultureProvider[]
+    {
+        new QueryStringRequestCultureProvider(),
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    };
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddRateLimiter(options =>
 {
@@ -195,13 +208,7 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ar-SA") };
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("en-US"),
-    SupportedCultures = supportedCultures,
-    SupportedUICultures = supportedCultures
-});
+app.UseRequestLocalization();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

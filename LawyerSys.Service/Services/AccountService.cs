@@ -35,6 +35,11 @@ namespace LawyerSys.Services
                 throw new InvalidOperationException("Password reset required. Please reset your password before logging in.");
             }
 
+            if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+            {
+                throw new InvalidOperationException("Account is disabled. Contact an administrator.");
+            }
+
             var valid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!valid) throw new UnauthorizedAccessException("Invalid credentials");
 
