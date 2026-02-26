@@ -75,8 +75,10 @@
                 "total":  "Total",
                 "auditlogs":  "Audit Logs",
                 "documentgeneration":  "Document Generation",
+                "esign":  "eSignature",
                 "clientportal":  "Client Portal",
-                "administration":  "Administration"
+                "administration":  "Administration",
+                "intake":  "Intake"
             },
     "login":  {
                   "title":  "Welcome Back",
@@ -623,6 +625,120 @@
                                              "saveRoles":  "Save Roles"
                                          }
                         },
+    "intake":  {
+                   "title":  "Intake Pipeline",
+                   "subtitle":  "Review, qualify, and convert new leads",
+                   "search":  "Search lead",
+                   "status":  "Status",
+                   "checkConflict":  "Check Conflict",
+                   "qualify":  "Qualify",
+                   "reject":  "Reject",
+                   "convert":  "Convert",
+                   "notChecked":  "Not checked",
+                   "conflictFound":  "Conflict",
+                   "noConflict":  "No conflict",
+                   "failedLoad":  "Failed to load leads",
+                   "failedConflict":  "Failed to run conflict check",
+                   "failedQualify":  "Failed to update qualification",
+                   "failedConvert":  "Failed to convert lead",
+                   "defaultQualifiedNote":  "Qualified by intake team",
+                   "defaultRejectedNote":  "Rejected by intake team",
+                   "table":  {
+                                 "lead":  "Lead",
+                                 "subject":  "Subject",
+                                 "status":  "Status",
+                                 "conflict":  "Conflict",
+                                 "assignment":  "Assignment",
+                                 "actions":  "Actions"
+                             },
+                   "assignment":  {
+                                     "assign":  "Assign",
+                                     "employee":  "Employee",
+                                     "unassigned":  "Unassigned",
+                                     "followUp":  "Next Follow-up",
+                                     "assignedAt":  "Assigned At",
+                                     "employeeRequired":  "Please select an employee",
+                                     "failedAssign":  "Failed to assign lead"
+                                 },
+                   "statuses":  {
+                                    "all":  "All",
+                                    "new":  "New",
+                                    "qualified":  "Qualified",
+                                    "rejected":  "Rejected",
+                                    "converted":  "Converted"
+                                },
+                   "public":  {
+                                  "title":  "Legal Intake Form",
+                                  "subtitle":  "Submit your request and our team will contact you",
+                                  "fullName":  "Full Name",
+                                  "subject":  "Subject",
+                                  "email":  "Email",
+                                  "phoneNumber":  "Phone Number",
+                                  "nationalId":  "National ID",
+                                  "caseType":  "Case Type",
+                                  "description":  "Description",
+                                  "submit":  "Submit Request",
+                                  "required":  "Full name and subject are required",
+                                  "success":  "Your request has been submitted successfully",
+                                  "failed":  "Failed to submit request"
+                              }
+               },
+    "esign":  {
+                  "title":  "eSignature Requests",
+                  "subtitle":  "Create, track, and update signature requests",
+                  "createTitle":  "Create Request",
+                  "requestTitle":  "Request Title",
+                  "signerName":  "Signer Name",
+                  "signerEmail":  "Signer Email",
+                  "file":  "Existing File",
+                  "template":  "Template",
+                  "none":  "None",
+                  "create":  "Create Request",
+                  "search":  "Search request",
+                  "status":  "Status",
+                  "markSigned":  "Mark Signed",
+                  "markDeclined":  "Mark Declined",
+                  "markCancelled":  "Mark Cancelled",
+                  "shareLink":  "Generate Link",
+                  "openLink":  "Open Link",
+                  "signedAt":  "Signed At",
+                  "signedBy":  "Signed By",
+                  "linkExpiresAt":  "Link Expires",
+                  "validationSigner":  "Signer name and email are required",
+                  "validationDocument":  "Choose either a file or a template",
+                  "failedLoad":  "Failed to load eSignature requests",
+                  "failedCreate":  "Failed to create eSignature request",
+                  "failedShareLink":  "Failed to generate share link",
+                  "failedStatus":  "Failed to update request status",
+                  "table":  {
+                                "request":  "Request",
+                                "signer":  "Signer",
+                                "document":  "Document",
+                                "status":  "Status",
+                                "requestedAt":  "Requested At",
+                                "actions":  "Actions"
+                            },
+                  "statuses":  {
+                                   "all":  "All",
+                                   "pending":  "Pending",
+                                   "signed":  "Signed",
+                                   "declined":  "Declined",
+                                   "cancelled":  "Cancelled"
+                               },
+                  "public":  {
+                                 "title":  "Sign Document",
+                                 "subtitle":  "Review request details and sign securely",
+                                 "signer":  "Requested Signer",
+                                 "expiresAt":  "Expires At",
+                                 "signedByName":  "Your Full Name",
+                                 "signNow":  "Sign Now",
+                                 "alreadyHandled":  "This request is already completed or closed",
+                                 "failedLoad":  "Failed to load signing request",
+                                 "failedSign":  "Failed to sign document",
+                                 "signedSuccess":  "Document signed successfully",
+                                 "signerRequired":  "Please enter your full name"
+                               }
+              },
     "clientPortal":  {
                          "welcome":  "Welcome",
                          "client":  "Client",

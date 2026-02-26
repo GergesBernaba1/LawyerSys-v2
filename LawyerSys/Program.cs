@@ -1,8 +1,10 @@
 using LawyerSys.Data;
 using LawyerSys.Services.Auditing;
+using LawyerSys.Services.ESign;
 using LawyerSys.Services.MultiTenancy;
 using LawyerSys.Services.Notifications;
 using LawyerSys.Services.Reminders;
+using LawyerSys.Services.Intake;
 using LawyerSys.Services.TrustAccounting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -258,6 +260,26 @@ try
     catch (Exception ex)
     {
         Log.Error(ex, "Error during trust accounting schema initialization");
+    }
+
+    try
+    {
+        var intakeInitializer = new IntakeSchemaInitializer(scopedLegacy);
+        await intakeInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during intake schema initialization");
+    }
+
+    try
+    {
+        var esignInitializer = new ESignSchemaInitializer(scopedLegacy);
+        await esignInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during eSignature schema initialization");
     }
 }
 catch (Exception ex)

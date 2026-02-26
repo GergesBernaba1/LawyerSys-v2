@@ -75,8 +75,10 @@
                 "total":  "الإجمالي",
                 "auditlogs":  "سجل المراجعة",
                 "documentgeneration":  "توليد المستندات",
+                "esign":  "التوقيع الإلكتروني",
                 "clientportal":  "بوابة العميل",
-                "administration":  "الإدارة"
+                "administration":  "الإدارة",
+                "intake":  "الاستقبال"
             },
     "login":  {
                   "title":  "مرحباً بعودتك",
@@ -623,6 +625,120 @@
                                              "saveRoles":  "حفظ الأدوار"
                                          }
                         },
+    "intake":  {
+                   "title":  "مسار الاستقبال",
+                   "subtitle":  "مراجعة الطلبات الجديدة وتأهيلها وتحويلها",
+                   "search":  "بحث عن طلب",
+                   "status":  "الحالة",
+                   "checkConflict":  "فحص التعارض",
+                   "qualify":  "تأهيل",
+                   "reject":  "رفض",
+                   "convert":  "تحويل",
+                   "notChecked":  "غير مفحوص",
+                   "conflictFound":  "يوجد تعارض",
+                   "noConflict":  "لا يوجد تعارض",
+                   "failedLoad":  "فشل تحميل الطلبات",
+                   "failedConflict":  "فشل تنفيذ فحص التعارض",
+                   "failedQualify":  "فشل تحديث حالة التأهيل",
+                   "failedConvert":  "فشل تحويل الطلب",
+                   "defaultQualifiedNote":  "تم التأهيل بواسطة فريق الاستقبال",
+                   "defaultRejectedNote":  "تم الرفض بواسطة فريق الاستقبال",
+                   "table":  {
+                                 "lead":  "الطلب",
+                                 "subject":  "الموضوع",
+                                 "status":  "الحالة",
+                                 "conflict":  "التعارض",
+                                 "assignment":  "الإسناد",
+                                 "actions":  "الإجراءات"
+                             },
+                   "assignment":  {
+                                     "assign":  "إسناد",
+                                     "employee":  "الموظف",
+                                     "unassigned":  "غير مسند",
+                                     "followUp":  "متابعة قادمة",
+                                     "assignedAt":  "تاريخ الإسناد",
+                                     "employeeRequired":  "يرجى اختيار موظف",
+                                     "failedAssign":  "فشل إسناد الطلب"
+                                 },
+                   "statuses":  {
+                                    "all":  "الكل",
+                                    "new":  "جديد",
+                                    "qualified":  "مؤهل",
+                                    "rejected":  "مرفوض",
+                                    "converted":  "تم التحويل"
+                                },
+                   "public":  {
+                                  "title":  "نموذج استقبال القضايا",
+                                  "subtitle":  "أرسل طلبك وسيتواصل معك فريقنا",
+                                  "fullName":  "الاسم الكامل",
+                                  "subject":  "الموضوع",
+                                  "email":  "البريد الإلكتروني",
+                                  "phoneNumber":  "رقم الهاتف",
+                                  "nationalId":  "الرقم القومي",
+                                  "caseType":  "نوع القضية",
+                                  "description":  "الوصف",
+                                  "submit":  "إرسال الطلب",
+                                  "required":  "الاسم الكامل والموضوع مطلوبان",
+                                  "success":  "تم إرسال الطلب بنجاح",
+                                  "failed":  "فشل إرسال الطلب"
+                              }
+               },
+    "esign":  {
+                  "title":  "طلبات التوقيع الإلكتروني",
+                  "subtitle":  "إنشاء ومتابعة وتحديث طلبات التوقيع",
+                  "createTitle":  "إنشاء طلب",
+                  "requestTitle":  "عنوان الطلب",
+                  "signerName":  "اسم الموقّع",
+                  "signerEmail":  "بريد الموقّع",
+                  "file":  "ملف موجود",
+                  "template":  "قالب",
+                  "none":  "لا يوجد",
+                  "create":  "إنشاء الطلب",
+                  "search":  "بحث عن طلب",
+                  "status":  "الحالة",
+                  "markSigned":  "تحديد كموقّع",
+                  "markDeclined":  "تحديد كمرفوض",
+                  "markCancelled":  "تحديد كملغى",
+                  "shareLink":  "إنشاء رابط",
+                  "openLink":  "فتح الرابط",
+                  "signedAt":  "تاريخ التوقيع",
+                  "signedBy":  "تم التوقيع بواسطة",
+                  "linkExpiresAt":  "انتهاء الرابط",
+                  "validationSigner":  "اسم وبريد الموقّع مطلوبان",
+                  "validationDocument":  "اختر ملفاً أو قالباً",
+                  "failedLoad":  "فشل تحميل طلبات التوقيع",
+                  "failedCreate":  "فشل إنشاء طلب التوقيع",
+                  "failedShareLink":  "فشل إنشاء رابط التوقيع",
+                  "failedStatus":  "فشل تحديث حالة الطلب",
+                  "table":  {
+                                "request":  "الطلب",
+                                "signer":  "الموقّع",
+                                "document":  "المستند",
+                                "status":  "الحالة",
+                                "requestedAt":  "تاريخ الطلب",
+                                "actions":  "الإجراءات"
+                            },
+                  "statuses":  {
+                                   "all":  "الكل",
+                                   "pending":  "قيد الانتظار",
+                                   "signed":  "موقّع",
+                                   "declined":  "مرفوض",
+                                   "cancelled":  "ملغى"
+                               },
+                  "public":  {
+                                 "title":  "توقيع المستند",
+                                 "subtitle":  "راجع تفاصيل الطلب ووقّع بشكل آمن",
+                                 "signer":  "الموقّع المطلوب",
+                                 "expiresAt":  "تاريخ انتهاء الرابط",
+                                 "signedByName":  "اسمك الكامل",
+                                 "signNow":  "توقيع الآن",
+                                 "alreadyHandled":  "تم إتمام هذا الطلب أو إغلاقه بالفعل",
+                                 "failedLoad":  "فشل تحميل طلب التوقيع",
+                                 "failedSign":  "فشل توقيع المستند",
+                                 "signedSuccess":  "تم توقيع المستند بنجاح",
+                                 "signerRequired":  "يرجى إدخال اسمك الكامل"
+                               }
+              },
     "clientPortal":  {
                          "welcome":  "مرحباً",
                          "client":  "العميل",

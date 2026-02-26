@@ -101,6 +101,8 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<ESignatureRequest> ESignatureRequests { get; set; }
+
     public virtual DbSet<Employee> Employees { get; set; }
 
     public virtual DbSet<FileEntity> Files { get; set; }
@@ -108,6 +110,8 @@ public partial class LegacyDbContext : DbContext
     public virtual DbSet<Governament> Governaments { get; set; }
 
     public virtual DbSet<Judicial_Document> Judicial_Documents { get; set; }
+
+    public virtual DbSet<IntakeLead> IntakeLeads { get; set; }
 
     public virtual DbSet<Siting> Sitings { get; set; }
 
@@ -419,6 +423,27 @@ public partial class LegacyDbContext : DbContext
                 .HasConstraintName("FK_Customers_Customers");
         });
 
+        modelBuilder.Entity<ESignatureRequest>(entity =>
+        {
+            entity.ToTable("ESignatureRequests");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RequestTitle).HasMaxLength(200);
+            entity.Property(e => e.TemplateType).HasMaxLength(80);
+            entity.Property(e => e.SignerName).HasMaxLength(120);
+            entity.Property(e => e.SignerEmail).HasMaxLength(256);
+            entity.Property(e => e.SignerPhoneNumber).HasMaxLength(32);
+            entity.Property(e => e.Message).HasMaxLength(2000);
+            entity.Property(e => e.Status).HasMaxLength(24);
+            entity.Property(e => e.ExternalReference).HasMaxLength(200);
+            entity.Property(e => e.PublicToken).HasMaxLength(120);
+            entity.Property(e => e.SignedByName).HasMaxLength(120);
+            entity.Property(e => e.RequestedBy).HasMaxLength(256);
+            entity.Property(e => e.RequestedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.SignedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.TokenExpiresAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
+        });
+
         modelBuilder.Entity<Employee>(entity =>
         {
             entity.HasOne(d => d.Users).WithMany(p => p.Employees)
@@ -499,6 +524,26 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
         });
 
+        modelBuilder.Entity<IntakeLead>(entity =>
+        {
+            entity.ToTable("IntakeLeads");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FullName).HasMaxLength(120);
+            entity.Property(e => e.Email).HasMaxLength(256);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(32);
+            entity.Property(e => e.NationalId).HasMaxLength(32);
+            entity.Property(e => e.Subject).HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.DesiredCaseType).HasMaxLength(80);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.QualificationNotes).HasMaxLength(1024);
+            entity.Property(e => e.ConflictDetails).HasMaxLength(1024);
+            entity.Property(e => e.AssignedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.NextFollowUpAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
+        });
+
         modelBuilder.Entity<__EFMigrationsHistory_Legacy>(entity =>
         {
             entity.HasKey(e => e.MigrationId);
@@ -530,10 +575,12 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<Court>(modelBuilder);
         ConfigureTenantEntity<Custmors_Case>(modelBuilder);
         ConfigureTenantEntity<Customer>(modelBuilder);
+        ConfigureTenantEntity<ESignatureRequest>(modelBuilder);
         ConfigureTenantEntity<Employee>(modelBuilder);
         ConfigureTenantEntity<FileEntity>(modelBuilder);
         ConfigureTenantEntity<Governament>(modelBuilder);
         ConfigureTenantEntity<Judicial_Document>(modelBuilder);
+        ConfigureTenantEntity<IntakeLead>(modelBuilder);
         ConfigureTenantEntity<Siting>(modelBuilder);
         ConfigureTenantEntity<TrustLedgerEntry>(modelBuilder);
         ConfigureTenantEntity<TrustReconciliation>(modelBuilder);

@@ -61,6 +61,8 @@ import {
   NavigateBefore as NavigateBeforeIcon,
   Home as HomeIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
+  FactCheck as IntakeIcon,
+  BorderColor as ESignIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
@@ -97,6 +99,8 @@ const menuItems: MenuItem[] = [
   { key: 'auditlogs', icon: <AuditIcon />, path: '/auditlogs' },
   { key: 'legacyusers', icon: <PersonIcon />, path: '/legacyusers' },
   { key: 'caserelations', icon: <LinkIcon />, path: '/caserelations' },
+  { key: 'intake', icon: <IntakeIcon />, path: '/intake' },
+  { key: 'esign', icon: <ESignIcon />, path: '/esign' },
   { key: 'administration', icon: <AdminPanelSettingsIcon />, path: '/administration' },
 ];
 
@@ -108,7 +112,7 @@ export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   
   // For auth pages, don't show layout - check this BEFORE calling other hooks
-  if (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password') {
+  if (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password' || pathname === '/intake/public' || pathname.startsWith('/esign/sign/')) {
     return <>{children}</>;
   }
 
@@ -117,11 +121,18 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
-  const { user, logout, isAuthenticated, hasRole } = useAuth();
+  const { user, logout, isAuthenticated, hasRole, hasAnyRole } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
   const isAdmin = hasRole('Admin')
-  const visibleMenuItems = menuItems.filter((item) => item.key !== 'administration' || isAdmin)
+  const canUseIntake = hasAnyRole('Admin', 'Employee')
+  const canUseESign = hasAnyRole('Admin', 'Employee')
+  const visibleMenuItems = menuItems.filter((item) => {
+    if (item.key === 'administration') return isAdmin
+    if (item.key === 'intake') return canUseIntake
+    if (item.key === 'esign') return canUseESign
+    return true
+  })
   // Start from SSR default language to keep hydrated text identical.
   const [lng, setLng] = useState('ar')
 
@@ -137,6 +148,18 @@ export default function Layout({ children }: LayoutProps) {
       router.push('/dashboard');
     }
   }, [isAuthenticated, pathname, isAdmin, router]);
+
+  React.useEffect(() => {
+    if (isAuthenticated && pathname === '/intake' && !canUseIntake) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, pathname, canUseIntake, router]);
+
+  React.useEffect(() => {
+    if (isAuthenticated && pathname === '/esign' && !canUseESign) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, pathname, canUseESign, router]);
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL

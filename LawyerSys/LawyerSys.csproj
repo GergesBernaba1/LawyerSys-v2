@@ -8,15 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="LawyerSys.Domain">
-      <HintPath>..\LawyerSys.Domain\bin\$(Configuration)\net8.0\LawyerSys.Domain.dll</HintPath>
-    </Reference>
-    <Reference Include="LawyerSys.Service">
-      <HintPath>..\LawyerSys.Service\bin\$(Configuration)\net8.0\LawyerSys.Service.dll</HintPath>
-    </Reference>
-    <Reference Include="LawyerSys.Infrastructure">
-      <HintPath>..\LawyerSys.Infrastructure\bin\$(Configuration)\net8.0\LawyerSys.Infrastructure.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\LawyerSys.Domain\LawyerSys.Domain.csproj" />
+    <ProjectReference Include="..\LawyerSys.Service\LawyerSys.Service.csproj" />
+    <ProjectReference Include="..\LawyerSys.Infrastructure\LawyerSys.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
