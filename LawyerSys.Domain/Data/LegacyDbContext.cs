@@ -113,6 +113,10 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<TrustLedgerEntry> TrustLedgerEntries { get; set; }
+
+    public virtual DbSet<TrustReconciliation> TrustReconciliations { get; set; }
+
     public virtual DbSet<__EFMigrationsHistory_Legacy> __EFMigrationsHistory_Legacies { get; set; }
 
     public override int SaveChanges()
@@ -465,6 +469,36 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.User_Name).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<TrustLedgerEntry>(entity =>
+        {
+            entity.ToTable("TrustLedgerEntries");
+
+            entity.Property(e => e.EntryType).HasMaxLength(32);
+            entity.Property(e => e.Description).HasMaxLength(1024);
+            entity.Property(e => e.Reference).HasMaxLength(128);
+            entity.Property(e => e.CreatedBy).HasMaxLength(256);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+
+            entity.HasOne(d => d.Customer).WithMany()
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TrustLedgerEntries_Customers");
+
+            entity.HasOne(d => d.Case).WithMany()
+                .HasForeignKey(d => d.CaseCode)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_TrustLedgerEntries_Cases");
+        });
+
+        modelBuilder.Entity<TrustReconciliation>(entity =>
+        {
+            entity.ToTable("TrustReconciliations");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Notes).HasMaxLength(1024);
+            entity.Property(e => e.CreatedBy).HasMaxLength(256);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+        });
+
         modelBuilder.Entity<__EFMigrationsHistory_Legacy>(entity =>
         {
             entity.HasKey(e => e.MigrationId);
@@ -501,6 +535,8 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<Governament>(modelBuilder);
         ConfigureTenantEntity<Judicial_Document>(modelBuilder);
         ConfigureTenantEntity<Siting>(modelBuilder);
+        ConfigureTenantEntity<TrustLedgerEntry>(modelBuilder);
+        ConfigureTenantEntity<TrustReconciliation>(modelBuilder);
         ConfigureTenantEntity<User>(modelBuilder);
 
         OnModelCreatingPartial(modelBuilder);

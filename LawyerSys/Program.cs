@@ -3,6 +3,7 @@ using LawyerSys.Services.Auditing;
 using LawyerSys.Services.MultiTenancy;
 using LawyerSys.Services.Notifications;
 using LawyerSys.Services.Reminders;
+using LawyerSys.Services.TrustAccounting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -222,15 +223,39 @@ try
 {
     using var scope = app.Services.CreateScope();
     var scopedLegacy = scope.ServiceProvider.GetRequiredService<LegacyDbContext>();
-    var tenantInitializer = new MultiTenancySchemaInitializer(scopedLegacy);
-    await tenantInitializer.EnsureCreatedAsync();
+    try
+    {
+        var tenantInitializer = new MultiTenancySchemaInitializer(scopedLegacy);
+        await tenantInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during multi-tenancy schema initialization");
+    }
 
-    var initializer = new AuditLogSchemaInitializer(scopedLegacy);
-    await initializer.EnsureCreatedAsync();
+    try
+    {
+        var initializer = new AuditLogSchemaInitializer(scopedLegacy);
+        await initializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during audit schema initialization");
+    }
+
+    try
+    {
+        var trustInitializer = new TrustAccountingSchemaInitializer(scopedLegacy);
+        await trustInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during trust accounting schema initialization");
+    }
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "Error during startup schema initialization");
+    Log.Error(ex, "Error during startup scope initialization");
 }
 
 app.Run();

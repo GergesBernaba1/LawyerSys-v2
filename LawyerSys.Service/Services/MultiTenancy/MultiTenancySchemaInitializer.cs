@@ -36,6 +36,8 @@ public class MultiTenancySchemaInitializer
         "Governaments",
         "Judicial_Documents",
         "Sitings",
+        "TrustLedgerEntries",
+        "TrustReconciliations",
         "Users"
     };
 
