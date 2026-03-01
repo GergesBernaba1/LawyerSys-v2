@@ -133,7 +133,7 @@ export default function JudicialDocumentsPage() {
           <Table sx={{ minWidth: 750 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('judicial.docType')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('judicial.docNumber')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('judicial.customer')}</TableCell>
@@ -158,9 +158,9 @@ export default function JudicialDocumentsPage() {
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item) => (
+              ) : items.map((item, index) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={`#${item.id}`} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
+                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.docType || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.docNum}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.customerName || '-'}</TableCell>
@@ -227,7 +227,7 @@ export default function JudicialDocumentsPage() {
                 <InputLabel>{t('judicial.customer')}</InputLabel>
                 <Select value={form.customerId} onChange={(e) => setForm({ ...form, customerId: Number(e.target.value) })} label={t('judicial.customer')}>
                   <MenuItem value={0}>-</MenuItem>
-                  {customers.map((c) => <MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.identity?.email || `#${c.id}`}</MenuItem>)}
+                  {customers.map((c) => <MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.identity?.email || '-'}</MenuItem>)}
                 </Select>
               </FormControl>
             )}

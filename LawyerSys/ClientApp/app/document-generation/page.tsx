@@ -90,7 +90,7 @@ export default function DocumentGenerationPage() {
             </FormControl>
 
             <TextField size="small" label="Case Code" value={caseCode} onChange={(e) => setCaseCode(e.target.value)} />
-            <TextField size="small" label="Customer Id" value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
+            <TextField size="small" label="Customer" value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
 
             <FormControl size="small">
               <InputLabel>Format</InputLabel>

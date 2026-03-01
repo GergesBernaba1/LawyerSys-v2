@@ -126,7 +126,7 @@ export default function TimeTrackingPage() {
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>{t('timetracking.startTitle')}</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }, gap: 1.5 }}>
           <TextField size="small" label={t('timetracking.caseCode')} value={caseCode} onChange={(e) => setCaseCode(e.target.value)} />
-          <TextField size="small" label={t('timetracking.customerId')} value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
+          <TextField size="small" label={t('billing.customer')} value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
           <TextField size="small" label={t('timetracking.workType')} value={workType} onChange={(e) => setWorkType(e.target.value)} />
           <TextField size="small" label={t('timetracking.description')} value={description} onChange={(e) => setDescription(e.target.value)} sx={{ gridColumn: { xs: 'span 1', md: 'span 2' } }} />
           <TextField size="small" label={t('timetracking.hourlyRate')} value={hourlyRate} onChange={(e) => setHourlyRate(e.target.value)} />
@@ -152,7 +152,7 @@ export default function TimeTrackingPage() {
             {entries.map((entry) => (
               <TableRow key={entry.id} hover>
                 <TableCell>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>#{entry.id} - {entry.workType}</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>{entry.workType}</Typography>
                   <Typography variant="caption" color="text.secondary">{entry.description || '-'} | {new Date(entry.startedAt).toLocaleString()}</Typography>
                 </TableCell>
                 <TableCell>
@@ -192,7 +192,7 @@ export default function TimeTrackingPage() {
             {suggestions.map((item, idx) => (
               <TableRow key={`${item.caseCode ?? 'x'}-${item.customerId ?? 'y'}-${idx}`}>
                 <TableCell>{item.caseCode ?? '-'}</TableCell>
-                <TableCell>{item.customerId ?? '-'}</TableCell>
+                <TableCell>{item.customerId ? 'Assigned' : '-'}</TableCell>
                 <TableCell>{item.totalMinutes}</TableCell>
                 <TableCell>{item.suggestedAmount}</TableCell>
               </TableRow>

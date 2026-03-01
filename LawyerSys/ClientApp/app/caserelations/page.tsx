@@ -152,12 +152,12 @@ export default function CaseRelationsPage() {
       : linkType === 'sitings' ? sitings.map(s => s.id)
       : files.map(f => f.id);
 
-    if (linkType === 'customers') return allCustomers.filter(c => !linked.includes(c.id)).map(c => ({ id: c.id, label: c.fullName || c.full_Name || `#${c.id}` }));
-    if (linkType === 'contenders') return allContenders.filter(c => !linked.includes(c.id)).map(c => ({ id: c.id, label: c.fullName || c.full_Name || `#${c.id}` }));
-    if (linkType === 'courts') return allCourts.filter(c => !linked.includes(c.id)).map(c => ({ id: c.id, label: c.name || `#${c.id}` }));
-    if (linkType === 'employees') return allEmployees.filter(e => !linked.includes(e.id)).map(e => ({ id: e.id, label: e.fullName || e.full_Name || `#${e.id}` }));
-    if (linkType === 'sitings') return allSitings.filter(s => !linked.includes(s.id)).map(s => ({ id: s.id, label: `${s.sitingDate || s.siting_Date || ''} - ${s.judgeName || s.judge_Name || ''}`.trim() || `#${s.id}` }));
-    if (linkType === 'files') return allFiles.filter(f => !linked.includes(f.id)).map(f => ({ id: f.id, label: f.path || f.code || `#${f.id}` }));
+    if (linkType === 'customers') return allCustomers.filter(c => !linked.includes(c.id)).map(c => ({ id: c.id, label: c.fullName || c.full_Name || '-' }));
+    if (linkType === 'contenders') return allContenders.filter(c => !linked.includes(c.id)).map(c => ({ id: c.id, label: c.fullName || c.full_Name || '-' }));
+    if (linkType === 'courts') return allCourts.filter(c => !linked.includes(c.id)).map(c => ({ id: c.id, label: c.name || '-' }));
+    if (linkType === 'employees') return allEmployees.filter(e => !linked.includes(e.id)).map(e => ({ id: e.id, label: e.fullName || e.full_Name || '-' }));
+    if (linkType === 'sitings') return allSitings.filter(s => !linked.includes(s.id)).map(s => ({ id: s.id, label: `${s.sitingDate || s.siting_Date || ''} - ${s.judgeName || s.judge_Name || ''}`.trim() || '-' }));
+    if (linkType === 'files') return allFiles.filter(f => !linked.includes(f.id)).map(f => ({ id: f.id, label: f.path || f.code || '-' }));
     return [];
   }
 
@@ -174,7 +174,7 @@ export default function CaseRelationsPage() {
     // Try common naming patterns from the API
     return item.customerName || item.contenderName || item.courtName || item.employeeName
       || item.judgeName || item.filePath || item.fileCode
-      || item[nameField] || item.name || item.full_Name || `#${item.id || item[Object.keys(item).find(k => k.toLowerCase().includes('id')) || 'id']}`;
+      || item[nameField] || item.name || item.full_Name || '-';
   }
 
   function getItemId(item: RelationItem, key: string): number {
@@ -213,7 +213,7 @@ export default function CaseRelationsPage() {
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>{t('caseRelations.selectCase')}</Typography>
         <Autocomplete
           options={cases}
-          getOptionLabel={(opt) => `#${opt.code} - ${opt.invitionsStatment || ''}`}
+          getOptionLabel={(opt) => `${opt.code} - ${opt.invitionsStatment || ''}`}
           value={selectedCase}
           onChange={(_, val) => setSelectedCase(val)}
           loading={loading}

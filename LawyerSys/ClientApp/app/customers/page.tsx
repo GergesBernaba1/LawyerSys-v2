@@ -181,9 +181,9 @@ export default function CustomersPageClient() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('customers.customer')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('customers.userId')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('users.userName') || 'User'}</TableCell>
                 <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('cases.actions')}</TableCell>
               </TableRow>
             </TableHead>
@@ -213,7 +213,7 @@ export default function CustomersPageClient() {
                   </TableCell>
                 </TableRow>
               ) : (
-                items.map((item) => (
+                items.map((item, index) => (
                   <TableRow 
                     key={item.id}
                     sx={{ 
@@ -223,7 +223,7 @@ export default function CustomersPageClient() {
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       <Chip 
-                        label={`#${item.id}`} 
+                        label={String(index + 1)} 
                         size="small" 
                         variant="outlined" 
                         sx={{ borderRadius: 1.5, fontWeight: 600 }}
@@ -252,7 +252,7 @@ export default function CustomersPageClient() {
                         </Button>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.usersId}</TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.identity?.userName || item.identity?.email || '-'}</TableCell>
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
                         {hasRole('Admin') && (
@@ -463,7 +463,7 @@ export default function CustomersPageClient() {
                           <Box sx={{ textAlign: isRTL ? 'right' : 'left' }}>
                             <Typography sx={{ fontWeight: 700 }}>{c.caseName}</Typography>
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                              #{c.code}
+                              {c.code}
                             </Typography>
                             <Typography variant="body2" sx={{ mt: 0.5 }}>
                               <Box component="span" sx={{ color: 'text.secondary' }}>{t('customers.assignedEmployee')}: </Box>

@@ -160,7 +160,7 @@ export default function TrustAccountingPage() {
   });
 
   const accountOptions = useMemo(
-    () => accounts.map((a) => ({ value: a.customerId, label: `${a.customerName} (#${a.customerId})` })),
+    () => accounts.map((a) => ({ value: a.customerId, label: a.customerName || "-" })),
     [accounts]
   );
 
@@ -388,7 +388,7 @@ export default function TrustAccountingPage() {
   }
 
   function accountNameById(customerId: number) {
-    return accounts.find((a) => a.customerId === customerId)?.customerName || `#${customerId}`;
+    return accounts.find((a) => a.customerId === customerId)?.customerName || "-";
   }
 
   return (
@@ -452,7 +452,7 @@ export default function TrustAccountingPage() {
             <TableBody>
               {accounts.map((a) => (
                 <TableRow key={a.customerId}>
-                  <TableCell>{a.customerName} (#{a.customerId})</TableCell>
+                  <TableCell>{a.customerName || "-"}</TableCell>
                   <TableCell>{toMoney(a.currentBalance)}</TableCell>
                   <TableCell>{a.lastMovementDate || "-"}</TableCell>
                   <TableCell>
@@ -521,7 +521,7 @@ export default function TrustAccountingPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
+                <TableCell>No.</TableCell>
                 <TableCell>{t("billing.date")}</TableCell>
                 <TableCell>{t("cases.type")}</TableCell>
                 <TableCell>{t("billing.amount")}</TableCell>
@@ -531,9 +531,9 @@ export default function TrustAccountingPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {ledgerRows.map((row) => (
+              {ledgerRows.map((row, index) => (
                 <TableRow key={row.id}>
-                  <TableCell>#{row.id}</TableCell>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{row.operationDate}</TableCell>
                   <TableCell>{row.entryType}</TableCell>
                   <TableCell>{toMoney(row.amount)}</TableCell>
@@ -570,7 +570,7 @@ export default function TrustAccountingPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
+                <TableCell>No.</TableCell>
                 <TableCell>{t("billing.date")}</TableCell>
                 <TableCell>{t("trust.bankStatementBalance")}</TableCell>
                 <TableCell>{t("trust.bookBalance")}</TableCell>
@@ -580,9 +580,9 @@ export default function TrustAccountingPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(reconciliations?.items || []).map((r) => (
+              {(reconciliations?.items || []).map((r, index) => (
                 <TableRow key={r.id}>
-                  <TableCell>#{r.id}</TableCell>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{r.reconciliationDate}</TableCell>
                   <TableCell>{toMoney(r.bankStatementBalance)}</TableCell>
                   <TableCell>{toMoney(r.bookBalance)}</TableCell>

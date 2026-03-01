@@ -134,7 +134,7 @@ export default function CalendarPage() {
                       <Chip size="small" label={event.type} color={event.isReminderEvent ? 'warning' : 'primary'} variant={event.isReminderEvent ? 'filled' : 'outlined'} />
                       <Typography variant="subtitle2">{event.title}</Typography>
                       <Typography variant="body2" color="text.secondary">{new Date(event.start).toLocaleTimeString()}</Typography>
-                      {event.caseCode && <Chip size="small" variant="outlined" label={`Case #${event.caseCode}`} />}
+                      {event.caseCode && <Chip size="small" variant="outlined" label={`Case ${event.caseCode}`} />}
                     </Stack>
                     {event.notes && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{event.notes}</Typography>}
                   </Box>

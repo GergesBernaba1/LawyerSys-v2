@@ -120,6 +120,11 @@ export default function BillingPage() {
     return `${a.toLocaleString()} ${t('app.currency')}`;
   }
 
+  function employeeNameById(employeeId: number) {
+    const employee = employees.find((emp) => emp.id === employeeId);
+    return employee?.identity?.fullName || employee?.identity?.email || '-';
+  }
+
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
       {/* Header */}
@@ -190,7 +195,7 @@ export default function BillingPage() {
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                    <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.amount')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.date')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.customer')}</TableCell>
@@ -209,9 +214,9 @@ export default function BillingPage() {
                         <Typography color="text.secondary">{t('billing.noPayments')}</Typography>
                       </TableCell>
                     </TableRow>
-                  ) : payments.map((item) => (
+                  ) : payments.map((item, index) => (
                     <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
-                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={`#${item.id}`} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
+                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, color: 'error.main' }}>{formatAmount(item.amount)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.dateOfOperation)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.customerName || '-'}</TableCell>
@@ -246,7 +251,7 @@ export default function BillingPage() {
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                    <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.amount')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.date')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.employee')}</TableCell>
@@ -265,12 +270,12 @@ export default function BillingPage() {
                         <Typography color="text.secondary">{t('billing.noReceipts')}</Typography>
                       </TableCell>
                     </TableRow>
-                  ) : receipts.map((item) => (
+                  ) : receipts.map((item, index) => (
                     <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
-                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={`#${item.id}`} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
+                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, color: 'success.main' }}>{formatAmount(item.amount)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.dateOfOperation)}</TableCell>
-                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.employeeId}</TableCell>
+                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{employeeNameById(item.employeeId)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.notes || '-'}</TableCell>
                       <TableCell align={isRTL ? 'left' : 'right'}>
                         <Tooltip title={t('common.delete')}>
@@ -299,7 +304,7 @@ export default function BillingPage() {
               <InputLabel>{t('billing.customer')}</InputLabel>
               <Select value={payForm.customerId} onChange={(e) => setPayForm({ ...payForm, customerId: Number(e.target.value) })} label={t('billing.customer')}>
                 <MenuItem value={0}>-</MenuItem>
-                {customers.map((c) => <MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.identity?.email || `#${c.id}`}</MenuItem>)}
+                {customers.map((c) => <MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.identity?.email || '-'}</MenuItem>)}
               </Select>
             </FormControl>
             <TextField fullWidth label={t('billing.notes')} value={payForm.notes} onChange={(e) => setPayForm({ ...payForm, notes: e.target.value })} variant="outlined" multiline rows={2} />
@@ -322,7 +327,7 @@ export default function BillingPage() {
               <InputLabel>{t('billing.employee')}</InputLabel>
               <Select value={recForm.employeeId} onChange={(e) => setRecForm({ ...recForm, employeeId: Number(e.target.value) })} label={t('billing.employee')}>
                 <MenuItem value={0}>-</MenuItem>
-                {employees.map((emp) => <MenuItem key={emp.id} value={emp.id}>{emp.identity?.fullName || emp.identity?.email || `#${emp.id}`}</MenuItem>)}
+                {employees.map((emp) => <MenuItem key={emp.id} value={emp.id}>{emp.identity?.fullName || emp.identity?.email || '-'}</MenuItem>)}
               </Select>
             </FormControl>
             <TextField fullWidth label={t('billing.notes')} value={recForm.notes} onChange={(e) => setRecForm({ ...recForm, notes: e.target.value })} variant="outlined" multiline rows={2} />

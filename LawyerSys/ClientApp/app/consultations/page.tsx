@@ -60,8 +60,8 @@ export default function ConsultationsPage() {
         const customers = Array.isArray(custRes.data) ? custRes.data : custRes.data?.items || [];
         const employees = Array.isArray(empRes.data) ? empRes.data : empRes.data?.items || [];
 
-        setAllCustomers(customers.map((c: any) => ({ id: Number(c.id), name: c.user?.fullName || `#${c.id}` })));
-        setAllEmployees(employees.map((e: any) => ({ id: Number(e.id), name: e.user?.fullName || `#${e.id}` })));
+        setAllCustomers(customers.map((c: any) => ({ id: Number(c.id), name: c.user?.fullName || c.user?.email || "-" })));
+        setAllEmployees(employees.map((e: any) => ({ id: Number(e.id), name: e.user?.fullName || e.user?.email || "-" })));
       } catch {
         // keep page usable even if reference lookups fail
       }
@@ -208,7 +208,7 @@ export default function ConsultationsPage() {
           <Table sx={{ minWidth: 750 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('consultations.subject')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('consultations.type')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('consultations.state')}</TableCell>
@@ -233,9 +233,9 @@ export default function ConsultationsPage() {
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item) => (
+              ) : items.map((item, index) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={`#${item.id}`} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
+                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.subject || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.type || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>

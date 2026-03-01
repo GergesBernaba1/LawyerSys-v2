@@ -59,7 +59,7 @@ export default function CaseTimelinePage() {
 
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Typography variant="h5">Case #{timeline?.caseCode || code} Timeline</Typography>
+          <Typography variant="h5">Case {timeline?.caseCode || code} Timeline</Typography>
           {timeline?.caseType && <Typography color="text.secondary">Type: {timeline.caseType}</Typography>}
         </CardContent>
       </Card>

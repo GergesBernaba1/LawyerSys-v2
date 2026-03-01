@@ -152,7 +152,7 @@ export default function AdminTasksPage() {
           <Table sx={{ minWidth: 750 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('tasks.taskName')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('tasks.taskType')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('tasks.startDate')}</TableCell>
@@ -178,9 +178,9 @@ export default function AdminTasksPage() {
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item) => (
+              ) : items.map((item, index) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={`#${item.id}`} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
+                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.taskName || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.type || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.taskDate)}</TableCell>
@@ -248,7 +248,7 @@ export default function AdminTasksPage() {
               <InputLabel>{t('tasks.employee')}</InputLabel>
               <Select value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: Number(e.target.value) })} label={t('tasks.employee')}>
                 <MenuItem value={0}>-</MenuItem>
-                {employees.map((emp) => <MenuItem key={emp.id} value={emp.id}>{emp.identity?.fullName || emp.identity?.email || `#${emp.id}`}</MenuItem>)}
+                {employees.map((emp) => <MenuItem key={emp.id} value={emp.id}>{emp.identity?.fullName || emp.identity?.email || '-'}</MenuItem>)}
               </Select>
             </FormControl>
             <Box sx={{ gridColumn: '1 / -1' }}>

@@ -201,7 +201,7 @@ export default function EmployeesPageClient() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('employees.title')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('employees.salary')}</TableCell>
                 <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('cases.actions')}</TableCell>
@@ -233,7 +233,7 @@ export default function EmployeesPageClient() {
                   </TableCell>
                 </TableRow>
               ) : (
-                items.map((item) => (
+                items.map((item, index) => (
                   <TableRow 
                     key={item.id}
                     sx={{ 
@@ -243,7 +243,7 @@ export default function EmployeesPageClient() {
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       <Chip 
-                        label={`#${item.id}`} 
+                        label={String(index + 1)} 
                         size="small" 
                         variant="outlined" 
                         sx={{ borderRadius: 1.5, fontWeight: 600 }}
@@ -320,7 +320,7 @@ export default function EmployeesPageClient() {
                 <MenuItem value=""><em>-- {t('employees.selectUser')} --</em></MenuItem>
                 {users.map((u) => (
                   <MenuItem key={u.id} value={u.id}>
-                    {u.fullName || u.userName} (#{u.id})
+                    {u.fullName || u.userName}
                   </MenuItem>
                 ))}
               </Select>

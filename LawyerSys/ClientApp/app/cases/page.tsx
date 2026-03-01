@@ -459,7 +459,7 @@ export default function CasesPageClient() {
                 <InputLabel>{t('customers.customer')}</InputLabel>
                 <Select value={primaryCustomer} label={t('customers.customer')} onChange={(e)=>setPrimaryCustomer(Number(e.target.value) || '')}>
                   <MenuItem value=""><em>--</em></MenuItem>
-                  {customers.map(c=> (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || c.identity?.email || ('#'+c.usersId)}</MenuItem>))}
+                  {customers.map(c=> (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || c.identity?.email || '-'}</MenuItem>))}
                 </Select>
               </FormControl>
             </Grid>
@@ -470,8 +470,8 @@ export default function CasesPageClient() {
                 <Select multiple value={selectedCustomers} onChange={(e)=>{
                   const value = e.target.value as unknown as number[];
                   setSelectedCustomers(value);
-                }} inputProps={{ 'aria-label': 'select multiple customers' }} renderValue={(selected)=> (selected as number[]).map(id => (customers.find(c=>c.id===id)?.identity?.fullName || customers.find(c=>c.id===id)?.user?.fullName || ('#'+id))).join(', ')}>
-                  {customers.map(c => (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedCustomers.indexOf(c.id) > -1} /><ListItemText primary={c.identity?.fullName || c.user?.fullName || ('#'+c.usersId)} /></MenuItem>))}
+                }} inputProps={{ 'aria-label': 'select multiple customers' }} renderValue={(selected)=> (selected as number[]).map(id => (customers.find(c=>c.id===id)?.identity?.fullName || customers.find(c=>c.id===id)?.user?.fullName || '-')).join(', ')}>
+                  {customers.map(c => (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedCustomers.indexOf(c.id) > -1} /><ListItemText primary={c.identity?.fullName || c.user?.fullName || '-'} /></MenuItem>))}
                 </Select>
               </FormControl>
             </Grid>
@@ -479,7 +479,7 @@ export default function CasesPageClient() {
             <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>{t('contenders.title') || 'Contenders'}</InputLabel>
-                <Select multiple value={selectedContenders} onChange={(e)=>{ const value = e.target.value as unknown as number[]; setSelectedContenders(value); }} renderValue={(sel)=> (sel as number[]).map(id => contenders.find(c=>c.id===id)?.fullName || ('#'+id)).join(', ')}>
+                <Select multiple value={selectedContenders} onChange={(e)=>{ const value = e.target.value as unknown as number[]; setSelectedContenders(value); }} renderValue={(sel)=> (sel as number[]).map(id => contenders.find(c=>c.id===id)?.fullName || '-').join(', ')}>
                   {contenders.map(c=> (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedContenders.indexOf(c.id) > -1} /><ListItemText primary={c.fullName} /></MenuItem>))}
                 </Select>
                 <Box sx={{ mt:1 }}>

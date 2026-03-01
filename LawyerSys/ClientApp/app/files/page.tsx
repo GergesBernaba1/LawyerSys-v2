@@ -186,7 +186,7 @@ export default function FilesPageClient() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>ID</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.path') || 'Path'}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.code') || 'Code'}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.type') || 'Type'}</TableCell>
@@ -219,7 +219,7 @@ export default function FilesPageClient() {
                   </TableCell>
                 </TableRow>
               ) : (
-                items.map((it) => (
+                items.map((it, index) => (
                   <TableRow 
                     key={it.id}
                     sx={{ 
@@ -229,7 +229,7 @@ export default function FilesPageClient() {
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       <Chip 
-                        label={`#${it.id}`} 
+                        label={String(index + 1)} 
                         size="small" 
                         variant="outlined" 
                         sx={{ borderRadius: 1.5, fontWeight: 600 }}

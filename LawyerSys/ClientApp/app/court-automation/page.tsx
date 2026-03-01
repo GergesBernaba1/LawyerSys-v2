@@ -324,7 +324,7 @@ export default function CourtAutomationPage() {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" label={t("courtAutomation.customerId")} value={customerId} onChange={(e) => setCustomerId(e.target.value)} /></Grid>
+                <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" label={t("billing.customer")} value={customerId} onChange={(e) => setCustomerId(e.target.value)} /></Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>{t("courtAutomation.format")}</InputLabel>
@@ -359,7 +359,7 @@ export default function CourtAutomationPage() {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" label={t("courtAutomation.courtId")} value={courtId} onChange={(e) => setCourtId(e.target.value)} /></Grid>
+                <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" label={t("courts.name")} value={courtId} onChange={(e) => setCourtId(e.target.value)} /></Grid>
                 <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" type="date" label={t("courtAutomation.dueDate")} value={dueDate} onChange={(e) => setDueDate(e.target.value)} InputLabelProps={{ shrink: true }} /></Grid>
                 <Grid size={{ xs: 12, md: 3 }}><TextField fullWidth size="small" label={t("app.notes")} value={filingNotes} onChange={(e) => setFilingNotes(e.target.value)} /></Grid>
                 <Grid size={{ xs: 12, md: 2 }}><Button fullWidth variant="contained" onClick={() => void submitFiling()}>{t("courtAutomation.submitFiling")}</Button></Grid>
@@ -369,7 +369,7 @@ export default function CourtAutomationPage() {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>{t("courtAutomation.submissionId")}</TableCell>
+                      <TableCell>No.</TableCell>
                       <TableCell>{t("courtAutomation.form")}</TableCell>
                       <TableCell>{t("courtAutomation.channel")}</TableCell>
                       <TableCell>{t("app.status")}</TableCell>
@@ -379,9 +379,9 @@ export default function CourtAutomationPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filings.map((f) => (
+                    {filings.map((f, index) => (
                       <TableRow key={f.submissionId}>
-                        <TableCell>{f.submissionId.slice(0, 10)}...</TableCell>
+                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{f.formKey}</TableCell>
                         <TableCell>{f.filingChannel}</TableCell>
                         <TableCell><Chip size="small" label={f.status} color={statusColor(f.status)} /></TableCell>

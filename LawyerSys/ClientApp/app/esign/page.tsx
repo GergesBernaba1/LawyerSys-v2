@@ -222,7 +222,7 @@ export default function ESignPage() {
           <TextField select size="small" label={t('esign.file')} value={fileId} onChange={(e) => setFileId(e.target.value)}>
             <MenuItem value="">{t('esign.none')}</MenuItem>
             {files.map((file) => (
-              <MenuItem key={file.id} value={String(file.id)}>{file.code || `#${file.id}`}</MenuItem>
+              <MenuItem key={file.id} value={String(file.id)}>{file.code || '-'}</MenuItem>
             ))}
           </TextField>
           <TextField select size="small" label={t('esign.template')} value={templateType} onChange={(e) => setTemplateType(e.target.value)}>
@@ -265,7 +265,7 @@ export default function ESignPage() {
                 <TableRow key={item.id} hover>
                   <TableCell>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>{item.requestTitle}</Typography>
-                    <Typography variant="caption" color="text.secondary">#{item.id}</Typography>
+                    <Typography variant="caption" color="text.secondary">{item.requestedAt ? new Date(item.requestedAt).toLocaleDateString() : '-'}</Typography>
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2">{item.signerName}</Typography>

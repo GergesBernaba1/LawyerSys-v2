@@ -213,7 +213,7 @@ export default function TrustReportsPage() {
             <InputLabel>{t("billing.customer")}</InputLabel>
             <Select value={customerId} label={t("billing.customer")} onChange={(e) => setCustomerId(String(e.target.value))}>
               <MenuItem value="">{t("trustReports.allCustomers")}</MenuItem>
-              {accounts.map((a) => <MenuItem key={a.customerId} value={String(a.customerId)}>{a.customerName} (#{a.customerId})</MenuItem>)}
+              {accounts.map((a) => <MenuItem key={a.customerId} value={String(a.customerId)}>{a.customerName || "-"}</MenuItem>)}
             </Select>
           </FormControl>
           <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => void load()} disabled={loading}>{t("trustReports.refresh")}</Button>

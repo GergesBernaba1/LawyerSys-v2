@@ -242,7 +242,7 @@ export default function CaseDetailsPage() {
         <Tooltip title={t('app.back') || 'Back'}>
           <IconButton onClick={()=>router.push('/cases')}><ArrowBack/></IconButton>
         </Tooltip>
-        <Typography variant="h5">{t('cases.details') || 'Case Details'} - #{data?.Case?.Code ?? code}</Typography>
+        <Typography variant="h5">{t('cases.details') || 'Case Details'} - {data?.Case?.Code ?? code}</Typography>
         <Button size="small" variant="outlined" onClick={() => router.push(`/cases/${code}/timeline`)}>Timeline</Button>
       </Box>
 
@@ -319,7 +319,7 @@ export default function CaseDetailsPage() {
               <List>
                 {data.Customers.map((c:any)=> (
                   <ListItem key={c.Id} secondaryAction={<Button color="error" size="small" onClick={()=>removeCustomer(c.CustomerId)}>{t('app.delete')}</Button>}>
-                    <ListItemText primary={c.CustomerName} secondary={`#${c.CustomerId}`} />
+                    <ListItemText primary={c.CustomerName} />
                   </ListItem>
                 ))}
               </List>
@@ -454,7 +454,7 @@ export default function CaseDetailsPage() {
             <InputLabel>{t('customers.customer')}</InputLabel>
             <Select value={selectedCustomerToAdd} onChange={(e)=>setSelectedCustomerToAdd(Number(e.target.value) || '')}>
               <MenuItem value=""><em>--</em></MenuItem>
-              {customersList.map(c => (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || ('#'+c.usersId)}</MenuItem>))}
+              {customersList.map(c => (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || '-'}</MenuItem>))}
             </Select>
           </FormControl>
         </DialogContent>

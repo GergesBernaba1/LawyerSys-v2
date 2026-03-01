@@ -128,7 +128,7 @@ export default function ReportsPage() {
               <Select value={customerId} label={t('billing.customer')} onChange={(e) => setCustomerId(String(e.target.value))}>
                 <MenuItem value="">{t('common.all') || 'All'}</MenuItem>
                 {customers.map((c) => (
-                  <MenuItem key={c.id} value={String(c.id)}>{c.user?.fullName || `#${c.id}`}</MenuItem>
+                  <MenuItem key={c.id} value={String(c.id)}>{c.user?.fullName || '-'}</MenuItem>
                 ))}
               </Select>
             </FormControl>

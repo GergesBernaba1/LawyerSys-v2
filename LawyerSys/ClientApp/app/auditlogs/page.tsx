@@ -123,7 +123,6 @@ export default function AuditLogsPage() {
                 <TableCell>Time</TableCell>
                 <TableCell>Entity</TableCell>
                 <TableCell>Action</TableCell>
-                <TableCell>Entity Id</TableCell>
                 <TableCell>User</TableCell>
                 <TableCell>Path</TableCell>
               </TableRow>
@@ -141,7 +140,6 @@ export default function AuditLogsPage() {
                       variant="outlined"
                     />
                   </TableCell>
-                  <TableCell>{item.entityId || '-'}</TableCell>
                   <TableCell>{item.userName || '-'}</TableCell>
                   <TableCell>{item.requestPath || '-'}</TableCell>
                 </TableRow>
