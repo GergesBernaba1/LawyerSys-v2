@@ -455,7 +455,7 @@ export default function Layout({ children }: LayoutProps) {
             <IconButton
               aria-label="toggle sidebar"
               onClick={() => setCollapsed(!collapsed)}
-              sx={{ display: { xs: 'none', md: 'inline-flex' }, bgcolor: 'transparent', color: 'text.primary', mr: 1 }}
+              sx={{ display: { xs: 'none', md: 'inline-flex' }, bgcolor: 'transparent', color: 'text.primary', [isRTL ? 'ml' : 'mr']: 1 }}
             >
               {isRTL ? (collapsed ? <ChevronLeftIcon /> : <ChevronRightIcon />) : (collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)}
             </IconButton>
@@ -481,7 +481,7 @@ export default function Layout({ children }: LayoutProps) {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
-              <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22, mr: 1.5 }} />
+              <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22, marginInlineEnd: 1.5 }} />
               <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, opacity: 0.8 }}>
                 {t('app.search')}...
               </Typography>

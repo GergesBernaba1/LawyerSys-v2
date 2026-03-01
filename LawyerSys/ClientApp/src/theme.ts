@@ -259,7 +259,7 @@ const getTheme = (direction: 'ltr' | 'rtl' = 'ltr') => {
       MuiTableCell: {
         styleOverrides: {
           root: {
-            textAlign: isRTL ? 'right' : 'left',
+            textAlign: 'start',
             padding: '16px',
             borderColor: '#f1f5f9',
           },
@@ -268,57 +268,14 @@ const getTheme = (direction: 'ltr' | 'rtl' = 'ltr') => {
             backgroundColor: '#f8fafc',
             color: '#475569',
             borderBottom: '2px solid #e2e8f0',
-            textAlign: isRTL ? 'right' : 'left',
-          },
-        },
-      },
-      MuiTextField: {
-        styleOverrides: {
-          root: {
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 10,
-              backgroundColor: '#ffffff',
-              '& fieldset': {
-                borderColor: '#e2e8f0',
-              },
-              '&:hover fieldset': {
-                borderColor: '#cbd5e1',
-              },
-              '&.Mui-focused fieldset': {
-                borderWidth: '2px',
-              },
-            },
-            '& .MuiInputBase-input': {
-              textAlign: isRTL ? 'right' : 'left',
-            },
-            '& .MuiInputLabel-root': {
-              left: isRTL ? 'auto' : 0,
-              right: isRTL ? 0 : 'auto',
-              transformOrigin: isRTL ? 'right' : 'left',
-            },
-          },
-        },
-      },
-      MuiInputLabel: {
-        styleOverrides: {
-          root: {
-            left: isRTL ? 'auto' : 0,
-            right: isRTL ? 28 : 'auto',
-            transformOrigin: isRTL ? 'top right' : 'top left',
-          },
-        },
-      },
-      MuiOutlinedInput: {
-        styleOverrides: {
-          notchedOutline: {
-            textAlign: isRTL ? 'right' : 'left',
+            textAlign: 'start',
           },
         },
       },
       MuiDialogTitle: {
         styleOverrides: {
           root: {
-            textAlign: isRTL ? 'right' : 'left',
+            textAlign: 'start',
             fontWeight: 700,
           },
         },
@@ -343,8 +300,7 @@ const getTheme = (direction: 'ltr' | 'rtl' = 'ltr') => {
         styleOverrides: {
           root: {
             minWidth: 36,
-            marginRight: isRTL ? 0 : 12,
-            marginLeft: isRTL ? 12 : 0,
+            marginInlineEnd: 12,
             color: 'inherit',
           },
         },

@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { CacheProvider } from '@emotion/react'
 import createCache from '@emotion/cache'
 import rtlPlugin from 'stylis-plugin-rtl'
+import { prefixer } from 'stylis'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import getTheme from '../theme'
 import Layout from '../components/Layout'
@@ -41,8 +42,11 @@ export default function Providers({ locale: initialLocale = 'ar', children }: Pr
     } catch {}
   }, [isRTL, locale])
 
-  // Use a stable cache key so SSR and client render match className prefixes
-  const cache = useMemo(() => createCache({ key: 'css', stylisPlugins: isRTL ? [rtlPlugin] : [], prepend: true }), [isRTL])
+  const cache = useMemo(() => createCache({
+    key: isRTL ? 'muirtl' : 'mui',
+    stylisPlugins: isRTL ? [prefixer, rtlPlugin] : [prefixer],
+    prepend: true,
+  }), [isRTL])
   const theme = useMemo(() => getTheme(isRTL ? 'rtl' : 'ltr'), [isRTL])
 
   return (
