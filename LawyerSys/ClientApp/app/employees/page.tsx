@@ -68,7 +68,7 @@ export default function EmployeesPageClient() {
   async function load() {
     setLoading(true);
     try {
-      const [employeesRes, usersRes] = await Promise.all([api.get('/Employees'), api.get('/LegacyUsers')]);
+      const [employeesRes, usersRes] = await Promise.all([api.get('/Employees'), api.get('/Users')]);
       setItems(employeesRes.data || []);
       setUsers(usersRes.data || []);
     } catch (err) {

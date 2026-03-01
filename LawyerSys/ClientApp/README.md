@@ -73,7 +73,7 @@ Pages implemented so far:
  - Judicial Documents (list, create, delete)
  - Admin Tasks (list, create, delete)
  - Billing (payments / receipts: list, create, delete)
- - Legacy Users (list, create, delete)
+ - Users (list, create, delete)
  - Case Relations (view/add/remove relationships between case and customers/contenders/courts/employees/sitings/files)
 # ClientApp (React)
 

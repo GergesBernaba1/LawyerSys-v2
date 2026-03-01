@@ -10,18 +10,18 @@ namespace LawyerSys.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class LegacyUsersController : ControllerBase
+public class UsersController : ControllerBase
 {
     private readonly LegacyDbContext _context;
 
-    public LegacyUsersController(LegacyDbContext context)
+    public UsersController(LegacyDbContext context)
     {
         _context = context;
     }
 
-    // GET: api/legacyusers
+    // GET: api/users
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<LegacyUserDto>>> GetUsers([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
         IQueryable<User> query = _context.Users;
 
@@ -42,7 +42,7 @@ public class LegacyUsersController : ControllerBase
             var ps = Math.Clamp(pageSize.Value, 1, 200);
             var total = await query.CountAsync();
             var items = await query.OrderBy(u => u.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<LegacyUserDto>
+            return Ok(new PagedResult<UserDto>
             {
                 Items = items.Select(MapToDto),
                 TotalCount = total,
@@ -55,9 +55,9 @@ public class LegacyUsersController : ControllerBase
         return Ok(users.Select(MapToDto));
     }
 
-    // GET: api/legacyusers/{id}
+    // GET: api/users/{id}
     [HttpGet("{id}")]
-    public async Task<ActionResult<LegacyUserDto>> GetUser(int id)
+    public async Task<ActionResult<UserDto>> GetUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)
@@ -66,9 +66,9 @@ public class LegacyUsersController : ControllerBase
         return Ok(MapToDto(user));
     }
 
-    // GET: api/legacyusers/byusername/{username}
+    // GET: api/users/byusername/{username}
     [HttpGet("byusername/{username}")]
-    public async Task<ActionResult<LegacyUserDto>> GetUserByUsername(string username)
+    public async Task<ActionResult<UserDto>> GetUserByUsername(string username)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.User_Name == username);
         if (user == null)
@@ -77,10 +77,10 @@ public class LegacyUsersController : ControllerBase
         return Ok(MapToDto(user));
     }
 
-    // POST: api/legacyusers
+    // POST: api/users
     [Authorize(Policy = "AdminOnly")]
     [HttpPost]
-    public async Task<ActionResult<LegacyUserDto>> CreateUser([FromBody] CreateLegacyUserDto dto)
+    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -111,10 +111,10 @@ public class LegacyUsersController : ControllerBase
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, MapToDto(user));
     }
 
-    // PUT: api/legacyusers/{id}
+    // PUT: api/users/{id}
     [Authorize(Policy = "AdminOnly")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateLegacyUserDto dto)
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)
@@ -132,7 +132,7 @@ public class LegacyUsersController : ControllerBase
         return Ok(MapToDto(user));
     }
 
-    // DELETE: api/legacyusers/{id}
+    // DELETE: api/users/{id}
     [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
@@ -158,7 +158,7 @@ public class LegacyUsersController : ControllerBase
         return Ok(new { message = "User deleted" });
     }
 
-    private static LegacyUserDto MapToDto(User u) => new()
+    private static UserDto MapToDto(User u) => new()
     {
         Id = u.Id,
         FullName = u.Full_Name,

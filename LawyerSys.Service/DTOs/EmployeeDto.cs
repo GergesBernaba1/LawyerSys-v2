@@ -7,7 +7,7 @@ public class EmployeeDto
     public int Id { get; set; }
     public int Salary { get; set; }
     public int UsersId { get; set; }
-    public LegacyUserDto? User { get; set; }
+    public UserDto? User { get; set; }
     // Identity information (if an ApplicationUser was created for this employee)
     public IdentityUserInfoDto? Identity { get; set; }
 }
@@ -66,3 +66,4 @@ public class UpdateEmployeeDto
     [Range(0, int.MaxValue)]
     public int? Salary { get; set; }
 }
+

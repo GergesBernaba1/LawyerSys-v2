@@ -76,7 +76,7 @@ test('CRUD pages load without API errors (smoke)', async ({ page }) => {
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
   });
 
-  const pages = ['/customers', '/employees', '/courts', '/governments', '/contenders', '/sitings', '/consultations', '/judicial', '/tasks', '/files', '/legacyusers', '/caserelations'];
+  const pages = ['/customers', '/employees', '/courts', '/governments', '/contenders', '/sitings', '/consultations', '/judicial', '/tasks', '/files', '/users', '/caserelations'];
 
   for (const path of pages) {
     await page.goto(path);

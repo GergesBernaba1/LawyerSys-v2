@@ -186,7 +186,7 @@ namespace LawyerSys.Services
 
             var maxId = await _context.Users.MaxAsync(u => (int?)u.Id) ?? 0;
 
-            var legacyUser = new User
+            var user = new User
             {
                 Id = maxId + 1,
                 Full_Name = dto.FullName,
@@ -199,13 +199,13 @@ namespace LawyerSys.Services
                 Password = dto.Password
             };
 
-            _context.Users.Add(legacyUser);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var employee = new Employee { Salary = dto.Salary, Users_Id = legacyUser.Id };
+            var employee = new Employee { Salary = dto.Salary, Users_Id = user.Id };
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
-            employee.Users = legacyUser;
+            employee.Users = user;
 
             string generatedPassword = dto.Password;
             if (_userManager != null)
@@ -306,7 +306,7 @@ namespace LawyerSys.Services
             Id = e.id,
             Salary = e.Salary,
             UsersId = e.Users_Id,
-            User = e.Users != null ? new LegacyUserDto
+            User = e.Users != null ? new UserDto
             {
                 Id = e.Users.Id,
                 FullName = e.Users.Full_Name,
@@ -320,3 +320,4 @@ namespace LawyerSys.Services
         };
     }
 }
+

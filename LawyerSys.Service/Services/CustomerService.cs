@@ -157,7 +157,7 @@ namespace LawyerSys.Services
             var dto = new CustomerProfileDto
             {
                 Id = customer.Id,
-                User = customer.Users != null ? new LegacyUserDto
+                User = customer.Users != null ? new UserDto
                 {
                     Id = customer.Users.Id,
                     FullName = customer.Users.Full_Name,
@@ -185,7 +185,7 @@ namespace LawyerSys.Services
                     CaseId = c.Id,
                     CaseName = c.Invitions_Statment,
                     Code = c.Code,
-                    AssignedEmployee = assigned != null && assigned.Employee?.Users != null ? new LegacyUserDto
+                    AssignedEmployee = assigned != null && assigned.Employee?.Users != null ? new UserDto
                     {
                         Id = assigned.Employee.Users.Id,
                         FullName = assigned.Employee.Users.Full_Name,
@@ -261,7 +261,7 @@ namespace LawyerSys.Services
 
             var maxId = await _context.Users.MaxAsync(u => (int?)u.Id) ?? 0;
 
-            var legacyUser = new User
+            var user = new User
             {
                 Id = maxId + 1,
                 Full_Name = dto.FullName,
@@ -274,13 +274,13 @@ namespace LawyerSys.Services
                 Password = dto.Password
             };
 
-            _context.Users.Add(legacyUser);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            var customer = new Customer { Users_Id = legacyUser.Id };
+            var customer = new Customer { Users_Id = user.Id };
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
-            customer.Users = legacyUser;
+            customer.Users = user;
 
             string generatedPassword = dto.Password;
 if (_userManager != null)
@@ -381,7 +381,7 @@ if (_userManager != null)
         {
             Id = c.Id,
             UsersId = c.Users_Id,
-            User = c.Users != null ? new LegacyUserDto
+            User = c.Users != null ? new UserDto
             {
                 Id = c.Users.Id,
                 FullName = c.Users.Full_Name,
@@ -395,3 +395,4 @@ if (_userManager != null)
         };
     }
 }
+

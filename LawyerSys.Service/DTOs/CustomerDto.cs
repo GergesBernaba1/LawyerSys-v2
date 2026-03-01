@@ -6,7 +6,7 @@ public class CustomerDto
 {
     public int Id { get; set; }
     public int UsersId { get; set; }
-    public LegacyUserDto? User { get; set; }
+    public UserDto? User { get; set; }
     // Identity information (if an ApplicationUser was created for this customer)
     public IdentityUserInfoDto? Identity { get; set; }
 }
@@ -67,7 +67,7 @@ public class CreateCustomerWithUserDto
 public class CustomerProfileDto
 {
     public int Id { get; set; }
-    public LegacyUserDto? User { get; set; }
+    public UserDto? User { get; set; }
     public IdentityUserInfoDto? Identity { get; set; }
     public List<CaseWithEmployeeDto> Cases { get; set; } = new();
 }
@@ -77,7 +77,7 @@ public class CaseWithEmployeeDto
     public int CaseId { get; set; }
     public string CaseName { get; set; } = string.Empty;
     public int Code { get; set; }
-    public LegacyUserDto? AssignedEmployee { get; set; }
+    public UserDto? AssignedEmployee { get; set; }
 }
 
 public class UpdateCustomerDto
@@ -85,3 +85,4 @@ public class UpdateCustomerDto
     [Range(1, int.MaxValue)]
     public int? UsersId { get; set; }
 }
+

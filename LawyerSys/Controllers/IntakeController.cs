@@ -127,14 +127,14 @@ public class IntakeController : ControllerBase
             if (int.TryParse(digits, out var phone))
             {
                 var phoneExists = await _legacy.Users.AnyAsync(u => u.Phon_Number == phone);
-                if (phoneExists) reasons.Add("Phone number already exists in legacy users");
+                if (phoneExists) reasons.Add("Phone number already exists in users");
             }
         }
 
         if (!string.IsNullOrWhiteSpace(lead.NationalId) && int.TryParse(lead.NationalId, out var nationalId))
         {
             var ssnExists = await _legacy.Users.AnyAsync(u => u.SSN == nationalId);
-            if (ssnExists) reasons.Add("National ID already exists in legacy users");
+            if (ssnExists) reasons.Add("National ID already exists in users");
         }
 
         var hasConflict = reasons.Count > 0;

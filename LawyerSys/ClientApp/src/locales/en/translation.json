@@ -18,7 +18,7 @@
                 "trustreports":  "Trust Reports",
                 "reports":  "Reports",
                 "calendar":  "Calendar",
-                "legacyusers":  "Users (Legacy)",
+                "users":  "Users",
                 "caserelations":  "Case Relations",
                 "login":  "Login",
                 "logout":  "Logout",
@@ -882,9 +882,9 @@
                                           "Lost"
                                       ]
                      },
-    "legacyUsers":  {
-                        "title":  "Users (Legacy)",
-                        "management":  "Legacy Users Management",
+    "users":  {
+                        "title":  "Users",
+                        "management":  "Users Management",
                         "fullName":  "Full Name",
                         "userName":  "Username",
                         "address":  "Address",

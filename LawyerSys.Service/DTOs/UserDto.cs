@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LawyerSys.DTOs;
 
-public class LegacyUserDto
+public class UserDto
 {
     public int Id { get; set; }
     public string FullName { get; set; } = string.Empty;
@@ -14,7 +14,7 @@ public class LegacyUserDto
     public string UserName { get; set; } = string.Empty;
 }
 
-public class CreateLegacyUserDto
+public class CreateUserDto
 {
     [Required]
     [MaxLength(200)]
@@ -48,7 +48,7 @@ public class CreateLegacyUserDto
     public string Password { get; set; } = string.Empty;
 }
 
-public class UpdateLegacyUserDto
+public class UpdateUserDto
 {
     [MaxLength(200)]
     public string? FullName { get; set; }

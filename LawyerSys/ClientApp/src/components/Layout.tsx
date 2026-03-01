@@ -102,7 +102,7 @@ const menuItems: MenuItem[] = [
   { key: 'courtautomation', icon: <CourtAutomationIcon />, path: '/court-automation' },
   { key: 'clientportal', icon: <PortalIcon />, path: '/client-portal' },
   { key: 'auditlogs', icon: <AuditIcon />, path: '/auditlogs' },
-  { key: 'legacyusers', icon: <PersonIcon />, path: '/legacyusers' },
+  { key: 'users', icon: <PersonIcon />, path: '/users' },
   { key: 'caserelations', icon: <LinkIcon />, path: '/caserelations' },
   { key: 'intake', icon: <IntakeIcon />, path: '/intake' },
   { key: 'esign', icon: <ESignIcon />, path: '/esign' },
@@ -465,6 +465,7 @@ export default function Layout({ children }: LayoutProps) {
               sx={{
                 display: { xs: 'none', sm: 'flex' },
                 alignItems: 'center',
+                gap: 1.5,
                 bgcolor: 'grey.50',
                 borderRadius: 3,
                 px: 2.5,
@@ -481,10 +482,21 @@ export default function Layout({ children }: LayoutProps) {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
-              <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22, marginInlineEnd: 1.5 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, opacity: 0.8 }}>
-                {t('app.search')}...
-              </Typography>
+              {isRTL ? (
+                <>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, opacity: 0.8, direction: 'rtl' }}>
+                    {t('app.search')}...
+                  </Typography>
+                  <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+                </>
+              ) : (
+                <>
+                  <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, opacity: 0.8 }}>
+                    {t('app.search')}...
+                  </Typography>
+                </>
+              )}
             </Box>
           </Box>
 
@@ -494,13 +506,17 @@ export default function Layout({ children }: LayoutProps) {
               onClick={handleLangOpen}
               variant="text"
               size="medium"
-              startIcon={<HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} />}
+              startIcon={!isRTL ? <HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
+              endIcon={isRTL ? <HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
               sx={{
                 borderRadius: 2.5,
                 textTransform: 'none',
                 fontWeight: 800,
                 color: 'text.primary',
                 px: 2,
+                '& .MuiButton-startIcon, & .MuiButton-endIcon': {
+                  m: 0,
+                },
                 '&:hover': { bgcolor: 'primary.50' },
               }}
             >

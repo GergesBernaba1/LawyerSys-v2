@@ -37,7 +37,7 @@ public class AdministrationController : ControllerBase
             },
             Modules = new List<AdministrationModuleDto>
             {
-                new() { Key = "users", Route = "/legacyusers", ApiPath = "/api/LegacyUsers", CanView = true, CanCreateOrUpdate = true },
+                new() { Key = "users", Route = "/users", ApiPath = "/api/Users", CanView = true, CanCreateOrUpdate = true },
                 new() { Key = "employees", Route = "/employees", ApiPath = "/api/Employees", CanView = true, CanCreateOrUpdate = true },
                 new() { Key = "customers", Route = "/customers", ApiPath = "/api/Customers", CanView = true, CanCreateOrUpdate = true },
                 new() { Key = "cases", Route = "/cases", ApiPath = "/api/Cases", CanView = true, CanCreateOrUpdate = true },
