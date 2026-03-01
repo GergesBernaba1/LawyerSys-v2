@@ -64,6 +64,8 @@ import {
   FactCheck as IntakeIcon,
   BorderColor as ESignIcon,
   Timer as TimeTrackingIcon,
+  SmartToy as AiAssistantIcon,
+  Rule as CourtAutomationIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
@@ -96,6 +98,8 @@ const menuItems: MenuItem[] = [
   { key: 'reports', icon: <ReportsIcon />, path: '/reports' },
   { key: 'calendar', icon: <CalendarIcon />, path: '/calendar' },
   { key: 'documentgeneration', icon: <DocGenIcon />, path: '/document-generation' },
+  { key: 'aiassistant', icon: <AiAssistantIcon />, path: '/ai-assistant' },
+  { key: 'courtautomation', icon: <CourtAutomationIcon />, path: '/court-automation' },
   { key: 'clientportal', icon: <PortalIcon />, path: '/client-portal' },
   { key: 'auditlogs', icon: <AuditIcon />, path: '/auditlogs' },
   { key: 'legacyusers', icon: <PersonIcon />, path: '/legacyusers' },

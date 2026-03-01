@@ -6,6 +6,7 @@ using LawyerSys.Services.Notifications;
 using LawyerSys.Services.Reminders;
 using LawyerSys.Services.TimeTracking;
 using LawyerSys.Services.Intake;
+using LawyerSys.Services.AIAssistant;
 using LawyerSys.Services.TrustAccounting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -141,6 +142,8 @@ builder.Services.Configure<NotificationChannelsOptions>(builder.Configuration.Ge
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IExternalMessageSender, TwilioExternalMessageSender>();
 builder.Services.AddSingleton<ReminderDispatchStore>();
+builder.Services.Configure<AiAssistantOptions>(builder.Configuration.GetSection("AiAssistant"));
+builder.Services.AddScoped<IAiAssistantTextService, AiAssistantTextService>();
 builder.Services.Configure<HearingReminderOptions>(builder.Configuration.GetSection("Reminders:Hearing"));
 builder.Services.AddHostedService<HearingReminderBackgroundService>();
 builder.Services.Configure<TaskReminderOptions>(builder.Configuration.GetSection("Reminders:Task"));

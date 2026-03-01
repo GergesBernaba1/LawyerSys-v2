@@ -97,6 +97,16 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<Court> Courts { get; set; }
 
+    public virtual DbSet<CourtAutomationPack> CourtAutomationPacks { get; set; }
+
+    public virtual DbSet<CourtAutomationFormTemplate> CourtAutomationFormTemplates { get; set; }
+
+    public virtual DbSet<CourtAutomationDeadlineRule> CourtAutomationDeadlineRules { get; set; }
+
+    public virtual DbSet<CourtAutomationFilingChannel> CourtAutomationFilingChannels { get; set; }
+
+    public virtual DbSet<CourtAutomationFilingSubmission> CourtAutomationFilingSubmissions { get; set; }
+
     public virtual DbSet<Custmors_Case> Custmors_Cases { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
@@ -560,6 +570,89 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
         });
 
+        modelBuilder.Entity<CourtAutomationPack>(entity =>
+        {
+            entity.ToTable("CourtAutomationPacks");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Key).HasMaxLength(64);
+            entity.Property(e => e.NameEn).HasMaxLength(120);
+            entity.Property(e => e.NameAr).HasMaxLength(120);
+            entity.Property(e => e.DescriptionEn).HasMaxLength(2000);
+            entity.Property(e => e.DescriptionAr).HasMaxLength(2000);
+            entity.Property(e => e.JurisdictionCode).HasMaxLength(64);
+            entity.HasIndex(e => e.Key);
+        });
+
+        modelBuilder.Entity<CourtAutomationFormTemplate>(entity =>
+        {
+            entity.ToTable("CourtAutomationFormTemplates");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Key).HasMaxLength(64);
+            entity.Property(e => e.NameEn).HasMaxLength(120);
+            entity.Property(e => e.NameAr).HasMaxLength(120);
+            entity.Property(e => e.DescriptionEn).HasMaxLength(1000);
+            entity.Property(e => e.DescriptionAr).HasMaxLength(1000);
+            entity.Property(e => e.BodyEn).HasMaxLength(8000);
+            entity.Property(e => e.BodyAr).HasMaxLength(8000);
+
+            entity.HasOne(e => e.Pack).WithMany(p => p.FormTemplates)
+                .HasForeignKey(e => e.PackId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CourtAutomationFormTemplates_Packs");
+        });
+
+        modelBuilder.Entity<CourtAutomationDeadlineRule>(entity =>
+        {
+            entity.ToTable("CourtAutomationDeadlineRules");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Key).HasMaxLength(64);
+            entity.Property(e => e.NameEn).HasMaxLength(120);
+            entity.Property(e => e.NameAr).HasMaxLength(120);
+            entity.Property(e => e.DescriptionEn).HasMaxLength(1000);
+            entity.Property(e => e.DescriptionAr).HasMaxLength(1000);
+            entity.Property(e => e.Anchor).HasMaxLength(32);
+
+            entity.HasOne(e => e.Pack).WithMany(p => p.DeadlineRules)
+                .HasForeignKey(e => e.PackId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CourtAutomationDeadlineRules_Packs");
+        });
+
+        modelBuilder.Entity<CourtAutomationFilingChannel>(entity =>
+        {
+            entity.ToTable("CourtAutomationFilingChannels");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ChannelCode).HasMaxLength(64);
+            entity.Property(e => e.DisplayNameEn).HasMaxLength(120);
+            entity.Property(e => e.DisplayNameAr).HasMaxLength(120);
+
+            entity.HasOne(e => e.Pack).WithMany(p => p.FilingChannels)
+                .HasForeignKey(e => e.PackId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CourtAutomationFilingChannels_Packs");
+        });
+
+        modelBuilder.Entity<CourtAutomationFilingSubmission>(entity =>
+        {
+            entity.ToTable("CourtAutomationFilingSubmissions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SubmissionId).HasMaxLength(64);
+            entity.Property(e => e.PackKey).HasMaxLength(64);
+            entity.Property(e => e.FormKey).HasMaxLength(64);
+            entity.Property(e => e.FilingChannel).HasMaxLength(64);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.Message).HasMaxLength(1024);
+            entity.Property(e => e.ExternalReference).HasMaxLength(128);
+            entity.Property(e => e.Notes).HasMaxLength(2048);
+            entity.Property(e => e.SubmittedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.LastStatusAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.NextCheckAt).HasColumnType("timestamp without time zone");
+
+            entity.HasIndex(e => e.SubmissionId).IsUnique();
+            entity.HasIndex(e => new { e.PackKey, e.CaseCode });
+            entity.HasIndex(e => e.SubmittedAt);
+        });
+
         modelBuilder.Entity<__EFMigrationsHistory_Legacy>(entity =>
         {
             entity.HasKey(e => e.MigrationId);
@@ -589,6 +682,11 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<Contenders_Custmor>(modelBuilder);
         ConfigureTenantEntity<Contenders_Lawyer>(modelBuilder);
         ConfigureTenantEntity<Court>(modelBuilder);
+        ConfigureTenantEntity<CourtAutomationPack>(modelBuilder);
+        ConfigureTenantEntity<CourtAutomationFormTemplate>(modelBuilder);
+        ConfigureTenantEntity<CourtAutomationDeadlineRule>(modelBuilder);
+        ConfigureTenantEntity<CourtAutomationFilingChannel>(modelBuilder);
+        ConfigureTenantEntity<CourtAutomationFilingSubmission>(modelBuilder);
         ConfigureTenantEntity<Custmors_Case>(modelBuilder);
         ConfigureTenantEntity<Customer>(modelBuilder);
         ConfigureTenantEntity<ESignatureRequest>(modelBuilder);
