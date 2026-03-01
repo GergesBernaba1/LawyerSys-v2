@@ -315,7 +315,7 @@ export default function CasesPageClient() {
               ) : items.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
-                    <Box sx={{ opacity: 0.5 }}>
+                    <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
                         <GavelIcon fontSize="inherit" />
                       </Box>

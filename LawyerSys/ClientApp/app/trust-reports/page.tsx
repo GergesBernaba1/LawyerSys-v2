@@ -233,19 +233,19 @@ export default function TrustReportsPage() {
         <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 2.5 }}>
             <Typography variant="h6" sx={{ mb: 1.5 }}>{t("trustReports.depositWithdrawalTrend")}</Typography>
-            {report?.monthlyPoints?.length ? <MonthlyBarChart points={report.monthlyPoints} t={t} /> : <Typography color="text.secondary">{t("trustReports.noData")}</Typography>}
+            {report?.monthlyPoints?.length ? <MonthlyBarChart points={report.monthlyPoints} t={t} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
           </Paper>
         </Grid>
         <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 2.5 }}>
             <Typography variant="h6" sx={{ mb: 1.5 }}>{t("trustReports.netEndingTrend")}</Typography>
-            {report?.monthlyPoints?.length ? <DualLineChart points={report.monthlyPoints} t={t} /> : <Typography color="text.secondary">{t("trustReports.noData")}</Typography>}
+            {report?.monthlyPoints?.length ? <DualLineChart points={report.monthlyPoints} t={t} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
           </Paper>
         </Grid>
         <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 2.5 }}>
             <Typography variant="h6" sx={{ mb: 1.5 }}>{t("trustReports.reconciliationTrend")}</Typography>
-            {report?.reconciliationPoints?.length ? <ReconciliationChart points={report.reconciliationPoints} t={t} /> : <Typography color="text.secondary">{t("trustReports.noData")}</Typography>}
+            {report?.reconciliationPoints?.length ? <ReconciliationChart points={report.reconciliationPoints} t={t} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
           </Paper>
         </Grid>
       </Grid>

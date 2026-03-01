@@ -521,7 +521,6 @@ export default function TrustAccountingPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>No.</TableCell>
                 <TableCell>{t("billing.date")}</TableCell>
                 <TableCell>{t("cases.type")}</TableCell>
                 <TableCell>{t("billing.amount")}</TableCell>
@@ -531,9 +530,8 @@ export default function TrustAccountingPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {ledgerRows.map((row, index) => (
+              {ledgerRows.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{row.operationDate}</TableCell>
                   <TableCell>{row.entryType}</TableCell>
                   <TableCell>{toMoney(row.amount)}</TableCell>
@@ -544,7 +542,7 @@ export default function TrustAccountingPage() {
               ))}
               {ledgerRows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">{t("common.noData")}</TableCell>
+                  <TableCell colSpan={6} align="center">{t("common.noData")}</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -570,7 +568,6 @@ export default function TrustAccountingPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>No.</TableCell>
                 <TableCell>{t("billing.date")}</TableCell>
                 <TableCell>{t("trust.bankStatementBalance")}</TableCell>
                 <TableCell>{t("trust.bookBalance")}</TableCell>
@@ -580,9 +577,8 @@ export default function TrustAccountingPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(reconciliations?.items || []).map((r, index) => (
+              {(reconciliations?.items || []).map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{r.reconciliationDate}</TableCell>
                   <TableCell>{toMoney(r.bankStatementBalance)}</TableCell>
                   <TableCell>{toMoney(r.bookBalance)}</TableCell>
@@ -593,7 +589,7 @@ export default function TrustAccountingPage() {
               ))}
               {(reconciliations?.items?.length || 0) === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">{t("common.noData")}</TableCell>
+                  <TableCell colSpan={6} align="center">{t("common.noData")}</TableCell>
                 </TableRow>
               )}
             </TableBody>

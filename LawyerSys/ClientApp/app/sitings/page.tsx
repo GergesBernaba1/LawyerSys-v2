@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, useTheme,
 } from '@mui/material';
@@ -138,7 +138,6 @@ export default function SitingsPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.sitingDate')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.sitingTime')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.judgeName')}</TableCell>
@@ -150,22 +149,21 @@ export default function SitingsPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
+                    {[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
                   </TableRow>
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
-                    <Box sx={{ opacity: 0.5 }}>
+                  <TableCell colSpan={5} align="center" sx={{ py: 10 }}>
+                    <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <EventIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
                       <Typography variant="h6" gutterBottom>{t('sitings.noSitings')}</Typography>
                       <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={openCreate}>{t('sitings.createFirst')}</Button>
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item, index) => (
+              ) : items.map((item) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.sitingDate)}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{formatTime(item.sitingTime)}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.judgeName || '-'}</TableCell>

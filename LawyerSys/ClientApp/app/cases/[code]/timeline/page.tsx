@@ -79,7 +79,11 @@ export default function CaseTimelinePage() {
         ))}
       </Stack>
 
-      {(timeline?.events?.length || 0) === 0 && <Typography color="text.secondary">No timeline events found.</Typography>}
+      {(timeline?.events?.length || 0) === 0 && (
+        <Box sx={{ minHeight: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography color="text.secondary">No timeline events found.</Typography>
+        </Box>
+      )}
     </Box>
   );
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, useTheme, Tabs, Tab, Card, CardContent,
   MenuItem, Select, InputLabel, FormControl,
@@ -195,7 +195,6 @@ export default function BillingPage() {
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.amount')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.date')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.customer')}</TableCell>
@@ -206,17 +205,16 @@ export default function BillingPage() {
                 <TableBody>
                   {loading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <TableRow key={i}>{[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
+                      <TableRow key={i}>{[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
                     ))
                   ) : payments.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                         <Typography color="text.secondary">{t('billing.noPayments')}</Typography>
                       </TableCell>
                     </TableRow>
-                  ) : payments.map((item, index) => (
+                  ) : payments.map((item) => (
                     <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
-                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, color: 'error.main' }}>{formatAmount(item.amount)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.dateOfOperation)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.customerName || '-'}</TableCell>
@@ -251,7 +249,6 @@ export default function BillingPage() {
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.amount')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.date')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.employee')}</TableCell>
@@ -262,17 +259,16 @@ export default function BillingPage() {
                 <TableBody>
                   {loading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <TableRow key={i}>{[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
+                      <TableRow key={i}>{[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
                     ))
                   ) : receipts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                         <Typography color="text.secondary">{t('billing.noReceipts')}</Typography>
                       </TableCell>
                     </TableRow>
-                  ) : receipts.map((item, index) => (
+                  ) : receipts.map((item) => (
                     <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' } }}>
-                      <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, color: 'success.main' }}>{formatAmount(item.amount)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.dateOfOperation)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{employeeNameById(item.employeeId)}</TableCell>

@@ -302,7 +302,7 @@ export default function CourtAutomationPage() {
                   ))}
                   {!deadlines.length && (
                     <TableRow>
-                      <TableCell colSpan={4}><Typography color="text.secondary">{t("courtAutomation.noDeadlines")}</Typography></TableCell>
+                      <TableCell colSpan={4} align="center"><Typography color="text.secondary">{t("courtAutomation.noDeadlines")}</Typography></TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -369,7 +369,6 @@ export default function CourtAutomationPage() {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>No.</TableCell>
                       <TableCell>{t("courtAutomation.form")}</TableCell>
                       <TableCell>{t("courtAutomation.channel")}</TableCell>
                       <TableCell>{t("app.status")}</TableCell>
@@ -379,9 +378,8 @@ export default function CourtAutomationPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filings.map((f, index) => (
+                    {filings.map((f) => (
                       <TableRow key={f.submissionId}>
-                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{f.formKey}</TableCell>
                         <TableCell>{f.filingChannel}</TableCell>
                         <TableCell><Chip size="small" label={f.status} color={statusColor(f.status)} /></TableCell>
@@ -394,7 +392,7 @@ export default function CourtAutomationPage() {
                     ))}
                     {!filings.length && (
                       <TableRow>
-                        <TableCell colSpan={7}><Typography color="text.secondary">{t("courtAutomation.noFilings")}</Typography></TableCell>
+                        <TableCell colSpan={6} align="center"><Typography color="text.secondary">{t("courtAutomation.noFilings")}</Typography></TableCell>
                       </TableRow>
                     )}
                   </TableBody>

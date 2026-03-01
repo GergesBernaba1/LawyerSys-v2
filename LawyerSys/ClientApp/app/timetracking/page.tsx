@@ -171,7 +171,7 @@ export default function TimeTrackingPage() {
             ))}
             {entries.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5}><Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>{t('common.noRecords')}</Typography></TableCell>
+                <TableCell colSpan={5} align="center"><Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>{t('common.noRecords')}</Typography></TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -199,7 +199,7 @@ export default function TimeTrackingPage() {
             ))}
             {suggestions.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4}><Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>{t('common.noRecords')}</Typography></TableCell>
+                <TableCell colSpan={4} align="center"><Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>{t('common.noRecords')}</Typography></TableCell>
               </TableRow>
             )}
           </TableBody>

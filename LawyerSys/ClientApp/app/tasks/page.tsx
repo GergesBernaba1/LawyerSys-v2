@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
+  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, useTheme, MenuItem, Select, InputLabel, FormControl, Pagination,
 } from '@mui/material';
@@ -152,7 +152,6 @@ export default function AdminTasksPage() {
           <Table sx={{ minWidth: 750 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('tasks.taskName')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('tasks.taskType')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('tasks.startDate')}</TableCell>
@@ -165,22 +164,21 @@ export default function AdminTasksPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(7)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
+                    {[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
                   </TableRow>
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 10 }}>
-                    <Box sx={{ opacity: 0.5 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
+                    <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <TaskIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
                       <Typography variant="h6" gutterBottom>{t('tasks.noTasks')}</Typography>
                       <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={openCreate}>{t('tasks.createFirst')}</Button>
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item, index) => (
+              ) : items.map((item) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.taskName || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.type || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.taskDate)}</TableCell>

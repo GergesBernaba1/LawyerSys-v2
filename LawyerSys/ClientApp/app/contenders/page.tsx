@@ -115,7 +115,6 @@ export default function ContendersPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('contenders.fullName')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('contenders.ssn')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('contenders.birthDate')}</TableCell>
@@ -127,22 +126,21 @@ export default function ContendersPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
+                    {[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
                   </TableRow>
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
-                    <Box sx={{ opacity: 0.5 }}>
+                  <TableCell colSpan={5} align="center" sx={{ py: 10 }}>
+                    <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <PersonSearchIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
                       <Typography variant="h6" gutterBottom>{t('contenders.noContenders')}</Typography>
                       <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={openCreate}>{t('contenders.createFirst')}</Button>
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item, index) => (
+              ) : items.map((item) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}><Chip label={String(index + 1)} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} /></TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.fullName}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.ssn || '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.birthDate || '-'}</TableCell>

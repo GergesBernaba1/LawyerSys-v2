@@ -354,7 +354,7 @@ export default function IntakePage() {
               ))}
               {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6}>
+                  <TableCell colSpan={6} align="center">
                     <Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>{t('common.noRecords')}</Typography>
                   </TableCell>
                 </TableRow>

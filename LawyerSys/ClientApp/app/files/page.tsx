@@ -186,7 +186,6 @@ export default function FilesPageClient() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>No.</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.path') || 'Path'}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.code') || 'Code'}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.type') || 'Type'}</TableCell>
@@ -197,7 +196,7 @@ export default function FilesPageClient() {
               {loading ? (
                 Array.from(new Array(5)).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(5)].map((__, j) => (
+                    {[...Array(4)].map((__, j) => (
                       <TableCell key={j} sx={{ textAlign: isRTL ? 'right' : 'left' }}>
                         <Skeleton variant="text" />
                       </TableCell>
@@ -206,8 +205,8 @@ export default function FilesPageClient() {
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 10 }}>
-                    <Box sx={{ opacity: 0.5 }}>
+                  <TableCell colSpan={4} align="center" sx={{ py: 10 }}>
+                    <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
                         <FolderIcon fontSize="inherit" />
                       </Box>
@@ -219,7 +218,7 @@ export default function FilesPageClient() {
                   </TableCell>
                 </TableRow>
               ) : (
-                items.map((it, index) => (
+                items.map((it) => (
                   <TableRow 
                     key={it.id}
                     sx={{ 
@@ -227,14 +226,6 @@ export default function FilesPageClient() {
                       transition: 'background 0.2s ease'
                     }}
                   >
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Chip 
-                        label={String(index + 1)} 
-                        size="small" 
-                        variant="outlined" 
-                        sx={{ borderRadius: 1.5, fontWeight: 600 }}
-                      />
-                    </TableCell>
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                         <FileIcon fontSize="small" color="action" />

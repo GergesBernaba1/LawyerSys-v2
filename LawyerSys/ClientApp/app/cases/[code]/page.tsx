@@ -443,7 +443,9 @@ export default function CaseDetailsPage() {
           </Box>
         </Box>
       ) : (
-        <Typography>{loading ? 'Loading...' : 'No data'}</Typography>
+        <Box sx={{ minHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography color="text.secondary">{loading ? 'Loading...' : 'No data found'}</Typography>
+        </Box>
       )}
 
       {/* Add Customer Dialog */}
