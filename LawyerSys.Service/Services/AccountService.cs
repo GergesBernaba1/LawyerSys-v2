@@ -43,6 +43,11 @@ namespace LawyerSys.Services
             var valid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!valid) throw new UnauthorizedAccessException("Invalid credentials");
 
+            return await CreateTokenAsync(user);
+        }
+
+        public async Task<(string Token, DateTime Expires)> CreateTokenAsync(ApplicationUser user)
+        {
             var jwtSection = _configuration.GetSection("Jwt");
             var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key") ?? "ChangeThisToASecureKey123!");
             var issuer = jwtSection.GetValue<string>("Issuer");

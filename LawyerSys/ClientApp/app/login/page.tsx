@@ -13,11 +13,11 @@ import {
   Avatar,
   IconButton,
   InputAdornment,
+  useTheme,
 } from '@mui/material';
 import { LockOutlined as LockOutlinedIcon, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../src/services/auth';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../src/i18n';
 
 export default function LoginPage() {
   const [userName, setUserName] = useState('');
@@ -27,7 +27,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
+  const isRTL = theme.direction === 'rtl' || (i18n.resolvedLanguage || i18n.language || '').startsWith('ar');
+  const fieldSx = isRTL ? { '& .MuiInputBase-input': { textAlign: 'right' } } : undefined;
 
   // Redirect authenticated users away from login page
   useEffect(() => {
@@ -52,19 +55,20 @@ export default function LoginPage() {
   };
 
   return (
-    <Container component="main" maxWidth="sm">
+    <Container component="main" maxWidth="sm" dir={isRTL ? 'rtl' : 'ltr'}>
       <Box
         sx={{
           marginTop: 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          textAlign: isRTL ? 'right' : 'left',
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h5" sx={{ width: '100%', textAlign: 'center' }}>
           {t('app.login')}
         </Typography>
         <Paper
@@ -87,6 +91,7 @@ export default function LoginPage() {
               autoFocus
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
+              sx={fieldSx}
             />
             <TextField
               margin="normal"
@@ -99,6 +104,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={fieldSx}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -127,7 +133,7 @@ export default function LoginPage() {
             >
               {loading ? (t('app.loading') || 'Loading...') : t('app.login')}
             </Button>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isRTL ? 'row-reverse' : 'row', mt: 2 }}>
               <MuiLink href="/forgot-password" variant="body2">
                 {t('login.forgotPassword') || 'Forgot password?'}
               </MuiLink>

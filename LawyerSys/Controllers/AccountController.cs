@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
 using Serilog;
@@ -107,6 +103,108 @@ public class AccountController : ControllerBase
             }
         }
 
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        return Ok(new AccountProfileDto
+        {
+            UserName = user.UserName ?? string.Empty,
+            FullName = user.FullName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            PhoneNumber = user.PhoneNumber ?? string.Empty
+        });
+    }
+
+    [Authorize]
+    [HttpPut("me")]
+    public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateMyProfileRequest model)
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        var requestedUserName = (model.UserName ?? string.Empty).Trim();
+        var requestedEmail = (model.Email ?? string.Empty).Trim();
+        var requestedFullName = (model.FullName ?? string.Empty).Trim();
+        var requestedPhoneNumber = (model.PhoneNumber ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(requestedUserName))
+            return BadRequest(new { message = "Username is required." });
+        if (string.IsNullOrWhiteSpace(requestedEmail))
+            return BadRequest(new { message = "Email is required." });
+        if (string.IsNullOrWhiteSpace(requestedFullName))
+            return BadRequest(new { message = "Full name is required." });
+
+        if (!string.Equals(user.UserName, requestedUserName, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingUser = await _userManager.FindByNameAsync(requestedUserName);
+            if (existingUser != null && !string.Equals(existingUser.Id, user.Id, StringComparison.Ordinal))
+            {
+                return BadRequest(new { message = "Username is already in use." });
+            }
+        }
+
+        if (!string.Equals(user.Email, requestedEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingEmailUser = await _userManager.FindByEmailAsync(requestedEmail);
+            if (existingEmailUser != null && !string.Equals(existingEmailUser.Id, user.Id, StringComparison.Ordinal))
+            {
+                return BadRequest(new { message = "Email is already in use." });
+            }
+        }
+
+        user.UserName = requestedUserName;
+        user.Email = requestedEmail;
+        user.FullName = requestedFullName;
+        user.PhoneNumber = string.IsNullOrWhiteSpace(requestedPhoneNumber) ? null : requestedPhoneNumber;
+
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            return BadRequest(new { message = BuildIdentityErrors(updateResult.Errors) });
+        }
+
+        var (token, expires) = await _accountService.CreateTokenAsync(user);
+        return Ok(new
+        {
+            message = "Profile updated",
+            token,
+            expires,
+            profile = new AccountProfileDto
+            {
+                UserName = user.UserName ?? string.Empty,
+                FullName = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty
+            }
+        });
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangeMyPassword([FromBody] ChangePasswordRequest model)
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        if (string.IsNullOrWhiteSpace(model.CurrentPassword))
+            return BadRequest(new { message = "Current password is required." });
+        if (string.IsNullOrWhiteSpace(model.NewPassword))
+            return BadRequest(new { message = "New password is required." });
+
+        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        if (!result.Succeeded)
+        {
+            return BadRequest(new { message = BuildIdentityErrors(result.Errors) });
+        }
+
+        await _userManager.UpdateSecurityStampAsync(user);
+        return Ok(new { message = "Password updated" });
+    }
+
     [Authorize(Policy = "AdminOnly")]
     [HttpGet("users")]
     public async Task<IActionResult> GetIdentityUsers()
@@ -207,6 +305,22 @@ public class AccountController : ControllerBase
         await _userManager.UpdateSecurityStampAsync(user);
         return Ok(new { message = "User roles updated" });
     }
+
+    private async Task<ApplicationUser?> GetCurrentUserAsync()
+    {
+        var currentUserId = _userManager.GetUserId(User);
+        if (string.IsNullOrWhiteSpace(currentUserId))
+        {
+            return null;
+        }
+
+        return await _userManager.FindByIdAsync(currentUserId);
+    }
+
+    private static string BuildIdentityErrors(IEnumerable<IdentityError> errors)
+    {
+        return string.Join(", ", errors.Select(e => e.Description));
+    }
 }
 
 public class IdentityUserManagementDto
@@ -223,6 +337,28 @@ public class IdentityUserManagementDto
 public class SetUserRolesRequest
 {
     public string[] Roles { get; set; } = Array.Empty<string>();
+}
+
+public class AccountProfileDto
+{
+    public string UserName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+}
+
+public class UpdateMyProfileRequest
+{
+    public string UserName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+}
+
+public class ChangePasswordRequest
+{
+    public string CurrentPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
 }
 
 public class RegisterRequest

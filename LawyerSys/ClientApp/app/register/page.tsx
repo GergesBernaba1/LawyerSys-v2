@@ -13,6 +13,7 @@ import {
   Avatar,
   IconButton,
   InputAdornment,
+  useTheme,
 } from '@mui/material';
 import { PersonAddOutlined as PersonAddOutlinedIcon, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../src/services/auth';
@@ -30,7 +31,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { register, isAuthenticated } = useAuth();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
+  const isRTL = theme.direction === 'rtl' || (i18n.resolvedLanguage || i18n.language || '').startsWith('ar');
+  const fieldSx = isRTL ? { '& .MuiInputBase-input': { textAlign: 'right' } } : undefined;
 
   // Redirect authenticated users away from register page
   useEffect(() => {
@@ -60,19 +64,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container component="main" maxWidth="sm">
+    <Container component="main" maxWidth="sm" dir={isRTL ? 'rtl' : 'ltr'}>
       <Box
         sx={{
           marginTop: 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          textAlign: isRTL ? 'right' : 'left',
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
           <PersonAddOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h5" sx={{ width: '100%', textAlign: 'center' }}>
           {t('register.title') || 'Sign Up'}
         </Typography>
         <Paper
@@ -95,6 +100,7 @@ export default function RegisterPage() {
               autoFocus
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
+              sx={fieldSx}
             />
             <TextField
               margin="normal"
@@ -106,6 +112,7 @@ export default function RegisterPage() {
               autoComplete="name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              sx={fieldSx}
             />
             <TextField
               margin="normal"
@@ -118,6 +125,7 @@ export default function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              sx={fieldSx}
             />
             <TextField
               margin="normal"
@@ -130,6 +138,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={fieldSx}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -155,6 +164,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={fieldSx}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -183,7 +193,7 @@ export default function RegisterPage() {
             >
               {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
             </Button>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mt: 2 }}>
               <MuiLink href="/login" variant="body2">
                 {t('register.haveAccount') || 'Already have an account? Sign in'}
               </MuiLink>

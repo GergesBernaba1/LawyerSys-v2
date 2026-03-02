@@ -985,5 +985,25 @@
                           "failed":  "فشل في إعادة تعيين كلمة المرور",
                           "passwordMismatch":  "كلمتا المرور غير متطابقتين",
                           "goToLogin":  "الذهاب لتسجيل الدخول"
+                      },
+    "profile":  {
+                    "editProfile":  "تعديل الملف الشخصي",
+                    "userName":  "اسم المستخدم",
+                    "fullName":  "الاسم الكامل",
+                    "email":  "البريد الإلكتروني",
+                    "phoneNumber":  "رقم الهاتف",
+                    "saveProfile":  "حفظ الملف الشخصي",
+                    "changePassword":  "تغيير كلمة المرور",
+                    "currentPassword":  "كلمة المرور الحالية",
+                    "newPassword":  "كلمة المرور الجديدة",
+                    "confirmNewPassword":  "تأكيد كلمة المرور الجديدة",
+                    "savePassword":  "تحديث كلمة المرور",
+                    "saving":  "جارٍ الحفظ...",
+                    "updated":  "تم تحديث الملف الشخصي بنجاح",
+                    "passwordUpdated":  "تم تغيير كلمة المرور بنجاح",
+                    "failedLoad":  "فشل تحميل ملفك الشخصي",
+                    "failedUpdate":  "فشل تحديث الملف الشخصي",
+                    "failedPasswordUpdate":  "فشل تغيير كلمة المرور",
+                    "passwordMismatch":  "كلمة المرور الجديدة وتأكيدها غير متطابقين"
                       }
 }

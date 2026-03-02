@@ -985,5 +985,25 @@
                           "failed":  "Failed to reset password",
                           "passwordMismatch":  "Passwords do not match",
                           "goToLogin":  "Go to Login"
+                      },
+    "profile":  {
+                    "editProfile":  "Edit Profile",
+                    "userName":  "Username",
+                    "fullName":  "Full Name",
+                    "email":  "Email",
+                    "phoneNumber":  "Phone Number",
+                    "saveProfile":  "Save Profile",
+                    "changePassword":  "Change Password",
+                    "currentPassword":  "Current Password",
+                    "newPassword":  "New Password",
+                    "confirmNewPassword":  "Confirm New Password",
+                    "savePassword":  "Update Password",
+                    "saving":  "Saving...",
+                    "updated":  "Profile updated successfully",
+                    "passwordUpdated":  "Password changed successfully",
+                    "failedLoad":  "Failed to load your profile",
+                    "failedUpdate":  "Failed to update your profile",
+                    "failedPasswordUpdate":  "Failed to change password",
+                    "passwordMismatch":  "New password and confirmation do not match"
                       }
 }

@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import NextLink from 'next/link';
 import {
   Box,
   Drawer,
@@ -116,11 +117,13 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
-  
-  // For auth pages, don't show layout - check this BEFORE calling other hooks
-  if (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password' || pathname === '/intake/public' || pathname.startsWith('/esign/sign/')) {
-    return <>{children}</>;
-  }
+  const isLayoutBypassedPage =
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/intake/public' ||
+    pathname.startsWith('/esign/sign/');
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -146,34 +149,34 @@ export default function Layout({ children }: LayoutProps) {
 
   // Redirect to login if not authenticated
   React.useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLayoutBypassedPage && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLayoutBypassedPage, router]);
 
   React.useEffect(() => {
-    if (isAuthenticated && pathname === '/administration' && !isAdmin) {
+    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/administration' && !isAdmin) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, pathname, isAdmin, router]);
+  }, [isAuthenticated, pathname, isAdmin, isLayoutBypassedPage, router]);
 
   React.useEffect(() => {
-    if (isAuthenticated && pathname === '/intake' && !canUseIntake) {
+    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/intake' && !canUseIntake) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, pathname, canUseIntake, router]);
+  }, [isAuthenticated, pathname, canUseIntake, isLayoutBypassedPage, router]);
 
   React.useEffect(() => {
-    if (isAuthenticated && pathname === '/esign' && !canUseESign) {
+    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/esign' && !canUseESign) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, pathname, canUseESign, router]);
+  }, [isAuthenticated, pathname, canUseESign, isLayoutBypassedPage, router]);
 
   React.useEffect(() => {
-    if (isAuthenticated && pathname === '/timetracking' && !canUseTimeTracking) {
+    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/timetracking' && !canUseTimeTracking) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, pathname, canUseTimeTracking, router]);
+  }, [isAuthenticated, pathname, canUseTimeTracking, isLayoutBypassedPage, router]);
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL
@@ -239,6 +242,15 @@ export default function Layout({ children }: LayoutProps) {
   React.useEffect(() => {
     try { localStorage.setItem('layout.sidebarCollapsed', collapsed ? 'true' : 'false') } catch {}
   }, [collapsed]);
+
+  const currentPageKey =
+    pathname === '/profile'
+      ? 'profile'
+      : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
+
+  if (isLayoutBypassedPage) {
+    return <>{children}</>;
+  }
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
@@ -592,7 +604,12 @@ export default function Layout({ children }: LayoutProps) {
                     <Typography variant="subtitle1" sx={{ fontWeight: 900, color: 'primary.dark' }}>{user.fullName || user.userName}</Typography>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main', opacity: 0.8 }}>{user.email || 'lawyer@example.com'}</Typography>
                   </Box>
-                  <MenuItem onClick={handleProfileMenuClose} sx={{ borderRadius: 2, py: 1.2, fontWeight: 700 }}>
+                  <MenuItem
+                    component={NextLink}
+                    href="/profile"
+                    onClick={handleProfileMenuClose}
+                    sx={{ borderRadius: 2, py: 1.2, fontWeight: 700 }}
+                  >
                     <ListItemIcon><PersonIcon fontSize="small" sx={{ color: 'primary.main' }} /></ListItemIcon>
                     {t('app.profile')}
                   </MenuItem>
@@ -716,12 +733,12 @@ export default function Layout({ children }: LayoutProps) {
                     borderRadius: 2,
                   }}
                 >
-                  {t(`app.${visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
+                  {t(`app.${currentPageKey}`)}
                 </Typography>
               )}
             </Breadcrumbs>
             <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.03em', color: 'text.primary' }}>
-              {pathname === '/' ? t('app.dashboard') : t(`app.${visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard'}`)}
+              {pathname === '/' ? t('app.dashboard') : t(`app.${currentPageKey}`)}
             </Typography>
           </Box>
           
