@@ -13,6 +13,7 @@ namespace LawyerSys.Services
         Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto dto);
         Task<(CustomerDto Customer, (string UserName, string Password) TempCredentials)> CreateCustomerWithUserAsync(CreateCustomerWithUserDto dto);
         Task<CustomerDto> UpdateCustomerAsync(int id, UpdateCustomerDto dto);
+        Task SendPasswordResetEmailAsync(int id);
         Task<bool> DeleteCustomerAsync(int id);
     }
 }

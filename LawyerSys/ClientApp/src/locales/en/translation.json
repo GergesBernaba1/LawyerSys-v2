@@ -268,7 +268,11 @@
                       "failedUndo":  "Failed to undo assignment",
                       "identityInfo":  "Account Information",
                       "emailConfirmed":  "Email Confirmed",
-                      "accountStatus":  "Account Status"
+                      "accountStatus":  "Account Status",
+                      "sendResetEmail":  "Send Reset Email",
+                      "confirmSendResetEmail":  "Send password reset email to this customer?",
+                      "resetEmailSent":  "Password reset email sent successfully",
+                      "failedSendResetEmail":  "Failed to send password reset email"
                   },
     "employees":  {
                       "title":  "Employees",

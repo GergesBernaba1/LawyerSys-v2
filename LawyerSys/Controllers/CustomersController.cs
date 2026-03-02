@@ -101,6 +101,30 @@ public class CustomersController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // POST: api/customers/{id}/send-password-reset-email
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPost("{id}/send-password-reset-email")]
+    public async Task<IActionResult> SendPasswordResetEmail(int id)
+    {
+        try
+        {
+            await _customerService.SendPasswordResetEmailAsync(id);
+            return Ok(new { message = "Password reset email sent" });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     // DELETE: api/customers/{id}

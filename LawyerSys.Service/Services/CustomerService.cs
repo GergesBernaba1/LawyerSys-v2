@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using LawyerSys.Services.Email;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Configuration;
 using LawyerSys.Resources;
 using Serilog;
 
@@ -21,14 +22,22 @@ namespace LawyerSys.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
         private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly IConfiguration _configuration;
 
-        public CustomerService(LegacyDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IStringLocalizer<SharedResource> localizer)
+        public CustomerService(
+            LegacyDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IEmailSender emailSender,
+            IStringLocalizer<SharedResource> localizer,
+            IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailSender = emailSender;
             _localizer = localizer;
+            _configuration = configuration;
         }
 
         public async Task<IEnumerable<CustomerDto>> GetCustomersAsync()
@@ -402,15 +411,145 @@ if (_userManager != null)
             var customer = await _context.Customers.Include(c => c.Users).FirstOrDefaultAsync(c => c.Id == id);
             if (customer == null) throw new ArgumentException("Customer not found");
 
-            if (dto.UsersId.HasValue)
+            if (dto.UsersId.HasValue && dto.UsersId.Value != customer.Users_Id)
             {
                 var user = await _context.Users.FindAsync(dto.UsersId.Value);
                 if (user == null) throw new ArgumentException("User not found");
                 customer.Users_Id = dto.UsersId.Value;
+                customer.Users = user;
+            }
+
+            var targetUser = customer.Users ?? await _context.Users.FindAsync(customer.Users_Id);
+            if (targetUser == null) throw new ArgumentException("User not found");
+
+            var currentLegacyUserName = targetUser.User_Name;
+
+            if (dto.FullName != null) targetUser.Full_Name = dto.FullName.Trim();
+            if (dto.Address != null) targetUser.Address = string.IsNullOrWhiteSpace(dto.Address) ? null : dto.Address.Trim();
+            if (dto.Job != null) targetUser.Job = dto.Job.Trim();
+            if (dto.PhoneNumber != null) targetUser.Phon_Number = ConvertToLegacyInt(dto.PhoneNumber, "phoneNumber");
+            if (dto.DateOfBirth.HasValue) targetUser.Date_Of_Birth = dto.DateOfBirth.Value;
+            if (dto.SSN != null) targetUser.SSN = ConvertToLegacyInt(dto.SSN, "SSN");
+
+            if (dto.UserName != null)
+            {
+                var requestedUserName = dto.UserName.Trim();
+                if (string.IsNullOrWhiteSpace(requestedUserName))
+                    throw new ArgumentException("Username is required");
+
+                var legacyConflict = await _context.Users.AnyAsync(u => u.User_Name == requestedUserName && u.Id != targetUser.Id);
+                if (legacyConflict)
+                    throw new ArgumentException("Username is already in use");
+
+                targetUser.User_Name = requestedUserName;
+            }
+
+            ApplicationUser? appUser = null;
+            if (!string.IsNullOrWhiteSpace(currentLegacyUserName))
+            {
+                appUser = await _userManager.FindByNameAsync(currentLegacyUserName);
+            }
+            if (appUser == null && !string.IsNullOrWhiteSpace(targetUser.User_Name))
+            {
+                appUser = await _userManager.FindByNameAsync(targetUser.User_Name);
+            }
+
+            if (appUser != null)
+            {
+                if (dto.UserName != null)
+                {
+                    var requestedUserName = dto.UserName.Trim();
+                    var existingIdentityUser = await _userManager.FindByNameAsync(requestedUserName);
+                    if (existingIdentityUser != null && !string.Equals(existingIdentityUser.Id, appUser.Id, StringComparison.Ordinal))
+                        throw new ArgumentException("Username is already in use");
+
+                    appUser.UserName = requestedUserName;
+                }
+
+                if (dto.Email != null)
+                {
+                    var requestedEmail = dto.Email.Trim();
+                    if (!string.IsNullOrWhiteSpace(requestedEmail))
+                    {
+                        var existingEmailUser = await _userManager.FindByEmailAsync(requestedEmail);
+                        if (existingEmailUser != null && !string.Equals(existingEmailUser.Id, appUser.Id, StringComparison.Ordinal))
+                            throw new ArgumentException("Email is already in use");
+                    }
+                    appUser.Email = string.IsNullOrWhiteSpace(requestedEmail) ? null : requestedEmail;
+                }
+
+                if (dto.FullName != null) appUser.FullName = dto.FullName.Trim();
+                if (dto.PhoneNumber != null) appUser.PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim();
+
+                var identityUpdate = await _userManager.UpdateAsync(appUser);
+                if (!identityUpdate.Succeeded)
+                    throw new InvalidOperationException(string.Join(", ", identityUpdate.Errors.Select(e => e.Description)));
             }
 
             await _context.SaveChangesAsync();
-            return MapToDto(customer);
+            await _context.Entry(customer).Reference(c => c.Users).LoadAsync();
+
+            var updated = MapToDto(customer);
+            if (updated.User?.UserName != null)
+            {
+                var refreshedIdentityUser = await _userManager.FindByNameAsync(updated.User.UserName);
+                if (refreshedIdentityUser != null)
+                {
+                    updated.Identity = new IdentityUserInfoDto
+                    {
+                        Id = refreshedIdentityUser.Id,
+                        UserName = refreshedIdentityUser.UserName ?? string.Empty,
+                        Email = refreshedIdentityUser.Email ?? string.Empty,
+                        FullName = refreshedIdentityUser.FullName ?? string.Empty,
+                        EmailConfirmed = refreshedIdentityUser.EmailConfirmed,
+                        RequiresPasswordReset = refreshedIdentityUser.RequiresPasswordReset
+                    };
+                }
+            }
+
+            return updated;
+        }
+
+        public async Task SendPasswordResetEmailAsync(int id)
+        {
+            var customer = await _context.Customers
+                .Include(c => c.Users)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if (customer == null) throw new ArgumentException("Customer not found");
+            if (customer.Users == null) throw new InvalidOperationException("Customer does not have a linked user");
+            if (string.IsNullOrWhiteSpace(customer.Users.User_Name)) throw new InvalidOperationException("Customer username is missing");
+
+            var appUser = await _userManager.FindByNameAsync(customer.Users.User_Name);
+            if (appUser == null) throw new InvalidOperationException("Identity account not found for this customer");
+            if (string.IsNullOrWhiteSpace(appUser.Email)) throw new InvalidOperationException("Customer account does not have an email address");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+            appUser.RequiresPasswordReset = true;
+            var flagUpdate = await _userManager.UpdateAsync(appUser);
+            if (!flagUpdate.Succeeded)
+                throw new InvalidOperationException(string.Join(", ", flagUpdate.Errors.Select(e => e.Description)));
+
+            var clientBaseUrl = _configuration["ClientApp:BaseUrl"]?.TrimEnd('/')
+                ?? _configuration["ClientBaseUrl"]?.TrimEnd('/')
+                ?? "http://localhost:3002";
+
+            var resetLink = $"{clientBaseUrl}/reset-password?userName={Uri.EscapeDataString(appUser.UserName ?? string.Empty)}&token={Uri.EscapeDataString(token)}";
+            var fullName = string.IsNullOrWhiteSpace(appUser.FullName) ? customer.Users.Full_Name : appUser.FullName;
+
+            var localizedSubject = _localizer["PasswordResetSubject"];
+            var localizedBody = _localizer["PasswordResetBody"];
+            var subject = localizedSubject.ResourceNotFound ? "Password reset request" : localizedSubject.Value;
+            var bodyTemplate = localizedBody.ResourceNotFound
+                ? "<h3>Password reset request</h3><p>Hello {FullName},</p><p>Use this link to reset your password:</p><p><a href=\"{ResetLink}\">{ResetLink}</a></p><p>If the link does not open, use this token:</p><p><strong>User:</strong> {UserName}</p><p><strong>Token:</strong> {Token}</p>"
+                : localizedBody.Value;
+
+            var body = bodyTemplate
+                .Replace("{FullName}", fullName ?? string.Empty)
+                .Replace("{ResetLink}", resetLink)
+                .Replace("{UserName}", appUser.UserName ?? string.Empty)
+                .Replace("{Token}", token);
+
+            await _emailSender.SendEmailAsync(appUser.Email, subject, body);
         }
 
         public async Task<bool> DeleteCustomerAsync(int id)

@@ -88,5 +88,27 @@ public class UpdateCustomerDto
 {
     [Range(1, int.MaxValue)]
     public int? UsersId { get; set; }
-}
 
+    [MaxLength(200)]
+    public string? FullName { get; set; }
+
+    [MaxLength(400)]
+    public string? Address { get; set; }
+
+    [MaxLength(100)]
+    public string? Job { get; set; }
+
+    [RegularExpression(@"^\d{7,20}$", ErrorMessage = "Phone number must contain 7 to 20 digits.")]
+    public string? PhoneNumber { get; set; }
+
+    public DateOnly? DateOfBirth { get; set; }
+
+    public string? SSN { get; set; }
+
+    [MaxLength(100)]
+    public string? UserName { get; set; }
+
+    [EmailAddress]
+    [MaxLength(256)]
+    public string? Email { get; set; }
+}

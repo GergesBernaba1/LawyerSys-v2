@@ -39,6 +39,7 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
+  MarkEmailUnread as MarkEmailUnreadIcon,
   People as PeopleIcon,
   Refresh as RefreshIcon,
   Person as PersonIcon,
@@ -69,6 +70,24 @@ type UserOption = {
   fullName: string;
   userName: string;
 };
+
+type EditCustomerForm = {
+  fullName: string;
+  email: string;
+  address: string;
+  job: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  ssn: string;
+  userName: string;
+  usersId: number;
+};
+
+function toDateInput(value: any): string {
+  if (!value) return '';
+  const text = String(value);
+  return text.length >= 10 ? text.substring(0, 10) : text;
+}
 
 function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
   return values.find((value) => value !== undefined && value !== null) as T | undefined;
@@ -172,9 +191,21 @@ export default function CustomersPageClient() {
   const [openCreateWithUser, setOpenCreateWithUser] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editItem, setEditItem] = useState<Customer | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<number>(0);
   const [usersOptions, setUsersOptions] = useState<UserOption[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [sendingResetForId, setSendingResetForId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<EditCustomerForm>({
+    fullName: '',
+    email: '',
+    address: '',
+    job: '',
+    phoneNumber: '',
+    dateOfBirth: '',
+    ssn: '',
+    userName: '',
+    usersId: 0,
+  });
   const [createForm, setCreateForm] = useState({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [showCreateConfirmPassword, setShowCreateConfirmPassword] = useState(false);
@@ -214,8 +245,38 @@ export default function CustomersPageClient() {
 
   async function openEdit(item: Customer) {
     setEditItem(item);
-    setSelectedUserId(item.usersId || 0);
+    setEditForm({
+      fullName: item.fullName === '-' ? '' : item.fullName,
+      email: item.email === '-' ? '' : item.email,
+      address: firstDefined(item.user?.address, item.user?.Address, '') || '',
+      job: firstDefined(item.user?.job, item.user?.Job, '') || '',
+      phoneNumber: firstDefined(item.user?.phoneNumber, item.user?.PhoneNumber, '') || '',
+      dateOfBirth: toDateInput(firstDefined(item.user?.dateOfBirth, item.user?.DateOfBirth, '')),
+      ssn: firstDefined(item.user?.ssn, item.user?.SSN, '') || '',
+      userName: item.userName === '-' ? '' : item.userName,
+      usersId: item.usersId || 0,
+    });
     setOpenEditDialog(true);
+
+    try {
+      const profileRes = await api.get(`/Customers/${item.id}/profile`);
+      const currentProfile = normalizeProfile(profileRes.data);
+      if (currentProfile) {
+        setEditForm((prev) => ({
+          ...prev,
+          fullName: firstDefined(currentProfile.identity?.fullName, currentProfile.user?.fullName, currentProfile.user?.FullName, prev.fullName, '') || '',
+          email: firstDefined(currentProfile.identity?.email, currentProfile.user?.email, currentProfile.user?.Email, prev.email, '') || '',
+          address: firstDefined(currentProfile.user?.address, currentProfile.user?.Address, prev.address, '') || '',
+          job: firstDefined(currentProfile.user?.job, currentProfile.user?.Job, prev.job, '') || '',
+          phoneNumber: firstDefined(currentProfile.user?.phoneNumber, currentProfile.user?.PhoneNumber, prev.phoneNumber, '') || '',
+          dateOfBirth: toDateInput(firstDefined(currentProfile.user?.dateOfBirth, currentProfile.user?.DateOfBirth, prev.dateOfBirth)),
+          ssn: firstDefined(currentProfile.user?.ssn, currentProfile.user?.SSN, prev.ssn, '') || '',
+          userName: firstDefined(currentProfile.identity?.userName, currentProfile.user?.userName, currentProfile.user?.UserName, prev.userName, '') || '',
+        }));
+      }
+    } catch {
+      // Keep the current table values if profile load fails.
+    }
 
     if (usersOptions.length > 0) return;
     setLoadingUsers(true);
@@ -238,13 +299,26 @@ export default function CustomersPageClient() {
 
   async function handleUpdateCustomer() {
     if (!editItem) return;
-    if (!selectedUserId) {
-      setSnackbar({ open: true, message: t('customers.pleaseSelectUser'), severity: 'error' });
+    if (!editForm.fullName.trim()) {
+      setSnackbar({ open: true, message: t('common.required'), severity: 'error' });
       return;
     }
 
+    setSavingEdit(true);
     try {
-      await api.put(`/Customers/${editItem.id}`, { usersId: selectedUserId });
+      const payload = {
+        usersId: editForm.usersId || undefined,
+        fullName: editForm.fullName.trim(),
+        email: editForm.email.trim() || undefined,
+        address: editForm.address.trim() || undefined,
+        job: editForm.job.trim() || undefined,
+        phoneNumber: editForm.phoneNumber.trim() || undefined,
+        dateOfBirth: editForm.dateOfBirth || undefined,
+        ssn: editForm.ssn.trim() || undefined,
+        userName: editForm.userName.trim() || undefined,
+      };
+
+      await api.put(`/Customers/${editItem.id}`, payload);
       setOpenEditDialog(false);
       setEditItem(null);
       setSnackbar({ open: true, message: t('customers.customerUpdated'), severity: 'success' });
@@ -252,6 +326,24 @@ export default function CustomersPageClient() {
     } catch (err: any) {
       const msg = err?.response?.data?.message || t('customers.failedUpdate');
       setSnackbar({ open: true, message: msg, severity: 'error' });
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+  async function sendPasswordResetEmail(item: Customer) {
+    const confirmed = await confirm(t('customers.confirmSendResetEmail', 'Send password reset email to this customer?'));
+    if (!confirmed) return;
+
+    setSendingResetForId(item.id);
+    try {
+      await api.post(`/Customers/${item.id}/send-password-reset-email`);
+      setSnackbar({ open: true, message: t('customers.resetEmailSent', 'Password reset email sent successfully'), severity: 'success' });
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || t('customers.failedSendResetEmail', 'Failed to send password reset email');
+      setSnackbar({ open: true, message: msg, severity: 'error' });
+    } finally {
+      setSendingResetForId(null);
     }
   }
 
@@ -421,6 +513,23 @@ export default function CustomersPageClient() {
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
+                          </Tooltip>
+                        )}
+                        {hasRole('Admin') && (
+                          <Tooltip title={t('customers.sendResetEmail', 'Send reset email')}>
+                            <span>
+                              <IconButton
+                                color="secondary"
+                                disabled={sendingResetForId === item.id}
+                                onClick={() => sendPasswordResetEmail(item)}
+                                sx={{
+                                  '&:hover': { bgcolor: 'secondary.light', color: 'white' },
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                {sendingResetForId === item.id ? <CircularProgress size={16} color="inherit" /> : <MarkEmailUnreadIcon fontSize="small" />}
+                              </IconButton>
+                            </span>
                           </Tooltip>
                         )}
                         {hasRole('Admin') && (
@@ -623,13 +732,64 @@ export default function CustomersPageClient() {
           {t('common.edit')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
+            <TextField
+              fullWidth
+              label={t('customers.fullName')}
+              value={editForm.fullName}
+              onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label={t('customers.email')}
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label={t('customers.userName')}
+              value={editForm.userName}
+              onChange={(e) => setEditForm({ ...editForm, userName: e.target.value })}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label={t('customers.job')}
+              value={editForm.job}
+              onChange={(e) => setEditForm({ ...editForm, job: e.target.value })}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label={t('customers.phoneNumber')}
+              value={editForm.phoneNumber}
+              onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label={t('customers.ssn')}
+              value={editForm.ssn}
+              onChange={(e) => setEditForm({ ...editForm, ssn: e.target.value })}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label={t('customers.dateOfBirth')}
+              type="date"
+              value={editForm.dateOfBirth}
+              onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              variant="outlined"
+            />
             <FormControl fullWidth>
               <InputLabel>{t('customers.selectUser')}</InputLabel>
               <Select
                 label={t('customers.selectUser')}
-                value={selectedUserId ? String(selectedUserId) : ''}
-                onChange={(e) => setSelectedUserId(Number(e.target.value))}
+                value={editForm.usersId ? String(editForm.usersId) : ''}
+                onChange={(e) => setEditForm({ ...editForm, usersId: Number(e.target.value) })}
                 disabled={loadingUsers}
               >
                 {usersOptions.map((u) => (
@@ -639,13 +799,22 @@ export default function CustomersPageClient() {
                 ))}
               </Select>
             </FormControl>
+            <Box sx={{ gridColumn: '1 / -1' }}>
+              <TextField
+                fullWidth
+                label={t('customers.address')}
+                value={editForm.address}
+                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                variant="outlined"
+              />
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button onClick={() => setOpenEditDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>
             {t('common.cancel')}
           </Button>
-          <Button variant="contained" onClick={handleUpdateCustomer} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>
+          <Button variant="contained" onClick={handleUpdateCustomer} disabled={savingEdit} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>
             {t('common.save')}
           </Button>
         </DialogActions>

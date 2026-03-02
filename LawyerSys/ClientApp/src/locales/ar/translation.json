@@ -268,7 +268,11 @@
                       "failedUndo":  "فشل في التراجع عن التعيين",
                       "identityInfo":  "معلومات الحساب",
                       "emailConfirmed":  "البريد مؤكد",
-                      "accountStatus":  "حالة الحساب"
+                      "accountStatus":  "حالة الحساب",
+                      "sendResetEmail":  "إرسال بريد إعادة التعيين",
+                      "confirmSendResetEmail":  "هل تريد إرسال بريد إعادة تعيين كلمة المرور لهذا العميل؟",
+                      "resetEmailSent":  "تم إرسال بريد إعادة تعيين كلمة المرور بنجاح",
+                      "failedSendResetEmail":  "فشل إرسال بريد إعادة تعيين كلمة المرور"
                   },
     "employees":  {
                       "title":  "الموظفين",
