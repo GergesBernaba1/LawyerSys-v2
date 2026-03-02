@@ -48,7 +48,7 @@ import {
 } from '@mui/icons-material';
 import { InputAdornment } from '@mui/material';
 import api from '../../src/services/api';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
@@ -58,9 +58,9 @@ type Customer = {
   usersId: number;
   identity?: IdentityDto;
   user?: any;
-  displayName: string;
-  displayUserName: string;
-  displayEmail: string;
+  fullName: string;
+  userName: string;
+  email: string;
 };
 
 function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
@@ -126,9 +126,9 @@ function normalizeCustomer(raw: any): Customer {
     usersId: Number(firstDefined(raw.usersId, raw.UsersId, raw.userId, raw.UserId, 0)),
     identity: identity ?? fallbackIdentity,
     user,
-    displayName: fullName || userName || email || 'Unknown',
-    displayUserName: userName || email || '-',
-    displayEmail: email || '-',
+    fullName: fullName || '-',
+    userName: userName || '-',
+    email: email || '-',
   };
 }
 
@@ -155,9 +155,7 @@ function normalizeProfile(raw: any) {
 export default function CustomersPageClient() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const params = useParams() as { locale?: string } | undefined;
-  const locale = params?.locale || 'ar';
-  const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
+  const isRTL = theme.direction === 'rtl';
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
   const { confirm, confirmDialog } = useConfirmDialog();
@@ -201,8 +199,6 @@ export default function CustomersPageClient() {
       setSnackbar({ open: true, message: t('customers.failedDelete'), severity: 'error' });
     }
   }
-
-  const navigate = (path: string) => router.push(`/${locale}${path}`);
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
@@ -286,12 +282,12 @@ export default function CustomersPageClient() {
         }}
       >
         <TableContainer>
-          <Table sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: 650, tableLayout: 'fixed' }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('customers.customer')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('users.userName') || 'User'}</TableCell>
-                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('cases.actions')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700, width: '50%' }}>{t('customers.customer')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700, width: '35%' }}>{t('users.userName') || 'User'}</TableCell>
+                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700, width: '15%' }}>{t('cases.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -329,7 +325,7 @@ export default function CustomersPageClient() {
                     }}
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: isRTL ? 'flex-end' : 'flex-start', width: '100%' }}>
                         <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.light', fontSize: '1rem' }}>
                           <PersonIcon fontSize="small" />
                         </Avatar>
@@ -344,18 +340,18 @@ export default function CustomersPageClient() {
                         >
                           <Box>
                             <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                              {item.displayName}
+                              {item.fullName}
                             </Typography>
-                            {item.displayEmail !== '-' && (
+                            {item.email !== '-' && (
                               <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                                {item.displayEmail}
+                                {item.email}
                               </Typography>
                             )}
                           </Box>
                         </Button>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.displayUserName}</TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.userName}</TableCell>
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
                         {hasRole('Admin') && (
