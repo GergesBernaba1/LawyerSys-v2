@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import NextLink from 'next/link';
 import {
   Box,
   Drawer,
@@ -216,6 +215,16 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleOpenProfile = () => {
+    handleProfileMenuClose();
+    router.push('/profile');
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/profile') {
+        window.location.assign('/profile');
+      }
+    }, 75);
   };
 
   const handleLogout = () => {
@@ -604,12 +613,7 @@ export default function Layout({ children }: LayoutProps) {
                     <Typography variant="subtitle1" sx={{ fontWeight: 900, color: 'primary.dark' }}>{user.fullName || user.userName}</Typography>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main', opacity: 0.8 }}>{user.email || 'lawyer@example.com'}</Typography>
                   </Box>
-                  <MenuItem
-                    component={NextLink}
-                    href="/profile"
-                    onClick={handleProfileMenuClose}
-                    sx={{ borderRadius: 2, py: 1.2, fontWeight: 700 }}
-                  >
+                  <MenuItem onClick={handleOpenProfile} sx={{ borderRadius: 2, py: 1.2, fontWeight: 700 }}>
                     <ListItemIcon><PersonIcon fontSize="small" sx={{ color: 'primary.main' }} /></ListItemIcon>
                     {t('app.profile')}
                   </MenuItem>
