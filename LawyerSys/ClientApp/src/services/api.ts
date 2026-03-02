@@ -9,6 +9,52 @@ const instance = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
+const inFlightGetRequests = new Map<string, Promise<any>>()
+const recentGetResponses = new Map<string, { timestamp: number; response: any }>()
+const GET_DEDUPE_WINDOW_MS = 500
+const MAX_RECENT_CACHE_SIZE = 100
+
+function cleanupRecentCache(now: number) {
+  if (recentGetResponses.size <= MAX_RECENT_CACHE_SIZE) return
+
+  for (const [key, value] of recentGetResponses.entries()) {
+    if (now - value.timestamp > GET_DEDUPE_WINDOW_MS) {
+      recentGetResponses.delete(key)
+    }
+  }
+}
+
+const rawGet = instance.get.bind(instance)
+
+instance.get = ((url, config) => {
+  const key = instance.getUri({ ...(config || {}), url })
+  const now = Date.now()
+  const recent = recentGetResponses.get(key)
+
+  if (recent && now - recent.timestamp <= GET_DEDUPE_WINDOW_MS) {
+    return Promise.resolve(recent.response)
+  }
+
+  const inFlight = inFlightGetRequests.get(key)
+  if (inFlight) {
+    return inFlight
+  }
+
+  const requestPromise = rawGet(url, config)
+    .then((response) => {
+      const timestamp = Date.now()
+      recentGetResponses.set(key, { timestamp, response })
+      cleanupRecentCache(timestamp)
+      return response
+    })
+    .finally(() => {
+      inFlightGetRequests.delete(key)
+    })
+
+  inFlightGetRequests.set(key, requestPromise)
+  return requestPromise
+}) as typeof instance.get
+
 instance.interceptors.request.use(config => {
   // guard for server-side rendering — localStorage only available in browser
   const token = (typeof window !== 'undefined') ? localStorage.getItem('lawyersys-token') : null

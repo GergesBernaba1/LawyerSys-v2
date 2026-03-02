@@ -129,7 +129,7 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
-  const { user, logout, isAuthenticated, hasRole, hasAnyRole } = useAuth();
+  const { user, logout, isAuthenticated, isAuthInitialized, hasRole, hasAnyRole } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
   const isAdmin = hasRole('Admin')
@@ -146,36 +146,37 @@ export default function Layout({ children }: LayoutProps) {
   // Start from SSR default language to keep hydrated text identical.
   const [lng, setLng] = useState('ar')
 
-  // Redirect to login if not authenticated
   React.useEffect(() => {
-    if (!isLayoutBypassedPage && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, isLayoutBypassedPage, router]);
+    if (!isAuthInitialized || isLayoutBypassedPage) return;
 
-  React.useEffect(() => {
-    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/administration' && !isAdmin) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, pathname, isAdmin, isLayoutBypassedPage, router]);
+    let targetPath: string | null = null;
 
-  React.useEffect(() => {
-    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/intake' && !canUseIntake) {
-      router.push('/dashboard');
+    if (!isAuthenticated) {
+      targetPath = '/login';
+    } else if (pathname === '/administration' && !isAdmin) {
+      targetPath = '/dashboard';
+    } else if (pathname === '/intake' && !canUseIntake) {
+      targetPath = '/dashboard';
+    } else if (pathname === '/esign' && !canUseESign) {
+      targetPath = '/dashboard';
+    } else if (pathname === '/timetracking' && !canUseTimeTracking) {
+      targetPath = '/dashboard';
     }
-  }, [isAuthenticated, pathname, canUseIntake, isLayoutBypassedPage, router]);
 
-  React.useEffect(() => {
-    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/esign' && !canUseESign) {
-      router.push('/dashboard');
+    if (targetPath && pathname !== targetPath) {
+      router.replace(targetPath);
     }
-  }, [isAuthenticated, pathname, canUseESign, isLayoutBypassedPage, router]);
-
-  React.useEffect(() => {
-    if (!isLayoutBypassedPage && isAuthenticated && pathname === '/timetracking' && !canUseTimeTracking) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, pathname, canUseTimeTracking, isLayoutBypassedPage, router]);
+  }, [
+    isAuthInitialized,
+    isLayoutBypassedPage,
+    isAuthenticated,
+    pathname,
+    isAdmin,
+    canUseIntake,
+    canUseESign,
+    canUseTimeTracking,
+    router,
+  ]);
 
   // keep layout reactive to language changes so elements like the drawer
   // reposition immediately when switching between LTR/RTL
@@ -230,7 +231,7 @@ export default function Layout({ children }: LayoutProps) {
   const handleLogout = () => {
     logout();
     handleProfileMenuClose();
-    router.push('/login');
+    router.replace('/login');
   };
 
   const handleNavigation = (path: string) => {
@@ -259,6 +260,10 @@ export default function Layout({ children }: LayoutProps) {
 
   if (isLayoutBypassedPage) {
     return <>{children}</>;
+  }
+
+  if (!isAuthInitialized) {
+    return null;
   }
 
   const drawer = (

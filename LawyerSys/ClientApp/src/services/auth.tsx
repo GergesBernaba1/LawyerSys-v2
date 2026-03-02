@@ -12,6 +12,7 @@ interface User {
 interface AuthContextValue {
   token: string | null;
   user: User | null;
+  isAuthInitialized: boolean;
   login: (user: string, pass: string) => Promise<boolean>;
   register: (user: string, email: string, pass: string, fullName: string) => Promise<boolean>;
   setAuthToken: (token: string) => void;
@@ -53,18 +54,25 @@ function isTokenExpired(token: string): boolean {
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // avoid reading localStorage during SSR — initialize on client
-  const [token, setToken] = useState<string | null>(null)
+  // Keep token and init state atomic to avoid transient unauthenticated redirects.
+  const [authState, setAuthState] = useState<{ token: string | null; isAuthInitialized: boolean }>({
+    token: null,
+    isAuthInitialized: false,
+  })
+  const token = authState.token
+  const isAuthInitialized = authState.isAuthInitialized
   useEffect(() => {
+    let nextToken: string | null = null
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('lawyersys-token')
       if (saved && !isTokenExpired(saved)) {
-        setToken(saved)
+        nextToken = saved
       } else if (saved) {
         // Token exists but is expired, remove it
         localStorage.removeItem('lawyersys-token')
       }
     }
+    setAuthState({ token: nextToken, isAuthInitialized: true })
   }, [])
   const [user, setUser] = useState<User | null>(null)
 
@@ -105,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const t = r.data?.token
       if (t) {
         localStorage.setItem('lawyersys-token', t)
-        setToken(t)
+        setAuthState((prev) => ({ ...prev, token: t, isAuthInitialized: true }))
         return true
       }
       console.warn('No token in response')
@@ -127,12 +135,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   function setAuthToken(nextToken: string) {
     localStorage.setItem('lawyersys-token', nextToken)
-    setToken(nextToken)
+    setAuthState((prev) => ({ ...prev, token: nextToken, isAuthInitialized: true }))
   }
 
   function logout() {
     localStorage.removeItem('lawyersys-token')
-    setToken(null)
+    setAuthState((prev) => ({ ...prev, token: null, isAuthInitialized: true }))
     setUser(null)
   }
 
@@ -147,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, user, login, register, setAuthToken, logout, isAuthenticated, hasRole, hasAnyRole }}>
+    <AuthContext.Provider value={{ token, user, isAuthInitialized, login, register, setAuthToken, logout, isAuthenticated, hasRole, hasAnyRole }}>
       {children}
     </AuthContext.Provider>
   )
