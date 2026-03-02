@@ -53,7 +53,6 @@ public class CreateCustomerWithUserDto
     public DateOnly DateOfBirth { get; set; }
 
     [Required]
-    [RegularExpression(@"^\d{6,20}$", ErrorMessage = "SSN must contain 6 to 20 digits.")]
     public string SSN { get; set; } = string.Empty;
 
     [MaxLength(100)]

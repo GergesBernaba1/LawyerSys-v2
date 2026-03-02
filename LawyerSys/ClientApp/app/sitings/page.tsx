@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type SitingDto = { id: number; sitingTime: string; sitingDate: string; sitingNotification: string; judgeName: string; notes: string };
 
@@ -22,6 +23,7 @@ export default function SitingsPage() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
   const { isAuthenticated } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<SitingDto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -86,7 +88,7 @@ export default function SitingsPage() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('sitings.confirmDelete'))) return;
+    if (!(await confirm(t('sitings.confirmDelete')))) return;
     try {
       await api.delete(`/Sitings/${id}`);
       setSnackbar({ open: true, message: t('sitings.deleted'), severity: 'success' });
@@ -108,6 +110,7 @@ export default function SitingsPage() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>

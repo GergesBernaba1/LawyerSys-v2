@@ -44,6 +44,7 @@ import {
 import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type UserDto = { id: number; fullName?: string; userName?: string };
 type Employee = { id: number; salary?: number; usersId: number; user?: UserDto };
@@ -56,6 +57,7 @@ export default function EmployeesPageClient() {
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
@@ -98,7 +100,7 @@ export default function EmployeesPageClient() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('employees.confirmDelete'))) return;
+    if (!(await confirm(t('employees.confirmDelete')))) return;
     try {
       await api.delete(`/Employees/${id}`);
       await load();
@@ -112,6 +114,7 @@ export default function EmployeesPageClient() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header Section */}
       <Box 
         sx={{ 

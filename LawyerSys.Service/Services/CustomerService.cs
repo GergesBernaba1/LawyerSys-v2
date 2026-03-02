@@ -270,10 +270,8 @@ namespace LawyerSys.Services
             if (await _context.Users.AnyAsync(u => u.User_Name == createdUserName) || (await _userManager.FindByNameAsync(createdUserName)) != null || (await _userManager.FindByEmailAsync(normalizedEmail)) != null)
                 throw new ArgumentException("Username or email already exists");
 
-            if (!int.TryParse(dto.PhoneNumber, out var parsedPhone))
-                throw new ArgumentException("Phone number is not supported by the legacy storage format.");
-            if (!int.TryParse(dto.SSN, out var parsedSsn))
-                throw new ArgumentException("SSN is too large for the legacy storage format.");
+            var parsedPhone = ConvertToLegacyInt(dto.PhoneNumber, "phoneNumber");
+            var parsedSsn = ConvertToLegacyInt(dto.SSN, "SSN");
 
             var maxId = await _context.Users.MaxAsync(u => (int?)u.Id) ?? 0;
 
@@ -337,7 +335,14 @@ if (_userManager != null)
                                                .Replace("{DateOfBirth}", dto.DateOfBirth.ToString("yyyy-MM-dd"))
                                                .Replace("{SSN}", dto.SSN ?? string.Empty);
 
-                            await _emailSender.SendEmailAsync(normalizedEmail, subject, body);
+                            try
+                            {
+                                await _emailSender.SendEmailAsync(normalizedEmail, subject, body);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warning(ex, "Customer was created but sending account email failed for {Email}", normalizedEmail);
+                            }
                         }
                         else
                         {
@@ -366,6 +371,30 @@ if (_userManager != null)
             }
 
             return (responseDto, (createdUserName, generatedPassword));
+        }
+
+        private static int ConvertToLegacyInt(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return 0;
+
+            var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrWhiteSpace(digitsOnly))
+                return 0;
+
+            if (int.TryParse(digitsOnly, out var parsedInt))
+                return parsedInt;
+
+            var safeLength = Math.Min(9, digitsOnly.Length);
+            var tailDigits = digitsOnly.Substring(digitsOnly.Length - safeLength, safeLength);
+            if (int.TryParse(tailDigits, out parsedInt))
+            {
+                Log.Warning("{FieldName} value exceeded legacy int capacity. Using trailing digits for legacy storage.", fieldName);
+                return parsedInt;
+            }
+
+            Log.Warning("{FieldName} value could not be converted for legacy storage. Using 0.", fieldName);
+            return 0;
         }
 
         public async Task<CustomerDto> UpdateCustomerAsync(int id, UpdateCustomerDto dto)

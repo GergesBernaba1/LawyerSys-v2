@@ -15,6 +15,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type CaseOption = { id: number; code: number; invitionsStatment: string };
 type RelationItem = { id?: number; [key: string]: any };
@@ -29,6 +30,7 @@ export default function CaseRelationsPage() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
   const { isAuthenticated } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [cases, setCases] = useState<CaseOption[]>([]);
   const [selectedCase, setSelectedCase] = useState<CaseOption | null>(null);
@@ -127,7 +129,7 @@ export default function CaseRelationsPage() {
 
   async function unlinkItem(type: string, itemId: number) {
     if (!selectedCase) return;
-    if (!confirm(t('caseRelations.confirmUnlink'))) return;
+    if (!(await confirm(t('caseRelations.confirmUnlink')))) return;
     try {
       await api.delete(`/cases/${selectedCase.code}/${type}/${itemId}`);
       setSnackbar({ open: true, message: t('caseRelations.unlinked'), severity: 'success' });
@@ -190,6 +192,7 @@ export default function CaseRelationsPage() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>

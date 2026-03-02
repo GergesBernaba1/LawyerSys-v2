@@ -13,6 +13,7 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import api from '../../src/services/api';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type UserDto = { id: number; fullName: string; address?: string; job: string; phoneNumber: string; dateOfBirth: string; ssn: string; userName: string };
 
@@ -20,6 +21,7 @@ export default function UsersPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -72,7 +74,7 @@ export default function UsersPage() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('users.confirmDelete'))) return;
+    if (!(await confirm(t('users.confirmDelete')))) return;
     try {
       await api.delete(`/Users/${id}`);
       setSnackbar({ open: true, message: t('users.deleted'), severity: 'success' });
@@ -85,6 +87,7 @@ export default function UsersPage() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>

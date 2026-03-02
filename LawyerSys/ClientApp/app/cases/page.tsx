@@ -47,6 +47,7 @@ import {
 import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type CaseItem = {
   id: number;
@@ -67,6 +68,7 @@ export default function CasesPageClient() {
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated, hasAnyRole } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -196,7 +198,7 @@ export default function CasesPageClient() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('cases.confirmDelete'))) return;
+    if (!(await confirm(t('cases.confirmDelete')))) return;
     try {
       await api.delete(`/Cases/${id}`);
       await load();
@@ -210,6 +212,7 @@ export default function CasesPageClient() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
+      {confirmDialog}
       {/* Header */}
       <Box 
         sx={{ 

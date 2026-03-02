@@ -19,7 +19,6 @@ public class CreateContenderDto
     public string FullName { get; set; } = string.Empty;
 
     [Required]
-    [RegularExpression(@"^\d{6,20}$", ErrorMessage = "SSN must contain 6 to 20 digits.")]
     public string SSN { get; set; } = string.Empty;
 
     [Required]
@@ -32,7 +31,6 @@ public class UpdateContenderDto
     [MaxLength(200)]
     public string? FullName { get; set; }
 
-    [RegularExpression(@"^\d{6,20}$", ErrorMessage = "SSN must contain 6 to 20 digits.")]
     public string? SSN { get; set; }
 
     public DateOnly? BirthDate { get; set; }

@@ -43,10 +43,14 @@ import {
   Person as PersonIcon,
   PersonAdd as PersonAddIcon,
   TextFields as TextFieldsIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
+import { InputAdornment } from '@mui/material';
 import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type IdentityDto = { id: string; userName?: string; email?: string; fullName?: string; requiresPasswordReset?: boolean };
 type Customer = { id: number; usersId: number; identity?: IdentityDto };
@@ -59,11 +63,14 @@ export default function CustomersPageClient() {
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [openCreateWithUser, setOpenCreateWithUser] = useState(false);
   const [createForm, setCreateForm] = useState({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showCreateConfirmPassword, setShowCreateConfirmPassword] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [employees, setEmployees] = useState<any[]>([]);
@@ -88,7 +95,7 @@ export default function CustomersPageClient() {
   useEffect(() => { load(); }, []);
 
   async function remove(id: number) {
-    if (!confirm(t('customers.confirmDelete'))) return;
+    if (!(await confirm(t('customers.confirmDelete')))) return;
     try {
       await api.delete(`/Customers/${id}`);
       await load();
@@ -102,6 +109,7 @@ export default function CustomersPageClient() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
+      {confirmDialog}
       {/* Header */}
       <Box 
         sx={{ 
@@ -315,7 +323,16 @@ export default function CustomersPageClient() {
               onChange={(e)=>setCreateForm({...createForm, password: e.target.value})} 
               fullWidth 
               variant="outlined"
-              type="password"
+              type={showCreatePassword ? 'text' : 'password'}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowCreatePassword(prev => !prev)} edge="end" size="small">
+                      {showCreatePassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
             <TextField 
               label={t('customers.confirmPassword', t('register.confirmPassword'))} 
@@ -323,7 +340,16 @@ export default function CustomersPageClient() {
               onChange={(e)=>setCreateForm({...createForm, confirmPassword: e.target.value})} 
               fullWidth 
               variant="outlined"
-              type="password"
+              type={showCreateConfirmPassword ? 'text' : 'password'}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowCreateConfirmPassword(prev => !prev)} edge="end" size="small">
+                      {showCreateConfirmPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
@@ -398,10 +424,15 @@ export default function CustomersPageClient() {
                   confirmPassword: createForm.confirmPassword
                 };
                 const r = await api.post('/Customers/withuser', payload);
-                setSnackbar({ open: true, message: t('customers.customerCreated'), severity: 'success' });
-                if(r.data?.tempCredentials){ alert('Temporary credentials:\n' + JSON.stringify(r.data.tempCredentials)); }
+                const credentials = r.data?.tempCredentials;
+                const successMessage = credentials?.userName
+                  ? `${t('customers.customerCreated')} - ${t('customers.userName')}: ${credentials.userName}`
+                  : t('customers.customerCreated');
+                setSnackbar({ open: true, message: successMessage, severity: 'success' });
                 setOpenCreateWithUser(false);
                 setCreateForm({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
+                setShowCreatePassword(false);
+                setShowCreateConfirmPassword(false);
                 load();
               }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedCreate'), severity: 'error' }); }
             }}

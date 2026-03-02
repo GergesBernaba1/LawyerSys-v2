@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type JudicialDocDto = { id: number; docType: string; docNum: number; docDetails: string; notes: string; numOfAgent: number; customerId: number; customerName?: string };
 type CustomerItem = { id: number; usersId: number; identity?: { fullName?: string; email?: string } };
@@ -23,6 +24,7 @@ export default function JudicialDocumentsPage() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
   const { isAuthenticated } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<JudicialDocDto[]>([]);
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
@@ -90,7 +92,7 @@ export default function JudicialDocumentsPage() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('judicial.confirmDelete'))) return;
+    if (!(await confirm(t('judicial.confirmDelete')))) return;
     try {
       await api.delete(`/JudicialDocuments/${id}`);
       setSnackbar({ open: true, message: t('judicial.deleted'), severity: 'success' });
@@ -102,6 +104,7 @@ export default function JudicialDocumentsPage() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>

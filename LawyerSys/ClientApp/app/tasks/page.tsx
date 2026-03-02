@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type AdminTaskDto = { id: number; taskName: string; type: string; taskDate: string; taskReminderDate: string; notes: string; employeeId?: number | null; employeeName?: string };
 type EmployeeItem = { id: number; usersId: number; identity?: { fullName?: string; email?: string } };
@@ -23,6 +24,7 @@ export default function AdminTasksPage() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
   const { isAuthenticated } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<AdminTaskDto[]>([]);
   const [employees, setEmployees] = useState<EmployeeItem[]>([]);
@@ -104,7 +106,7 @@ export default function AdminTasksPage() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('tasks.confirmDelete'))) return;
+    if (!(await confirm(t('tasks.confirmDelete')))) return;
     try {
       await api.delete(`/AdminTasks/${id}`);
       setSnackbar({ open: true, message: t('tasks.deleted'), severity: 'success' });
@@ -121,6 +123,7 @@ export default function AdminTasksPage() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>

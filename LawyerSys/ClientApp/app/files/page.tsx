@@ -15,6 +15,7 @@ import {
 import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
+import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type FileDto = { id: number; path?: string; code?: string; type?: boolean };
 
@@ -38,6 +39,7 @@ export default function FilesPageClient() {
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<FileDto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ export default function FilesPageClient() {
   }
 
   async function remove(id: number) {
-    if (!confirm(t('files.confirmDelete'))) return;
+    if (!(await confirm(t('files.confirmDelete')))) return;
     try {
       await api.delete(`/Files/${id}`);
       await load();
@@ -99,6 +101,7 @@ export default function FilesPageClient() {
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+      {confirmDialog}
       {/* Header Section */}
       <Box 
         sx={{ 
