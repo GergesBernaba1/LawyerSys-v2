@@ -251,6 +251,8 @@
                       "userName":  "اسم المستخدم",
                       "password":  "كلمة المرور",
                       "passwordOptional":  "كلمة المرور (اختياري)",
+                      "confirmPassword":  "تأكيد كلمة المرور",
+                      "passwordRequired":  "كلمة المرور مطلوبة",
                       "address":  "العنوان",
                       "phoneNumber":  "رقم الهاتف",
                       "profile":  "الملف الشخصي",

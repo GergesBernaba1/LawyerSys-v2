@@ -251,6 +251,8 @@
                       "userName":  "Username",
                       "password":  "Password",
                       "passwordOptional":  "Password (optional)",
+                      "confirmPassword":  "Confirm Password",
+                      "passwordRequired":  "Password is required",
                       "address":  "Address",
                       "phoneNumber":  "Phone Number",
                       "profile":  "Profile",

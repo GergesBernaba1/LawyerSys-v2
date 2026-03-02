@@ -254,10 +254,26 @@ namespace LawyerSys.Services
 
         public async Task<(CustomerDto Customer, (string UserName, string Password) TempCredentials)> CreateCustomerWithUserAsync(CreateCustomerWithUserDto dto)
         {
-            string createdUserName = dto.Email ?? dto.UserName ?? dto.FullName.Replace(" ", "_").ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                throw new ArgumentException("Email is required");
+            if (string.IsNullOrWhiteSpace(dto.Password))
+                throw new ArgumentException("Password is required");
+            if (!string.Equals(dto.Password, dto.ConfirmPassword, StringComparison.Ordinal))
+                throw new ArgumentException("Password and confirm password do not match");
 
-            if (await _context.Users.AnyAsync(u => u.User_Name == createdUserName) || (await _userManager.FindByNameAsync(createdUserName)) != null || (!string.IsNullOrWhiteSpace(dto.Email) && (await _userManager.FindByEmailAsync(dto.Email)) != null))
+            var normalizedEmail = dto.Email.Trim();
+            var preferredUserName = string.IsNullOrWhiteSpace(dto.UserName)
+                ? normalizedEmail
+                : dto.UserName.Trim();
+            string createdUserName = preferredUserName;
+
+            if (await _context.Users.AnyAsync(u => u.User_Name == createdUserName) || (await _userManager.FindByNameAsync(createdUserName)) != null || (await _userManager.FindByEmailAsync(normalizedEmail)) != null)
                 throw new ArgumentException("Username or email already exists");
+
+            if (!int.TryParse(dto.PhoneNumber, out var parsedPhone))
+                throw new ArgumentException("Phone number is not supported by the legacy storage format.");
+            if (!int.TryParse(dto.SSN, out var parsedSsn))
+                throw new ArgumentException("SSN is too large for the legacy storage format.");
 
             var maxId = await _context.Users.MaxAsync(u => (int?)u.Id) ?? 0;
 
@@ -267,9 +283,9 @@ namespace LawyerSys.Services
                 Full_Name = dto.FullName,
                 Address = dto.Address,
                 Job = dto.Job,
-                Phon_Number = int.TryParse(dto.PhoneNumber, out var phone) ? phone : 0,
+                Phon_Number = parsedPhone,
                 Date_Of_Birth = dto.DateOfBirth,
-                SSN = int.TryParse(dto.SSN, out var ssn) ? ssn : 0,
+                SSN = parsedSsn,
                 User_Name = createdUserName,
                 Password = dto.Password
             };
@@ -293,9 +309,9 @@ if (_userManager != null)
                     var appUser = new ApplicationUser
                     {
                         UserName = createdUserName,
-                        Email = dto.Email ?? string.Empty,
+                        Email = normalizedEmail,
                         FullName = dto.FullName,
-                        EmailConfirmed = !string.IsNullOrWhiteSpace(dto.Email),
+                        EmailConfirmed = true,
                         RequiresPasswordReset = true
                     };
 
@@ -307,12 +323,12 @@ if (_userManager != null)
                             await _userManager.AddToRoleAsync(appUser, "Customer");
                         }
 
-                        if (_emailSender != null && !string.IsNullOrWhiteSpace(dto.Email))
+                        if (_emailSender != null)
                         {
                             var subject = _localizer["AccountCreatedSubject"].Value;
                             var template = _localizer["AccountCreatedBody"].Value;
                             var body = template.Replace("{FullName}", dto.FullName)
-                                               .Replace("{Email}", dto.Email ?? string.Empty)
+                                               .Replace("{Email}", normalizedEmail)
                                                .Replace("{UserName}", appUser.UserName ?? string.Empty)
                                                .Replace("{Password}", generatedPassword)
                                                .Replace("{Phone}", dto.PhoneNumber ?? string.Empty)
@@ -321,7 +337,7 @@ if (_userManager != null)
                                                .Replace("{DateOfBirth}", dto.DateOfBirth.ToString("yyyy-MM-dd"))
                                                .Replace("{SSN}", dto.SSN ?? string.Empty);
 
-                            await _emailSender.SendEmailAsync(dto.Email ?? string.Empty, subject, body);
+                            await _emailSender.SendEmailAsync(normalizedEmail, subject, body);
                         }
                         else
                         {

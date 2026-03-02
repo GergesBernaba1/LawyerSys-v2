@@ -63,18 +63,21 @@ export default function CustomersPageClient() {
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [openCreateWithUser, setOpenCreateWithUser] = useState(false);
-  const [createForm, setCreateForm] = useState({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '' });
+  const [createForm, setCreateForm] = useState({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
   const [profileOpen, setProfileOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [employees, setEmployees] = useState<any[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
   const [assignmentUndo, setAssignmentUndo] = useState<{ caseCode: number; prevEmployeeId?: number | null } | null>(null);
+  const customerItems = Array.isArray(items) ? items : [];
 
   async function load() {
     setLoading(true);
     try {
       const customersRes = await api.get('/Customers');
-      setItems(customersRes.data || []);
+      const data = customersRes.data;
+      const normalized = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+      setItems(normalized);
     } catch (err) {
       setSnackbar({ open: true, message: t('customers.failedLoad'), severity: 'error' });
     } finally {
@@ -127,7 +130,7 @@ export default function CustomersPageClient() {
               {t('customers.management')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {t('customers.totalCustomers')}: <strong>{items.length}</strong>
+              {t('customers.totalCustomers')}: <strong>{customerItems.length}</strong>
             </Typography>
           </Box>
         </Box>
@@ -197,7 +200,7 @@ export default function CustomersPageClient() {
                     ))}
                   </TableRow>
                 ))
-              ) : items.length === 0 ? (
+              ) : customerItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} align="center" sx={{ py: 10 }}>
                     <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
@@ -212,7 +215,7 @@ export default function CustomersPageClient() {
                   </TableCell>
                 </TableRow>
               ) : (
-                items.map((item) => (
+                customerItems.map((item) => (
                   <TableRow 
                     key={item.id}
                     sx={{ 
@@ -312,7 +315,15 @@ export default function CustomersPageClient() {
               onChange={(e)=>setCreateForm({...createForm, password: e.target.value})} 
               fullWidth 
               variant="outlined"
-              helperText={t('customers.passwordOptional')} 
+              type="password"
+            />
+            <TextField 
+              label={t('customers.confirmPassword', t('register.confirmPassword'))} 
+              value={createForm.confirmPassword} 
+              onChange={(e)=>setCreateForm({...createForm, confirmPassword: e.target.value})} 
+              fullWidth 
+              variant="outlined"
+              type="password"
             />
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField 
@@ -365,13 +376,32 @@ export default function CustomersPageClient() {
           <Button 
             variant="contained" 
             onClick={async ()=>{
+              if (!createForm.password || !createForm.confirmPassword) {
+                setSnackbar({ open: true, message: t('customers.passwordRequired', 'Password is required'), severity: 'error' });
+                return;
+              }
+              if (createForm.password !== createForm.confirmPassword) {
+                setSnackbar({ open: true, message: t('register.passwordMismatch'), severity: 'error' });
+                return;
+              }
               try{
-                const payload = { fullName: createForm.fullName, address: createForm.address, email: createForm.email, job: createForm.job, phoneNumber: createForm.phoneNumber, dateOfBirth: createForm.dateOfBirth || new Date().toISOString().slice(0,10), ssn: createForm.ssn, userName: createForm.userName, password: createForm.password };
+                const payload = {
+                  fullName: createForm.fullName,
+                  address: createForm.address,
+                  email: createForm.email,
+                  job: createForm.job,
+                  phoneNumber: createForm.phoneNumber,
+                  dateOfBirth: createForm.dateOfBirth || new Date().toISOString().slice(0,10),
+                  ssn: createForm.ssn,
+                  userName: createForm.userName,
+                  password: createForm.password,
+                  confirmPassword: createForm.confirmPassword
+                };
                 const r = await api.post('/Customers/withuser', payload);
                 setSnackbar({ open: true, message: t('customers.customerCreated'), severity: 'success' });
                 if(r.data?.tempCredentials){ alert('Temporary credentials:\n' + JSON.stringify(r.data.tempCredentials)); }
                 setOpenCreateWithUser(false);
-                setCreateForm({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '' });
+                setCreateForm({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
                 load();
               }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedCreate'), severity: 'error' }); }
             }}

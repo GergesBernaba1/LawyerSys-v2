@@ -152,6 +152,8 @@ public partial class LegacyDbContext : DbContext
 
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
+        NormalizeDateTimeKinds();
+
         if (_isSavingAuditLogs)
         {
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -734,7 +736,7 @@ public partial class LegacyDbContext : DbContext
     {
         ChangeTracker.DetectChanges();
 
-        var now = DateTime.UtcNow;
+        var now = NormalizeTimestamp(DateTime.UtcNow);
         var httpContext = _httpContextAccessor?.HttpContext;
         var userId = httpContext?.User?.FindFirst("sub")?.Value
                      ?? httpContext?.User?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
@@ -820,6 +822,38 @@ public partial class LegacyDbContext : DbContext
         }
 
         return list;
+    }
+
+    private void NormalizeDateTimeKinds()
+    {
+        foreach (var entry in ChangeTracker.Entries().Where(e => e.State is EntityState.Added or EntityState.Modified))
+        {
+            foreach (var property in entry.Properties)
+            {
+                var clrType = property.Metadata.ClrType;
+                if (clrType != typeof(DateTime) && clrType != typeof(DateTime?))
+                {
+                    continue;
+                }
+
+                if (property.CurrentValue is DateTime current)
+                {
+                    property.CurrentValue = NormalizeTimestamp(current);
+                }
+
+                if (property.OriginalValue is DateTime original)
+                {
+                    property.OriginalValue = NormalizeTimestamp(original);
+                }
+            }
+        }
+    }
+
+    private static DateTime NormalizeTimestamp(DateTime value)
+    {
+        return value.Kind == DateTimeKind.Utc
+            ? DateTime.SpecifyKind(value, DateTimeKind.Unspecified)
+            : value;
     }
 
     private List<AuditLog> FinalizeAuditEntries(IEnumerable<PendingAuditEntry> pendingEntries)
