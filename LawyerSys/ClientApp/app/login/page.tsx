@@ -25,7 +25,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isAuthInitialized } = useAuth();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -34,10 +34,11 @@ export default function LoginPage() {
 
   // Redirect authenticated users away from login page
   useEffect(() => {
+    if (!isAuthInitialized) return;
     if (isAuthenticated) {
-      router.push('/');
+      router.replace('/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isAuthInitialized, router]);
 
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -47,7 +48,7 @@ export default function LoginPage() {
 
     const success = await login(userName, password);
     if (success) {
-      router.push('/');
+      router.replace('/dashboard');
     } else {
       setError(t('login.invalidCredentials') || 'Invalid credentials');
     }

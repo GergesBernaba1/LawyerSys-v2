@@ -8,6 +8,16 @@ export default function ServiceWorkerRegister() {
       return;
     }
 
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        registration.unregister();
+      });
+    });
+
+    if (process.env.NEXT_PUBLIC_ENABLE_SW !== 'true') {
+      return;
+    }
+
     navigator.serviceWorker.register('/sw.js').catch(() => {
       // no-op: service worker registration should not block app startup
     });

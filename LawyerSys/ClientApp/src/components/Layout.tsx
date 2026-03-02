@@ -152,7 +152,10 @@ export default function Layout({ children }: LayoutProps) {
     let targetPath: string | null = null;
 
     if (!isAuthenticated) {
-      targetPath = '/login';
+      const hasStoredToken = typeof window !== 'undefined' && !!localStorage.getItem('lawyersys-token');
+      if (!hasStoredToken) {
+        targetPath = '/login';
+      }
     } else if (pathname === '/administration' && !isAdmin) {
       targetPath = '/dashboard';
     } else if (pathname === '/intake' && !canUseIntake) {

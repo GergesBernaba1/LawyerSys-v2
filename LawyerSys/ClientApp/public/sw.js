@@ -18,6 +18,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  const requestUrl = new URL(event.request.url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
+  const isNextInternal = requestUrl.pathname.startsWith('/_next');
+  const isApiRoute = requestUrl.pathname.startsWith('/api');
+  const isRscRequest = requestUrl.searchParams.has('_rsc');
+  const isProgrammaticFetch = event.request.destination === '';
+
+  // Never intercept API calls, Next internal requests, RSC payloads, cross-origin,
+  // or programmatic fetch/xhr traffic. Those should always go directly to network.
+  if (!isSameOrigin || isApiRoute || isNextInternal || isRscRequest || isProgrammaticFetch) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) {
