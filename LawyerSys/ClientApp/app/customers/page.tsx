@@ -38,6 +38,7 @@ import {
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
+  Edit as EditIcon,
   People as PeopleIcon,
   Refresh as RefreshIcon,
   Person as PersonIcon,
@@ -61,6 +62,12 @@ type Customer = {
   fullName: string;
   userName: string;
   email: string;
+};
+
+type UserOption = {
+  id: number;
+  fullName: string;
+  userName: string;
 };
 
 function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
@@ -163,6 +170,11 @@ export default function CustomersPageClient() {
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [openCreateWithUser, setOpenCreateWithUser] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [editItem, setEditItem] = useState<Customer | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<number>(0);
+  const [usersOptions, setUsersOptions] = useState<UserOption[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [createForm, setCreateForm] = useState({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [showCreateConfirmPassword, setShowCreateConfirmPassword] = useState(false);
@@ -197,6 +209,49 @@ export default function CustomersPageClient() {
       setSnackbar({ open: true, message: t('customers.customerDeleted'), severity: 'success' });
     } catch (err) {
       setSnackbar({ open: true, message: t('customers.failedDelete'), severity: 'error' });
+    }
+  }
+
+  async function openEdit(item: Customer) {
+    setEditItem(item);
+    setSelectedUserId(item.usersId || 0);
+    setOpenEditDialog(true);
+
+    if (usersOptions.length > 0) return;
+    setLoadingUsers(true);
+    try {
+      const res = await api.get('/Users');
+      const data = res.data;
+      const source = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+      const mapped = source.map((raw: any) => ({
+        id: Number(firstDefined(raw.id, raw.Id, 0)),
+        fullName: firstDefined(raw.fullName, raw.FullName, raw.full_Name, raw.Full_Name, '') || '',
+        userName: firstDefined(raw.userName, raw.UserName, raw.user_Name, raw.User_Name, '') || '',
+      })).filter((u: UserOption) => u.id > 0);
+      setUsersOptions(mapped);
+    } catch {
+      setSnackbar({ open: true, message: t('users.failedLoad'), severity: 'error' });
+    } finally {
+      setLoadingUsers(false);
+    }
+  }
+
+  async function handleUpdateCustomer() {
+    if (!editItem) return;
+    if (!selectedUserId) {
+      setSnackbar({ open: true, message: t('customers.pleaseSelectUser'), severity: 'error' });
+      return;
+    }
+
+    try {
+      await api.put(`/Customers/${editItem.id}`, { usersId: selectedUserId });
+      setOpenEditDialog(false);
+      setEditItem(null);
+      setSnackbar({ open: true, message: t('customers.customerUpdated'), severity: 'success' });
+      await load();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || t('customers.failedUpdate');
+      setSnackbar({ open: true, message: msg, severity: 'error' });
     }
   }
 
@@ -354,6 +409,20 @@ export default function CustomersPageClient() {
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.userName}</TableCell>
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+                        {hasRole('Admin') && (
+                          <Tooltip title={t('common.edit')}>
+                            <IconButton
+                              color="primary"
+                              onClick={() => openEdit(item)}
+                              sx={{
+                                '&:hover': { bgcolor: 'primary.light', color: 'white' },
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         {hasRole('Admin') && (
                           <Tooltip title={t('app.delete')}>
                             <IconButton 
@@ -536,6 +605,48 @@ export default function CustomersPageClient() {
             sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
           >
             {t('app.create')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit customer dialog */}
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3, p: 1 }
+        }}
+      >
+        <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>
+          {t('common.edit')}
+        </DialogTitle>
+        <DialogContent sx={{ px: 3 }}>
+          <Box sx={{ mt: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>{t('customers.selectUser')}</InputLabel>
+              <Select
+                label={t('customers.selectUser')}
+                value={selectedUserId ? String(selectedUserId) : ''}
+                onChange={(e) => setSelectedUserId(Number(e.target.value))}
+                disabled={loadingUsers}
+              >
+                {usersOptions.map((u) => (
+                  <MenuItem key={u.id} value={String(u.id)}>
+                    {u.fullName || u.userName || `#${u.id}`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+          <Button onClick={() => setOpenEditDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>
+            {t('common.cancel')}
+          </Button>
+          <Button variant="contained" onClick={handleUpdateCustomer} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>
+            {t('common.save')}
           </Button>
         </DialogActions>
       </Dialog>
