@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 type ConfirmOptions = {
   title?: string;
@@ -15,18 +16,20 @@ type ConfirmState = {
   cancelText: string;
 };
 
-const DEFAULT_TITLE = 'Confirm';
-const DEFAULT_CONFIRM_TEXT = 'Confirm';
-const DEFAULT_CANCEL_TEXT = 'Cancel';
-
 export default function useConfirmDialog() {
+  const { t } = useTranslation();
+  const defaultTitle = t('common.confirm', 'Confirm');
+  const defaultMessage = t('common.confirmDelete', 'Are you sure you want to continue?');
+  const defaultConfirmText = t('common.confirm', 'Confirm');
+  const defaultCancelText = t('common.cancel', 'Cancel');
+
   const resolverRef = useRef<((value: boolean) => void) | null>(null);
   const [state, setState] = useState<ConfirmState>({
     open: false,
-    message: '',
-    title: DEFAULT_TITLE,
-    confirmText: DEFAULT_CONFIRM_TEXT,
-    cancelText: DEFAULT_CANCEL_TEXT,
+    message: defaultMessage,
+    title: defaultTitle,
+    confirmText: defaultConfirmText,
+    cancelText: defaultCancelText,
   });
 
   const close = useCallback((result: boolean) => {
@@ -40,13 +43,13 @@ export default function useConfirmDialog() {
       resolverRef.current = resolve;
       setState({
         open: true,
-        message,
-        title: options?.title || DEFAULT_TITLE,
-        confirmText: options?.confirmText || DEFAULT_CONFIRM_TEXT,
-        cancelText: options?.cancelText || DEFAULT_CANCEL_TEXT,
+        message: message?.trim() || defaultMessage,
+        title: options?.title?.trim() || defaultTitle,
+        confirmText: options?.confirmText?.trim() || defaultConfirmText,
+        cancelText: options?.cancelText?.trim() || defaultCancelText,
       });
     });
-  }, []);
+  }, [defaultCancelText, defaultConfirmText, defaultMessage, defaultTitle]);
 
   const confirmDialog = useMemo(() => (
     <Dialog open={state.open} onClose={() => close(false)} maxWidth="xs" fullWidth>

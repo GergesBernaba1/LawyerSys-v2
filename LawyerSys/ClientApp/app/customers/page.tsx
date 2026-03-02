@@ -53,7 +53,104 @@ import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type IdentityDto = { id: string; userName?: string; email?: string; fullName?: string; requiresPasswordReset?: boolean };
-type Customer = { id: number; usersId: number; identity?: IdentityDto };
+type Customer = {
+  id: number;
+  usersId: number;
+  identity?: IdentityDto;
+  user?: any;
+  displayName: string;
+  displayUserName: string;
+  displayEmail: string;
+};
+
+function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
+  return values.find((value) => value !== undefined && value !== null) as T | undefined;
+}
+
+function normalizeIdentity(raw: any): IdentityDto | undefined {
+  if (!raw) return undefined;
+  const id = firstDefined(raw.id, raw.Id);
+  if (!id) return undefined;
+
+  return {
+    id: String(id),
+    userName: firstDefined(raw.userName, raw.UserName),
+    email: firstDefined(raw.email, raw.Email),
+    fullName: firstDefined(raw.fullName, raw.FullName),
+    requiresPasswordReset: firstDefined(raw.requiresPasswordReset, raw.RequiresPasswordReset),
+  };
+}
+
+function normalizeCustomer(raw: any): Customer {
+  const identity = normalizeIdentity(firstDefined(raw.identity, raw.Identity));
+  const user = firstDefined(raw.user, raw.User);
+  const fallbackIdentity = normalizeIdentity({
+    id: firstDefined(user?.id, user?.Id, raw.usersId, raw.UsersId, raw.id, raw.Id),
+    userName: firstDefined(user?.userName, user?.UserName),
+    email: firstDefined(user?.email, user?.Email),
+    fullName: firstDefined(user?.fullName, user?.FullName),
+  });
+
+  const fullName = firstDefined(
+    identity?.fullName,
+    user?.fullName,
+    user?.FullName,
+    user?.full_Name,
+    user?.Full_Name,
+    raw?.fullName,
+    raw?.FullName,
+    raw?.full_Name,
+    raw?.Full_Name,
+  );
+  const userName = firstDefined(
+    identity?.userName,
+    user?.userName,
+    user?.UserName,
+    user?.user_Name,
+    user?.User_Name,
+    raw?.userName,
+    raw?.UserName,
+    raw?.user_Name,
+    raw?.User_Name,
+  );
+  const email = firstDefined(
+    identity?.email,
+    user?.email,
+    user?.Email,
+    raw?.email,
+    raw?.Email,
+  );
+
+  return {
+    id: Number(firstDefined(raw.id, raw.Id, 0)),
+    usersId: Number(firstDefined(raw.usersId, raw.UsersId, raw.userId, raw.UserId, 0)),
+    identity: identity ?? fallbackIdentity,
+    user,
+    displayName: fullName || userName || email || 'Unknown',
+    displayUserName: userName || email || '-',
+    displayEmail: email || '-',
+  };
+}
+
+function normalizeProfile(raw: any) {
+  if (!raw) return null;
+  const identity = normalizeIdentity(firstDefined(raw.identity, raw.Identity));
+  const user = firstDefined(raw.user, raw.User);
+  const casesRaw = firstDefined(raw.cases, raw.Cases, []);
+  const cases = Array.isArray(casesRaw) ? casesRaw.map((item: any) => ({
+    caseId: firstDefined(item.caseId, item.CaseId),
+    caseName: firstDefined(item.caseName, item.CaseName),
+    code: firstDefined(item.code, item.Code),
+    assignedEmployee: firstDefined(item.assignedEmployee, item.AssignedEmployee),
+  })) : [];
+
+  return {
+    id: firstDefined(raw.id, raw.Id),
+    identity,
+    user,
+    cases,
+  };
+}
 
 export default function CustomersPageClient() {
   const { t } = useTranslation();
@@ -83,8 +180,8 @@ export default function CustomersPageClient() {
     try {
       const customersRes = await api.get('/Customers');
       const data = customersRes.data;
-      const normalized = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
-      setItems(normalized);
+      const source = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+      setItems(source.map(normalizeCustomer));
     } catch (err) {
       setSnackbar({ open: true, message: t('customers.failedLoad'), severity: 'error' });
     } finally {
@@ -237,24 +334,28 @@ export default function CustomersPageClient() {
                           <PersonIcon fontSize="small" />
                         </Avatar>
                         <Button 
-                          onClick={async ()=>{ const r = await api.get(`/Customers/${item.id}/profile`).then(r=>r.data).catch(()=>null); setProfile(r); setProfileOpen(true); }} 
+                          onClick={async ()=>{
+                            const r = await api.get(`/Customers/${item.id}/profile`).then(res => normalizeProfile(res.data)).catch(()=>null);
+                            setProfile(r);
+                            setProfileOpen(true);
+                          }} 
                           variant="text"
                           sx={{ textTransform: 'none', p: 0, minWidth: 0, textAlign: isRTL ? 'right' : 'left' }}
                         >
                           <Box>
                             <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                              {item.identity?.fullName || item.identity?.userName || item.identity?.email || 'Unknown'}
+                              {item.displayName}
                             </Typography>
-                            {item.identity?.email && (
+                            {item.displayEmail !== '-' && (
                               <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                                {item.identity.email}
+                                {item.displayEmail}
                               </Typography>
                             )}
                           </Box>
                         </Button>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.identity?.userName || item.identity?.email || '-'}</TableCell>
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.displayUserName}</TableCell>
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
                         {hasRole('Admin') && (
@@ -528,14 +629,25 @@ export default function CustomersPageClient() {
                               <Select 
                                 label={t('customers.assignEmployee')}
                                 defaultValue="" 
-                                onOpen={async ()=>{ if(employees.length===0){ const r = await api.get('/Employees'); setEmployees(r.data); } }} 
+                                onOpen={async ()=>{ 
+                                  if(employees.length===0){ 
+                                    const r = await api.get('/Employees');
+                                    const source = Array.isArray(r.data) ? r.data : (Array.isArray(r.data?.items) ? r.data.items : []);
+                                    const mappedEmployees = source.map((emp: any) => ({
+                                      id: Number(firstDefined(emp.id, emp.Id, 0)),
+                                      user: firstDefined(emp.user, emp.User),
+                                      identity: normalizeIdentity(firstDefined(emp.identity, emp.Identity)),
+                                    }));
+                                    setEmployees(mappedEmployees);
+                                  } 
+                                }} 
                                 onChange={async (e)=>{
                                   try{
                                     const empId = Number(e.target.value);
                                     const prevEmployeeId = c.assignedEmployee?.id ?? null;
                                     await api.post(`/Cases/${c.code}/assign-employee`, { employeeId: empId });
                                     const r = await api.get(`/Customers/${profile.id}/profile`);
-                                    setProfile(r.data);
+                                    setProfile(normalizeProfile(r.data));
                                     load();
                                     setSnackbar({ open: true, message: t('customers.assignmentSuccess'), severity: 'success' });
                                     setAssignmentUndo({ caseCode: c.code, prevEmployeeId: prevEmployeeId });
@@ -545,7 +657,7 @@ export default function CustomersPageClient() {
                               >
                                 {employees.map(emp => (
                                   <MenuItem key={emp.id} value={emp.id}>
-                                    {emp.user?.fullName || emp.user?.userName}
+                                    {emp.identity?.fullName || emp.user?.fullName || emp.user?.FullName || emp.user?.userName || emp.user?.UserName || '-'}
                                   </MenuItem>
                                 ))}
                               </Select>
@@ -600,7 +712,7 @@ export default function CustomersPageClient() {
                     await api.delete(`/Cases/${undo.caseCode}/assign-employee`);
                   }
                   const r = await api.get(`/Customers/${profile.id}/profile`);
-                  setProfile(r.data);
+                  setProfile(normalizeProfile(r.data));
                   load();
                   setSnackbar({ open: true, message: t('customers.assignmentUndone'), severity: 'success' });
                 }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedUndo'), severity: 'error' }); }
