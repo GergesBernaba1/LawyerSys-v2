@@ -59,6 +59,21 @@ function tryGetNameFromContentDisposition(contentDisposition?: string): string |
   return plainMatch?.[1];
 }
 
+async function extractApiErrorMessage(error: any, fallback: string): Promise<string> {
+  const responseData = error?.response?.data;
+  if (responseData instanceof Blob) {
+    try {
+      const text = await responseData.text();
+      const parsed = JSON.parse(text);
+      return parsed?.message || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  return error?.response?.data?.message || fallback;
+}
+
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -136,20 +151,27 @@ export default function FilesPageClient() {
   }
 
   async function viewFile(item: FileDto) {
-    const opened = window.open('about:blank', '_blank', 'noopener,noreferrer');
+    const opened = window.open('', '_blank');
     try {
       const response = await api.get(`/Files/${item.id}/view`, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: response.headers?.['content-type'] || undefined });
       const objectUrl = URL.createObjectURL(blob);
       if (opened) {
         opened.location.href = objectUrl;
+        opened.focus();
       } else {
-        window.open(objectUrl, '_blank', 'noopener,noreferrer');
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       }
       setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
     } catch (error: any) {
       if (opened) opened.close();
-      setSnackbar({ open: true, message: error?.response?.data?.message || t('files.failedView'), severity: 'error' });
+      setSnackbar({ open: true, message: await extractApiErrorMessage(error, t('files.failedView')), severity: 'error' });
     }
   }
 
@@ -169,7 +191,7 @@ export default function FilesPageClient() {
       a.remove();
       URL.revokeObjectURL(objectUrl);
     } catch (error: any) {
-      setSnackbar({ open: true, message: error?.response?.data?.message || t('files.failedDownload'), severity: 'error' });
+      setSnackbar({ open: true, message: await extractApiErrorMessage(error, t('files.failedDownload')), severity: 'error' });
     }
   }
 

@@ -404,6 +404,9 @@
     "sitings":  {
                     "title":  "الجلسات",
                     "management":  "إدارة الجلسات",
+                    "caseCode":  "رقم القضية",
+                    "selectCase":  "اختر القضية",
+                    "selectCaseRequired":  "يرجى اختيار القضية",
                     "sitingDate":  "تاريخ الجلسة",
                     "sitingTime":  "وقت الجلسة",
                     "judgeName":  "اسم القاضي",

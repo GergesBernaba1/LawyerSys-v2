@@ -404,6 +404,9 @@
     "sitings":  {
                     "title":  "Hearings",
                     "management":  "Hearings Management",
+                    "caseCode":  "Case Code",
+                    "selectCase":  "Select Case",
+                    "selectCaseRequired":  "Please select a case",
                     "sitingDate":  "Hearing Date",
                     "sitingTime":  "Hearing Time",
                     "judgeName":  "Judge Name",

@@ -6,6 +6,7 @@ namespace LawyerSys.DTOs;
 public class SitingDto
 {
     public int Id { get; set; }
+    public int? CaseCode { get; set; }
     public DateTime SitingTime { get; set; }
     public DateOnly SitingDate { get; set; }
     public DateTime SitingNotification { get; set; }
@@ -15,6 +16,8 @@ public class SitingDto
 
 public class CreateSitingDto
 {
+    public int? CaseCode { get; set; }
+
     [Required]
     public DateTime SitingTime { get; set; }
 

@@ -22,7 +22,8 @@ public class SitingsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SitingDto>>> GetSitings([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        IQueryable<Siting> query = _context.Sitings;
+        IQueryable<Siting> query = _context.Sitings
+            .Include(st => st.Cases_Sitings);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -52,7 +53,9 @@ public class SitingsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<SitingDto>> GetSiting(int id)
     {
-        var siting = await _context.Sitings.FindAsync(id);
+        var siting = await _context.Sitings
+            .Include(st => st.Cases_Sitings)
+            .FirstOrDefaultAsync(st => st.Id == id);
         if (siting == null)
             return NotFound(new { message = "Siting not found" });
 
@@ -66,6 +69,13 @@ public class SitingsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
+        if (dto.CaseCode.HasValue)
+        {
+            var caseExists = await _context.Cases.AnyAsync(c => c.Code == dto.CaseCode.Value);
+            if (!caseExists)
+                return BadRequest(new { message = "Case not found" });
+        }
+
         var siting = new Siting
         {
             Siting_Time = dto.SitingTime,
@@ -78,6 +88,23 @@ public class SitingsController : ControllerBase
         _context.Sitings.Add(siting);
         await _context.SaveChangesAsync();
 
+        if (dto.CaseCode.HasValue)
+        {
+            var exists = await _context.Cases_Sitings
+                .AnyAsync(cs => cs.Case_Code == dto.CaseCode.Value && cs.Siting_Id == siting.Id);
+
+            if (!exists)
+            {
+                _context.Cases_Sitings.Add(new Cases_Siting
+                {
+                    Case_Code = dto.CaseCode.Value,
+                    Siting_Id = siting.Id
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        await _context.Entry(siting).Collection(st => st.Cases_Sitings).LoadAsync();
         return CreatedAtAction(nameof(GetSiting), new { id = siting.Id }, MapToDto(siting));
     }
 
@@ -115,6 +142,10 @@ public class SitingsController : ControllerBase
     private static SitingDto MapToDto(Siting s) => new()
     {
         Id = s.Id,
+        CaseCode = s.Cases_Sitings
+            .OrderBy(cs => cs.Id)
+            .Select(cs => (int?)cs.Case_Code)
+            .FirstOrDefault(),
         SitingTime = s.Siting_Time,
         SitingDate = s.Siting_Date,
         SitingNotification = s.Siting_Notification,

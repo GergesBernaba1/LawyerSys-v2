@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme,
+  Tooltip, TextField, useTheme, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import {
   Event as EventIcon,
@@ -13,30 +13,49 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import api from '../../src/services/api';
-import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
-type SitingDto = { id: number; sitingTime: string; sitingDate: string; sitingNotification: string; judgeName: string; notes: string };
+type SitingDto = { id: number; caseCode?: number; sitingTime: string; sitingDate: string; sitingNotification: string; judgeName: string; notes: string };
+type CaseOption = { code: number; invitionType?: string };
+
+function asArray<T>(data: any): T[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.Items)) return data.Items;
+  return [];
+}
 
 export default function SitingsPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
-  const { isAuthenticated } = useAuth();
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<SitingDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [editItem, setEditItem] = useState<SitingDto | null>(null);
+  const [cases, setCases] = useState<CaseOption[]>([]);
+  const [selectedCaseCode, setSelectedCaseCode] = useState<number | ''>('');
   const [form, setForm] = useState({ sitingDate: '', sitingTime: '', sitingNotification: '', judgeName: '', notes: '' });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   async function load() {
     setLoading(true);
     try {
-      const res = await api.get('/Sitings');
-      setItems(res.data || []);
+      const [sitingsRes, casesRes] = await Promise.all([
+        api.get('/Sitings'),
+        api.get('/Cases')
+      ]);
+      setItems(asArray<SitingDto>(sitingsRes.data));
+      setCases(
+        asArray<any>(casesRes.data)
+          .map((c) => ({
+            code: Number(c.code ?? c.Code ?? 0),
+            invitionType: c.invitionType ?? c.InvitionType ?? ''
+          }))
+          .filter((c) => c.code > 0)
+      );
     } catch {
       setSnackbar({ open: true, message: t('sitings.failedLoad'), severity: 'error' });
     } finally {
@@ -48,12 +67,14 @@ export default function SitingsPage() {
 
   function openCreate() {
     setEditItem(null);
+    setSelectedCaseCode('');
     setForm({ sitingDate: '', sitingTime: '', sitingNotification: '', judgeName: '', notes: '' });
     setOpenDialog(true);
   }
 
   function openEdit(item: SitingDto) {
     setEditItem(item);
+    setSelectedCaseCode(item.caseCode || '');
     setForm({
       sitingDate: item.sitingDate?.substring(0, 10) || '',
       sitingTime: item.sitingTime ? new Date(item.sitingTime).toISOString() : '',
@@ -66,7 +87,13 @@ export default function SitingsPage() {
 
   async function handleSubmit() {
     try {
+      if (!editItem && !selectedCaseCode) {
+        setSnackbar({ open: true, message: t('sitings.selectCaseRequired'), severity: 'error' });
+        return;
+      }
+
       const payload = {
+        caseCode: !editItem && selectedCaseCode ? Number(selectedCaseCode) : undefined,
         sitingDate: form.sitingDate,
         sitingTime: form.sitingTime || new Date().toISOString(),
         sitingNotification: form.sitingNotification || new Date().toISOString(),
@@ -77,7 +104,16 @@ export default function SitingsPage() {
         await api.put(`/Sitings/${editItem.id}`, payload);
         setSnackbar({ open: true, message: t('sitings.updated'), severity: 'success' });
       } else {
-        await api.post('/Sitings', payload);
+        const created = await api.post('/Sitings', payload);
+        const createdId = Number(created?.data?.id ?? created?.data?.Id ?? 0);
+        if (createdId && selectedCaseCode) {
+          try {
+            // Keep compatibility with older backend versions that do not auto-link in CreateSiting.
+            await api.post(`/cases/${Number(selectedCaseCode)}/sitings/${createdId}`);
+          } catch {
+            // ignore duplicate/legacy link failures
+          }
+        }
         setSnackbar({ open: true, message: t('sitings.created'), severity: 'success' });
       }
       setOpenDialog(false);
@@ -141,6 +177,7 @@ export default function SitingsPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.caseCode')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.sitingDate')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.sitingTime')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('sitings.judgeName')}</TableCell>
@@ -152,12 +189,12 @@ export default function SitingsPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
+                    {[...Array(6)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
                   </TableRow>
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 10 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
                     <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <EventIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
                       <Typography variant="h6" gutterBottom>{t('sitings.noSitings')}</Typography>
@@ -167,6 +204,7 @@ export default function SitingsPage() {
                 </TableRow>
               ) : items.map((item) => (
                 <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
+                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{item.caseCode ?? '-'}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.sitingDate)}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{formatTime(item.sitingTime)}</TableCell>
                   <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.judgeName || '-'}</TableCell>
@@ -199,6 +237,22 @@ export default function SitingsPage() {
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>{t('sitings.selectCase')}</InputLabel>
+              <Select
+                value={selectedCaseCode}
+                label={t('sitings.selectCase')}
+                onChange={(e) => setSelectedCaseCode(Number(e.target.value) || '')}
+                disabled={!!editItem}
+              >
+                <MenuItem value=""><em>-- {t('sitings.selectCase')} --</em></MenuItem>
+                {cases.map((c) => (
+                  <MenuItem key={c.code} value={c.code}>
+                    #{c.code}{c.invitionType ? ` - ${c.invitionType}` : ''}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField fullWidth label={t('sitings.sitingDate')} type="date" value={form.sitingDate} onChange={(e) => setForm({ ...form, sitingDate: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
             <TextField fullWidth label={t('sitings.sitingTime')} type="datetime-local" value={form.sitingTime?.substring(0, 16) || ''} onChange={(e) => setForm({ ...form, sitingTime: new Date(e.target.value).toISOString() })} InputLabelProps={{ shrink: true }} variant="outlined" />
             <TextField fullWidth label={t('sitings.notificationDate')} type="datetime-local" value={form.sitingNotification?.substring(0, 16) || ''} onChange={(e) => setForm({ ...form, sitingNotification: new Date(e.target.value).toISOString() })} InputLabelProps={{ shrink: true }} variant="outlined" />
