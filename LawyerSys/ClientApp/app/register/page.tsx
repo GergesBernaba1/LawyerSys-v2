@@ -22,6 +22,8 @@ import {
   AccountBalanceOutlined,
   GavelOutlined,
   ShieldOutlined,
+  DescriptionOutlined,
+  GroupsOutlined,
 } from '@mui/icons-material';
 import { useAuth } from '../../src/services/auth';
 import { useTranslation } from 'react-i18next';
@@ -73,13 +75,13 @@ export default function RegisterPage() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        height: '100dvh',
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
         px: { xs: 2, md: 4 },
-        py: { xs: 3, md: 6 },
+        py: { xs: 1.5, md: 2 },
         background: 'linear-gradient(120deg, #081222 0%, #102a43 48%, #4c361b 100%)',
         '&::before': {
           content: '""',
@@ -103,6 +105,7 @@ export default function RegisterPage() {
           elevation={0}
           sx={{
             width: '100%',
+            maxHeight: '96dvh',
             borderRadius: 4,
             overflow: 'hidden',
             border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -122,7 +125,7 @@ export default function RegisterPage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              gap: 4,
+              gap: 3,
             }}
           >
             <Box>
@@ -140,6 +143,88 @@ export default function RegisterPage() {
                   ? 'ابدأ بيئة عمل قانونية منظمة تتيح إدارة القضايا والملفات والصلاحيات من مكان واحد.'
                   : 'Set up a structured legal workspace to manage cases, files, and permissions from one place.'}
               </Typography>
+            </Box>
+
+            <Box
+              aria-hidden
+              sx={{
+                position: 'relative',
+                height: { xs: 120, md: 152 },
+                borderRadius: 3,
+                border: '1px solid rgba(255,255,255,0.18)',
+                background:
+                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2), transparent 42%), linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)',
+                overflow: 'hidden',
+                '@keyframes legalPulse': {
+                  '0%, 100%': { transform: 'scale(1)', opacity: 0.45 },
+                  '50%': { transform: 'scale(1.12)', opacity: 0.9 },
+                },
+                '@keyframes legalFloat': {
+                  '0%': { transform: 'translateY(0px)' },
+                  '50%': { transform: 'translateY(-8px)' },
+                  '100%': { transform: 'translateY(0px)' },
+                },
+                '@keyframes legalOrbit': {
+                  '0%': { transform: 'rotate(0deg)' },
+                  '100%': { transform: 'rotate(360deg)' },
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: '50% auto auto 50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 56,
+                  height: 56,
+                  borderRadius: '50%',
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'rgba(255,255,255,0.14)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  animation: 'legalFloat 3.4s ease-in-out infinite',
+                }}
+              >
+                <AccountBalanceOutlined />
+              </Box>
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: '50% auto auto 50%',
+                  width: 110,
+                  height: 110,
+                  marginTop: '-55px',
+                  marginLeft: '-55px',
+                  borderRadius: '50%',
+                  border: '1px dashed rgba(255,255,255,0.4)',
+                  animation: 'legalOrbit 10s linear infinite',
+                }}
+              >
+                <Box sx={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', color: '#fff', opacity: 0.9 }}>
+                  <GavelOutlined fontSize="small" />
+                </Box>
+                <Box sx={{ position: 'absolute', right: -9, top: '50%', transform: 'translateY(-50%)', color: '#fff', opacity: 0.9 }}>
+                  <DescriptionOutlined fontSize="small" />
+                </Box>
+                <Box sx={{ position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)', color: '#fff', opacity: 0.9 }}>
+                  <GroupsOutlined fontSize="small" />
+                </Box>
+              </Box>
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: '50% auto auto 50%',
+                  width: 76,
+                  height: 76,
+                  marginTop: '-38px',
+                  marginLeft: '-38px',
+                  borderRadius: '50%',
+                  border: '1px solid rgba(255,255,255,0.35)',
+                  animation: 'legalPulse 2.2s ease-in-out infinite',
+                }}
+              />
             </Box>
 
             <Box sx={{ display: 'grid', gap: 1.4 }}>
@@ -163,6 +248,7 @@ export default function RegisterPage() {
               p: { xs: 3, sm: 4, md: 5 },
               background: 'rgba(251, 252, 255, 0.96)',
               textAlign: isRTL ? 'right' : 'left',
+              overflow: 'hidden',
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -179,7 +265,7 @@ export default function RegisterPage() {
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
-                margin="normal"
+                margin="dense"
                 required
                 fullWidth
                 id="userName"
@@ -198,7 +284,7 @@ export default function RegisterPage() {
                 }}
               />
               <TextField
-                margin="normal"
+                margin="dense"
                 required
                 fullWidth
                 id="fullName"
@@ -216,7 +302,7 @@ export default function RegisterPage() {
                 }}
               />
               <TextField
-                margin="normal"
+                margin="dense"
                 required
                 fullWidth
                 id="email"
@@ -235,7 +321,7 @@ export default function RegisterPage() {
                 }}
               />
               <TextField
-                margin="normal"
+                margin="dense"
                 required
                 fullWidth
                 name="password"
@@ -267,7 +353,7 @@ export default function RegisterPage() {
                 }}
               />
               <TextField
-                margin="normal"
+                margin="dense"
                 required
                 fullWidth
                 name="confirmPassword"
@@ -308,8 +394,8 @@ export default function RegisterPage() {
                 fullWidth
                 variant="contained"
                 sx={{
-                  mt: 3,
-                  mb: 2,
+                  mt: 2.2,
+                  mb: 1.6,
                   py: 1.1,
                   borderRadius: 1.8,
                   fontWeight: 700,
@@ -324,7 +410,7 @@ export default function RegisterPage() {
               >
                 {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
               </Button>
-              <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mt: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mt: 1.2 }}>
                 <MuiLink href="/login" variant="body2" sx={{ color: '#1f4c74', fontWeight: 600 }}>
                   {t('register.haveAccount') || 'Already have an account? Sign in'}
                 </MuiLink>
