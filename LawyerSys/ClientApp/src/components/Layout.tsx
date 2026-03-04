@@ -20,6 +20,7 @@ import {
   Paper,
   Button,
   Tooltip,
+  ClickAwayListener,
   Breadcrumbs,
   Link,
   useTheme,
@@ -103,7 +104,6 @@ const menuItems: MenuItem[] = [
   { key: 'reports', icon: <ReportsIcon />, path: '/reports' },
   { key: 'calendar', icon: <CalendarIcon />, path: '/calendar' },
   { key: 'documentgeneration', icon: <DocGenIcon />, path: '/document-generation' },
-  { key: 'aiassistant', icon: <AiAssistantIcon />, path: '/ai-assistant' },
   { key: 'courtautomation', icon: <CourtAutomationIcon />, path: '/court-automation' },
   { key: 'clientportal', icon: <PortalIcon />, path: '/client-portal' },
   { key: 'auditlogs', icon: <AuditIcon />, path: '/auditlogs' },
@@ -279,12 +279,15 @@ export default function Layout({ children }: LayoutProps) {
       {
         id: Date.now(),
         role: 'assistant',
-        text: assistantLanguage === 'ar'
-          ? 'مرحباً، كيف يمكنني مساعدتك في عملك القانوني اليوم؟'
-          : 'Hello, how can I help with your legal work today?',
+        text: t(
+          'aiAssistant.quickChatGreeting',
+          assistantLanguage === 'ar'
+            ? 'مرحباً، كيف يمكنني مساعدتك في عملك القانوني اليوم؟'
+            : 'Hello, how can I help with your legal work today?',
+        ),
       },
     ])
-  }, [chatOpen, chatMessages.length, assistantLanguage])
+  }, [chatOpen, chatMessages.length, assistantLanguage, t])
 
   React.useEffect(() => {
     if (!chatOpen) return
@@ -294,6 +297,8 @@ export default function Layout({ children }: LayoutProps) {
   const currentPageKey =
     pathname === '/profile'
       ? 'profile'
+      : pathname === '/ai-assistant'
+      ? 'aiassistant'
       : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
 
   const handleSendChat = async () => {
@@ -325,9 +330,12 @@ export default function Layout({ children }: LayoutProps) {
       const replyText = String(
         res?.data?.draftText
           || res?.data?.summary
-          || (assistantLanguage === 'ar'
-            ? 'تم استلام رسالتك وسيتم الرد قريباً.'
-            : 'Your request was received and processed.')
+          || t(
+            'aiAssistant.quickChatResponseFallback',
+            assistantLanguage === 'ar'
+              ? 'تم استلام رسالتك وسيتم الرد قريباً.'
+              : 'Your request was received and processed.',
+          )
       )
 
       setChatMessages((prev) => [
@@ -336,9 +344,12 @@ export default function Layout({ children }: LayoutProps) {
       ])
     } catch (e: any) {
       const fallback = e?.response?.data?.message
-        || (assistantLanguage === 'ar'
-          ? 'حدث خطأ أثناء معالجة الطلب. حاول مرة أخرى.'
-          : 'An error occurred while processing your request. Please try again.')
+        || t(
+          'aiAssistant.quickChatErrorFallback',
+          assistantLanguage === 'ar'
+            ? 'حدث خطأ أثناء معالجة الطلب. حاول مرة أخرى.'
+            : 'An error occurred while processing your request. Please try again.',
+        )
 
       setChatMessages((prev) => [
         ...prev,
@@ -355,6 +366,15 @@ export default function Layout({ children }: LayoutProps) {
       void handleSendChat()
     }
   }
+  const chatArabicSide = (i18n.resolvedLanguage || i18n.language || lng || '').startsWith('ar')
+  const quickChatOpenLabel = t(
+    'aiAssistant.quickChatOpen',
+    assistantLanguage === 'ar' ? 'فتح محادثة المساعد' : 'Open assistant chat',
+  )
+  const quickChatCloseLabel = t(
+    'aiAssistant.quickChatClose',
+    assistantLanguage === 'ar' ? 'إغلاق محادثة المساعد' : 'Close assistant chat',
+  )
 
   if (isLayoutBypassedPage) {
     return <>{children}</>;
@@ -850,12 +870,12 @@ export default function Layout({ children }: LayoutProps) {
           </Box>
           
           {/* Quick Actions */}
-          <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
               variant="outlined"
               startIcon={<PeopleIcon />}
               onClick={() => handleNavigation('/customers')}
-              sx={{ borderRadius: 3, px: 3, py: 1, fontWeight: 800, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
+              sx={{ display: { xs: 'none', sm: 'inline-flex' }, borderRadius: 3, px: 3, py: 1, fontWeight: 800, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
             >
               {t('app.customers', 'Customers')}
             </Button>
@@ -864,6 +884,7 @@ export default function Layout({ children }: LayoutProps) {
               startIcon={<GavelIcon />}
               onClick={() => handleNavigation('/cases')}
               sx={{ 
+                display: { xs: 'none', sm: 'inline-flex' },
                 borderRadius: 3, 
                 px: 4, 
                 py: 1, 
@@ -884,140 +905,163 @@ export default function Layout({ children }: LayoutProps) {
         <Box sx={{ animation: 'fade-in 0.4s ease-out' }}>
           {children}
         </Box>
-      </Box>
-      <Tooltip title={t('app.aiassistant')} placement={isRTL ? 'left' : 'right'}>
-        <IconButton
-          aria-label={t('app.aiassistant')}
-          onClick={() => setChatOpen(true)}
-          sx={{
-            position: 'fixed',
-            bottom: { xs: 16, md: 24 },
-            right: isRTL ? 'auto' : { xs: 16, md: 24 },
-            left: isRTL ? { xs: 16, md: 24 } : 'auto',
-            width: 56,
-            height: 56,
-            borderRadius: '50%',
-            color: 'white',
-            background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
-            boxShadow: '0 14px 28px rgba(20, 52, 90, 0.38)',
-            zIndex: theme.zIndex.drawer + 3,
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
-              transform: 'translateY(-2px) scale(1.03)',
-            },
-          }}
-        >
-          <ChatIcon />
-        </IconButton>
-      </Tooltip>
 
-      <Drawer
-        anchor={isRTL ? 'left' : 'right'}
-        open={chatOpen}
-        onClose={() => setChatOpen(false)}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: { xs: '100%', sm: 420 },
-            maxWidth: '100%',
-            border: 'none',
-            boxShadow: '0 20px 40px rgba(4, 10, 19, 0.28)',
-            display: 'flex',
-            flexDirection: 'column',
-          },
-        }}
-      >
-        <Box
-          sx={{
-            px: 2,
-            py: 1.5,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-            background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
-            color: 'white',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <AiAssistantIcon fontSize="small" />
-            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-              {t('aiAssistant.quickChatTitle', 'Assistant Chat')}
-            </Typography>
-          </Box>
-          <IconButton onClick={() => setChatOpen(false)} size="small" sx={{ color: 'white' }}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Box>
-
-        <Box sx={{ flex: 1, overflowY: 'auto', p: 2, bgcolor: '#f5f8fc' }}>
-          {chatMessages.map((message) => (
+        <ClickAwayListener onClickAway={() => { if (chatOpen) setChatOpen(false) }}>
+          <Box>
             <Box
-              key={message.id}
               sx={{
-                display: 'flex',
-                justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
-                mb: 1.2,
+                position: 'fixed',
+                bottom: { xs: 16, md: 24 },
+                insetInlineEnd: { xs: 16, md: 24 },
+                insetInlineStart: 'auto',
+                zIndex: theme.zIndex.drawer + 3,
               }}
             >
+              <Tooltip title={chatOpen ? quickChatCloseLabel : quickChatOpenLabel} placement={chatArabicSide ? 'left' : 'right'}>
+                <IconButton
+                  aria-label={chatOpen ? quickChatCloseLabel : quickChatOpenLabel}
+                  onClick={() => setChatOpen((prev) => !prev)}
+                  sx={{
+                    width: 52,
+                    height: 52,
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
+                    boxShadow: '0 10px 20px -5px rgba(20, 52, 90, 0.35)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
+                      transform: 'translateY(-1px)',
+                    },
+                  }}
+                >
+                  <ChatIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+
+            {chatOpen && (
               <Box
                 sx={{
-                  maxWidth: '86%',
-                  px: 1.5,
-                  py: 1.15,
-                  borderRadius: 2,
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: 1.5,
-                  bgcolor: message.role === 'user' ? 'primary.main' : 'white',
-                  color: message.role === 'user' ? 'white' : 'text.primary',
-                  border: message.role === 'user' ? 'none' : '1px solid #e5edf6',
-                  boxShadow: message.role === 'user'
-                    ? '0 6px 16px rgba(20, 52, 90, 0.24)'
-                    : '0 3px 10px rgba(2, 12, 27, 0.05)',
+                  position: 'fixed',
+                  bottom: { xs: 78, md: 88 },
+                  insetInlineEnd: { xs: 16, md: 24 },
+                  width: { xs: 'calc(100vw - 24px)', sm: 420, lg: 460 },
+                  maxWidth: 'calc(100vw - 24px)',
+                  zIndex: theme.zIndex.drawer + 3,
                 }}
               >
-                <Typography variant="body2">{message.text}</Typography>
-              </Box>
-            </Box>
-          ))}
-
-          {chatLoading && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 0.5, py: 0.5 }}>
-              <CircularProgress size={16} />
-              <Typography variant="caption" color="text.secondary">
-                {t('app.loading')}
-              </Typography>
-            </Box>
-          )}
-          <div ref={chatEndRef} />
-        </Box>
-
-        <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'white' }}>
-          <TextField
-            fullWidth
-            multiline
-            maxRows={4}
-            size="small"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={handleChatInputKeyDown}
-            placeholder={t('aiAssistant.quickChatPlaceholder', 'Type your message...')}
-            InputProps={{
-              endAdornment: (
-                <IconButton
-                  edge="end"
-                  color="primary"
-                  onClick={() => void handleSendChat()}
-                  disabled={chatLoading || !chatInput.trim()}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    border: 'none',
+                    boxShadow: '0 20px 40px rgba(4, 10, 19, 0.28)',
+                    borderRadius: 3,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    minHeight: { xs: 300, sm: 360 },
+                    maxHeight: 'calc(100vh - 120px)',
+                    resize: { xs: 'none', md: 'both' },
+                    minWidth: { md: 360 },
+                    maxWidth: 'min(560px, calc(100vw - 24px))',
+                  }}
                 >
-                  <SendRoundedIcon fontSize="small" />
-                </IconButton>
-              ),
-            }}
-          />
-        </Box>
-      </Drawer>
+                  <Box
+                    sx={{
+                      px: 2,
+                      py: 1.5,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
+                      color: 'white',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <AiAssistantIcon fontSize="small" />
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                        {t('aiAssistant.quickChatTitle', 'Assistant Chat')}
+                      </Typography>
+                    </Box>
+                    <IconButton onClick={() => setChatOpen(false)} size="small" sx={{ color: 'white' }}>
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+
+                  <Box sx={{ flex: 1, overflowY: 'auto', p: 2, bgcolor: '#f5f8fc' }}>
+                    {chatMessages.map((message) => (
+                      <Box
+                        key={message.id}
+                        sx={{
+                          display: 'flex',
+                          justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                          mb: 1.2,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            maxWidth: '86%',
+                            px: 1.5,
+                            py: 1.15,
+                            borderRadius: 2,
+                            whiteSpace: 'pre-wrap',
+                            lineHeight: 1.5,
+                            bgcolor: message.role === 'user' ? 'primary.main' : 'white',
+                            color: message.role === 'user' ? 'white' : 'text.primary',
+                            border: message.role === 'user' ? 'none' : '1px solid #e5edf6',
+                            boxShadow: message.role === 'user'
+                              ? '0 6px 16px rgba(20, 52, 90, 0.24)'
+                              : '0 3px 10px rgba(2, 12, 27, 0.05)',
+                          }}
+                        >
+                          <Typography variant="body2">{message.text}</Typography>
+                        </Box>
+                      </Box>
+                    ))}
+
+                    {chatLoading && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 0.5, py: 0.5 }}>
+                        <CircularProgress size={16} />
+                        <Typography variant="caption" color="text.secondary">
+                          {t('app.loading')}
+                        </Typography>
+                      </Box>
+                    )}
+                    <div ref={chatEndRef} />
+                  </Box>
+
+                  <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'white' }}>
+                    <TextField
+                      fullWidth
+                      multiline
+                      maxRows={4}
+                      size="small"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={handleChatInputKeyDown}
+                      placeholder={t('aiAssistant.quickChatPlaceholder', 'Type your message...')}
+                      InputProps={{
+                        endAdornment: (
+                          <IconButton
+                            edge="end"
+                            color="primary"
+                            onClick={() => void handleSendChat()}
+                            disabled={chatLoading || !chatInput.trim()}
+                          >
+                            <SendRoundedIcon fontSize="small" />
+                          </IconButton>
+                        ),
+                      }}
+                    />
+                  </Box>
+                </Paper>
+              </Box>
+            )}
+          </Box>
+        </ClickAwayListener>
+      </Box>
     </Box>
   );
 }
