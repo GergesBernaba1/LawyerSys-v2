@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme,
+  Tooltip, TextField, useTheme, FormControl, InputLabel, Select, MenuItem, Pagination,
 } from '@mui/material';
 import {
   LocationCity as LocationCityIcon,
@@ -26,17 +26,30 @@ export default function GovernmentsPage() {
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<GovernmentDto[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [editItem, setEditItem] = useState<GovernmentDto | null>(null);
   const [form, setForm] = useState({ govName: '' });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  async function load(p = page, ps = pageSize) {
     setLoading(true);
     try {
-      const res = await api.get('/Governments');
-      setItems(res.data || []);
+      const res = await api.get('/Governments', { params: { page: p, pageSize: ps } });
+      const payload = res.data;
+      const list = Array.isArray(payload) ? payload : (Array.isArray(payload?.items) ? payload.items : []);
+      const total = Array.isArray(payload) ? list.length : Number(payload?.totalCount ?? list.length);
+
+      if (p > 1 && total > 0 && list.length === 0) {
+        setPage(p - 1);
+        return;
+      }
+
+      setItems(list);
+      setTotalCount(total);
     } catch {
       setSnackbar({ open: true, message: t('governments.failedLoad'), severity: 'error' });
     } finally {
@@ -44,7 +57,7 @@ export default function GovernmentsPage() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(page, pageSize); }, [page, pageSize]);
 
   function openCreate() {
     setEditItem(null);
@@ -59,17 +72,32 @@ export default function GovernmentsPage() {
   }
 
   async function handleSubmit() {
+    const payload = { govName: form.govName.trim() };
+    if (!payload.govName) {
+      setSnackbar({ open: true, message: t('governments.nameRequired'), severity: 'error' });
+      return;
+    }
+
     try {
       if (editItem) {
-        await api.put(`/Governments/${editItem.id}`, form);
+        await api.put(`/Governments/${editItem.id}`, payload);
         setSnackbar({ open: true, message: t('governments.updated'), severity: 'success' });
       } else {
-        await api.post('/Governments', form);
+        await api.post('/Governments', payload);
         setSnackbar({ open: true, message: t('governments.created'), severity: 'success' });
       }
       setOpenDialog(false);
-      load();
-    } catch {
+      await load(page, pageSize);
+    } catch (err: any) {
+      const message = err?.response?.data?.message;
+      if (message === 'Government name already exists') {
+        setSnackbar({ open: true, message: t('governments.duplicateName'), severity: 'error' });
+        return;
+      }
+      if (message === 'Government name is required') {
+        setSnackbar({ open: true, message: t('governments.nameRequired'), severity: 'error' });
+        return;
+      }
       setSnackbar({ open: true, message: editItem ? t('governments.failedUpdate') : t('governments.failedCreate'), severity: 'error' });
     }
   }
@@ -79,7 +107,12 @@ export default function GovernmentsPage() {
     try {
       await api.delete(`/Governments/${id}`);
       setSnackbar({ open: true, message: t('governments.deleted'), severity: 'success' });
-      load();
+      const nextPage = items.length === 1 && page > 1 ? page - 1 : page;
+      if (nextPage !== page) {
+        setPage(nextPage);
+      } else {
+        await load(nextPage, pageSize);
+      }
     } catch {
       setSnackbar({ open: true, message: t('governments.failedDelete'), severity: 'error' });
     }
@@ -96,12 +129,12 @@ export default function GovernmentsPage() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('governments.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{t('governments.totalGovernments')}: <strong>{items.length}</strong></Typography>
+            <Typography variant="body2" color="text.secondary">{t('governments.totalGovernments')}: <strong>{totalCount || items.length}</strong></Typography>
           </Box>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('common.refresh')}>
-            <IconButton onClick={load} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
+            <IconButton onClick={() => void load(page, pageSize)} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -162,6 +195,34 @@ export default function GovernmentsPage() {
           </Table>
         </TableContainer>
       </Paper>
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Pagination
+          count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
+          page={page}
+          onChange={(_, value) => setPage(value)}
+          color="primary"
+          shape="rounded"
+          showFirstButton
+          showLastButton
+        />
+        <FormControl size="small" sx={{ minWidth: 110 }}>
+          <InputLabel id="governments-page-size-label">{t('governments.perPage')}</InputLabel>
+          <Select
+            labelId="governments-page-size-label"
+            value={pageSize}
+            label={t('governments.perPage')}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1);
+            }}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
       {/* Create/Edit Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>

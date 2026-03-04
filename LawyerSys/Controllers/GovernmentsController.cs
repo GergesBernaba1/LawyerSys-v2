@@ -65,13 +65,21 @@ public class GovernmentsController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        if (string.IsNullOrWhiteSpace(dto.GovName))
+            return BadRequest(new { message = "Government name is required" });
+
+        var normalizedName = dto.GovName.Trim();
+        var exists = await _context.Governaments.AnyAsync(g =>
+            g.Gov_Name != null && g.Gov_Name.Trim().ToLower() == normalizedName.ToLower());
+        if (exists)
+            return BadRequest(new { message = "Government name already exists" });
 
         // Governament.Id uses ValueGeneratedNever, so we must assign it manually
         var maxId = await _context.Governaments.AnyAsync()
             ? await _context.Governaments.MaxAsync(g => g.Id)
             : 0;
 
-        var gov = new Governament { Id = maxId + 1, Gov_Name = dto.GovName };
+        var gov = new Governament { Id = maxId + 1, Gov_Name = normalizedName };
         _context.Governaments.Add(gov);
         await _context.SaveChangesAsync();
 
@@ -85,8 +93,16 @@ public class GovernmentsController : ControllerBase
         var gov = await _context.Governaments.FindAsync(id);
         if (gov == null)
             return NotFound(new { message = "Government not found" });
+        if (string.IsNullOrWhiteSpace(dto.GovName))
+            return BadRequest(new { message = "Government name is required" });
 
-        gov.Gov_Name = dto.GovName;
+        var normalizedName = dto.GovName.Trim();
+        var exists = await _context.Governaments.AnyAsync(g =>
+            g.Id != id && g.Gov_Name != null && g.Gov_Name.Trim().ToLower() == normalizedName.ToLower());
+        if (exists)
+            return BadRequest(new { message = "Government name already exists" });
+
+        gov.Gov_Name = normalizedName;
         await _context.SaveChangesAsync();
 
         return Ok(new GovernamentDto { Id = gov.Id, GovName = gov.Gov_Name });
