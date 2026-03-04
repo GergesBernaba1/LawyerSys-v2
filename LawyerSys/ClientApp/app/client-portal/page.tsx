@@ -34,6 +34,7 @@ export default function ClientPortalPage() {
   const [data, setData] = useState<PortalResponse | null>(null);
   const [error, setError] = useState('');
   const statusLabels = t('clientPortal.statuses', { returnObjects: true }) as string[];
+  const locale = isRTL ? 'ar' : (i18n.resolvedLanguage || 'en');
 
   useEffect(() => {
     (async () => {
@@ -47,7 +48,7 @@ export default function ClientPortalPage() {
   }, [t]);
 
   const formatNumber = (value: number) =>
-    value.toLocaleString(isRTL ? 'ar' : (i18n.resolvedLanguage || 'en'));
+    value.toLocaleString(locale);
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
@@ -129,7 +130,14 @@ export default function ClientPortalPage() {
                   {(data?.hearings || []).map((h, i) => (
                     <TableRow key={`${h.caseCode}-${i}`}>
                       <TableCell>{h.caseCode}</TableCell>
-                      <TableCell>{new Date(h.time).toLocaleString(isRTL ? 'ar' : (i18n.resolvedLanguage || 'en'))}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const rawDateTime = h.date && h.time ? `${h.date}T${h.time}` : (h.date || h.time);
+                          if (!rawDateTime) return '-';
+                          const parsed = new Date(rawDateTime);
+                          return Number.isNaN(parsed.getTime()) ? rawDateTime : parsed.toLocaleString(locale);
+                        })()}
+                      </TableCell>
                       <TableCell>{h.judgeName}</TableCell>
                     </TableRow>
                   ))}

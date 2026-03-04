@@ -192,7 +192,7 @@ export default function TimeTrackingPage() {
             {suggestions.map((item, idx) => (
               <TableRow key={`${item.caseCode ?? 'x'}-${item.customerId ?? 'y'}-${idx}`}>
                 <TableCell>{item.caseCode ?? '-'}</TableCell>
-                <TableCell>{item.customerId ? 'Assigned' : '-'}</TableCell>
+                <TableCell>{item.customerId ?? '-'}</TableCell>
                 <TableCell>{item.totalMinutes}</TableCell>
                 <TableCell>{item.suggestedAmount}</TableCell>
               </TableRow>

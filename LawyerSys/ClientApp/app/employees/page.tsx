@@ -46,8 +46,61 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
-type UserDto = { id: number; fullName?: string; userName?: string };
-type Employee = { id: number; salary?: number; usersId: number; user?: UserDto };
+type UserDto = { id: number; fullName?: string; userName?: string; email?: string };
+type IdentityDto = { fullName?: string; userName?: string; email?: string };
+type Employee = { id: number; salary?: number; usersId: number; user?: UserDto; identity?: IdentityDto; displayName: string };
+
+function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
+  return values.find((value) => value !== undefined && value !== null) as T | undefined;
+}
+
+function asArray<T>(data: any): T[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.Items)) return data.Items;
+  return [];
+}
+
+function normalizeUser(raw: any): UserDto {
+  return {
+    id: Number(firstDefined(raw?.id, raw?.Id, 0)),
+    fullName: firstDefined(raw?.fullName, raw?.FullName, raw?.full_Name, raw?.Full_Name),
+    userName: firstDefined(raw?.userName, raw?.UserName, raw?.user_Name, raw?.User_Name),
+    email: firstDefined(raw?.email, raw?.Email),
+  };
+}
+
+function normalizeEmployee(raw: any): Employee {
+  const userRaw = firstDefined(raw?.user, raw?.User);
+  const identityRaw = firstDefined(raw?.identity, raw?.Identity);
+  const salaryRaw = firstDefined(raw?.salary, raw?.Salary);
+  const user = userRaw ? normalizeUser(userRaw) : undefined;
+  const identity: IdentityDto | undefined = identityRaw
+    ? {
+        fullName: firstDefined(identityRaw?.fullName, identityRaw?.FullName),
+        userName: firstDefined(identityRaw?.userName, identityRaw?.UserName),
+        email: firstDefined(identityRaw?.email, identityRaw?.Email),
+      }
+    : undefined;
+
+  const displayName = firstDefined(
+    identity?.fullName,
+    user?.fullName,
+    identity?.userName,
+    user?.userName,
+    identity?.email,
+    user?.email,
+  ) || '-';
+
+  return {
+    id: Number(firstDefined(raw?.id, raw?.Id, 0)),
+    salary: salaryRaw === undefined ? undefined : Number(salaryRaw),
+    usersId: Number(firstDefined(raw?.usersId, raw?.UsersId, raw?.userId, raw?.UserId, 0)),
+    user,
+    identity,
+    displayName,
+  };
+}
 
 export default function EmployeesPageClient() {
   const { t } = useTranslation();
@@ -71,8 +124,8 @@ export default function EmployeesPageClient() {
     setLoading(true);
     try {
       const [employeesRes, usersRes] = await Promise.all([api.get('/Employees'), api.get('/Users')]);
-      setItems(employeesRes.data || []);
-      setUsers(usersRes.data || []);
+      setItems(asArray<any>(employeesRes.data).map(normalizeEmployee));
+      setUsers(asArray<any>(usersRes.data).map(normalizeUser));
     } catch (err) {
       setSnackbar({ open: true, message: t('employees.failedLoad'), severity: 'error' });
     } finally {
@@ -201,12 +254,12 @@ export default function EmployeesPageClient() {
         }}
       >
         <TableContainer>
-          <Table sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: 650, tableLayout: 'fixed' }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('employees.title')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('employees.salary')}</TableCell>
-                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('cases.actions')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700, width: '55%' }}>{t('employees.fullName')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: 'center', fontWeight: 700, width: '25%' }}>{t('employees.salary')}</TableCell>
+                <TableCell align="center" sx={{ py: 2.5, fontWeight: 700, width: '20%' }}>{t('cases.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -244,26 +297,26 @@ export default function EmployeesPageClient() {
                     }}
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row', width: '100%', justifyContent: isRTL ? 'flex-end' : 'flex-start' }}>
                         <Avatar sx={{ width: 36, height: 36, bgcolor: 'secondary.light', fontSize: '1rem' }}>
                           <PersonIcon fontSize="small" />
                         </Avatar>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {item.user?.fullName || item.user?.userName || 'Unknown'}
+                          {item.displayName}
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                    <TableCell sx={{ py: 2, textAlign: 'center' }}>
                       <Chip 
-                        label={item.salary ? `$${item.salary.toLocaleString()}` : 'N/A'} 
+                        label={item.salary !== undefined && item.salary !== null ? `$${item.salary.toLocaleString()}` : '-'} 
                         size="small" 
                         color="success" 
                         variant="outlined" 
                         sx={{ borderRadius: 1.5, fontWeight: 700 }}
                       />
                     </TableCell>
-                    <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
-                      <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+                    <TableCell align="center" sx={{ py: 2 }}>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                         {hasRole('Admin') && (
                           <Tooltip title={t('app.delete')}>
                             <IconButton 
@@ -314,7 +367,7 @@ export default function EmployeesPageClient() {
                 <MenuItem value=""><em>-- {t('employees.selectUser')} --</em></MenuItem>
                 {users.map((u) => (
                   <MenuItem key={u.id} value={u.id}>
-                    {u.fullName || u.userName}
+                    {u.fullName || u.userName || u.email || `#${u.id}`}
                   </MenuItem>
                 ))}
               </Select>

@@ -308,7 +308,7 @@ export default function CasesPageClient() {
               {loading ? (
                 Array.from(new Array(5)).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(6)].map((__, j) => (
+                    {[...Array(7)].map((__, j) => (
                       <TableCell key={j} sx={{ textAlign: isRTL ? 'right' : 'left' }}>
                         <Skeleton variant="text" />
                       </TableCell>
@@ -317,7 +317,7 @@ export default function CasesPageClient() {
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 10 }}>
                     <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
                         <GavelIcon fontSize="inherit" />
