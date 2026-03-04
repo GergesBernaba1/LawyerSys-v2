@@ -82,6 +82,9 @@ export default function RegisterPage() {
         alignItems: 'center',
         px: { xs: 2, md: 4 },
         py: { xs: 1.5, md: 2 },
+        '@media (max-height: 820px)': {
+          py: { xs: 1, md: 1.25 },
+        },
         background: 'linear-gradient(120deg, #081222 0%, #102a43 48%, #4c361b 100%)',
         '&::before': {
           content: '""',
@@ -114,6 +117,9 @@ export default function RegisterPage() {
             background: 'rgba(18, 29, 46, 0.3)',
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: '1.1fr 0.9fr' },
+            '@media (max-height: 820px)': {
+              maxHeight: '98dvh',
+            },
           }}
         >
           <Box
@@ -126,19 +132,23 @@ export default function RegisterPage() {
               flexDirection: 'column',
               justifyContent: 'space-between',
               gap: 3,
+              '@media (max-height: 820px)': {
+                p: { xs: 2.2, sm: 2.6, md: 3.2 },
+                gap: 2,
+              },
             }}
           >
             <Box>
-              <Avatar sx={{ mb: 2, width: 52, height: 52, bgcolor: 'rgba(255, 255, 255, 0.14)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
+              <Avatar sx={{ mb: 2, width: 52, height: 52, bgcolor: 'rgba(255, 255, 255, 0.14)', border: '1px solid rgba(255, 255, 255, 0.3)', '@media (max-height: 820px)': { mb: 1.2, width: 42, height: 42 } }}>
                 <AccountBalanceOutlined />
               </Avatar>
-              <Typography variant="overline" sx={{ letterSpacing: '0.14em', opacity: 0.86 }}>
+              <Typography variant="overline" sx={{ letterSpacing: '0.14em', opacity: 0.86, '@media (max-height: 820px)': { fontSize: '0.62rem' } }}>
                 {isRTL ? 'نظام مكتب المحاماة' : 'LAW OFFICE PLATFORM'}
               </Typography>
-              <Typography variant="h4" component="h2" sx={{ mt: 1, fontWeight: 700, lineHeight: 1.2 }}>
+              <Typography variant="h4" component="h2" sx={{ mt: 1, fontWeight: 700, lineHeight: 1.2, '@media (max-height: 820px)': { mt: 0.5, fontSize: '1.6rem' } }}>
                 {isRTL ? 'إنشاء حساب جديد لفريق المكتب القانوني' : 'Create A New Account For Your Legal Team'}
               </Typography>
-              <Typography variant="body1" sx={{ mt: 2, opacity: 0.84, maxWidth: 520 }}>
+              <Typography variant="body1" sx={{ mt: 2, opacity: 0.84, maxWidth: 520, '@media (max-height: 820px)': { mt: 1, fontSize: '0.9rem' } }}>
                 {isRTL
                   ? 'ابدأ بيئة عمل قانونية منظمة تتيح إدارة القضايا والملفات والصلاحيات من مكان واحد.'
                   : 'Set up a structured legal workspace to manage cases, files, and permissions from one place.'}
@@ -168,6 +178,9 @@ export default function RegisterPage() {
                   '0%': { transform: 'rotate(0deg)' },
                   '100%': { transform: 'rotate(360deg)' },
                 },
+                '@media (max-height: 820px)': {
+                  height: { xs: 96, md: 110 },
+                },
               }}
             >
               <Box
@@ -183,6 +196,10 @@ export default function RegisterPage() {
                   background: 'rgba(255,255,255,0.14)',
                   border: '1px solid rgba(255,255,255,0.3)',
                   animation: 'legalFloat 3.4s ease-in-out infinite',
+                  '@media (max-height: 820px)': {
+                    width: 46,
+                    height: 46,
+                  },
                 }}
               >
                 <AccountBalanceOutlined />
@@ -199,6 +216,13 @@ export default function RegisterPage() {
                   borderRadius: '50%',
                   border: '1px dashed rgba(255,255,255,0.4)',
                   animation: 'legalOrbit 10s linear infinite',
+                  '@media (max-height: 820px)': {
+                    width: 84,
+                    height: 84,
+                    marginTop: '-42px',
+                    marginLeft: '-42px',
+                    animationDuration: '8s',
+                  },
                 }}
               >
                 <Box sx={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', color: '#fff', opacity: 0.9 }}>
@@ -223,20 +247,26 @@ export default function RegisterPage() {
                   borderRadius: '50%',
                   border: '1px solid rgba(255,255,255,0.35)',
                   animation: 'legalPulse 2.2s ease-in-out infinite',
+                  '@media (max-height: 820px)': {
+                    width: 62,
+                    height: 62,
+                    marginTop: '-31px',
+                    marginLeft: '-31px',
+                  },
                 }}
               />
             </Box>
 
-            <Box sx={{ display: 'grid', gap: 1.4 }}>
+            <Box sx={{ display: 'grid', gap: 1.4, '@media (max-height: 820px)': { gap: 0.8 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                 <GavelOutlined fontSize="small" />
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ '@media (max-height: 820px)': { fontSize: '0.8rem' } }}>
                   {isRTL ? 'إعداد سريع للحسابات القانونية الجديدة' : 'Fast onboarding for new legal accounts'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                 <ShieldOutlined fontSize="small" />
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ '@media (max-height: 820px)': { fontSize: '0.8rem' } }}>
                   {isRTL ? 'حماية بيانات المكتب بمعايير أمان قوية' : 'Strong security for office data and access'}
                 </Typography>
               </Box>
@@ -249,23 +279,27 @@ export default function RegisterPage() {
               background: 'rgba(251, 252, 255, 0.96)',
               textAlign: isRTL ? 'right' : 'left',
               overflow: 'hidden',
+              '@media (max-height: 820px)': {
+                p: { xs: 2.1, sm: 2.5, md: 3 },
+              },
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Avatar sx={{ width: 48, height: 48, bgcolor: '#1e3a5f', color: '#fff', mb: 1.5 }}>
+              <Avatar sx={{ width: 48, height: 48, bgcolor: '#1e3a5f', color: '#fff', mb: 1.5, '@media (max-height: 820px)': { width: 40, height: 40, mb: 0.9 } }}>
                 <PersonAddOutlinedIcon />
               </Avatar>
-              <Typography component="h1" variant="h5" sx={{ fontWeight: 700 }}>
+              <Typography component="h1" variant="h5" sx={{ fontWeight: 700, '@media (max-height: 820px)': { fontSize: '1.25rem' } }}>
                 {t('register.title') || 'Sign Up'}
               </Typography>
-              <Typography variant="body2" sx={{ mt: 0.8, mb: 1, color: '#4b5563', textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ mt: 0.8, mb: 1, color: '#4b5563', textAlign: 'center', '@media (max-height: 820px)': { mt: 0.5, mb: 0.7, fontSize: '0.82rem' } }}>
                 {isRTL ? 'أنشئ حسابك للوصول إلى نظام المكتب القانوني' : 'Create your account to access the law office system'}
               </Typography>
             </Box>
 
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, '@media (max-height: 820px)': { mt: 0.5 } }}>
               <TextField
                 margin="dense"
+                size="small"
                 required
                 fullWidth
                 id="userName"
@@ -285,6 +319,7 @@ export default function RegisterPage() {
               />
               <TextField
                 margin="dense"
+                size="small"
                 required
                 fullWidth
                 id="fullName"
@@ -303,6 +338,7 @@ export default function RegisterPage() {
               />
               <TextField
                 margin="dense"
+                size="small"
                 required
                 fullWidth
                 id="email"
@@ -322,6 +358,7 @@ export default function RegisterPage() {
               />
               <TextField
                 margin="dense"
+                size="small"
                 required
                 fullWidth
                 name="password"
@@ -354,6 +391,7 @@ export default function RegisterPage() {
               />
               <TextField
                 margin="dense"
+                size="small"
                 required
                 fullWidth
                 name="confirmPassword"
@@ -405,12 +443,17 @@ export default function RegisterPage() {
                   '&:hover': {
                     background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
                   },
+                  '@media (max-height: 820px)': {
+                    mt: 1.5,
+                    mb: 1,
+                    py: 0.8,
+                  },
                 }}
                 disabled={loading}
               >
                 {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
               </Button>
-              <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mt: 1.2 }}>
+              <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mt: 1.2, '@media (max-height: 820px)': { mt: 0.6 } }}>
                 <MuiLink href="/login" variant="body2" sx={{ color: '#1f4c74', fontWeight: 600 }}>
                   {t('register.haveAccount') || 'Already have an account? Sign in'}
                 </MuiLink>
