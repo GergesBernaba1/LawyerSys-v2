@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LawyerSys.Controllers;
 
-[Authorize(Roles = "Customer")]
+[Authorize(Policy = "CustomerAccess")]
 [ApiController]
 [Route("api/[controller]")]
 public class ClientPortalController : ControllerBase
@@ -33,6 +33,23 @@ public class ClientPortalController : ControllerBase
 
         if (customer is null)
         {
+            if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+            {
+                return Ok(new ClientPortalResponseDto
+                {
+                    CustomerName = userName,
+                    Cases = Array.Empty<ClientPortalCaseDto>(),
+                    Hearings = Array.Empty<ClientPortalHearingDto>(),
+                    Documents = Array.Empty<ClientPortalDocumentDto>(),
+                    Billing = new ClientPortalBillingDto
+                    {
+                        TotalPayments = 0,
+                        CasesTotalAmount = 0,
+                        OutstandingBalance = 0
+                    }
+                });
+            }
+
             return NotFound(new { message = "Customer profile not found" });
         }
 
