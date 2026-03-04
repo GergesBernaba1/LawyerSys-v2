@@ -64,7 +64,7 @@ export default function FilesPageClient() {
 
   async function submitUpload() {
     if (!file) {
-      setSnackbar({ open: true, message: t('files.chooseFile') || 'Please select a file', severity: 'error' });
+      setSnackbar({ open: true, message: t('files.chooseFile'), severity: 'error' });
       return;
     }
     try {
@@ -76,9 +76,9 @@ export default function FilesPageClient() {
       setCode('');
       setOpenDialog(false);
       await load();
-      setSnackbar({ open: true, message: t('files.fileUploaded') || 'File uploaded successfully', severity: 'success' });
+      setSnackbar({ open: true, message: t('files.fileUploaded'), severity: 'success' });
     } catch (e: any) {
-      setSnackbar({ open: true, message: e?.response?.data?.message || t('files.failedUpload') || 'Upload failed', severity: 'error' });
+      setSnackbar({ open: true, message: e?.response?.data?.message || t('files.failedUpload'), severity: 'error' });
     }
   }
 
@@ -138,12 +138,12 @@ export default function FilesPageClient() {
               {t('files.management')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-              {t('files.totalFiles') || 'Total Files'}: {items.length}
+              {t('files.totalFiles')}: {items.length}
             </Typography>
           </Box>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          <Tooltip title={t('cases.refresh')}>
+          <Tooltip title={t('common.refresh')}>
             <IconButton 
               onClick={load} 
               disabled={loading}
@@ -189,10 +189,10 @@ export default function FilesPageClient() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.path') || 'Path'}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.code') || 'Code'}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.type') || 'Type'}</TableCell>
-                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('cases.actions')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.filePath')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.code')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.fileType')}</TableCell>
+                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -213,9 +213,9 @@ export default function FilesPageClient() {
                       <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
                         <FolderIcon fontSize="inherit" />
                       </Box>
-                      <Typography variant="h6" gutterBottom>{t('files.noFiles') || 'No files found'}</Typography>
+                      <Typography variant="h6" gutterBottom>{t('files.noFiles')}</Typography>
                       <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => setOpenDialog(true)}>
-                        {t('files.uploadFirst') || 'Upload First File'}
+                        {t('files.uploadFirst')}
                       </Button>
                     </Box>
                   </TableCell>
@@ -315,13 +315,13 @@ export default function FilesPageClient() {
                 '&:hover': { borderWidth: 2, borderStyle: 'dashed' }
               }}
             >
-              {file ? file.name : t('common.chooseFile') || 'Choose File'}
+              {file ? file.name : t('files.chooseFile')}
               <VisuallyHiddenInput type="file" onChange={(e: any) => setFile(e.target.files?.[0])} />
             </Button>
             
             <TextField 
               fullWidth 
-              label={t('files.fileName') || 'Code'} 
+              label={t('files.code')} 
               value={code} 
               onChange={(e) => setCode(e.target.value)} 
               variant="outlined"
