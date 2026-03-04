@@ -2,22 +2,62 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
+  Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
   Tooltip, TextField, styled, useTheme
 } from '@mui/material';
-import Grid from '@mui/material/Grid'
 import {
   CloudUpload as CloudUploadIcon, Download as DownloadIcon, Folder as FolderIcon,
-  Add as AddIcon, Delete as DeleteIcon, Refresh as RefreshIcon, InsertDriveFile as FileIcon
+  Delete as DeleteIcon, Refresh as RefreshIcon, InsertDriveFile as FileIcon, OpenInNew as OpenInNewIcon
 } from '@mui/icons-material';
 import api from '../../src/services/api';
-import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '../../src/services/auth';
+import { useParams } from 'next/navigation';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type FileDto = { id: number; path?: string; code?: string; type?: boolean };
+const ALLOWED_UPLOAD_EXTENSIONS = ['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'];
+
+function getFileExtension(fileNameOrPath?: string): string {
+  if (!fileNameOrPath) return '';
+  const clean = fileNameOrPath.split('?')[0].toLowerCase();
+  const idx = clean.lastIndexOf('.');
+  return idx >= 0 ? clean.substring(idx) : '';
+}
+
+function isAllowedUpload(file?: File): boolean {
+  if (!file) return false;
+  return ALLOWED_UPLOAD_EXTENSIONS.includes(getFileExtension(file.name));
+}
+
+function canViewInBrowser(path?: string): boolean {
+  return ALLOWED_UPLOAD_EXTENSIONS.includes(getFileExtension(path));
+}
+
+function displayFileTitle(item: FileDto): string {
+  if (item.code?.trim()) return item.code.trim();
+  const fromPath = item.path?.split('/').pop();
+  if (!fromPath) return '-';
+  return decodeURIComponent(fromPath);
+}
+
+function sanitizeFileName(name: string): string {
+  return name.replace(/[\\/:*?"<>|]/g, '_').trim();
+}
+
+function getFallbackFileName(item: FileDto): string {
+  const ext = getFileExtension(item.path || '');
+  const base = sanitizeFileName(displayFileTitle(item)) || 'file';
+  return base.toLowerCase().endsWith(ext) ? base : `${base}${ext || ''}`;
+}
+
+function tryGetNameFromContentDisposition(contentDisposition?: string): string | undefined {
+  if (!contentDisposition) return undefined;
+  const utf8Match = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) return decodeURIComponent(utf8Match[1]);
+  const plainMatch = contentDisposition.match(/filename\s*=\s*\"?([^\";]+)\"?/i);
+  return plainMatch?.[1];
+}
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -37,14 +77,12 @@ export default function FilesPageClient() {
   const params = useParams() as { locale?: string } | undefined;
   const locale = params?.locale || 'ar';
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
-  const router = useRouter();
-  const { isAuthenticated } = useAuth();
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<FileDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | undefined>();
-  const [code, setCode] = useState('');
+  const [titleOrDescription, setTitleOrDescription] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
@@ -67,13 +105,17 @@ export default function FilesPageClient() {
       setSnackbar({ open: true, message: t('files.chooseFile'), severity: 'error' });
       return;
     }
+    if (!isAllowedUpload(file)) {
+      setSnackbar({ open: true, message: t('files.invalidFileType'), severity: 'error' });
+      return;
+    }
     try {
       const form = new FormData();
       form.append('file', file);
-      form.append('code', code);
+      form.append('title', titleOrDescription);
       await api.post('/Files/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       setFile(undefined);
-      setCode('');
+      setTitleOrDescription('');
       setOpenDialog(false);
       await load();
       setSnackbar({ open: true, message: t('files.fileUploaded'), severity: 'success' });
@@ -93,11 +135,43 @@ export default function FilesPageClient() {
     }
   }
 
-  const base = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_BASE_URL)
-    || (typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_API_BASE_URL : undefined)
-    || 'http://localhost:5000/api';
+  async function viewFile(item: FileDto) {
+    const opened = window.open('about:blank', '_blank', 'noopener,noreferrer');
+    try {
+      const response = await api.get(`/Files/${item.id}/view`, { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: response.headers?.['content-type'] || undefined });
+      const objectUrl = URL.createObjectURL(blob);
+      if (opened) {
+        opened.location.href = objectUrl;
+      } else {
+        window.open(objectUrl, '_blank', 'noopener,noreferrer');
+      }
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    } catch (error: any) {
+      if (opened) opened.close();
+      setSnackbar({ open: true, message: error?.response?.data?.message || t('files.failedView'), severity: 'error' });
+    }
+  }
 
-  const downloadUrl = (id: number) => `${base}/Files/${id}/download`;
+  async function downloadFile(item: FileDto) {
+    try {
+      const response = await api.get(`/Files/${item.id}/download`, { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: response.headers?.['content-type'] || undefined });
+      const objectUrl = URL.createObjectURL(blob);
+      const contentDisposition = response.headers?.['content-disposition'] as string | undefined;
+      const suggestedName = tryGetNameFromContentDisposition(contentDisposition) || getFallbackFileName(item);
+
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = suggestedName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (error: any) {
+      setSnackbar({ open: true, message: error?.response?.data?.message || t('files.failedDownload'), severity: 'error' });
+    }
+  }
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
@@ -186,20 +260,19 @@ export default function FilesPageClient() {
         }}
       >
         <TableContainer>
-          <Table sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: 650, tableLayout: 'fixed' }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.filePath')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.code')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('files.fileType')}</TableCell>
-                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700, width: '50%' }}>{t('files.titleOrDescription')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: 'center', fontWeight: 700, width: '20%' }}>{t('files.fileType')}</TableCell>
+                <TableCell align="center" sx={{ py: 2.5, fontWeight: 700, width: '30%' }}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 Array.from(new Array(5)).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(4)].map((__, j) => (
+                    {[...Array(3)].map((__, j) => (
                       <TableCell key={j} sx={{ textAlign: isRTL ? 'right' : 'left' }}>
                         <Skeleton variant="text" />
                       </TableCell>
@@ -208,7 +281,7 @@ export default function FilesPageClient() {
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 10 }}>
+                  <TableCell colSpan={3} align="center" sx={{ py: 10 }}>
                     <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
                         <FolderIcon fontSize="inherit" />
@@ -230,33 +303,42 @@ export default function FilesPageClient() {
                     }}
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: isRTL ? 'flex-end' : 'flex-start', width: '100%' }}>
                         <FileIcon fontSize="small" color="action" />
                         <Typography variant="body2" sx={{ fontWeight: 500, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {it.path || '-'}
+                          {displayFileTitle(it)}
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{it.code || '-'}</Typography>
-                    </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                    <TableCell sx={{ py: 2, textAlign: 'center' }}>
                       <Chip 
-                        label={it.type ? t('app.yes') : t('app.no')} 
+                        label={(getFileExtension(it.path || '').replace('.', '').toUpperCase() || '-')}
                         size="small" 
-                        color={it.type ? 'success' : 'default'} 
+                        color="default" 
                         variant="outlined"
                         sx={{ borderRadius: 1.5, fontWeight: 600 }}
                       />
                     </TableCell>
-                    <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
-                      <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+                    <TableCell align="center" sx={{ py: 2 }}>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        {canViewInBrowser(it.path) && (
+                          <Tooltip title={t('files.view')}>
+                            <IconButton
+                              color="info"
+                              onClick={() => viewFile(it)}
+                              sx={{
+                                '&:hover': { bgcolor: 'info.light', color: 'white' },
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <OpenInNewIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         <Tooltip title={t('files.download')}>
                           <IconButton 
                             color="primary" 
-                            component="a" 
-                            href={downloadUrl(it.id)} 
-                            target="_blank"
+                            onClick={() => downloadFile(it)}
                             sx={{ 
                               '&:hover': { bgcolor: 'primary.light', color: 'white' },
                               transition: 'all 0.2s ease'
@@ -316,14 +398,17 @@ export default function FilesPageClient() {
               }}
             >
               {file ? file.name : t('files.chooseFile')}
-              <VisuallyHiddenInput type="file" onChange={(e: any) => setFile(e.target.files?.[0])} />
+              <VisuallyHiddenInput type="file" accept={ALLOWED_UPLOAD_EXTENSIONS.join(',')} onChange={(e: any) => setFile(e.target.files?.[0])} />
             </Button>
+            <Typography variant="caption" color="text.secondary">
+              {t('files.allowedTypesHint')}
+            </Typography>
             
             <TextField 
               fullWidth 
-              label={t('files.code')} 
-              value={code} 
-              onChange={(e) => setCode(e.target.value)} 
+              label={t('files.titleOrDescription')} 
+              value={titleOrDescription} 
+              onChange={(e) => setTitleOrDescription(e.target.value)} 
               variant="outlined"
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />

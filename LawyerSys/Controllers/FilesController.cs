@@ -12,6 +12,9 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class FilesController : ControllerBase
 {
+    private static readonly string[] AllowedUploadExtensions = new[] { ".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp" };
+    private static readonly string[] DocumentExtensions = new[] { ".pdf", ".doc", ".docx" };
+
     private readonly LegacyDbContext _context;
     private readonly IWebHostEnvironment _env;
 
@@ -87,10 +90,18 @@ public class FilesController : ControllerBase
     // POST: api/files/upload
     [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("upload")]
-    public async Task<ActionResult<FileDto>> UploadFile(IFormFile file, [FromForm] string? code)
+    public async Task<ActionResult<FileDto>> UploadFile(
+        IFormFile file,
+        [FromForm] string? title,
+        [FromForm] string? description,
+        [FromForm] string? code)
     {
         if (file == null || file.Length == 0)
             return BadRequest(new { message = "No file uploaded" });
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!AllowedUploadExtensions.Contains(extension))
+            return BadRequest(new { message = "Unsupported file type. Allowed types: .pdf, .doc, .docx, .png, .jpg, .jpeg, .gif, .bmp, .webp" });
 
         // Create uploads directory if not exists
         var uploadsPath = Path.Combine(_env.ContentRootPath, "Uploads");
@@ -107,14 +118,20 @@ public class FilesController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        // Determine file type (true = document, false = other)
-        var extension = Path.GetExtension(file.FileName).ToLower();
-        var isDocument = new[] { ".pdf", ".doc", ".docx", ".txt", ".xls", ".xlsx" }.Contains(extension);
+        // Determine file type (true = document, false = image)
+        var isDocument = DocumentExtensions.Contains(extension);
+        var titleOrDescription = !string.IsNullOrWhiteSpace(title)
+            ? title.Trim()
+            : !string.IsNullOrWhiteSpace(description)
+                ? description.Trim()
+                : code;
 
         var fileEntity = new FileEntity
         {
             Path = $"/Uploads/{fileName}",
-            Code = code ?? Path.GetFileNameWithoutExtension(file.FileName),
+            Code = string.IsNullOrWhiteSpace(titleOrDescription)
+                ? Path.GetFileNameWithoutExtension(file.FileName)
+                : titleOrDescription,
             type = isDocument
         };
 
@@ -181,6 +198,23 @@ public class FilesController : ControllerBase
         var fileName = Path.GetFileName(fullPath);
 
         return PhysicalFile(fullPath, contentType, fileName);
+    }
+
+    // GET: api/files/{id}/view
+    [HttpGet("{id}/view")]
+    public async Task<IActionResult> ViewFile(int id)
+    {
+        var file = await _context.Files.FindAsync(id);
+        if (file == null || string.IsNullOrEmpty(file.Path))
+            return NotFound(new { message = "File not found" });
+
+        var fullPath = Path.Combine(_env.ContentRootPath, file.Path.TrimStart('/'));
+        if (!System.IO.File.Exists(fullPath))
+            return NotFound(new { message = "Physical file not found" });
+
+        var contentType = GetContentType(fullPath);
+        var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(stream, contentType);
     }
 
     private static FileDto MapToDto(FileEntity f) => new()
