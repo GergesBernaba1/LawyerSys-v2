@@ -732,6 +732,36 @@
                                              "saveRoles":  "حفظ الأدوار"
                                          }
                         },
+    "documentGeneration":  {
+                               "title":  "توليد مستند قانوني",
+                               "template":  "القالب",
+                               "caseCode":  "رقم القضية",
+                               "customerId":  "رقم العميل",
+                               "format":  "الصيغة",
+                               "scope":  "النطاق",
+                               "feeTerms":  "شروط الأتعاب",
+                               "subject":  "الموضوع",
+                               "statement":  "البيان",
+                               "generate":  "توليد",
+                               "failedLoadTemplates":  "فشل تحميل القوالب",
+                               "failedGenerate":  "فشل توليد المستند",
+                               "invalidTemplateType":  "نوع القالب غير صالح",
+                               "formats":  {
+                                               "txt":  "TXT",
+                                               "pdf":  "PDF"
+                                           },
+                               "templates":  {
+                                                 "power-of-attorney":  {
+                                                                            "name":  "توكيل"
+                                                                        },
+                                                 "contract":  {
+                                                                  "name":  "عقد خدمات قانونية"
+                                                              },
+                                                 "court-filing":  {
+                                                                       "name":  "مسودة مذكرة قضائية"
+                                                                   }
+                                             }
+                           },
     "intake":  {
                    "title":  "مسار الاستقبال",
                    "subtitle":  "مراجعة الطلبات الجديدة وتأهيلها وتحويلها",

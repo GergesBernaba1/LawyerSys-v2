@@ -16,10 +16,12 @@ import {
   Typography,
 } from '@mui/material';
 import api from '../../src/services/api';
+import { useTranslation } from 'react-i18next';
 
 type Template = { key: string; name: string; description: string };
 
 export default function DocumentGenerationPage() {
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateType, setTemplateType] = useState('power-of-attorney');
   const [caseCode, setCaseCode] = useState('');
@@ -35,9 +37,15 @@ export default function DocumentGenerationPage() {
     (async () => {
       try {
         const response = await api.get('/DocumentGeneration/templates');
-        setTemplates(response.data || []);
-      } catch {
-        setError('Failed to load templates');
+        const loadedTemplates = response.data || [];
+        setTemplates(loadedTemplates);
+        setTemplateType((current) => (
+          loadedTemplates.length > 0 && !loadedTemplates.some((tpl: Template) => tpl.key === current)
+            ? loadedTemplates[0].key
+            : current
+        ));
+      } catch (err: any) {
+        setError(err?.response?.data?.message || t('documentGeneration.failedLoadTemplates'));
       }
     })();
   }, []);
@@ -67,45 +75,56 @@ export default function DocumentGenerationPage() {
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to generate document');
+      const backendMessage = err?.response?.data?.message;
+      if (backendMessage === 'Invalid template type') {
+        setError(t('documentGeneration.invalidTemplateType'));
+      } else {
+        setError(backendMessage || t('documentGeneration.failedGenerate'));
+      }
     }
+  }
+
+  function getTemplateLabel(template: Template): string {
+    const key = `documentGeneration.templates.${template.key}.name`;
+    const localized = t(key);
+    return localized === key ? (template.name || template.key) : localized;
   }
 
   return (
     <Box>
       <Card>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>Generate Legal Document</Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>{t('documentGeneration.title')}</Typography>
 
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
           <Stack spacing={2}>
             <FormControl size="small">
-              <InputLabel>Template</InputLabel>
-              <Select value={templateType} label="Template" onChange={(e) => setTemplateType(String(e.target.value))}>
-                {templates.map((t) => (
-                  <MenuItem key={t.key} value={t.key}>{t.name}</MenuItem>
+              <InputLabel>{t('documentGeneration.template')}</InputLabel>
+              <Select value={templateType} label={t('documentGeneration.template')} onChange={(e) => setTemplateType(String(e.target.value))}>
+                {templates.map((tpl) => (
+                  <MenuItem key={tpl.key} value={tpl.key}>{getTemplateLabel(tpl)}</MenuItem>
                 ))}
               </Select>
             </FormControl>
 
-            <TextField size="small" label="Case Code" value={caseCode} onChange={(e) => setCaseCode(e.target.value)} />
-            <TextField size="small" label="Customer" value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
+            <TextField size="small" label={t('documentGeneration.caseCode')} value={caseCode} onChange={(e) => setCaseCode(e.target.value)} />
+            <TextField size="small" label={t('documentGeneration.customerId')} value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
 
             <FormControl size="small">
-              <InputLabel>Format</InputLabel>
-              <Select value={format} label="Format" onChange={(e) => setFormat(e.target.value as 'txt' | 'pdf')}>
-                <MenuItem value="txt">TXT</MenuItem>
-                <MenuItem value="pdf">PDF</MenuItem>
+              <InputLabel>{t('documentGeneration.format')}</InputLabel>
+              <Select value={format} label={t('documentGeneration.format')} onChange={(e) => setFormat(e.target.value as 'txt' | 'pdf')}>
+                <MenuItem value="txt">{t('documentGeneration.formats.txt')}</MenuItem>
+                <MenuItem value="pdf">{t('documentGeneration.formats.pdf')}</MenuItem>
               </Select>
             </FormControl>
 
-            <TextField size="small" label="Scope" value={scope} onChange={(e) => setScope(e.target.value)} multiline minRows={2} />
-            <TextField size="small" label="Fee Terms" value={feeTerms} onChange={(e) => setFeeTerms(e.target.value)} multiline minRows={2} />
-            <TextField size="small" label="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
-            <TextField size="small" label="Statement" value={statement} onChange={(e) => setStatement(e.target.value)} multiline minRows={3} />
+            <TextField size="small" label={t('documentGeneration.scope')} value={scope} onChange={(e) => setScope(e.target.value)} multiline minRows={2} />
+            <TextField size="small" label={t('documentGeneration.feeTerms')} value={feeTerms} onChange={(e) => setFeeTerms(e.target.value)} multiline minRows={2} />
+            <TextField size="small" label={t('documentGeneration.subject')} value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <TextField size="small" label={t('documentGeneration.statement')} value={statement} onChange={(e) => setStatement(e.target.value)} multiline minRows={3} />
 
-            <Button variant="contained" onClick={() => void generate()}>Generate</Button>
+            <Button variant="contained" onClick={() => void generate()}>{t('documentGeneration.generate')}</Button>
           </Stack>
         </CardContent>
       </Card>

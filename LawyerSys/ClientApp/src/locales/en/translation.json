@@ -732,6 +732,36 @@
                                              "saveRoles":  "Save Roles"
                                          }
                         },
+    "documentGeneration":  {
+                               "title":  "Generate Legal Document",
+                               "template":  "Template",
+                               "caseCode":  "Case Code",
+                               "customerId":  "Customer ID",
+                               "format":  "Format",
+                               "scope":  "Scope",
+                               "feeTerms":  "Fee Terms",
+                               "subject":  "Subject",
+                               "statement":  "Statement",
+                               "generate":  "Generate",
+                               "failedLoadTemplates":  "Failed to load templates",
+                               "failedGenerate":  "Failed to generate document",
+                               "invalidTemplateType":  "Invalid template type",
+                               "formats":  {
+                                               "txt":  "TXT",
+                                               "pdf":  "PDF"
+                                           },
+                               "templates":  {
+                                                 "power-of-attorney":  {
+                                                                            "name":  "Power Of Attorney"
+                                                                        },
+                                                 "contract":  {
+                                                                  "name":  "Legal Services Contract"
+                                                              },
+                                                 "court-filing":  {
+                                                                       "name":  "Court Filing Draft"
+                                                                   }
+                                             }
+                           },
     "intake":  {
                    "title":  "Intake Pipeline",
                    "subtitle":  "Review, qualify, and convert new leads",
