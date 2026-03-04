@@ -568,8 +568,10 @@ export default function Layout({ children }: LayoutProps) {
         position="fixed"
         sx={{
           width: { xs: '100%', md: `calc(100% - ${collapsed ? collapsedWidth : drawerWidth}px)` },
-          ml: { md: isRTL ? 0 : `${collapsed ? collapsedWidth : drawerWidth}px` },
-          mr: { md: isRTL ? `${collapsed ? collapsedWidth : drawerWidth}px` : 0 },
+          insetInlineStart: { xs: 0, md: `${collapsed ? collapsedWidth : drawerWidth}px` },
+          insetInlineEnd: 0,
+          ml: 0,
+          mr: 0,
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.shortest,
