@@ -26,6 +26,8 @@ import {
   useMediaQuery,
   Collapse,
   alpha,
+  TextField,
+  CircularProgress,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -66,9 +68,12 @@ import {
   Timer as TimeTrackingIcon,
   SmartToy as AiAssistantIcon,
   Rule as CourtAutomationIcon,
+  Close as CloseIcon,
+  SendRounded as SendRoundedIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
+import api from '../services/api';
 
 const drawerWidth = 280;
 
@@ -114,6 +119,12 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+interface ChatMessage {
+  id: number;
+  role: 'assistant' | 'user';
+  text: string;
+}
+
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isLayoutBypassedPage =
@@ -132,6 +143,11 @@ export default function Layout({ children }: LayoutProps) {
   const { user, logout, isAuthenticated, isAuthInitialized, hasRole, hasAnyRole } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const chatEndRef = React.useRef<HTMLDivElement | null>(null)
   const isAdmin = hasRole('Admin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
@@ -145,6 +161,7 @@ export default function Layout({ children }: LayoutProps) {
   })
   // Start from SSR default language to keep hydrated text identical.
   const [lng, setLng] = useState('ar')
+  const assistantLanguage: 'ar' | 'en' = (lng && lng.startsWith('ar')) ? 'ar' : 'en'
 
   React.useEffect(() => {
     if (!isAuthInitialized || isLayoutBypassedPage) return;
@@ -256,10 +273,88 @@ export default function Layout({ children }: LayoutProps) {
     try { localStorage.setItem('layout.sidebarCollapsed', collapsed ? 'true' : 'false') } catch {}
   }, [collapsed]);
 
+  React.useEffect(() => {
+    if (!chatOpen || chatMessages.length > 0) return
+    setChatMessages([
+      {
+        id: Date.now(),
+        role: 'assistant',
+        text: assistantLanguage === 'ar'
+          ? 'مرحباً، كيف يمكنني مساعدتك في عملك القانوني اليوم؟'
+          : 'Hello, how can I help with your legal work today?',
+      },
+    ])
+  }, [chatOpen, chatMessages.length, assistantLanguage])
+
+  React.useEffect(() => {
+    if (!chatOpen) return
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages, chatLoading, chatOpen])
+
   const currentPageKey =
     pathname === '/profile'
       ? 'profile'
       : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
+
+  const handleSendChat = async () => {
+    const prompt = chatInput.trim()
+    if (!prompt || chatLoading) return
+
+    const userMessage: ChatMessage = {
+      id: Date.now(),
+      role: 'user',
+      text: prompt,
+    }
+    const nextHistory = [...chatMessages.slice(-8), userMessage]
+    setChatMessages((prev) => [...prev, userMessage])
+    setChatInput('')
+    setChatLoading(true)
+
+    try {
+      const context = nextHistory
+        .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
+        .join('\n')
+
+      const res = await api.post('/AIAssistant/draft', {
+        language: assistantLanguage,
+        draftType: 'General',
+        instructions: prompt,
+        context,
+      })
+
+      const replyText = String(
+        res?.data?.draftText
+          || res?.data?.summary
+          || (assistantLanguage === 'ar'
+            ? 'تم استلام رسالتك وسيتم الرد قريباً.'
+            : 'Your request was received and processed.')
+      )
+
+      setChatMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, role: 'assistant', text: replyText },
+      ])
+    } catch (e: any) {
+      const fallback = e?.response?.data?.message
+        || (assistantLanguage === 'ar'
+          ? 'حدث خطأ أثناء معالجة الطلب. حاول مرة أخرى.'
+          : 'An error occurred while processing your request. Please try again.')
+
+      setChatMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, role: 'assistant', text: String(fallback) },
+      ])
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+  const handleChatInputKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      void handleSendChat()
+    }
+  }
 
   if (isLayoutBypassedPage) {
     return <>{children}</>;
@@ -286,17 +381,17 @@ export default function Layout({ children }: LayoutProps) {
               width: 42,
               height: 42,
               borderRadius: 3,
-              background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+              background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)',
+              boxShadow: '0 8px 16px rgba(20, 52, 90, 0.3)',
             }}
           >
             <GavelIcon sx={{ color: 'white', fontSize: 24 }} />
           </Box>
           {!collapsed && (
-            <Typography variant="h5" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <Typography variant="h5" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               LawyerSys
             </Typography>
           )}
@@ -341,14 +436,14 @@ export default function Layout({ children }: LayoutProps) {
                   py: 1.4,
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&.Mui-selected': {
-                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                    background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
                     color: 'white',
-                    boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.4)',
+                    boxShadow: '0 10px 20px -5px rgba(20, 52, 90, 0.35)',
                     '& .MuiListItemIcon-root': {
                       color: 'white',
                     },
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #4f46e5 0%, #9333ea 100%)',
+                      background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
                     },
                   },
                   '&:hover:not(.Mui-selected)': {
@@ -413,9 +508,9 @@ export default function Layout({ children }: LayoutProps) {
               width: 42,
               height: 42,
               borderRadius: 2.5,
-              background: 'linear-gradient(135deg, #f43f5e 0%, #fb7185 100%)',
+              background: 'linear-gradient(135deg, #b98746 0%, #d4a15a 100%)',
               fontWeight: 800,
-              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.3)',
+              boxShadow: '0 4px 12px rgba(185, 135, 70, 0.3)',
             }}
           >
             {(user?.fullName?.charAt(0) || user?.userName?.charAt(0) || 'U').toUpperCase()}
@@ -505,7 +600,7 @@ export default function Layout({ children }: LayoutProps) {
                 '&:focus-within': {
                   bgcolor: 'white',
                   borderColor: 'primary.main',
-                  boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.1)',
+                  boxShadow: '0 0 0 4px rgba(20, 52, 90, 0.12)',
                   width: 400,
                 },
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -588,12 +683,12 @@ export default function Layout({ children }: LayoutProps) {
                 >
                   <Avatar
                     sx={{
-                      background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                      background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
                       width: 38,
                       height: 38,
                       fontSize: '0.9rem',
                       fontWeight: 800,
-                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+                      boxShadow: '0 4px 12px rgba(20, 52, 90, 0.3)',
                     }}
                   >
                     {(user.fullName?.charAt(0) || user.userName?.charAt(0) || 'U').toUpperCase()}
@@ -773,11 +868,11 @@ export default function Layout({ children }: LayoutProps) {
                 px: 4, 
                 py: 1, 
                 fontWeight: 800,
-                background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.4)',
+                background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
+                boxShadow: '0 10px 20px -5px rgba(20, 52, 90, 0.35)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #9333ea 100%)',
-                  boxShadow: '0 12px 24px -5px rgba(99, 102, 241, 0.5)',
+                  background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
+                  boxShadow: '0 12px 24px -5px rgba(20, 52, 90, 0.45)',
                 }
               }}
             >
@@ -790,6 +885,139 @@ export default function Layout({ children }: LayoutProps) {
           {children}
         </Box>
       </Box>
+      <Tooltip title={t('app.aiassistant')} placement={isRTL ? 'left' : 'right'}>
+        <IconButton
+          aria-label={t('app.aiassistant')}
+          onClick={() => setChatOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: { xs: 16, md: 24 },
+            right: isRTL ? 'auto' : { xs: 16, md: 24 },
+            left: isRTL ? { xs: 16, md: 24 } : 'auto',
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            color: 'white',
+            background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
+            boxShadow: '0 14px 28px rgba(20, 52, 90, 0.38)',
+            zIndex: theme.zIndex.drawer + 3,
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
+              transform: 'translateY(-2px) scale(1.03)',
+            },
+          }}
+        >
+          <ChatIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Drawer
+        anchor={isRTL ? 'left' : 'right'}
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: { xs: '100%', sm: 420 },
+            maxWidth: '100%',
+            border: 'none',
+            boxShadow: '0 20px 40px rgba(4, 10, 19, 0.28)',
+            display: 'flex',
+            flexDirection: 'column',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            px: 2,
+            py: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
+            color: 'white',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <AiAssistantIcon fontSize="small" />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+              {t('aiAssistant.quickChatTitle', 'Assistant Chat')}
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setChatOpen(false)} size="small" sx={{ color: 'white' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ flex: 1, overflowY: 'auto', p: 2, bgcolor: '#f5f8fc' }}>
+          {chatMessages.map((message) => (
+            <Box
+              key={message.id}
+              sx={{
+                display: 'flex',
+                justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                mb: 1.2,
+              }}
+            >
+              <Box
+                sx={{
+                  maxWidth: '86%',
+                  px: 1.5,
+                  py: 1.15,
+                  borderRadius: 2,
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.5,
+                  bgcolor: message.role === 'user' ? 'primary.main' : 'white',
+                  color: message.role === 'user' ? 'white' : 'text.primary',
+                  border: message.role === 'user' ? 'none' : '1px solid #e5edf6',
+                  boxShadow: message.role === 'user'
+                    ? '0 6px 16px rgba(20, 52, 90, 0.24)'
+                    : '0 3px 10px rgba(2, 12, 27, 0.05)',
+                }}
+              >
+                <Typography variant="body2">{message.text}</Typography>
+              </Box>
+            </Box>
+          ))}
+
+          {chatLoading && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 0.5, py: 0.5 }}>
+              <CircularProgress size={16} />
+              <Typography variant="caption" color="text.secondary">
+                {t('app.loading')}
+              </Typography>
+            </Box>
+          )}
+          <div ref={chatEndRef} />
+        </Box>
+
+        <Box sx={{ p: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'white' }}>
+          <TextField
+            fullWidth
+            multiline
+            maxRows={4}
+            size="small"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyDown={handleChatInputKeyDown}
+            placeholder={t('aiAssistant.quickChatPlaceholder', 'Type your message...')}
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  edge="end"
+                  color="primary"
+                  onClick={() => void handleSendChat()}
+                  disabled={chatLoading || !chatInput.trim()}
+                >
+                  <SendRoundedIcon fontSize="small" />
+                </IconButton>
+              ),
+            }}
+          />
+        </Box>
+      </Drawer>
     </Box>
   );
 }

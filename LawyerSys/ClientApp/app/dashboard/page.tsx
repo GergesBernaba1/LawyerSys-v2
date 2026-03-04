@@ -184,10 +184,10 @@ export default function DashboardPageClient() {
   }
 
   const quickActions = [
-    { label: t('dashboard.newCase'), path: '/cases', icon: <GavelIcon />, color: '#6366f1' },
-    { label: t('dashboard.newCustomer'), path: '/customers', icon: <PeopleIcon />, color: '#a855f7' },
-    { label: t('dashboard.viewBilling'), path: '/billing', icon: <ReceiptIcon />, color: '#f43f5e' },
-    { label: t('dashboard.adminTasks'), path: '/tasks', icon: <EventIcon />, color: '#10b981' },
+    { label: t('dashboard.newCase'), path: '/cases', icon: <GavelIcon />, color: theme.palette.primary.main },
+    { label: t('dashboard.newCustomer'), path: '/customers', icon: <PeopleIcon />, color: theme.palette.primary.light },
+    { label: t('dashboard.viewBilling'), path: '/billing', icon: <ReceiptIcon />, color: theme.palette.secondary.main },
+    { label: t('dashboard.adminTasks'), path: '/tasks', icon: <EventIcon />, color: theme.palette.success.main },
   ];
 
   return (
@@ -198,12 +198,12 @@ export default function DashboardPageClient() {
         sx={{ 
           p: { xs: 3, md: 4 }, 
           mb: 4, 
-          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', 
+          background: `linear-gradient(125deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 58%, ${theme.palette.secondary.main} 100%)`,
           color: 'white', 
           borderRadius: 5,
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 20px 40px -12px rgba(99, 102, 241, 0.35)',
+          boxShadow: `0 20px 40px -12px ${alpha(theme.palette.primary.main, 0.35)}`,
           '&::after': {
             content: '""',
             position: 'absolute',
@@ -219,7 +219,7 @@ export default function DashboardPageClient() {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 1 }}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-              <WavingHandIcon sx={{ color: '#fbbf24' }} />
+              <WavingHandIcon sx={{ color: theme.palette.secondary.light }} />
               <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.02em' }}>
                 {t('dashboard.welcomeBack')}{user ? `, ${user.fullName || user.userName || 'User'}` : ''}!
               </Typography>
@@ -233,7 +233,7 @@ export default function DashboardPageClient() {
               aria-label="view-all-cases"
               variant="contained"
               sx={{
-                bgcolor: 'rgba(255,255,255,0.95)',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(243,247,253,0.96) 100%)',
                 color: 'primary.dark',
                 fontWeight: 800,
                 px: { xs: 2.5, md: 3 },
@@ -245,7 +245,7 @@ export default function DashboardPageClient() {
                 borderColor: alpha('#ffffff', 0.18),
                 transition: 'transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,255,255,1)',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f1f6fd 100%)',
                   transform: 'translateY(-2px)',
                   boxShadow: '0 12px 28px -16px rgba(0,0,0,0.22)'
                 }
@@ -261,10 +261,10 @@ export default function DashboardPageClient() {
       <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 0 } }}>
         {/* Stats Grid */}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-          <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color="#6366f1" loading={loading} onClick={() => navigate('/cases')} trend={stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
-          <Box><StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color="#a855f7" loading={loading} onClick={() => navigate('/customers')} /></Box>
-          <Box><StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color="#06b6d4" loading={loading} onClick={() => navigate('/employees')} /></Box>
-          <Box><StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color="#f59e0b" loading={loading} onClick={() => navigate('/files')} /></Box>
+          <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color={theme.palette.primary.main} loading={loading} onClick={() => navigate('/cases')} trend={stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
+          <Box><StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color={theme.palette.primary.light} loading={loading} onClick={() => navigate('/customers')} /></Box>
+          <Box><StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color={theme.palette.secondary.main} loading={loading} onClick={() => navigate('/employees')} /></Box>
+          <Box><StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color={theme.palette.warning.main} loading={loading} onClick={() => navigate('/files')} /></Box>
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>

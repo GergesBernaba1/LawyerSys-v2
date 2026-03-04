@@ -587,6 +587,8 @@
     "aiAssistant":  {
                         "title":  "AI Assistant",
                         "subtitle":  "Bilingual legal support for summaries, drafting, and deadline-focused task suggestions",
+                        "quickChatTitle":  "Assistant Chat",
+                        "quickChatPlaceholder":  "Type your message...",
                         "language":  "Language",
                         "english":  "English",
                         "arabic":  "Arabic",

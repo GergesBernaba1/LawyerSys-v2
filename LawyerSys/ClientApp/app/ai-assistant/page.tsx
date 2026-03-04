@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import {
   Alert,
+  alpha,
   Box,
   Button,
   Card,
@@ -17,6 +18,7 @@ import {
   Stack,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { AutoAwesome as AIIcon, Refresh as RefreshIcon } from "@mui/icons-material";
 import api from "../../src/services/api";
@@ -71,6 +73,8 @@ const formatDateTime = (v: string) => {
 export default function AIAssistantPage() {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState<"ar" | "en">((i18n.resolvedLanguage || i18n.language || "en").startsWith("ar") ? "ar" : "en");
+  const theme = useTheme();
+  const isRTL = language === "ar";
   const [error, setError] = useState("");
 
   const [summaryInput, setSummaryInput] = useState("");
@@ -86,6 +90,49 @@ export default function AIAssistantPage() {
   const [daysWindow, setDaysWindow] = useState(14);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [suggestionsResult, setSuggestionsResult] = useState<SuggestionsResponse | null>(null);
+  const legalHeroGradient = `linear-gradient(125deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 58%, ${theme.palette.secondary.main} 100%)`;
+  const sectionCardSx = {
+    borderRadius: 4,
+    border: "1px solid",
+    borderColor: "divider",
+    boxShadow: "0 8px 20px rgba(2, 12, 27, 0.06)",
+    overflow: "hidden",
+  } as const;
+  const primaryActionSx = {
+    borderRadius: 2.5,
+    px: 2.5,
+    fontWeight: 800,
+    textTransform: "none",
+    color: "#ffffff",
+    background: "linear-gradient(135deg, #14345a 0%, #2d6a87 100%)",
+    boxShadow: "0 10px 22px -8px rgba(20, 52, 90, 0.35)",
+    "&:hover": {
+      background: "linear-gradient(135deg, #112b4b 0%, #255a74 100%)",
+    },
+    "&.Mui-disabled": {
+      color: alpha("#ffffff", 0.78),
+      background: alpha(theme.palette.primary.main, 0.42),
+      boxShadow: "none",
+    },
+  } as const;
+  const outlinedActionSx = {
+    borderRadius: 2.5,
+    px: 2.2,
+    fontWeight: 700,
+    textTransform: "none",
+    borderWidth: 2,
+    borderColor: alpha(theme.palette.primary.main, 0.35),
+    color: "primary.main",
+    "&:hover": {
+      borderWidth: 2,
+      borderColor: theme.palette.primary.main,
+      bgcolor: alpha(theme.palette.primary.main, 0.05),
+    },
+    "&.Mui-disabled": {
+      borderColor: alpha(theme.palette.primary.main, 0.2),
+      color: alpha(theme.palette.primary.main, 0.45),
+    },
+  } as const;
 
   const draftTypes = useMemo(
     () => [
@@ -151,29 +198,57 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <Box>
-      <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2} sx={{ mb: 2 }}>
-        <Box>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <AIIcon color="primary" />
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>{t("aiAssistant.title")}</Typography>
-          </Stack>
-          <Typography variant="body2" color="text.secondary">{t("aiAssistant.subtitle")}</Typography>
-        </Box>
-        <FormControl size="small" sx={{ minWidth: 180 }}>
-          <InputLabel>{t("aiAssistant.language")}</InputLabel>
-          <Select value={language} label={t("aiAssistant.language")} onChange={(e) => setLanguage(String(e.target.value) as "ar" | "en")}>
-            <MenuItem value="en">{t("aiAssistant.english")}</MenuItem>
-            <MenuItem value="ar">{t("aiAssistant.arabic")}</MenuItem>
-          </Select>
-        </FormControl>
-      </Stack>
+    <Box dir={isRTL ? "rtl" : "ltr"} sx={{ pb: 4 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2.5, md: 3.5 },
+          mb: 3,
+          borderRadius: 4,
+          color: "white",
+          background: legalHeroGradient,
+          boxShadow: `0 20px 40px -12px ${alpha(theme.palette.primary.main, 0.35)}`,
+        }}
+      >
+        <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2}>
+          <Box>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <AIIcon sx={{ color: theme.palette.secondary.light }} />
+              <Typography variant="h5" sx={{ fontWeight: 800 }}>{t("aiAssistant.title")}</Typography>
+            </Stack>
+            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.92 }}>{t("aiAssistant.subtitle")}</Typography>
+          </Box>
+          <FormControl
+            size="small"
+            sx={{
+              minWidth: 180,
+              bgcolor: alpha("#ffffff", 0.1),
+              borderRadius: 2.5,
+              "& .MuiInputLabel-root": { color: alpha("#ffffff", 0.92) },
+              "& .MuiOutlinedInput-root": {
+                color: "white",
+                borderRadius: 2.5,
+                "& fieldset": { borderColor: alpha("#ffffff", 0.4) },
+                "&:hover fieldset": { borderColor: alpha("#ffffff", 0.65) },
+                "&.Mui-focused fieldset": { borderColor: alpha("#ffffff", 0.85) },
+              },
+              "& .MuiSvgIcon-root": { color: "white" },
+            }}
+          >
+            <InputLabel>{t("aiAssistant.language")}</InputLabel>
+            <Select value={language} label={t("aiAssistant.language")} onChange={(e) => setLanguage(String(e.target.value) as "ar" | "en")}>
+              <MenuItem value="en">{t("aiAssistant.english")}</MenuItem>
+              <MenuItem value="ar">{t("aiAssistant.arabic")}</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      </Paper>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12 }}>
-          <Card>
+          <Card sx={sectionCardSx}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 1 }}>{t("aiAssistant.summaryTitle")}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t("aiAssistant.summaryHint")}</Typography>
@@ -187,16 +262,16 @@ export default function AIAssistantPage() {
                   placeholder={t("aiAssistant.summaryPlaceholder")}
                 />
                 <Stack direction="row" spacing={1}>
-                  <Button variant="contained" onClick={() => void generateSummary()} disabled={summaryLoading || !summaryInput.trim()}>
+                  <Button variant="contained" sx={primaryActionSx} onClick={() => void generateSummary()} disabled={summaryLoading || !summaryInput.trim()}>
                     {t("aiAssistant.generateSummary")}
                   </Button>
-                  <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => setSummaryResult(null)}>
+                  <Button variant="outlined" sx={outlinedActionSx} startIcon={<RefreshIcon />} onClick={() => setSummaryResult(null)}>
                     {t("app.reset")}
                   </Button>
                 </Stack>
 
                 {summaryResult && (
-                  <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.02), borderColor: alpha(theme.palette.primary.main, 0.2) }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                       <Typography sx={{ fontWeight: 700 }}>{t("aiAssistant.summaryOutput")}</Typography>
                       <Chip size="small" label={summaryResult.usedAiModel ? t("aiAssistant.modelAi") : t("aiAssistant.modelFallback")} color={summaryResult.usedAiModel ? "primary" : "default"} />
@@ -216,7 +291,7 @@ export default function AIAssistantPage() {
         </Grid>
 
         <Grid size={{ xs: 12 }}>
-          <Card>
+          <Card sx={sectionCardSx}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 1 }}>{t("aiAssistant.draftTitle")}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t("aiAssistant.draftHint")}</Typography>
@@ -251,16 +326,16 @@ export default function AIAssistantPage() {
                 </Grid>
               </Grid>
               <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
-                <Button variant="contained" onClick={() => void generateDraft()} disabled={draftLoading || !draftInstructions.trim()}>
+                <Button variant="contained" sx={primaryActionSx} onClick={() => void generateDraft()} disabled={draftLoading || !draftInstructions.trim()}>
                   {t("aiAssistant.generateDraft")}
                 </Button>
-                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => setDraftResult(null)}>
+                <Button variant="outlined" sx={outlinedActionSx} startIcon={<RefreshIcon />} onClick={() => setDraftResult(null)}>
                   {t("app.reset")}
                 </Button>
               </Stack>
 
               {draftResult && (
-                <Paper variant="outlined" sx={{ p: 2, mt: 1.5 }}>
+                <Paper variant="outlined" sx={{ p: 2, mt: 1.5, borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.02), borderColor: alpha(theme.palette.primary.main, 0.2) }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                     <Typography sx={{ fontWeight: 700 }}>{t("aiAssistant.draftOutput")}</Typography>
                     <Chip size="small" label={draftResult.usedAiModel ? t("aiAssistant.modelAi") : t("aiAssistant.modelFallback")} color={draftResult.usedAiModel ? "primary" : "default"} />
@@ -274,7 +349,7 @@ export default function AIAssistantPage() {
         </Grid>
 
         <Grid size={{ xs: 12 }}>
-          <Card>
+          <Card sx={sectionCardSx}>
             <CardContent>
               <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={1.5} sx={{ mb: 1 }}>
                 <Box>
@@ -290,7 +365,7 @@ export default function AIAssistantPage() {
                       <MenuItem value={30}>30</MenuItem>
                     </Select>
                   </FormControl>
-                  <Button variant="outlined" onClick={() => void loadSuggestions()} disabled={suggestionsLoading}>
+                  <Button variant="contained" sx={primaryActionSx} onClick={() => void loadSuggestions()} disabled={suggestionsLoading}>
                     {t("aiAssistant.generateSuggestions")}
                   </Button>
                 </Stack>
@@ -299,7 +374,7 @@ export default function AIAssistantPage() {
               {suggestionsResult && (
                 <Stack spacing={1}>
                   {(suggestionsResult.suggestions || []).map((s, idx) => (
-                    <Paper key={`${s.sourceType}-${s.sourceId || idx}`} variant="outlined" sx={{ p: 1.5 }}>
+                    <Paper key={`${s.sourceType}-${s.sourceId || idx}`} variant="outlined" sx={{ p: 1.5, borderRadius: 3 }}>
                       <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" spacing={1}>
                         <Box>
                           <Typography sx={{ fontWeight: 700 }}>{s.title}</Typography>

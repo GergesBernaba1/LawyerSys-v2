@@ -4,19 +4,19 @@ const base = {
   palette: {
     mode: 'light',
     primary: {
-      main: '#4f46e5', // Modern Indigo
-      light: '#818cf8',
-      dark: '#3730a3',
+      main: '#14345a', // Legal Deep Blue
+      light: '#2d6a87',
+      dark: '#112b4b',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#e11d48', // Modern Rose
-      light: '#fb7185',
-      dark: '#9f1239',
+      main: '#b98746', // Legal Gold
+      light: '#d4a15a',
+      dark: '#8a602d',
       contrastText: '#ffffff',
     },
     background: {
-      default: '#f8fafc', // Slate 50
+      default: '#f3f6fb',
       paper: '#ffffff',
     },
     error: {
@@ -33,7 +33,7 @@ const base = {
     },
     text: {
       primary: '#0f172a', // Slate 900
-      secondary: '#64748b', // Slate 500
+      secondary: '#5f7085',
     },
     divider: '#e2e8f0',
   },
@@ -122,9 +122,9 @@ const base = {
           },
         },
         containedPrimary: {
-          background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+          background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #4338ca 0%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
           },
         },
       },
@@ -216,10 +216,10 @@ const base = {
           color: '#64748b',
           '&.Mui-selected': {
             backgroundColor: '#f1f5f9',
-            color: '#4f46e5',
+            color: '#14345a',
             fontWeight: 600,
             '& .MuiListItemIcon-root': {
-              color: '#4f46e5',
+              color: '#14345a',
             },
             '&:hover': {
               backgroundColor: '#e2e8f0',

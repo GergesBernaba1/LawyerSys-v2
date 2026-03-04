@@ -587,6 +587,8 @@
     "aiAssistant":  {
                         "title":  "المساعد الذكي",
                         "subtitle":  "دعم قانوني ثنائي اللغة للتلخيص والمسودات واقتراحات المهام والمواعيد",
+                        "quickChatTitle":  "محادثة المساعد",
+                        "quickChatPlaceholder":  "اكتب رسالتك...",
                         "language":  "اللغة",
                         "english":  "الإنجليزية",
                         "arabic":  "العربية",
