@@ -756,6 +756,12 @@
                                             "audit":  "سجل المراجعة",
                                             "reports":  "التقارير"
                                         },
+                            "roleLabels":  {
+                                               "SuperAdmin":  "مدير عام",
+                                               "Admin":  "مدير",
+                                               "Employee":  "موظف",
+                                               "Customer":  "عميل"
+                                           },
                             "accounts":  {
                                              "title":  "حسابات النظام",
                                              "user":  "المستخدم",

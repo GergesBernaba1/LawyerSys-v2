@@ -752,6 +752,12 @@
                                             "audit":  "Audit Logs",
                                             "reports":  "Reports"
                                         },
+                            "roleLabels":  {
+                                               "SuperAdmin":  "Super Admin",
+                                               "Admin":  "Admin",
+                                               "Employee":  "Employee",
+                                               "Customer":  "Customer"
+                                           },
                             "accounts":  {
                                              "title":  "Identity Accounts",
                                              "user":  "User",

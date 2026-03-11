@@ -19,7 +19,6 @@ import {
   TableHead,
   TableRow,
   Tabs,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -28,6 +27,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
 import SearchableMultiSelect from "../../src/components/SearchableMultiSelect";
+import type { SearchableOption } from "../../src/components/SearchableSelect";
 
 type AdministrationCounts = {
   users: number;
@@ -78,6 +78,40 @@ type AdministrationTab = "overview" | "accounts" | "tenants";
 
 function isDefaultFirm(tenantName: string) {
   return tenantName.trim().toLowerCase() === "default firm";
+}
+
+function getLocalizedRoleLabel(t: (key: string, options?: any) => string, role: string) {
+  return t(`administration.roleLabels.${role}`, { defaultValue: role });
+}
+
+function getRoleOptions(
+  t: (key: string, options?: any) => string,
+  availableRoles: string[],
+  selectedRoles: string[],
+) {
+  const optionMap = new Map<string, SearchableOption<string>>(
+    availableRoles
+      .filter((role) => role !== "SuperAdmin")
+      .map((role) => [
+        role,
+        {
+          value: role,
+          label: getLocalizedRoleLabel(t, role),
+        },
+      ]),
+  );
+
+  selectedRoles.forEach((role) => {
+    if (!optionMap.has(role)) {
+      optionMap.set(role, {
+        value: role,
+        label: getLocalizedRoleLabel(t, role),
+        disabled: role === "SuperAdmin",
+      });
+    }
+  });
+
+  return Array.from(optionMap.values());
 }
 
 export default function AdministrationPage() {
@@ -141,7 +175,7 @@ export default function AdministrationPage() {
         if (mounted) {
           setOverview(response.data);
           setAccounts(usersResponse.data || []);
-          setAvailableRoles(rolesResponse.data || []);
+          setAvailableRoles((rolesResponse.data || []).filter((role: string) => role !== "SuperAdmin"));
           setTenants(isSuperAdmin ? (tenantsResponse?.data || []) : []);
           const draftMap: Record<string, string[]> = {};
           (usersResponse.data || []).forEach((u: IdentityUserManagement) => {
@@ -388,10 +422,7 @@ export default function AdministrationPage() {
                             label={t("administration.accounts.roles")}
                             value={roleDrafts[account.id] || []}
                             onChange={(value) => setRoleDrafts((prev) => ({ ...prev, [account.id]: value }))}
-                            options={availableRoles.map((role) => ({
-                              value: role,
-                              label: role,
-                            }))}
+                            options={getRoleOptions(t, availableRoles, roleDrafts[account.id] || [])}
                             disabled={account.id === user?.id}
                             limitTags={3}
                           />

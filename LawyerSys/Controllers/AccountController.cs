@@ -494,19 +494,12 @@ public class AccountController : ControllerBase
     [HttpGet("users/roles")]
     public async Task<IActionResult> GetAvailableRoles()
     {
-        var query = _roleManager.Roles
+        var roles = await _roleManager.Roles
             .AsNoTracking()
             .OrderBy(role => role.Name)
-            .AsQueryable();
-
-        if (!User.IsInRole("SuperAdmin"))
-        {
-            query = query.Where(role => role.Name != "SuperAdmin");
-        }
-
-        var roles = await query
             .Select(role => role.Name ?? string.Empty)
             .Where(roleName => !string.IsNullOrWhiteSpace(roleName))
+            .Where(roleName => !roleName.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase))
             .ToListAsync();
 
         return Ok(roles);
@@ -588,9 +581,9 @@ public class AccountController : ControllerBase
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        if (!User.IsInRole("SuperAdmin") && requestedRoles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase))
+        if (requestedRoles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase))
         {
-            return BadRequest(new { message = "Only super administrators can assign the SuperAdmin role." });
+            return BadRequest(new { message = "The SuperAdmin role cannot be assigned." });
         }
 
         foreach (var role in requestedRoles)
