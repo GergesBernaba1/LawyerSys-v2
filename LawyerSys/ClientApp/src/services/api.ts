@@ -1,12 +1,13 @@
 import axios from 'axios'
 
-// support both Vite and Next public env var names
-const API_BASE = (typeof process !== 'undefined' && (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL))
-  || 'https://localhost:7001/api'
+const API_BASE =
+  (typeof process !== 'undefined' &&
+    (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL)) ||
+  'https://localhost:7001/api'
 
 const instance = axios.create({
   baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json' },
 })
 
 const inFlightGetRequests = new Map<string, Promise<any>>()
@@ -19,12 +20,19 @@ function getActiveTenantId() {
   return localStorage.getItem('lawyersys-active-tenant-id') || ''
 }
 
+function shouldSkipTenantHeader(config?: any) {
+  return Boolean(config?.skipTenantHeader)
+}
+
 function buildGetRequestKey(url: string, config?: any) {
   const uri = instance.getUri({ ...(config || {}), url })
-  const tenantHeader =
-    config?.headers?.['X-Firm-Id']
-    || config?.headers?.['x-firm-id']
-    || getActiveTenantId()
+  const tenantHeader = shouldSkipTenantHeader(config)
+    ? ''
+    : (
+      config?.headers?.['X-Firm-Id'] ||
+      config?.headers?.['x-firm-id'] ||
+      getActiveTenantId()
+    )
 
   return `${uri}::tenant=${tenantHeader || ''}`
 }
@@ -75,12 +83,25 @@ export function clearApiGetCache() {
   recentGetResponses.clear()
 }
 
-instance.interceptors.request.use(config => {
-  // guard for server-side rendering — localStorage only available in browser
-  const token = (typeof window !== 'undefined') ? localStorage.getItem('lawyersys-token') : null
-  if (token && config.headers) config.headers.Authorization = `Bearer ${token}`
+instance.interceptors.request.use((config) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('lawyersys-token') : null
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+
+  if (shouldSkipTenantHeader(config)) {
+    if (config.headers) {
+      delete config.headers['X-Firm-Id']
+      delete config.headers['x-firm-id']
+    }
+    return config
+  }
+
   const activeTenantId = getActiveTenantId()
-  if (activeTenantId && config.headers) config.headers['X-Firm-Id'] = activeTenantId
+  if (activeTenantId && config.headers) {
+    config.headers['X-Firm-Id'] = activeTenantId
+  }
+
   return config
 })
 

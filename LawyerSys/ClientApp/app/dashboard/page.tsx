@@ -108,9 +108,10 @@ export default function DashboardPageClient() {
   const router = useRouter();
   const params = useParams() as { locale?: string } | undefined;
   const locale = params?.locale || 'ar';
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, hasRole } = useAuth();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
+  const isSuperAdmin = hasRole('SuperAdmin');
   const [stats, setStats] = useState({
     cases: 0,
     customers: 0,
@@ -128,8 +129,10 @@ export default function DashboardPageClient() {
 
   useEffect(() => {
     async function fetchStats() {
+      const requestConfig = isSuperAdmin ? ({ skipTenantHeader: true } as any) : undefined;
+
       try {
-        const analyticsRes = await api.get('/Dashboard/analytics');
+        const analyticsRes = await api.get('/Dashboard/analytics', requestConfig);
         const analytics = analyticsRes.data || {};
 
         setStats({
@@ -144,17 +147,17 @@ export default function DashboardPageClient() {
           overdueTasks: analytics.alerts?.overdueTasks || 0,
         });
 
-        const casesRes = await api.get('/Cases?page=1&pageSize=5').catch(() => ({ data: { items: [] } }));
+        const casesRes = await api.get('/Cases?page=1&pageSize=5', requestConfig).catch(() => ({ data: { items: [] } }));
         const caseItems = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || []);
         setRecentCases(caseItems.slice(0, 5));
       } catch (e) {
         // fallback if analytics endpoint is unavailable
         try {
           const [casesRes, customersRes, employeesRes, filesRes] = await Promise.all([
-            api.get('/Cases').catch(() => ({ data: [] })),
-            api.get('/Customers').catch(() => ({ data: [] })),
-            api.get('/Employees').catch(() => ({ data: [] })),
-            api.get('/Files').catch(() => ({ data: [] })),
+            api.get('/Cases', requestConfig).catch(() => ({ data: [] })),
+            api.get('/Customers', requestConfig).catch(() => ({ data: [] })),
+            api.get('/Employees', requestConfig).catch(() => ({ data: [] })),
+            api.get('/Files', requestConfig).catch(() => ({ data: [] })),
           ]);
           const casesData = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || []);
           const customersData = Array.isArray(customersRes.data) ? customersRes.data : (customersRes.data?.items || []);
@@ -176,7 +179,7 @@ export default function DashboardPageClient() {
       }
     }
     fetchStats();
-  }, []);
+  }, [isSuperAdmin]);
 
   const navigate = (path: string) => {
     const target = `/${locale}${path}`
