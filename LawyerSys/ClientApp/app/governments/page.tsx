@@ -30,6 +30,7 @@ import {
   useTheme,
 } from "@mui/material";
 import {
+  Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   LocationCity as LocationCityIcon,
@@ -52,6 +53,9 @@ type LocationCity = {
   countryId: number;
   nameEn: string;
   nameAr: string;
+  isTenantOwned: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
 };
 
 type LocationCountry = {
@@ -80,8 +84,9 @@ export default function GovernmentsPage() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === "rtl" || (i18n.resolvedLanguage || i18n.language || "").startsWith("ar");
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole("Admin");
+  const { user, hasRole, hasAnyRole } = useAuth();
+  const isSuperAdmin = hasRole("SuperAdmin");
+  const canManageCities = hasAnyRole("Admin", "SuperAdmin");
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<LocationCountry[]>([]);
@@ -102,13 +107,13 @@ export default function GovernmentsPage() {
   async function load(countryId?: number | "") {
     setLoading(true);
     try {
-      const params = isAdmin && countryId ? { countryId } : undefined;
+      const params = isSuperAdmin && countryId ? { countryId } : undefined;
       const res = await api.get("/Governments/location-catalog", { params });
       const nextItems = Array.isArray(res.data) ? res.data : [];
       setItems(nextItems);
 
-      if (!isAdmin && nextItems.length > 0) {
-        setSelectedCountryId(nextItems[0].id);
+      if (!isSuperAdmin) {
+        setSelectedCountryId(nextItems[0]?.id ?? "");
       }
     } catch {
       setSnackbar({
@@ -132,13 +137,13 @@ export default function GovernmentsPage() {
 
   useEffect(() => {
     void load(selectedCountryId);
-  }, [isAdmin, selectedCountryId]);
+  }, [isSuperAdmin, selectedCountryId]);
 
   useEffect(() => {
-    if (isAdmin) {
+    if (isSuperAdmin) {
       void loadCountryOptions();
     }
-  }, [isAdmin]);
+  }, [isSuperAdmin]);
 
   const filterCountries = useMemo(
     () =>
@@ -163,6 +168,28 @@ export default function GovernmentsPage() {
   );
 
   const totalCities = visibleRows.length;
+  const userCountryId = Number(user?.countryId || 0) || 0;
+  const userCountryName =
+    user?.countryName ||
+    (selectedCountryId !== ""
+      ? filterCountries.find((country) => country.id === selectedCountryId)?.label
+      : visibleRows[0]?.countryName) ||
+    "";
+  const isEditing = form.id > 0;
+
+  function openCreate() {
+    const defaultCountryId = isSuperAdmin
+      ? (selectedCountryId === "" ? filterCountries[0]?.id ?? 0 : Number(selectedCountryId))
+      : userCountryId;
+
+    setForm({
+      id: 0,
+      countryId: defaultCountryId,
+      nameEn: "",
+      nameAr: "",
+    });
+    setEditOpen(true);
+  }
 
   function openEdit(city: LocationCity) {
     setForm({
@@ -175,7 +202,8 @@ export default function GovernmentsPage() {
   }
 
   async function handleSave() {
-    if (!form.countryId || !form.nameEn.trim() || !form.nameAr.trim()) {
+    const nextCountryId = isSuperAdmin ? form.countryId : userCountryId;
+    if (!nextCountryId || !form.nameEn.trim() || !form.nameAr.trim()) {
       setSnackbar({
         open: true,
         message: t("governments.cityValidation"),
@@ -186,22 +214,32 @@ export default function GovernmentsPage() {
 
     setSaving(true);
     try {
-      await api.put(`/Governments/cities/${form.id}`, {
-        countryId: form.countryId,
+      const payload = {
+        countryId: nextCountryId,
         nameEn: form.nameEn.trim(),
         nameAr: form.nameAr.trim(),
-      });
+      };
+
+      if (isEditing) {
+        await api.put(`/Governments/cities/${form.id}`, payload);
+      } else {
+        await api.post("/Governments/cities", payload);
+      }
+
       setSnackbar({
         open: true,
-        message: t("governments.cityUpdated"),
+        message: isEditing ? t("governments.cityUpdated") : t("governments.cityCreated"),
         severity: "success",
       });
       setEditOpen(false);
+      setForm(emptyForm);
       await load(selectedCountryId);
     } catch (err: any) {
       setSnackbar({
         open: true,
-        message: err?.response?.data?.message || t("governments.failedUpdateCity"),
+        message:
+          err?.response?.data?.message ||
+          (isEditing ? t("governments.failedUpdateCity") : t("governments.failedCreateCity")),
         severity: "error",
       });
     } finally {
@@ -210,6 +248,10 @@ export default function GovernmentsPage() {
   }
 
   async function handleDelete(city: LocationCity) {
+    if (!city.canDelete) {
+      return;
+    }
+
     if (!(await confirm(t("governments.confirmDeleteCity")))) {
       return;
     }
@@ -263,7 +305,7 @@ export default function GovernmentsPage() {
               {t("governments.management")}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {isAdmin ? t("governments.adminSubtitle") : t("governments.userSubtitle")}
+              {isSuperAdmin ? t("governments.adminSubtitle") : t("governments.userSubtitle")}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               {t("governments.totalCountries")}: <strong>{items.length}</strong> | {t("governments.totalCities")}:{" "}
@@ -273,7 +315,12 @@ export default function GovernmentsPage() {
         </Box>
 
         <Box sx={{ display: "flex", gap: 1.5, width: { xs: "100%", md: "auto" }, flexDirection: isRTL ? "row-reverse" : "row" }}>
-          {isAdmin && (
+          {canManageCities && (
+            <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
+              {t("governments.addCity")}
+            </Button>
+          )}
+          {isSuperAdmin && (
             <FormControl size="small" sx={{ minWidth: { xs: "100%", md: 220 } }}>
               <InputLabel id="country-filter-label">{t("governments.filterCountry")}</InputLabel>
               <Select
@@ -306,7 +353,7 @@ export default function GovernmentsPage() {
                   "&:hover": { bgcolor: "grey.50" },
                 }}
               >
-                <RefreshIcon fontSize="small" />
+              <RefreshIcon fontSize="small" />
               </IconButton>
             </span>
           </Tooltip>
@@ -329,7 +376,7 @@ export default function GovernmentsPage() {
                 <TableCell sx={{ fontWeight: 700 }}>{t("governments.country")}</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>{t("governments.cityNameEn")}</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>{t("governments.cityNameAr")}</TableCell>
-                {isAdmin && (
+                {canManageCities && (
                   <TableCell align={isRTL ? "left" : "right"} sx={{ fontWeight: 700 }}>
                     {t("common.actions")}
                   </TableCell>
@@ -340,7 +387,7 @@ export default function GovernmentsPage() {
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
                   <TableRow key={index}>
-                    {Array.from({ length: isAdmin ? 4 : 3 }).map((__, cellIndex) => (
+                    {Array.from({ length: canManageCities ? 4 : 3 }).map((__, cellIndex) => (
                       <TableCell key={cellIndex}>
                         <Skeleton variant="text" />
                       </TableCell>
@@ -349,13 +396,13 @@ export default function GovernmentsPage() {
                 ))
               ) : visibleRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 4 : 3} align="center" sx={{ py: 10 }}>
+                  <TableCell colSpan={canManageCities ? 4 : 3} align="center" sx={{ py: 10 }}>
                     <LocationCityIcon sx={{ fontSize: 56, color: "primary.main", opacity: 0.35, mb: 2 }} />
                     <Typography variant="h6" gutterBottom>
                       {t("governments.emptyCatalog")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {isAdmin ? t("governments.noGovernments") : t("governments.noCitiesForProfile")}
+                      {isSuperAdmin ? t("governments.noGovernments") : t("governments.noCitiesForProfile")}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -365,19 +412,28 @@ export default function GovernmentsPage() {
                     <TableCell>{row.countryName}</TableCell>
                     <TableCell>{row.nameEn}</TableCell>
                     <TableCell>{row.nameAr}</TableCell>
-                    {isAdmin && (
+                    {canManageCities && (
                       <TableCell align={isRTL ? "left" : "right"}>
                         <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end" }}>
-                          <Tooltip title={t("common.edit")}>
-                            <IconButton color="primary" onClick={() => openEdit(row)}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title={t("common.delete")}>
-                            <IconButton color="error" onClick={() => void handleDelete(row)}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+                          {row.canEdit && (
+                            <Tooltip title={t("common.edit")}>
+                              <IconButton color="primary" onClick={() => openEdit(row)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {row.canDelete && (
+                            <Tooltip title={t("common.delete")}>
+                              <IconButton color="error" onClick={() => void handleDelete(row)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {!row.canEdit && !row.canDelete && (
+                            <Typography variant="caption" color="text.secondary">
+                              {row.isTenantOwned ? "" : t("governments.readOnlyCity")}
+                            </Typography>
+                          )}
                         </Box>
                       </TableCell>
                     )}
@@ -389,25 +445,41 @@ export default function GovernmentsPage() {
         </TableContainer>
       </Paper>
 
-      <Dialog open={editOpen} onClose={() => !saving && setEditOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t("governments.editCity")}</DialogTitle>
+      <Dialog
+        open={editOpen}
+        onClose={() => {
+          if (saving) {
+            return;
+          }
+
+          setEditOpen(false);
+          setForm(emptyForm);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>{isEditing ? t("governments.editCity") : t("governments.createCity")}</DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
-            <FormControl fullWidth>
-              <InputLabel id="edit-country-label">{t("governments.country")}</InputLabel>
-              <Select
-                labelId="edit-country-label"
-                value={form.countryId}
-                label={t("governments.country")}
-                onChange={(event) => setForm((current) => ({ ...current, countryId: Number(event.target.value) }))}
-              >
-                {filterCountries.map((country) => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            {isSuperAdmin ? (
+              <FormControl fullWidth>
+                <InputLabel id="edit-country-label">{t("governments.country")}</InputLabel>
+                <Select
+                  labelId="edit-country-label"
+                  value={form.countryId}
+                  label={t("governments.country")}
+                  onChange={(event) => setForm((current) => ({ ...current, countryId: Number(event.target.value) }))}
+                >
+                  {filterCountries.map((country) => (
+                    <MenuItem key={country.id} value={country.id}>
+                      {country.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) : (
+              <TextField label={t("governments.country")} value={userCountryName} fullWidth disabled />
+            )}
             <TextField
               label={t("governments.cityNameEn")}
               value={form.nameEn}
@@ -423,11 +495,17 @@ export default function GovernmentsPage() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setEditOpen(false)} disabled={saving}>
+          <Button
+            onClick={() => {
+              setEditOpen(false);
+              setForm(emptyForm);
+            }}
+            disabled={saving}
+          >
             {t("common.cancel")}
           </Button>
           <Button variant="contained" onClick={handleSave} disabled={saving}>
-            {t("common.save")}
+            {isEditing ? t("common.save") : t("common.create")}
           </Button>
         </DialogActions>
       </Dialog>

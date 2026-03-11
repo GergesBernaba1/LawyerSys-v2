@@ -15,6 +15,9 @@ public class LocationCatalogCityDto
     public int CountryId { get; set; }
     public string NameEn { get; set; } = string.Empty;
     public string NameAr { get; set; } = string.Empty;
+    public bool IsTenantOwned { get; set; }
+    public bool CanEdit { get; set; }
+    public bool CanDelete { get; set; }
 }
 
 public class UpdateLocationCityDto

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
@@ -30,21 +31,25 @@ public class GovernmentsController : ControllerBase
     [HttpGet("location-catalog")]
     public async Task<ActionResult<IEnumerable<LocationCatalogCountryDto>>> GetLocationCatalog([FromQuery] int? countryId = null)
     {
-        var isAdmin = await _userContext.IsInRoleAsync("Admin");
+        var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
+        var currentUserId = _userContext.GetUserId();
         var effectiveCountryId = countryId;
+        var currentTenantId = _userContext.GetTenantId();
+        ApplicationUser? currentUser = null;
 
-        if (!isAdmin)
+        if (!isSuperAdmin)
         {
-            var currentUserId = _userContext.GetUserId();
             if (string.IsNullOrWhiteSpace(currentUserId))
             {
                 return Ok(Array.Empty<LocationCatalogCountryDto>());
             }
 
-            effectiveCountryId = await _applicationDbContext.Users
-                .Where(user => user.Id == currentUserId)
-                .Select(user => user.CountryId)
-                .FirstOrDefaultAsync();
+            currentUser = await _applicationDbContext.Users
+                .AsNoTracking()
+                .SingleOrDefaultAsync(user => user.Id == currentUserId);
+
+            effectiveCountryId = currentUser?.CountryId;
+            currentTenantId ??= currentUser?.TenantId;
 
             if (effectiveCountryId is null or <= 0)
             {
@@ -76,13 +81,103 @@ public class GovernmentsController : ControllerBase
                         Id = city.Id,
                         CountryId = city.CountryId,
                         NameEn = city.Name,
-                        NameAr = city.NameAr
+                        NameAr = city.NameAr,
+                        IsTenantOwned = city.TenantId.HasValue && city.CreatedByUserId != null,
+                        CanEdit = isSuperAdmin || (
+                            currentTenantId.HasValue &&
+                            !string.IsNullOrWhiteSpace(currentUserId) &&
+                            city.TenantId == currentTenantId.Value &&
+                            city.CreatedByUserId == currentUserId),
+                        CanDelete = isSuperAdmin || (
+                            currentTenantId.HasValue &&
+                            !string.IsNullOrWhiteSpace(currentUserId) &&
+                            city.TenantId == currentTenantId.Value &&
+                            city.CreatedByUserId == currentUserId)
                     })
                     .ToList()
             })
             .ToListAsync();
 
         return Ok(countries);
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPost("cities")]
+    public async Task<ActionResult<LocationCatalogCityDto>> CreateCity([FromBody] UpdateLocationCityDto dto)
+    {
+        var nameEn = (dto.NameEn ?? string.Empty).Trim();
+        var nameAr = (dto.NameAr ?? string.Empty).Trim();
+        if (dto.CountryId <= 0)
+        {
+            return BadRequest(new { message = "Country is required" });
+        }
+
+        if (string.IsNullOrWhiteSpace(nameEn))
+        {
+            return BadRequest(new { message = "English city name is required" });
+        }
+
+        if (string.IsNullOrWhiteSpace(nameAr))
+        {
+            return BadRequest(new { message = "Arabic city name is required" });
+        }
+
+        var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
+        var currentUser = await GetCurrentUserAsync();
+        if (!isSuperAdmin)
+        {
+            if (currentUser == null)
+            {
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            if (currentUser.CountryId is null or <= 0 || currentUser.CountryId.Value != dto.CountryId)
+            {
+                return ForbiddenMessage("You can only add cities to the country selected in your profile.");
+            }
+
+            if (currentUser.TenantId <= 0)
+            {
+                return BadRequest(new { message = "Tenant not found for the current user" });
+            }
+        }
+
+        var countryExists = await _applicationDbContext.Countries.AnyAsync(country => country.Id == dto.CountryId);
+        if (!countryExists)
+        {
+            return BadRequest(new { message = "Country not found" });
+        }
+
+        var duplicateExists = await _applicationDbContext.Cities.AnyAsync(existing =>
+            existing.CountryId == dto.CountryId &&
+            existing.Name.ToLower() == nameEn.ToLower());
+        if (duplicateExists)
+        {
+            return BadRequest(new { message = "City name already exists in this country" });
+        }
+
+        var city = new City
+        {
+            CountryId = dto.CountryId,
+            Name = nameEn,
+            NameAr = nameAr,
+            TenantId = isSuperAdmin ? null : currentUser?.TenantId,
+            CreatedByUserId = isSuperAdmin ? null : currentUser?.Id
+        };
+
+        _applicationDbContext.Cities.Add(city);
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(new LocationCatalogCityDto
+        {
+            Id = city.Id,
+            CountryId = city.CountryId,
+            NameEn = city.Name,
+            NameAr = city.NameAr,
+            IsTenantOwned = city.TenantId.HasValue && !string.IsNullOrWhiteSpace(city.CreatedByUserId),
+            CanEdit = true,
+            CanDelete = true
+        });
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -112,6 +207,26 @@ public class GovernmentsController : ControllerBase
             return BadRequest(new { message = "Arabic city name is required" });
         }
 
+        var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
+        var currentUser = await GetCurrentUserAsync();
+        if (!isSuperAdmin)
+        {
+            if (currentUser == null)
+            {
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            if (city.TenantId != currentUser.TenantId || city.CreatedByUserId != currentUser.Id)
+            {
+                return ForbiddenMessage("You can only update cities created by your tenant account.");
+            }
+
+            if (currentUser.CountryId is null or <= 0 || currentUser.CountryId.Value != dto.CountryId)
+            {
+                return ForbiddenMessage("You can only move cities inside the country selected in your profile.");
+            }
+        }
+
         var countryExists = await _applicationDbContext.Countries.AnyAsync(country => country.Id == dto.CountryId);
         if (!countryExists)
         {
@@ -137,7 +252,10 @@ public class GovernmentsController : ControllerBase
             Id = city.Id,
             CountryId = city.CountryId,
             NameEn = city.Name,
-            NameAr = city.NameAr
+            NameAr = city.NameAr,
+            IsTenantOwned = city.TenantId.HasValue && !string.IsNullOrWhiteSpace(city.CreatedByUserId),
+            CanEdit = true,
+            CanDelete = isSuperAdmin || (currentUser != null && city.TenantId == currentUser.TenantId && city.CreatedByUserId == currentUser.Id)
         });
     }
 
@@ -149,6 +267,21 @@ public class GovernmentsController : ControllerBase
         if (city == null)
         {
             return NotFound(new { message = "City not found" });
+        }
+
+        var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
+        if (!isSuperAdmin)
+        {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            if (city.TenantId != currentUser.TenantId || city.CreatedByUserId != currentUser.Id)
+            {
+                return ForbiddenMessage("You can only delete cities created by your tenant account.");
+            }
         }
 
         _applicationDbContext.Cities.Remove(city);
@@ -256,5 +389,22 @@ public class GovernmentsController : ControllerBase
         _context.Governaments.Remove(gov);
         await _context.SaveChangesAsync();
         return Ok(new { message = "Government deleted" });
+    }
+
+    private async Task<ApplicationUser?> GetCurrentUserAsync()
+    {
+        var currentUserId = _userContext.GetUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+        {
+            return null;
+        }
+
+        return await _applicationDbContext.Users
+            .SingleOrDefaultAsync(user => user.Id == currentUserId);
+    }
+
+    private ObjectResult ForbiddenMessage(string message)
+    {
+        return StatusCode(StatusCodes.Status403Forbidden, new { message });
     }
 }

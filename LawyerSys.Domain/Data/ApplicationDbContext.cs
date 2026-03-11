@@ -46,12 +46,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasMaxLength(100);
             entity.Property(city => city.NameAr)
                 .HasMaxLength(100);
+            entity.Property(city => city.CreatedByUserId)
+                .HasMaxLength(450);
             entity.HasIndex(city => new { city.CountryId, city.Name })
                 .IsUnique();
+            entity.HasIndex(city => city.TenantId);
+            entity.HasIndex(city => city.CreatedByUserId);
             entity.HasOne(city => city.Country)
                 .WithMany(country => country.Cities)
                 .HasForeignKey(city => city.CountryId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(city => city.Tenant)
+                .WithMany()
+                .HasForeignKey(city => city.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Tenant>(entity =>
