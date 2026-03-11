@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme,
+  Tooltip, TextField, MenuItem, useTheme,
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -13,21 +13,27 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import api from '../../src/services/api';
+import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type UserDto = { id: number; fullName: string; address?: string; job: string; phoneNumber: string; dateOfBirth: string; ssn: string; userName: string };
+type TenantOption = { id: number; name: string; isActive: boolean };
 
 export default function UsersPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
+  const { hasRole } = useAuth();
+  const isSuperAdmin = hasRole('SuperAdmin');
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<UserDto[]>([]);
+  const [tenants, setTenants] = useState<TenantOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [editItem, setEditItem] = useState<UserDto | null>(null);
   const [form, setForm] = useState({ fullName: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '' });
+  const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   async function load() {
@@ -44,9 +50,37 @@ export default function UsersPage() {
 
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+
+    let mounted = true;
+    const loadTenants = async () => {
+      try {
+        const res = await api.get('/Tenants/available');
+        if (!mounted) return;
+
+        const nextTenants = Array.isArray(res.data?.items) ? res.data.items : [];
+        setTenants(nextTenants);
+        const currentTenantId = Number(res.data?.currentTenantId || 0) || 0;
+        const storedTenantId = typeof window !== 'undefined'
+          ? Number(localStorage.getItem('lawyersys-active-tenant-id') || 0) || 0
+          : 0;
+        setSelectedTenantId(storedTenantId || currentTenantId || nextTenants[0]?.id || '');
+      } catch {
+        if (mounted) setTenants([]);
+      }
+    };
+
+    loadTenants();
+    return () => { mounted = false; };
+  }, [isSuperAdmin]);
+
   function openCreate() {
     setEditItem(null);
     setForm({ fullName: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '' });
+    if (isSuperAdmin && !selectedTenantId && tenants.length > 0) {
+      setSelectedTenantId(tenants[0].id);
+    }
     setOpenDialog(true);
   }
 
@@ -62,7 +96,7 @@ export default function UsersPage() {
         await api.put(`/Users/${editItem.id}`, { fullName: form.fullName, address: form.address, job: form.job, phoneNumber: form.phoneNumber, dateOfBirth: form.dateOfBirth, ssn: form.ssn });
         setSnackbar({ open: true, message: t('users.updated'), severity: 'success' });
       } else {
-        await api.post('/Users', form);
+        await api.post('/Users', form, isSuperAdmin && selectedTenantId ? { headers: { 'X-Firm-Id': String(selectedTenantId) } } : undefined);
         setSnackbar({ open: true, message: t('users.created'), severity: 'success' });
       }
       setOpenDialog(false);
@@ -176,6 +210,22 @@ export default function UsersPage() {
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
+            {!editItem && isSuperAdmin && (
+              <TextField
+                select
+                fullWidth
+                label={t('app.tenant')}
+                value={selectedTenantId}
+                onChange={(e) => setSelectedTenantId(e.target.value === '' ? '' : Number(e.target.value))}
+                variant="outlined"
+              >
+                {tenants.map((tenant) => (
+                  <MenuItem key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
             <TextField fullWidth label={t('users.fullName')} value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} variant="outlined" />
             {!editItem && <TextField fullWidth label={t('users.userName')} value={form.userName} onChange={(e) => setForm({ ...form, userName: e.target.value })} variant="outlined" />}
             {!editItem && <TextField fullWidth label={t('users.password')} type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} variant="outlined" />}
@@ -190,7 +240,7 @@ export default function UsersPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button onClick={() => setOpenDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={handleSubmit} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{editItem ? t('common.save') : t('common.create')}</Button>
+          <Button variant="contained" onClick={handleSubmit} disabled={!editItem && isSuperAdmin && !selectedTenantId} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{editItem ? t('common.save') : t('common.create')}</Button>
         </DialogActions>
       </Dialog>
 

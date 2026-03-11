@@ -49,6 +49,7 @@ import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 type UserDto = { id: number; fullName?: string; userName?: string; email?: string };
 type IdentityDto = { fullName?: string; userName?: string; email?: string };
 type Employee = { id: number; salary?: number; usersId: number; user?: UserDto; identity?: IdentityDto; displayName: string };
+type TenantOption = { id: number; name: string; isActive: boolean };
 
 function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
   return values.find((value) => value !== undefined && value !== null) as T | undefined;
@@ -110,12 +111,15 @@ export default function EmployeesPageClient() {
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
+  const isSuperAdmin = hasRole('SuperAdmin');
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
+  const [tenants, setTenants] = useState<TenantOption[]>([]);
   const [selectedUser, setSelectedUser] = useState<number | ''>('');
+  const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [salary, setSalary] = useState<number | ''>('');
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
@@ -133,7 +137,43 @@ export default function EmployeesPageClient() {
     }
   }
 
+  async function loadUsersForTenant(tenantId?: number | '') {
+    const requestConfig = isSuperAdmin && tenantId ? { headers: { 'X-Firm-Id': String(tenantId) } } : undefined;
+    const usersRes = await api.get('/Users', requestConfig);
+    setUsers(asArray<any>(usersRes.data).map(normalizeUser));
+  }
+
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+
+    let mounted = true;
+    const loadTenants = async () => {
+      try {
+        const res = await api.get('/Tenants/available');
+        if (!mounted) return;
+
+        const nextTenants = Array.isArray(res.data?.items) ? res.data.items : [];
+        setTenants(nextTenants);
+        const currentTenantId = Number(res.data?.currentTenantId || 0) || 0;
+        const storedTenantId = typeof window !== 'undefined'
+          ? Number(localStorage.getItem('lawyersys-active-tenant-id') || 0) || 0
+          : 0;
+        setSelectedTenantId(storedTenantId || currentTenantId || nextTenants[0]?.id || '');
+      } catch {
+        if (mounted) setTenants([]);
+      }
+    };
+
+    loadTenants();
+    return () => { mounted = false; };
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (!openDialog) return;
+    void loadUsersForTenant(selectedTenantId);
+  }, [openDialog, selectedTenantId]);
 
   async function create() {
     if (!selectedUser) {
@@ -141,7 +181,11 @@ export default function EmployeesPageClient() {
       return;
     }
     try {
-      await api.post('/Employees', { usersId: selectedUser, salary: Number(salary) || undefined });
+      await api.post(
+        '/Employees',
+        { usersId: selectedUser, salary: Number(salary) || undefined },
+        isSuperAdmin && selectedTenantId ? { headers: { 'X-Firm-Id': String(selectedTenantId) } } : undefined
+      );
       await load();
       setSelectedUser('');
       setSalary('');
@@ -356,6 +400,25 @@ export default function EmployeesPageClient() {
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
+            {isSuperAdmin && (
+              <TextField
+                select
+                fullWidth
+                label={t('app.tenant')}
+                value={selectedTenantId}
+                onChange={(e) => {
+                  setSelectedTenantId(e.target.value === '' ? '' : Number(e.target.value));
+                  setSelectedUser('');
+                }}
+                variant="outlined"
+              >
+                {tenants.map((tenant) => (
+                  <MenuItem key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
             <FormControl fullWidth variant="outlined">
               <InputLabel>{t('employees.selectUser')}</InputLabel>
               <Select 
@@ -397,7 +460,7 @@ export default function EmployeesPageClient() {
           <Button 
             variant="contained" 
             onClick={create} 
-            disabled={!selectedUser}
+            disabled={!selectedUser || (isSuperAdmin && !selectedTenantId)}
             sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
           >
             {t('app.create')}

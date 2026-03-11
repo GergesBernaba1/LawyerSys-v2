@@ -21,14 +21,25 @@ namespace LawyerSys.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
         private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IUserContext _userContext;
 
-        public EmployeeService(LegacyDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IStringLocalizer<SharedResource> localizer)
+        public EmployeeService(
+            LegacyDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IEmailSender emailSender,
+            IStringLocalizer<SharedResource> localizer,
+            ApplicationDbContext applicationDbContext,
+            IUserContext userContext)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailSender = emailSender;
             _localizer = localizer;
+            _applicationDbContext = applicationDbContext;
+            _userContext = userContext;
         }
 
         public async Task<IEnumerable<EmployeeDto>> GetEmployeesAsync()
@@ -208,6 +219,7 @@ namespace LawyerSys.Services
             employee.Users = user;
 
             string generatedPassword = dto.Password;
+            var tenantInfo = await GetCurrentTenantInfoAsync();
             if (_userManager != null)
             {
                 if (string.IsNullOrWhiteSpace(generatedPassword))
@@ -220,6 +232,8 @@ namespace LawyerSys.Services
                     UserName = createdUserName,
                     Email = dto.Email ?? string.Empty,
                     FullName = dto.FullName,
+                    TenantId = tenantInfo.TenantId,
+                    CountryId = tenantInfo.CountryId,
                     EmailConfirmed = !string.IsNullOrWhiteSpace(dto.Email),
                     RequiresPasswordReset = true
                 };
@@ -279,6 +293,21 @@ namespace LawyerSys.Services
             }
 
             return (responseDto, (createdUserName, generatedPassword));
+        }
+
+        private async Task<(int TenantId, int? CountryId)> GetCurrentTenantInfoAsync()
+        {
+            var tenantId = _userContext.GetTenantId();
+            if (!tenantId.HasValue || tenantId.Value <= 0)
+                throw new InvalidOperationException("Tenant context is required.");
+
+            var tenant = await _applicationDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(item => item.Id == tenantId.Value);
+            if (tenant == null)
+                throw new InvalidOperationException("Tenant not found.");
+
+            return (tenant.Id, tenant.CountryId);
         }
 
         public async Task<EmployeeDto> UpdateEmployeeAsync(int id, UpdateEmployeeDto dto)

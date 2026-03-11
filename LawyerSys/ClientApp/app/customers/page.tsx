@@ -71,6 +71,12 @@ type UserOption = {
   userName: string;
 };
 
+type TenantOption = {
+  id: number;
+  name: string;
+  isActive: boolean;
+};
+
 type EditCustomerForm = {
   fullName: string;
   email: string;
@@ -184,6 +190,7 @@ export default function CustomersPageClient() {
   const isRTL = theme.direction === 'rtl';
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
+  const isSuperAdmin = hasRole('SuperAdmin');
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<Customer[]>([]);
@@ -192,6 +199,8 @@ export default function CustomersPageClient() {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editItem, setEditItem] = useState<Customer | null>(null);
   const [usersOptions, setUsersOptions] = useState<UserOption[]>([]);
+  const [tenants, setTenants] = useState<TenantOption[]>([]);
+  const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [sendingResetForId, setSendingResetForId] = useState<number | null>(null);
@@ -231,6 +240,31 @@ export default function CustomersPageClient() {
   }
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+
+    let mounted = true;
+    const loadTenants = async () => {
+      try {
+        const res = await api.get('/Tenants/available');
+        if (!mounted) return;
+
+        const nextTenants = Array.isArray(res.data?.items) ? res.data.items : [];
+        setTenants(nextTenants);
+        const currentTenantId = Number(res.data?.currentTenantId || 0) || 0;
+        const storedTenantId = typeof window !== 'undefined'
+          ? Number(localStorage.getItem('lawyersys-active-tenant-id') || 0) || 0
+          : 0;
+        setSelectedTenantId(storedTenantId || currentTenantId || nextTenants[0]?.id || '');
+      } catch {
+        if (mounted) setTenants([]);
+      }
+    };
+
+    loadTenants();
+    return () => { mounted = false; };
+  }, [isSuperAdmin]);
 
   async function remove(id: number) {
     if (!(await confirm(t('customers.confirmDelete')))) return;
@@ -571,6 +605,22 @@ export default function CustomersPageClient() {
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
+            {isSuperAdmin && (
+              <TextField
+                select
+                label={t('app.tenant')}
+                value={selectedTenantId}
+                onChange={(e) => setSelectedTenantId(e.target.value === '' ? '' : Number(e.target.value))}
+                fullWidth
+                variant="outlined"
+              >
+                {tenants.map((tenant) => (
+                  <MenuItem key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
             <TextField 
               label={t('customers.fullName')} 
               value={createForm.fullName} 
@@ -698,7 +748,11 @@ export default function CustomersPageClient() {
                   password: createForm.password,
                   confirmPassword: createForm.confirmPassword
                 };
-                const r = await api.post('/Customers/withuser', payload);
+                const r = await api.post(
+                  '/Customers/withuser',
+                  payload,
+                  isSuperAdmin && selectedTenantId ? { headers: { 'X-Firm-Id': String(selectedTenantId) } } : undefined
+                );
                 const credentials = r.data?.tempCredentials;
                 const successMessage = credentials?.userName
                   ? `${t('customers.customerCreated')} - ${t('customers.userName')}: ${credentials.userName}`
@@ -711,6 +765,7 @@ export default function CustomersPageClient() {
                 load();
               }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedCreate'), severity: 'error' }); }
             }}
+            disabled={isSuperAdmin && !selectedTenantId}
             sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
           >
             {t('app.create')}

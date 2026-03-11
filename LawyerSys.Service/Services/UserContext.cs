@@ -33,6 +33,32 @@ public class UserContext : IUserContext
         return _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
     }
 
+    public int? GetTenantId()
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+        {
+            return null;
+        }
+
+        if (httpContext.User.IsInRole("SuperAdmin"))
+        {
+            var headerValue = httpContext.Request.Headers["X-Firm-Id"].FirstOrDefault();
+            if (int.TryParse(headerValue, out var fromHeader) && fromHeader > 0)
+            {
+                return fromHeader;
+            }
+        }
+
+        var claimValue = httpContext.User.FindFirstValue("firm_id")
+                         ?? httpContext.User.FindFirstValue("tenant_id")
+                         ?? httpContext.User.FindFirstValue(ClaimTypes.GroupSid);
+
+        return int.TryParse(claimValue, out var tenantId) && tenantId > 0
+            ? tenantId
+            : null;
+    }
+
     public async Task<bool> IsInRoleAsync(string role)
     {
         var userId = GetUserId();

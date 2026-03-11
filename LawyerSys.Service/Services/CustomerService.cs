@@ -23,6 +23,8 @@ namespace LawyerSys.Services
         private readonly IEmailSender _emailSender;
         private readonly IStringLocalizer<SharedResource> _localizer;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IUserContext _userContext;
 
         public CustomerService(
             LegacyDbContext context,
@@ -30,7 +32,9 @@ namespace LawyerSys.Services
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
             IStringLocalizer<SharedResource> localizer,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ApplicationDbContext applicationDbContext,
+            IUserContext userContext)
         {
             _context = context;
             _userManager = userManager;
@@ -38,6 +42,8 @@ namespace LawyerSys.Services
             _emailSender = emailSender;
             _localizer = localizer;
             _configuration = configuration;
+            _applicationDbContext = applicationDbContext;
+            _userContext = userContext;
         }
 
         public async Task<IEnumerable<CustomerDto>> GetCustomersAsync()
@@ -306,7 +312,8 @@ namespace LawyerSys.Services
             customer.Users = user;
 
             string generatedPassword = dto.Password;
-if (_userManager != null)
+            var tenantInfo = await GetCurrentTenantInfoAsync();
+            if (_userManager != null)
                 {
                     if (string.IsNullOrWhiteSpace(generatedPassword))
                     {
@@ -318,6 +325,8 @@ if (_userManager != null)
                         UserName = createdUserName,
                         Email = normalizedEmail,
                         FullName = dto.FullName,
+                        TenantId = tenantInfo.TenantId,
+                        CountryId = tenantInfo.CountryId,
                         EmailConfirmed = true,
                         RequiresPasswordReset = true
                     };
@@ -380,6 +389,21 @@ if (_userManager != null)
             }
 
             return (responseDto, (createdUserName, generatedPassword));
+        }
+
+        private async Task<(int TenantId, int? CountryId)> GetCurrentTenantInfoAsync()
+        {
+            var tenantId = _userContext.GetTenantId();
+            if (!tenantId.HasValue || tenantId.Value <= 0)
+                throw new InvalidOperationException("Tenant context is required.");
+
+            var tenant = await _applicationDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(item => item.Id == tenantId.Value);
+            if (tenant == null)
+                throw new InvalidOperationException("Tenant not found.");
+
+            return (tenant.Id, tenant.CountryId);
         }
 
         private static int ConvertToLegacyInt(string? value, string fieldName)
