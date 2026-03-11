@@ -81,6 +81,7 @@
                 "timetracking":  "Time Tracking",
                 "clientportal":  "Client Portal",
                 "administration":  "Administration",
+                "tenants":  "Tenants",
                 "intake":  "Intake",
                 "tenant":  "Tenant",
                 "selectTenant":  "Select tenant filter"
@@ -767,6 +768,12 @@
                                             "deactivate":  "Deactivate"
                                         }
                         },
+    "tenantsPage":  {
+                        "subtitle":  "Activate or deactivate registered tenants. Inactive tenants cannot log in.",
+                        "failedLoad":  "Failed to load tenants.",
+                        "statusUpdateFailed":  "Failed to update tenant status.",
+                        "empty":  "No tenants found."
+                    },
     "documentGeneration":  {
                                "title":  "Generate Legal Document",
                                "template":  "Template",

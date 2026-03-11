@@ -81,6 +81,7 @@
                 "timetracking": "تتبع الوقت",
                 "clientportal":  "بوابة العميل",
                 "administration":  "الإدارة",
+                "tenants":  "الجهات",
                 "intake":  "الاستقبال",
                 "tenant":  "الجهة",
                 "selectTenant":  "اختر الجهة للتصفية"
@@ -771,6 +772,12 @@
                                             "deactivate":  "تعطيل"
                                         }
                         },
+    "tenantsPage":  {
+                        "subtitle":  "يمكنك تفعيل أو تعطيل الجهات المسجلة. الجهة غير النشطة لا يمكن لأي مستخدم فيها تسجيل الدخول.",
+                        "failedLoad":  "فشل تحميل الجهات.",
+                        "statusUpdateFailed":  "فشل تحديث حالة الجهة.",
+                        "empty":  "لا توجد جهات."
+                    },
     "documentGeneration":  {
                                "title":  "توليد مستند قانوني",
                                "template":  "القالب",

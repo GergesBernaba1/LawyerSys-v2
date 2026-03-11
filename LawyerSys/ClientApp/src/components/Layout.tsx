@@ -46,6 +46,7 @@ import {
   History as AuditIcon,
   AutoFixHigh as DocGenIcon,
   Public as PortalIcon,
+  Apartment as ApartmentIcon,
   Chat as ChatIcon,
   Description as DescriptionIcon,
   Task as TaskIcon,
@@ -112,6 +113,7 @@ const menuItems: MenuItem[] = [
   { key: 'intake', icon: <IntakeIcon />, path: '/intake' },
   { key: 'esign', icon: <ESignIcon />, path: '/esign' },
   { key: 'timetracking', icon: <TimeTrackingIcon />, path: '/timetracking' },
+  { key: 'tenants', icon: <ApartmentIcon />, path: '/tenants' },
   { key: 'administration', icon: <AdminPanelSettingsIcon />, path: '/administration' },
 ];
 
@@ -163,6 +165,7 @@ export default function Layout({ children }: LayoutProps) {
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
   const visibleMenuItems = menuItems.filter((item) => {
     if (item.key === 'administration') return isAdmin
+    if (item.key === 'tenants') return isSuperAdmin
     if (item.key === 'intake') return canUseIntake
     if (item.key === 'esign') return canUseESign
     if (item.key === 'timetracking') return canUseTimeTracking
@@ -182,6 +185,8 @@ export default function Layout({ children }: LayoutProps) {
       if (!hasStoredToken) {
         targetPath = '/login';
       }
+    } else if (pathname === '/tenants' && !isSuperAdmin) {
+      targetPath = '/dashboard';
     } else if (pathname === '/administration' && !isAdmin) {
       targetPath = '/dashboard';
     } else if (pathname === '/intake' && !canUseIntake) {
@@ -201,6 +206,7 @@ export default function Layout({ children }: LayoutProps) {
     isAuthenticated,
     pathname,
     isAdmin,
+    isSuperAdmin,
     canUseIntake,
     canUseESign,
     canUseTimeTracking,
@@ -295,7 +301,7 @@ export default function Layout({ children }: LayoutProps) {
   }, [collapsed]);
 
   React.useEffect(() => {
-    if (!isAuthenticated || !isAdmin) {
+    if (!isAuthenticated || !isSuperAdmin) {
       setTenantOptions([])
       setSelectedTenantId('')
       return
@@ -338,7 +344,7 @@ export default function Layout({ children }: LayoutProps) {
     return () => {
       mounted = false
     }
-  }, [isAuthenticated, isAdmin])
+  }, [isAuthenticated, isSuperAdmin])
 
   React.useEffect(() => {
     if (!chatOpen || chatMessages.length > 0) return
@@ -714,7 +720,7 @@ export default function Layout({ children }: LayoutProps) {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {isAdmin && tenantOptions.length > 0 && (
+            {isSuperAdmin && tenantOptions.length > 0 && (
               <TextField
                 select
                 size="small"
@@ -729,7 +735,7 @@ export default function Layout({ children }: LayoutProps) {
                     backgroundColor: 'grey.50',
                   },
                 }}
-                helperText={isSuperAdmin ? t('app.selectTenant', 'Select tenant filter') : undefined}
+                helperText={t('app.selectTenant', 'Select tenant filter')}
               >
                 {tenantOptions.map((tenant) => (
                   <MenuItem key={tenant.id} value={tenant.id}>
