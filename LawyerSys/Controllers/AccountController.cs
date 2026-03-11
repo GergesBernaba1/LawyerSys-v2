@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -13,12 +14,18 @@ public class AccountController : ControllerBase
     private readonly IAccountService _accountService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ApplicationDbContext _applicationDbContext;
 
-    public AccountController(IAccountService accountService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public AccountController(
+        IAccountService accountService,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
+        ApplicationDbContext applicationDbContext)
     {
         _accountService = accountService;
         _userManager = userManager;
         _roleManager = roleManager;
+        _applicationDbContext = applicationDbContext;
     }
 
     [HttpPost("register")]
@@ -26,11 +33,23 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (model.CountryId is null or <= 0)
+        {
+            return BadRequest(new { message = "Country is required." });
+        }
+
+        var countryExists = await _applicationDbContext.Countries
+            .AnyAsync(country => country.Id == model.CountryId.Value);
+        if (!countryExists)
+        {
+            return BadRequest(new { message = "Selected country is invalid." });
+        }
 
         var user = new ApplicationUser { 
             UserName = model.UserName, 
             Email = model.Email, 
             FullName = model.FullName,
+            CountryId = model.CountryId,
             EmailConfirmed = false, 
             RequiresPasswordReset = false 
         };
@@ -66,6 +85,28 @@ public class AccountController : ControllerBase
         {
             return Unauthorized(new { message = "Invalid credentials" });
         }
+    }
+
+    [HttpGet("countries")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCountries()
+    {
+        var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+        var countries = await _applicationDbContext.Countries
+            .AsNoTracking()
+            .OrderBy(country => country.Name)
+            .Select(country => new CountryLookupDto
+            {
+                Id = country.Id,
+                Name = useArabic && !string.IsNullOrWhiteSpace(country.NameAr)
+                    ? country.NameAr
+                    : country.Name,
+                NameEn = country.Name,
+                NameAr = country.NameAr
+            })
+            .ToListAsync();
+
+        return Ok(countries);
     }
 
         [HttpPost("request-password-reset")]
@@ -115,7 +156,9 @@ public class AccountController : ControllerBase
             UserName = user.UserName ?? string.Empty,
             FullName = user.FullName ?? string.Empty,
             Email = user.Email ?? string.Empty,
-            PhoneNumber = user.PhoneNumber ?? string.Empty
+            PhoneNumber = user.PhoneNumber ?? string.Empty,
+            CountryId = user.CountryId,
+            CountryName = GetLocalizedName(user.Country?.Name, user.Country?.NameAr)
         });
     }
 
@@ -130,6 +173,7 @@ public class AccountController : ControllerBase
         var requestedEmail = (model.Email ?? string.Empty).Trim();
         var requestedFullName = (model.FullName ?? string.Empty).Trim();
         var requestedPhoneNumber = (model.PhoneNumber ?? string.Empty).Trim();
+        var requestedCountryId = model.CountryId;
 
         if (string.IsNullOrWhiteSpace(requestedUserName))
             return BadRequest(new { message = "Username is required." });
@@ -137,6 +181,15 @@ public class AccountController : ControllerBase
             return BadRequest(new { message = "Email is required." });
         if (string.IsNullOrWhiteSpace(requestedFullName))
             return BadRequest(new { message = "Full name is required." });
+        if (requestedCountryId is null or <= 0)
+            return BadRequest(new { message = "Country is required." });
+
+        var countryExists = await _applicationDbContext.Countries
+            .AnyAsync(country => country.Id == requestedCountryId.Value);
+        if (!countryExists)
+        {
+            return BadRequest(new { message = "Selected country is invalid." });
+        }
 
         if (!string.Equals(user.UserName, requestedUserName, StringComparison.OrdinalIgnoreCase))
         {
@@ -160,6 +213,7 @@ public class AccountController : ControllerBase
         user.Email = requestedEmail;
         user.FullName = requestedFullName;
         user.PhoneNumber = string.IsNullOrWhiteSpace(requestedPhoneNumber) ? null : requestedPhoneNumber;
+        user.CountryId = requestedCountryId;
 
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
@@ -168,6 +222,7 @@ public class AccountController : ControllerBase
         }
 
         var (token, expires) = await _accountService.CreateTokenAsync(user);
+        var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
         return Ok(new
         {
             message = "Profile updated",
@@ -178,7 +233,14 @@ public class AccountController : ControllerBase
                 UserName = user.UserName ?? string.Empty,
                 FullName = user.FullName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
-                PhoneNumber = user.PhoneNumber ?? string.Empty
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                CountryId = user.CountryId,
+                CountryName = await _applicationDbContext.Countries
+                    .Where(country => country.Id == user.CountryId)
+                    .Select(country => useArabic && !string.IsNullOrWhiteSpace(country.NameAr)
+                        ? country.NameAr
+                        : country.Name)
+                    .FirstOrDefaultAsync() ?? string.Empty
             }
         });
     }
@@ -314,12 +376,21 @@ public class AccountController : ControllerBase
             return null;
         }
 
-        return await _userManager.FindByIdAsync(currentUserId);
+        return await _applicationDbContext.Users
+            .Include(user => user.Country)
+            .SingleOrDefaultAsync(user => user.Id == currentUserId);
     }
 
     private static string BuildIdentityErrors(IEnumerable<IdentityError> errors)
     {
         return string.Join(", ", errors.Select(e => e.Description));
+    }
+
+    private static string GetLocalizedName(string? nameEn, string? nameAr)
+    {
+        return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" && !string.IsNullOrWhiteSpace(nameAr)
+            ? nameAr
+            : nameEn ?? string.Empty;
     }
 }
 
@@ -345,6 +416,8 @@ public class AccountProfileDto
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+    public int? CountryId { get; set; }
+    public string CountryName { get; set; } = string.Empty;
 }
 
 public class UpdateMyProfileRequest
@@ -353,6 +426,7 @@ public class UpdateMyProfileRequest
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+    public int? CountryId { get; set; }
 }
 
 public class ChangePasswordRequest
@@ -367,6 +441,15 @@ public class RegisterRequest
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
+    public int? CountryId { get; set; }
+}
+
+public class CountryLookupDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string NameEn { get; set; } = string.Empty;
+    public string NameAr { get; set; } = string.Empty;
 }
 
 public class RequestPasswordResetRequest

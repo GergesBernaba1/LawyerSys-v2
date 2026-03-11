@@ -13,6 +13,7 @@ import {
   Avatar,
   IconButton,
   InputAdornment,
+  MenuItem,
   useTheme,
 } from '@mui/material';
 import {
@@ -27,15 +28,23 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../src/services/auth';
 import { useTranslation } from 'react-i18next';
+import api from '../../src/services/api';
+
+type CountryOption = {
+  id: number;
+  name: string;
+};
 
 export default function RegisterPage() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
+  const [countryId, setCountryId] = useState<number | ''>('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [countries, setCountries] = useState<CountryOption[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register, isAuthenticated } = useAuth();
@@ -52,6 +61,35 @@ export default function RegisterPage() {
     }
   }, [isAuthenticated, router]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const loadCountries = async () => {
+      try {
+        const res = await api.get('/Account/countries');
+        if (!mounted) {
+          return;
+        }
+
+        const nextCountries = Array.isArray(res.data) ? res.data : [];
+        setCountries(nextCountries);
+
+        if (nextCountries.length === 1) {
+          setCountryId(nextCountries[0].id);
+        }
+      } catch {
+        if (mounted) {
+          setError(t('register.failedCountries', { defaultValue: 'Failed to load countries.' }));
+        }
+      }
+    };
+
+    loadCountries();
+    return () => {
+      mounted = false;
+    };
+  }, [t]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
@@ -61,9 +99,14 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!countryId) {
+      setError(t('register.countryRequired', { defaultValue: 'Please select a country.' }));
+      return;
+    }
+
     setLoading(true);
 
-    const success = await register(userName, email, password, fullName);
+    const success = await register(userName, email, password, fullName, Number(countryId));
     if (success) {
       router.push('/login');
     } else {
@@ -317,6 +360,34 @@ export default function RegisterPage() {
                   },
                 }}
               />
+              <TextField
+                margin="dense"
+                size="small"
+                required
+                fullWidth
+                select
+                id="countryId"
+                label={t('register.country', { defaultValue: 'Country' })}
+                name="countryId"
+                value={countryId}
+                onChange={(e) => setCountryId(e.target.value === '' ? '' : Number(e.target.value))}
+                sx={{
+                  ...fieldSx,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.6,
+                    backgroundColor: '#ffffff',
+                  },
+                }}
+              >
+                <MenuItem value="">
+                  {t('register.selectCountry', { defaultValue: 'Select country' })}
+                </MenuItem>
+                {countries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </TextField>
               <TextField
                 margin="dense"
                 size="small"

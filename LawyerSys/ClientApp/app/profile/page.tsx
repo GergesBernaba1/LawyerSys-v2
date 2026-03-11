@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  MenuItem,
   Paper,
   Snackbar,
   Stack,
@@ -22,6 +23,7 @@ type MyProfile = {
   fullName: string;
   email: string;
   phoneNumber: string;
+  countryId: number | null;
 };
 
 type SnackbarState = {
@@ -30,11 +32,17 @@ type SnackbarState = {
   severity: "success" | "error";
 };
 
+type CountryOption = {
+  id: number;
+  name: string;
+};
+
 const emptyProfile: MyProfile = {
   userName: "",
   fullName: "",
   email: "",
   phoneNumber: "",
+  countryId: null,
 };
 
 export default function ProfilePage() {
@@ -45,6 +53,7 @@ export default function ProfilePage() {
 
   const [profile, setProfile] = useState<MyProfile>(emptyProfile);
   const [initialProfile, setInitialProfile] = useState<MyProfile>(emptyProfile);
+  const [countries, setCountries] = useState<CountryOption[]>([]);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -68,16 +77,24 @@ export default function ProfilePage() {
     if (!isAuthenticated) return;
 
     let mounted = true;
-    const loadProfile = async () => {
+    const loadPageData = async () => {
       setLoadingProfile(true);
       try {
-        const res = await api.get("/Account/me");
+        const [profileRes, countriesRes] = await Promise.all([
+          api.get("/Account/me"),
+          api.get("/Account/countries"),
+        ]);
         if (!mounted) return;
+
+        const countryOptions = Array.isArray(countriesRes.data) ? countriesRes.data : [];
+        setCountries(countryOptions);
+
         const incoming: MyProfile = {
-          userName: res.data?.userName ?? "",
-          fullName: res.data?.fullName ?? "",
-          email: res.data?.email ?? "",
-          phoneNumber: res.data?.phoneNumber ?? "",
+          userName: profileRes.data?.userName ?? "",
+          fullName: profileRes.data?.fullName ?? "",
+          email: profileRes.data?.email ?? "",
+          phoneNumber: profileRes.data?.phoneNumber ?? "",
+          countryId: profileRes.data?.countryId ?? null,
         };
         setProfile(incoming);
         setInitialProfile(incoming);
@@ -96,7 +113,7 @@ export default function ProfilePage() {
       }
     };
 
-    loadProfile();
+    loadPageData();
     return () => {
       mounted = false;
     };
@@ -105,12 +122,16 @@ export default function ProfilePage() {
   async function saveProfile() {
     setSavingProfile(true);
     try {
-      const res = await api.put("/Account/me", profile);
+      const res = await api.put("/Account/me", {
+        ...profile,
+        countryId: profile.countryId,
+      });
       const updatedProfile: MyProfile = {
         userName: res.data?.profile?.userName ?? profile.userName,
         fullName: res.data?.profile?.fullName ?? profile.fullName,
         email: res.data?.profile?.email ?? profile.email,
         phoneNumber: res.data?.profile?.phoneNumber ?? profile.phoneNumber,
+        countryId: res.data?.profile?.countryId ?? profile.countryId,
       };
 
       if (typeof res.data?.token === "string" && res.data.token.length > 0) {
@@ -221,6 +242,27 @@ export default function ProfilePage() {
                 onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
                 fullWidth
               />
+              <TextField
+                select
+                label={t("profile.country", { defaultValue: "Country" })}
+                value={profile.countryId ?? ""}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    countryId: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                fullWidth
+              >
+                <MenuItem value="">
+                  {t("profile.selectCountry", { defaultValue: "Select country" })}
+                </MenuItem>
+                {countries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </TextField>
               <Box sx={{ display: "flex", justifyContent: isRTL ? "flex-start" : "flex-end" }}>
                 <Button
                   variant="contained"

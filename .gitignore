@@ -178,6 +178,7 @@ secrets.json
 .env
 .env.local
 .env.*.local
+.dotnet-cli/
 
 # Node modules (for React ClientApp)
 node_modules/

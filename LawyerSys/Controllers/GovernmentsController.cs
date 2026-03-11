@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +14,146 @@ namespace LawyerSys.Controllers;
 public class GovernmentsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly ApplicationDbContext _applicationDbContext;
+    private readonly IUserContext _userContext;
 
-    public GovernmentsController(LegacyDbContext context)
+    public GovernmentsController(
+        LegacyDbContext context,
+        ApplicationDbContext applicationDbContext,
+        IUserContext userContext)
     {
         _context = context;
+        _applicationDbContext = applicationDbContext;
+        _userContext = userContext;
+    }
+
+    [HttpGet("location-catalog")]
+    public async Task<ActionResult<IEnumerable<LocationCatalogCountryDto>>> GetLocationCatalog([FromQuery] int? countryId = null)
+    {
+        var isAdmin = await _userContext.IsInRoleAsync("Admin");
+        var effectiveCountryId = countryId;
+
+        if (!isAdmin)
+        {
+            var currentUserId = _userContext.GetUserId();
+            if (string.IsNullOrWhiteSpace(currentUserId))
+            {
+                return Ok(Array.Empty<LocationCatalogCountryDto>());
+            }
+
+            effectiveCountryId = await _applicationDbContext.Users
+                .Where(user => user.Id == currentUserId)
+                .Select(user => user.CountryId)
+                .FirstOrDefaultAsync();
+
+            if (effectiveCountryId is null or <= 0)
+            {
+                return Ok(Array.Empty<LocationCatalogCountryDto>());
+            }
+        }
+
+        IQueryable<Country> query = _applicationDbContext.Countries
+            .AsNoTracking()
+            .Include(country => country.Cities);
+
+        if (effectiveCountryId.HasValue && effectiveCountryId.Value > 0)
+        {
+            query = query.Where(country => country.Id == effectiveCountryId.Value);
+        }
+
+        var countries = await query
+            .OrderBy(country => country.Name)
+            .Select(country => new LocationCatalogCountryDto
+            {
+                Id = country.Id,
+                NameEn = country.Name,
+                NameAr = country.NameAr,
+                CityCount = country.Cities.Count,
+                Cities = country.Cities
+                    .OrderBy(city => city.Name)
+                    .Select(city => new LocationCatalogCityDto
+                    {
+                        Id = city.Id,
+                        CountryId = city.CountryId,
+                        NameEn = city.Name,
+                        NameAr = city.NameAr
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+
+        return Ok(countries);
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPut("cities/{id}")]
+    public async Task<IActionResult> UpdateCity(int id, [FromBody] UpdateLocationCityDto dto)
+    {
+        var city = await _applicationDbContext.Cities.FindAsync(id);
+        if (city == null)
+        {
+            return NotFound(new { message = "City not found" });
+        }
+
+        var nameEn = (dto.NameEn ?? string.Empty).Trim();
+        var nameAr = (dto.NameAr ?? string.Empty).Trim();
+        if (dto.CountryId <= 0)
+        {
+            return BadRequest(new { message = "Country is required" });
+        }
+
+        if (string.IsNullOrWhiteSpace(nameEn))
+        {
+            return BadRequest(new { message = "English city name is required" });
+        }
+
+        if (string.IsNullOrWhiteSpace(nameAr))
+        {
+            return BadRequest(new { message = "Arabic city name is required" });
+        }
+
+        var countryExists = await _applicationDbContext.Countries.AnyAsync(country => country.Id == dto.CountryId);
+        if (!countryExists)
+        {
+            return BadRequest(new { message = "Country not found" });
+        }
+
+        var duplicateExists = await _applicationDbContext.Cities.AnyAsync(existing =>
+            existing.Id != id &&
+            existing.CountryId == dto.CountryId &&
+            existing.Name.ToLower() == nameEn.ToLower());
+        if (duplicateExists)
+        {
+            return BadRequest(new { message = "City name already exists in this country" });
+        }
+
+        city.CountryId = dto.CountryId;
+        city.Name = nameEn;
+        city.NameAr = nameAr;
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(new LocationCatalogCityDto
+        {
+            Id = city.Id,
+            CountryId = city.CountryId,
+            NameEn = city.Name,
+            NameAr = city.NameAr
+        });
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpDelete("cities/{id}")]
+    public async Task<IActionResult> DeleteCity(int id)
+    {
+        var city = await _applicationDbContext.Cities.FindAsync(id);
+        if (city == null)
+        {
+            return NotFound(new { message = "City not found" });
+        }
+
+        _applicationDbContext.Cities.Remove(city);
+        await _applicationDbContext.SaveChangesAsync();
+        return Ok(new { message = "City deleted" });
     }
 
     [HttpGet]

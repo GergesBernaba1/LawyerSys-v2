@@ -14,7 +14,7 @@ interface AuthContextValue {
   user: User | null;
   isAuthInitialized: boolean;
   login: (user: string, pass: string) => Promise<boolean>;
-  register: (user: string, email: string, pass: string, fullName: string) => Promise<boolean>;
+  register: (user: string, email: string, pass: string, fullName: string, countryId: number) => Promise<boolean>;
   setAuthToken: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -124,9 +124,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  async function register(userName: string, email: string, pass: string, fullName: string) {
+  async function register(userName: string, email: string, pass: string, fullName: string, countryId: number) {
     try {
-      await api.post('/Account/register', { userName, email, password: pass, fullName })
+      await api.post('/Account/register', { userName, email, password: pass, fullName, countryId })
       return true
     } catch (e) {
       return false

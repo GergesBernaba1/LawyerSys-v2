@@ -1,247 +1,448 @@
 "use client"
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
-  Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, useTheme, FormControl, InputLabel, Select, MenuItem, Pagination,
-} from '@mui/material';
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Skeleton,
+  Snackbar,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
   LocationCity as LocationCityIcon,
-  Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon,
+  Public as PublicIcon,
   Refresh as RefreshIcon,
-} from '@mui/icons-material';
-import api from '../../src/services/api';
-import { useAuth } from '../../src/services/auth';
-import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+} from "@mui/icons-material";
+import api from "../../src/services/api";
+import { useAuth } from "../../src/services/auth";
+import useConfirmDialog from "../../src/hooks/useConfirmDialog";
 
-type GovernmentDto = { id: number; govName: string };
+type CountryOption = {
+  id: number;
+  name: string;
+  nameEn: string;
+  nameAr: string;
+};
+
+type LocationCity = {
+  id: number;
+  countryId: number;
+  nameEn: string;
+  nameAr: string;
+};
+
+type LocationCountry = {
+  id: number;
+  nameEn: string;
+  nameAr: string;
+  cityCount: number;
+  cities: LocationCity[];
+};
+
+type CityFormState = {
+  id: number;
+  countryId: number;
+  nameEn: string;
+  nameAr: string;
+};
+
+const emptyForm: CityFormState = {
+  id: 0,
+  countryId: 0,
+  nameEn: "",
+  nameAr: "",
+};
 
 export default function GovernmentsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const isRTL = theme.direction === 'rtl';
-  const { isAuthenticated } = useAuth();
+  const isRTL = theme.direction === "rtl" || (i18n.resolvedLanguage || i18n.language || "").startsWith("ar");
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole("Admin");
   const { confirm, confirmDialog } = useConfirmDialog();
 
-  const [items, setItems] = useState<GovernmentDto[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [items, setItems] = useState<LocationCountry[]>([]);
+  const [countryOptions, setCountryOptions] = useState<CountryOption[]>([]);
   const [loading, setLoading] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editItem, setEditItem] = useState<GovernmentDto | null>(null);
-  const [form, setForm] = useState({ govName: '' });
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const [selectedCountryId, setSelectedCountryId] = useState<number | "">("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<CityFormState>(emptyForm);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
-  async function load(p = page, ps = pageSize) {
+  const isArabic = (i18n.resolvedLanguage || i18n.language || "").startsWith("ar");
+
+  async function load(countryId?: number | "") {
     setLoading(true);
     try {
-      const res = await api.get('/Governments', { params: { page: p, pageSize: ps } });
-      const payload = res.data;
-      const list = Array.isArray(payload) ? payload : (Array.isArray(payload?.items) ? payload.items : []);
-      const total = Array.isArray(payload) ? list.length : Number(payload?.totalCount ?? list.length);
+      const params = isAdmin && countryId ? { countryId } : undefined;
+      const res = await api.get("/Governments/location-catalog", { params });
+      const nextItems = Array.isArray(res.data) ? res.data : [];
+      setItems(nextItems);
 
-      if (p > 1 && total > 0 && list.length === 0) {
-        setPage(p - 1);
-        return;
+      if (!isAdmin && nextItems.length > 0) {
+        setSelectedCountryId(nextItems[0].id);
       }
-
-      setItems(list);
-      setTotalCount(total);
     } catch {
-      setSnackbar({ open: true, message: t('governments.failedLoad'), severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: t("governments.failedLocationsLoad"),
+        severity: "error",
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { void load(page, pageSize); }, [page, pageSize]);
-
-  function openCreate() {
-    setEditItem(null);
-    setForm({ govName: '' });
-    setOpenDialog(true);
+  async function loadCountryOptions() {
+    try {
+      const res = await api.get("/Account/countries");
+      setCountryOptions(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      // Keep the main page functional even if country options fail to load.
+    }
   }
 
-  function openEdit(item: GovernmentDto) {
-    setEditItem(item);
-    setForm({ govName: item.govName });
-    setOpenDialog(true);
+  useEffect(() => {
+    void load(selectedCountryId);
+  }, [isAdmin, selectedCountryId]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      void loadCountryOptions();
+    }
+  }, [isAdmin]);
+
+  const filterCountries = useMemo(
+    () =>
+      countryOptions.map((country) => ({
+        id: country.id,
+        label: isArabic ? country.nameAr : country.nameEn,
+      })),
+    [countryOptions, isArabic]
+  );
+
+  const visibleRows = useMemo(
+    () =>
+      items.flatMap((country) =>
+        country.cities.map((city) => ({
+          ...city,
+          countryName: isArabic ? country.nameAr : country.nameEn,
+          countryNameEn: country.nameEn,
+          countryNameAr: country.nameAr,
+        }))
+      ),
+    [items, isArabic]
+  );
+
+  const totalCities = visibleRows.length;
+
+  function openEdit(city: LocationCity) {
+    setForm({
+      id: city.id,
+      countryId: city.countryId,
+      nameEn: city.nameEn,
+      nameAr: city.nameAr,
+    });
+    setEditOpen(true);
   }
 
-  async function handleSubmit() {
-    const payload = { govName: form.govName.trim() };
-    if (!payload.govName) {
-      setSnackbar({ open: true, message: t('governments.nameRequired'), severity: 'error' });
+  async function handleSave() {
+    if (!form.countryId || !form.nameEn.trim() || !form.nameAr.trim()) {
+      setSnackbar({
+        open: true,
+        message: t("governments.cityValidation"),
+        severity: "error",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await api.put(`/Governments/cities/${form.id}`, {
+        countryId: form.countryId,
+        nameEn: form.nameEn.trim(),
+        nameAr: form.nameAr.trim(),
+      });
+      setSnackbar({
+        open: true,
+        message: t("governments.cityUpdated"),
+        severity: "success",
+      });
+      setEditOpen(false);
+      await load(selectedCountryId);
+    } catch (err: any) {
+      setSnackbar({
+        open: true,
+        message: err?.response?.data?.message || t("governments.failedUpdateCity"),
+        severity: "error",
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(city: LocationCity) {
+    if (!(await confirm(t("governments.confirmDeleteCity")))) {
       return;
     }
 
     try {
-      if (editItem) {
-        await api.put(`/Governments/${editItem.id}`, payload);
-        setSnackbar({ open: true, message: t('governments.updated'), severity: 'success' });
-      } else {
-        await api.post('/Governments', payload);
-        setSnackbar({ open: true, message: t('governments.created'), severity: 'success' });
-      }
-      setOpenDialog(false);
-      await load(page, pageSize);
+      await api.delete(`/Governments/cities/${city.id}`);
+      setSnackbar({
+        open: true,
+        message: t("governments.cityDeleted"),
+        severity: "success",
+      });
+      await load(selectedCountryId);
     } catch (err: any) {
-      const message = err?.response?.data?.message;
-      if (message === 'Government name already exists') {
-        setSnackbar({ open: true, message: t('governments.duplicateName'), severity: 'error' });
-        return;
-      }
-      if (message === 'Government name is required') {
-        setSnackbar({ open: true, message: t('governments.nameRequired'), severity: 'error' });
-        return;
-      }
-      setSnackbar({ open: true, message: editItem ? t('governments.failedUpdate') : t('governments.failedCreate'), severity: 'error' });
-    }
-  }
-
-  async function remove(id: number) {
-    if (!(await confirm(t('governments.confirmDelete')))) return;
-    try {
-      await api.delete(`/Governments/${id}`);
-      setSnackbar({ open: true, message: t('governments.deleted'), severity: 'success' });
-      const nextPage = items.length === 1 && page > 1 ? page - 1 : page;
-      if (nextPage !== page) {
-        setPage(nextPage);
-      } else {
-        await load(nextPage, pageSize);
-      }
-    } catch {
-      setSnackbar({ open: true, message: t('governments.failedDelete'), severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: err?.response?.data?.message || t("governments.failedDeleteCity"),
+        severity: "error",
+      });
     }
   }
 
   return (
-    <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
+    <Box dir={isRTL ? "rtl" : "ltr"} sx={{ pb: 4 }}>
       {confirmDialog}
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 1.5, borderRadius: 3, display: 'flex', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }}>
-            <LocationCityIcon fontSize="medium" />
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: { xs: "flex-start", md: "center" },
+          mb: 4,
+          gap: 2,
+          flexDirection: { xs: "column", md: isRTL ? "row-reverse" : "row" },
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, flexDirection: isRTL ? "row-reverse" : "row" }}>
+          <Box
+            sx={{
+              bgcolor: "primary.main",
+              color: "white",
+              p: 1.5,
+              borderRadius: 3,
+              display: "flex",
+              boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
+            }}
+          >
+            <PublicIcon fontSize="medium" />
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('governments.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{t('governments.totalGovernments')}: <strong>{totalCount || items.length}</strong></Typography>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: "-0.02em" }}>
+              {t("governments.management")}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isAdmin ? t("governments.adminSubtitle") : t("governments.userSubtitle")}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              {t("governments.totalCountries")}: <strong>{items.length}</strong> | {t("governments.totalCities")}:{" "}
+              <strong>{totalCities}</strong>
+            </Typography>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          <Tooltip title={t('common.refresh')}>
-            <IconButton onClick={() => void load(page, pageSize)} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+
+        <Box sx={{ display: "flex", gap: 1.5, width: { xs: "100%", md: "auto" }, flexDirection: isRTL ? "row-reverse" : "row" }}>
+          {isAdmin && (
+            <FormControl size="small" sx={{ minWidth: { xs: "100%", md: 220 } }}>
+              <InputLabel id="country-filter-label">{t("governments.filterCountry")}</InputLabel>
+              <Select
+                labelId="country-filter-label"
+                value={selectedCountryId}
+                label={t("governments.filterCountry")}
+                onChange={(event) => setSelectedCountryId(event.target.value === "" ? "" : Number(event.target.value))}
+              >
+                <MenuItem value="">{t("governments.allCountries")}</MenuItem>
+                {filterCountries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          <Tooltip title={t("common.refresh")}>
+            <span>
+              <IconButton
+                onClick={() => void load(selectedCountryId)}
+                disabled={loading}
+                sx={{
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  "&:hover": { bgcolor: "grey.50" },
+                }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
-          <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={openCreate}
-            sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
-            {t('governments.createNew')}
-          </Button>
         </Box>
       </Box>
 
-      {/* Table */}
-      <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 4,
+          border: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+        }}
+      >
         <TableContainer>
-          <Table sx={{ minWidth: 400 }}>
+          <Table sx={{ minWidth: 720 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('governments.name')}</TableCell>
-                <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t("governments.country")}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t("governments.cityNameEn")}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t("governments.cityNameAr")}</TableCell>
+                {isAdmin && (
+                  <TableCell align={isRTL ? "left" : "right"} sx={{ fontWeight: 700 }}>
+                    {t("common.actions")}
+                  </TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {[...Array(2)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}
+                Array.from({ length: 8 }).map((_, index) => (
+                  <TableRow key={index}>
+                    {Array.from({ length: isAdmin ? 4 : 3 }).map((__, cellIndex) => (
+                      <TableCell key={cellIndex}>
+                        <Skeleton variant="text" />
+                      </TableCell>
+                    ))}
                   </TableRow>
                 ))
-              ) : items.length === 0 ? (
+              ) : visibleRows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={2} align="center" sx={{ py: 10 }}>
-                    <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
-                      <LocationCityIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
-                      <Typography variant="h6" gutterBottom>{t('governments.noGovernments')}</Typography>
-                      <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={openCreate}>{t('governments.createFirst')}</Button>
-                    </Box>
+                  <TableCell colSpan={isAdmin ? 4 : 3} align="center" sx={{ py: 10 }}>
+                    <LocationCityIcon sx={{ fontSize: 56, color: "primary.main", opacity: 0.35, mb: 2 }} />
+                    <Typography variant="h6" gutterBottom>
+                      {t("governments.emptyCatalog")}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {isAdmin ? t("governments.noGovernments") : t("governments.noCitiesForProfile")}
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ) : items.map((item) => (
-                <TableRow key={item.id} sx={{ '&:hover': { bgcolor: 'grey.50' }, transition: 'background 0.2s ease' }}>
-                  <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.govName}</TableCell>
-                  <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
-                    <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
-                      <Tooltip title={t('common.edit')}>
-                        <IconButton color="primary" onClick={() => openEdit(item)} sx={{ '&:hover': { bgcolor: 'primary.light', color: 'white' }, transition: 'all 0.2s ease' }}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title={t('common.delete')}>
-                        <IconButton color="error" onClick={() => remove(item.id)} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' }, transition: 'all 0.2s ease' }}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
+              ) : (
+                visibleRows.map((row) => (
+                  <TableRow key={row.id} sx={{ "&:hover": { bgcolor: "grey.50" } }}>
+                    <TableCell>{row.countryName}</TableCell>
+                    <TableCell>{row.nameEn}</TableCell>
+                    <TableCell>{row.nameAr}</TableCell>
+                    {isAdmin && (
+                      <TableCell align={isRTL ? "left" : "right"}>
+                        <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end" }}>
+                          <Tooltip title={t("common.edit")}>
+                            <IconButton color="primary" onClick={() => openEdit(row)}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={t("common.delete")}>
+                            <IconButton color="error" onClick={() => void handleDelete(row)}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
       </Paper>
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
-        <Pagination
-          count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          color="primary"
-          shape="rounded"
-          showFirstButton
-          showLastButton
-        />
-        <FormControl size="small" sx={{ minWidth: 110 }}>
-          <InputLabel id="governments-page-size-label">{t('governments.perPage')}</InputLabel>
-          <Select
-            labelId="governments-page-size-label"
-            value={pageSize}
-            label={t('governments.perPage')}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setPage(1);
-            }}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
 
-      {/* Create/Edit Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
-        <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>
-          {editItem ? t('common.edit') : t('governments.createNew')}
-        </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
-            <TextField fullWidth label={t('governments.name')} value={form.govName} onChange={(e) => setForm({ ...form, govName: e.target.value })} variant="outlined" />
-          </Box>
+      <Dialog open={editOpen} onClose={() => !saving && setEditOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{t("governments.editCity")}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2.5} sx={{ mt: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel id="edit-country-label">{t("governments.country")}</InputLabel>
+              <Select
+                labelId="edit-country-label"
+                value={form.countryId}
+                label={t("governments.country")}
+                onChange={(event) => setForm((current) => ({ ...current, countryId: Number(event.target.value) }))}
+              >
+                {filterCountries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label={t("governments.cityNameEn")}
+              value={form.nameEn}
+              onChange={(event) => setForm((current) => ({ ...current, nameEn: event.target.value }))}
+              fullWidth
+            />
+            <TextField
+              label={t("governments.cityNameAr")}
+              value={form.nameAr}
+              onChange={(event) => setForm((current) => ({ ...current, nameAr: event.target.value }))}
+              fullWidth
+            />
+          </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
-          <Button onClick={() => setOpenDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={handleSubmit} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{editItem ? t('common.save') : t('common.create')}</Button>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setEditOpen(false)} disabled={saving}>
+            {t("common.cancel")}
+          </Button>
+          <Button variant="contained" onClick={handleSave} disabled={saving}>
+            {t("common.save")}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2, fontWeight: 600 }}>{snackbar.message}</Alert>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((current) => ({ ...current, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: isRTL ? "left" : "right" }}
+      >
+        <Alert
+          onClose={() => setSnackbar((current) => ({ ...current, open: false }))}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ borderRadius: 2, fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </Box>
   );
