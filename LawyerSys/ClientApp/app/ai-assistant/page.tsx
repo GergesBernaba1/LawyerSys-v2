@@ -23,6 +23,7 @@ import {
 import { AutoAwesome as AIIcon, Refresh as RefreshIcon } from "@mui/icons-material";
 import api from "../../src/services/api";
 import { useTranslation } from "react-i18next";
+import SearchableSelect from "../../src/components/SearchableSelect";
 
 type SummaryResponse = {
   language: string;
@@ -218,8 +219,16 @@ export default function AIAssistantPage() {
             </Stack>
             <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.92 }}>{t("aiAssistant.subtitle")}</Typography>
           </Box>
-          <FormControl
+          <SearchableSelect<"ar" | "en">
             size="small"
+            label={t("aiAssistant.language")}
+            value={language}
+            onChange={(value) => setLanguage((value ?? "en") as "ar" | "en")}
+            options={[
+              { value: "en", label: t("aiAssistant.english") },
+              { value: "ar", label: t("aiAssistant.arabic") },
+            ]}
+            disableClearable
             sx={{
               minWidth: 180,
               bgcolor: alpha("#ffffff", 0.1),
@@ -234,13 +243,7 @@ export default function AIAssistantPage() {
               },
               "& .MuiSvgIcon-root": { color: "white" },
             }}
-          >
-            <InputLabel>{t("aiAssistant.language")}</InputLabel>
-            <Select value={language} label={t("aiAssistant.language")} onChange={(e) => setLanguage(String(e.target.value) as "ar" | "en")}>
-              <MenuItem value="en">{t("aiAssistant.english")}</MenuItem>
-              <MenuItem value="ar">{t("aiAssistant.arabic")}</MenuItem>
-            </Select>
-          </FormControl>
+          />
         </Stack>
       </Paper>
 
@@ -297,12 +300,13 @@ export default function AIAssistantPage() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t("aiAssistant.draftHint")}</Typography>
               <Grid container spacing={1.5}>
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <FormControl fullWidth>
-                    <InputLabel>{t("aiAssistant.draftType")}</InputLabel>
-                    <Select value={draftType} label={t("aiAssistant.draftType")} onChange={(e) => setDraftType(String(e.target.value))}>
-                      {draftTypes.map((item) => <MenuItem key={item.value} value={item.value}>{item.label}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                  <SearchableSelect<string>
+                    label={t("aiAssistant.draftType")}
+                    value={draftType}
+                    onChange={(value) => setDraftType(value ?? draftTypes[0]?.value ?? "")}
+                    options={draftTypes.map((item) => ({ value: item.value, label: item.label }))}
+                    disableClearable
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, md: 9 }}>
                   <TextField
@@ -357,14 +361,19 @@ export default function AIAssistantPage() {
                   <Typography variant="body2" color="text.secondary">{t("aiAssistant.suggestionsHint")}</Typography>
                 </Box>
                 <Stack direction="row" spacing={1}>
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
-                    <InputLabel>{t("aiAssistant.days")}</InputLabel>
-                    <Select value={daysWindow} label={t("aiAssistant.days")} onChange={(e) => setDaysWindow(Number(e.target.value))}>
-                      <MenuItem value={7}>7</MenuItem>
-                      <MenuItem value={14}>14</MenuItem>
-                      <MenuItem value={30}>30</MenuItem>
-                    </Select>
-                  </FormControl>
+                  <SearchableSelect<number>
+                    size="small"
+                    label={t("aiAssistant.days")}
+                    value={daysWindow}
+                    onChange={(value) => setDaysWindow(value ?? 7)}
+                    options={[
+                      { value: 7, label: "7" },
+                      { value: 14, label: "14" },
+                      { value: 30, label: "30" },
+                    ]}
+                    disableClearable
+                    sx={{ minWidth: 120 }}
+                  />
                   <Button variant="contained" sx={primaryActionSx} onClick={() => void loadSuggestions()} disabled={suggestionsLoading}>
                     {t("aiAssistant.generateSuggestions")}
                   </Button>

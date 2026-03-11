@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import api from '../../src/services/api';
 import { useTranslation } from 'react-i18next';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type Template = { key: string; name: string; description: string };
 
@@ -99,25 +100,29 @@ export default function DocumentGenerationPage() {
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
           <Stack spacing={2}>
-            <FormControl size="small">
-              <InputLabel>{t('documentGeneration.template')}</InputLabel>
-              <Select value={templateType} label={t('documentGeneration.template')} onChange={(e) => setTemplateType(String(e.target.value))}>
-                {templates.map((tpl) => (
-                  <MenuItem key={tpl.key} value={tpl.key}>{getTemplateLabel(tpl)}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<string>
+              size="small"
+              label={t('documentGeneration.template')}
+              value={templateType}
+              onChange={(value) => setTemplateType(value ?? templates[0]?.key ?? '')}
+              options={templates.map((tpl) => ({ value: tpl.key, label: getTemplateLabel(tpl) }))}
+              disableClearable
+            />
 
             <TextField size="small" label={t('documentGeneration.caseCode')} value={caseCode} onChange={(e) => setCaseCode(e.target.value)} />
             <TextField size="small" label={t('documentGeneration.customerId')} value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
 
-            <FormControl size="small">
-              <InputLabel>{t('documentGeneration.format')}</InputLabel>
-              <Select value={format} label={t('documentGeneration.format')} onChange={(e) => setFormat(e.target.value as 'txt' | 'pdf')}>
-                <MenuItem value="txt">{t('documentGeneration.formats.txt')}</MenuItem>
-                <MenuItem value="pdf">{t('documentGeneration.formats.pdf')}</MenuItem>
-              </Select>
-            </FormControl>
+            <SearchableSelect<'txt' | 'pdf'>
+              size="small"
+              label={t('documentGeneration.format')}
+              value={format}
+              onChange={(value) => setFormat((value ?? 'txt') as 'txt' | 'pdf')}
+              options={[
+                { value: 'txt', label: t('documentGeneration.formats.txt') },
+                { value: 'pdf', label: t('documentGeneration.formats.pdf') },
+              ]}
+              disableClearable
+            />
 
             <TextField size="small" label={t('documentGeneration.scope')} value={scope} onChange={(e) => setScope(e.target.value)} multiline minRows={2} />
             <TextField size="small" label={t('documentGeneration.feeTerms')} value={feeTerms} onChange={(e) => setFeeTerms(e.target.value)} multiline minRows={2} />

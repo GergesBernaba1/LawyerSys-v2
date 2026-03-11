@@ -15,6 +15,7 @@ import {
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type AdminTaskDto = { id: number; taskName: string; type: string; taskDate: string; taskReminderDate: string; notes: string; employeeId?: number | null; employeeName?: string };
 type EmployeeItem = { id: number; usersId: number; identity?: { fullName?: string; email?: string } };
@@ -219,19 +220,24 @@ export default function AdminTasksPage() {
           showFirstButton
           showLastButton
         />
-        <FormControl size="small" sx={{ minWidth: 90 }}>
-          <InputLabel id="pagesize-label">/page</InputLabel>
-          <Select
-            labelId="pagesize-label"
-            value={pageSize}
-            label="/page"
-            onChange={(e) => { const ps = Number(e.target.value); setPageSize(ps); setPage(1); load(1); }}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-          </Select>
-        </FormControl>
+        <SearchableSelect<number>
+          size="small"
+          label="/page"
+          value={pageSize}
+          onChange={(value) => {
+            const ps = value ?? 10;
+            setPageSize(ps);
+            setPage(1);
+            load(1);
+          }}
+          options={[
+            { value: 5, label: '5' },
+            { value: 10, label: '10' },
+            { value: 20, label: '20' },
+          ]}
+          disableClearable
+          sx={{ minWidth: 90 }}
+        />
       </Box>
 
       {/* Create/Edit Dialog */}
@@ -245,13 +251,20 @@ export default function AdminTasksPage() {
             <TextField fullWidth label={t('tasks.taskType')} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} variant="outlined" />
             <TextField fullWidth label={t('tasks.startDate')} type="date" value={form.taskDate} onChange={(e) => setForm({ ...form, taskDate: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
             <TextField fullWidth label={t('tasks.reminderDate')} type="datetime-local" value={form.taskReminderDate} onChange={(e) => setForm({ ...form, taskReminderDate: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>{t('tasks.employee')}</InputLabel>
-              <Select value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: Number(e.target.value) })} label={t('tasks.employee')}>
-                <MenuItem value={0}>-</MenuItem>
-                {employees.map((emp) => <MenuItem key={emp.id} value={emp.id}>{emp.identity?.fullName || emp.identity?.email || '-'}</MenuItem>)}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t('tasks.employee')}
+              value={form.employeeId || 0}
+              onChange={(value) => setForm({ ...form, employeeId: value ?? 0 })}
+              options={[
+                { value: 0, label: '-' },
+                ...employees.map((emp) => ({
+                  value: emp.id,
+                  label: emp.identity?.fullName || emp.identity?.email || '-',
+                  keywords: [emp.identity?.email || ''],
+                })),
+              ]}
+              disableClearable
+            />
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField fullWidth label={t('tasks.notes')} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} variant="outlined" multiline rows={3} />
             </Box>

@@ -76,6 +76,7 @@ import {
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
 import api, { clearApiGetCache } from '../services/api';
+import SearchableSelect from './SearchableSelect';
 
 const drawerWidth = 280;
 
@@ -276,8 +277,8 @@ export default function Layout({ children }: LayoutProps) {
     router.push(path);
   };
 
-  const handleTenantChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextTenantId = Number(event.target.value)
+  const handleTenantChange = (value: number | null) => {
+    const nextTenantId = Number(value)
     if (!nextTenantId || Number.isNaN(nextTenantId)) return
 
     setSelectedTenantId(nextTenantId)
@@ -721,29 +722,23 @@ export default function Layout({ children }: LayoutProps) {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {isSuperAdmin && tenantOptions.length > 0 && (
-              <TextField
-                select
+              <SearchableSelect<number>
                 size="small"
                 label={t('app.tenant', 'Tenant')}
-                value={selectedTenantId}
+                value={typeof selectedTenantId === 'number' ? selectedTenantId : null}
                 onChange={handleTenantChange}
+                options={tenantOptions.map((tenant) => ({
+                  value: tenant.id,
+                  label: `${tenant.name}${!tenant.isActive ? ` (${t('administration.tenants.inactive', 'Inactive')})` : ''}`,
+                }))}
+                disableClearable
                 sx={{
                   minWidth: { xs: 150, md: 220 },
                   display: { xs: 'none', sm: 'flex' },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2.5,
-                    backgroundColor: 'grey.50',
-                  },
+                  '& .MuiOutlinedInput-root': { borderRadius: 2.5, backgroundColor: 'grey.50' },
                 }}
                 helperText={t('app.selectTenant', 'Select tenant filter')}
-              >
-                {tenantOptions.map((tenant) => (
-                  <MenuItem key={tenant.id} value={tenant.id}>
-                    {tenant.name}
-                    {!tenant.isActive ? ` (${t('administration.tenants.inactive', 'Inactive')})` : ''}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
             )}
 
             {/* Language Selector */}

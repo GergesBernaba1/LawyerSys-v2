@@ -24,10 +24,6 @@ import {
   Alert,
   Snackbar,
   Tooltip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   TextField,
   Avatar,
   // Grid2: will import from Unstable_Grid2 below
@@ -47,6 +43,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
 import { useCurrency } from '../../src/hooks/useCurrency';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type UserDto = { id: number; fullName?: string; userName?: string; email?: string };
 type IdentityDto = { fullName?: string; userName?: string; email?: string };
@@ -463,23 +460,16 @@ export default function EmployeesPageClient() {
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
             {!editItem && isSuperAdmin && (
-              <TextField
-                select
-                fullWidth
+              <SearchableSelect<number>
                 label={t('app.tenant')}
-                value={selectedTenantId}
-                onChange={(e) => {
-                  setSelectedTenantId(e.target.value === '' ? '' : Number(e.target.value));
+                value={typeof selectedTenantId === 'number' ? selectedTenantId : null}
+                onChange={(value) => {
+                  setSelectedTenantId(value ?? '');
                   setSelectedUser('');
                 }}
-                variant="outlined"
-              >
-                {tenants.map((tenant) => (
-                  <MenuItem key={tenant.id} value={tenant.id}>
-                    {tenant.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                options={tenants.map((tenant) => ({ value: tenant.id, label: tenant.name }))}
+                disableClearable
+              />
             )}
             {editItem ? (
               <TextField
@@ -490,22 +480,17 @@ export default function EmployeesPageClient() {
                 variant="outlined"
               />
             ) : (
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>{t('employees.selectUser')}</InputLabel>
-                <Select 
-                  value={selectedUser} 
-                  label={t('employees.selectUser')} 
-                  onChange={(e) => setSelectedUser(Number(e.target.value) || '')}
-                  sx={{ borderRadius: 2 }}
-                >
-                  <MenuItem value=""><em>-- {t('employees.selectUser')} --</em></MenuItem>
-                  {users.map((u) => (
-                    <MenuItem key={u.id} value={u.id}>
-                      {u.fullName || u.userName || u.email || `#${u.id}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <SearchableSelect<number>
+                label={t('employees.selectUser')}
+                value={typeof selectedUser === 'number' ? selectedUser : null}
+                onChange={(value) => setSelectedUser(value ?? '')}
+                options={users.map((u) => ({
+                  value: u.id,
+                  label: u.fullName || u.userName || u.email || `#${u.id}`,
+                  keywords: [u.userName || '', u.email || ''],
+                }))}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              />
             )}
             
             <TextField 

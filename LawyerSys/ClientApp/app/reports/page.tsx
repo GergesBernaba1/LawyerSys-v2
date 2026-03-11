@@ -24,6 +24,7 @@ import { Download as DownloadIcon } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../src/hooks/useCurrency';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type MonthlyPoint = { year: number; month: number; payments: number; receipts: number; netCashFlow: number };
 type FinancialSummaryResponse = {
@@ -105,33 +106,38 @@ export default function ReportsPage() {
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'center' }}>
-            <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel>{t('app.year') || 'Year'}</InputLabel>
-              <Select value={year} label={t('app.year') || 'Year'} onChange={(e) => setYear(Number(e.target.value))}>
-                {yearOptions.map((y) => (
-                  <MenuItem key={y} value={y}>{y}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              size="small"
+              label={t('app.year') || 'Year'}
+              value={year}
+              onChange={(value) => setYear(value ?? now.getFullYear())}
+              options={yearOptions.map((y) => ({ value: y, label: String(y) }))}
+              disableClearable
+              sx={{ minWidth: 140 }}
+            />
 
-            <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel>{t('app.month') || 'Month'}</InputLabel>
-              <Select value={month} label={t('app.month') || 'Month'} onChange={(e) => setMonth(Number(e.target.value))}>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                  <MenuItem key={m} value={m}>{m}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              size="small"
+              label={t('app.month') || 'Month'}
+              value={month}
+              onChange={(value) => setMonth(value ?? now.getMonth() + 1)}
+              options={Array.from({ length: 12 }, (_, i) => i + 1).map((m) => ({ value: m, label: String(m) }))}
+              disableClearable
+              sx={{ minWidth: 140 }}
+            />
 
-            <FormControl size="small" sx={{ minWidth: 220 }}>
-              <InputLabel>{t('billing.customer')}</InputLabel>
-              <Select value={customerId} label={t('billing.customer')} onChange={(e) => setCustomerId(String(e.target.value))}>
-                <MenuItem value="">{t('common.all') || 'All'}</MenuItem>
-                {customers.map((c) => (
-                  <MenuItem key={c.id} value={String(c.id)}>{c.user?.fullName || '-'}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<string>
+              size="small"
+              label={t('billing.customer')}
+              value={customerId}
+              onChange={(value) => setCustomerId(value ?? '')}
+              options={[
+                { value: '', label: t('common.all') || 'All' },
+                ...customers.map((c) => ({ value: String(c.id), label: c.user?.fullName || '-' })),
+              ]}
+              disableClearable
+              sx={{ minWidth: 220 }}
+            />
 
             <Stack direction="row" spacing={1}>
               <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => void download('csv')}>CSV</Button>

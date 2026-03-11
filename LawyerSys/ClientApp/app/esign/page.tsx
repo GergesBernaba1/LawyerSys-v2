@@ -20,6 +20,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import api from '../../src/services/api'
 import { useAuth } from '../../src/services/auth'
+import SearchableSelect from '../../src/components/SearchableSelect'
 
 type ESignRequest = {
   id: number
@@ -219,18 +220,28 @@ export default function ESignPage() {
           <TextField size="small" label={t('esign.requestTitle')} value={requestTitle} onChange={(e) => setRequestTitle(e.target.value)} />
           <TextField size="small" label={t('esign.signerName')} value={signerName} onChange={(e) => setSignerName(e.target.value)} />
           <TextField size="small" label={t('esign.signerEmail')} value={signerEmail} onChange={(e) => setSignerEmail(e.target.value)} />
-          <TextField select size="small" label={t('esign.file')} value={fileId} onChange={(e) => setFileId(e.target.value)}>
-            <MenuItem value="">{t('esign.none')}</MenuItem>
-            {files.map((file) => (
-              <MenuItem key={file.id} value={String(file.id)}>{file.code || '-'}</MenuItem>
-            ))}
-          </TextField>
-          <TextField select size="small" label={t('esign.template')} value={templateType} onChange={(e) => setTemplateType(e.target.value)}>
-            <MenuItem value="">{t('esign.none')}</MenuItem>
-            {templates.map((tpl) => (
-              <MenuItem key={tpl.key} value={tpl.key}>{tpl.name}</MenuItem>
-            ))}
-          </TextField>
+          <SearchableSelect<string>
+            size="small"
+            label={t('esign.file')}
+            value={fileId}
+            onChange={(value) => setFileId(value ?? '')}
+            options={[
+              { value: '', label: t('esign.none') },
+              ...files.map((file) => ({ value: String(file.id), label: file.code || '-' })),
+            ]}
+            disableClearable
+          />
+          <SearchableSelect<string>
+            size="small"
+            label={t('esign.template')}
+            value={templateType}
+            onChange={(value) => setTemplateType(value ?? '')}
+            options={[
+              { value: '', label: t('esign.none') },
+              ...templates.map((tpl) => ({ value: tpl.key, label: tpl.name })),
+            ]}
+            disableClearable
+          />
         </Box>
         <Box sx={{ mt: 1.5, display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button variant="contained" onClick={createRequest}>{t('esign.create')}</Button>
@@ -240,9 +251,14 @@ export default function ESignPage() {
       <Paper elevation={0} sx={{ p: 2, mb: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 220px auto' }, gap: 1.5 }}>
           <TextField size="small" label={t('esign.search')} value={search} onChange={(e) => setSearch(e.target.value)} />
-          <TextField select size="small" label={t('esign.status')} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            {statuses.map((s) => <MenuItem key={s.value || 'all'} value={s.value}>{s.label}</MenuItem>)}
-          </TextField>
+          <SearchableSelect<string>
+            size="small"
+            label={t('esign.status')}
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value ?? '')}
+            options={statuses.map((s) => ({ value: s.value, label: s.label }))}
+            disableClearable
+          />
           <Button variant="outlined" onClick={loadRequests}>{t('common.refresh')}</Button>
         </Box>
       </Paper>

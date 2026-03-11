@@ -25,11 +25,6 @@ import {
   Alert,
   Snackbar,
   Tooltip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Checkbox,
   List,
   ListItem,
   ListItemText,
@@ -49,6 +44,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { useCurrency } from '../../src/hooks/useCurrency';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
+import SearchableMultiSelect from '../../src/components/SearchableMultiSelect';
 
 type CaseItem = {
   id: number;
@@ -416,19 +413,24 @@ export default function CasesPageClient() {
             showFirstButton
             showLastButton
           />
-          <FormControl size="small" sx={{ minWidth: 90 }}>
-            <InputLabel id="pagesize-label">/page</InputLabel>
-            <Select
-              labelId="pagesize-label"
-              value={pageSize}
-              label="/page"
-              onChange={(e) => { const ps = Number(e.target.value); setPageSize(ps); setPage(1); load(1); }}
-            >
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-            </Select>
-          </FormControl>
+        <SearchableSelect<number>
+          size="small"
+          label="/page"
+          value={pageSize}
+          onChange={(value) => {
+            const ps = value ?? 10;
+            setPageSize(ps);
+            setPage(1);
+            load(1);
+          }}
+          options={[
+            { value: 5, label: '5' },
+            { value: 10, label: '10' },
+            { value: 20, label: '20' },
+          ]}
+          disableClearable
+          sx={{ minWidth: 90 }}
+        />
         </Box>
       </Paper>
 
@@ -450,47 +452,55 @@ export default function CasesPageClient() {
               <TextField fullWidth label={t('cases.code')} type="number" value={code || ''} onChange={(e) => setCode(Number(e.target.value))} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>{t('courts.name')}</InputLabel>
-                <Select value={selectedCourt} label={t('courts.name')} onChange={(e)=>setSelectedCourt(Number(e.target.value) || '')}>
-                  <MenuItem value=""><em>--</em></MenuItem>
-                  {courts.map(c=> (<MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>))}
-                </Select>
-              </FormControl>
+              <SearchableSelect<number>
+                label={t('courts.name')}
+                value={typeof selectedCourt === 'number' ? selectedCourt : null}
+                onChange={(value)=>setSelectedCourt(value ?? '')}
+                options={courts.map((c)=> ({ value: c.id, label: c.name }))}
+              />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>{t('customers.customer')}</InputLabel>
-                <Select value={primaryCustomer} label={t('customers.customer')} onChange={(e)=>setPrimaryCustomer(Number(e.target.value) || '')}>
-                  <MenuItem value=""><em>--</em></MenuItem>
-                  {customers.map(c=> (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || c.identity?.email || '-'}</MenuItem>))}
-                </Select>
-              </FormControl>
+              <SearchableSelect<number>
+                label={t('customers.customer')}
+                value={typeof primaryCustomer === 'number' ? primaryCustomer : null}
+                onChange={(value)=>setPrimaryCustomer(value ?? '')}
+                options={customers.map((c)=> ({
+                  value: c.id,
+                  label: c.identity?.fullName || c.user?.fullName || c.identity?.email || '-',
+                  keywords: [c.identity?.email || '', c.user?.fullName || ''],
+                }))}
+              />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>{t('customers.management')}</InputLabel>
-                <Select multiple value={selectedCustomers} onChange={(e)=>{
-                  const value = e.target.value as unknown as number[];
-                  setSelectedCustomers(value);
-                }} inputProps={{ 'aria-label': 'select multiple customers' }} renderValue={(selected)=> (selected as number[]).map(id => (customers.find(c=>c.id===id)?.identity?.fullName || customers.find(c=>c.id===id)?.user?.fullName || '-')).join(', ')}>
-                  {customers.map(c => (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedCustomers.indexOf(c.id) > -1} /><ListItemText primary={c.identity?.fullName || c.user?.fullName || '-'} /></MenuItem>))}
-                </Select>
-              </FormControl>
+              <SearchableMultiSelect<number>
+                label={t('customers.management')}
+                value={selectedCustomers}
+                onChange={setSelectedCustomers}
+                options={customers.map((c) => ({
+                  value: c.id,
+                  label: c.identity?.fullName || c.user?.fullName || '-',
+                  keywords: [c.identity?.email || '', c.user?.fullName || ''],
+                }))}
+              />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>{t('contenders.title') || 'Contenders'}</InputLabel>
-                <Select multiple value={selectedContenders} onChange={(e)=>{ const value = e.target.value as unknown as number[]; setSelectedContenders(value); }} renderValue={(sel)=> (sel as number[]).map(id => contenders.find(c=>c.id===id)?.fullName || '-').join(', ')}>
-                  {contenders.map(c=> (<MenuItem key={c.id} value={c.id}><Checkbox checked={selectedContenders.indexOf(c.id) > -1} /><ListItemText primary={c.fullName} /></MenuItem>))}
-                </Select>
+              <Box>
+                <SearchableMultiSelect<number>
+                  label={t('contenders.title') || 'Contenders'}
+                  value={selectedContenders}
+                  onChange={setSelectedContenders}
+                  options={contenders.map((c)=> ({
+                    value: c.id,
+                    label: c.fullName,
+                  }))}
+                />
                 <Box sx={{ mt:1 }}>
                   <Button size="small" onClick={()=>setContenderDialogOpen(true)}>{t('contenders.title')}: {t('app.add') || 'Add'}</Button>
                 </Box>
-              </FormControl>
+              </Box>
             </Grid>
 
             <Grid size={{ xs: 12 }}>

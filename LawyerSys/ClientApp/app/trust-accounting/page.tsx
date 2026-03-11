@@ -40,6 +40,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../src/services/auth";
 import { useCurrency } from "../../src/hooks/useCurrency";
 import type { PagedResult } from "../../src/types/paging";
+import SearchableSelect from "../../src/components/SearchableSelect";
 
 type TrustAccount = {
   customerId: number;
@@ -479,21 +480,16 @@ export default function TrustAccountingPage() {
       {tab === 1 && (
         <Paper sx={{ p: 2 }}>
           <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 2 }}>
-            <FormControl sx={{ minWidth: 260 }}>
-              <InputLabel>{t("billing.customer")}</InputLabel>
-              <Select
-                value={selectedCustomerId || ""}
-                label={t("billing.customer")}
-                onChange={(e) => {
-                  const id = Number(e.target.value);
-                  setSelectedCustomerId(id);
-                }}
-              >
-                {accountOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t("billing.customer")}
+              value={selectedCustomerId || null}
+              onChange={(value) => setSelectedCustomerId(value ?? 0)}
+              options={accountOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
+              sx={{ minWidth: 260 }}
+            />
             <TextField label={t("billing.fromDate")} type="date" InputLabelProps={{ shrink: true }} value={ledgerFromDate} onChange={(e) => setLedgerFromDate(e.target.value)} />
             <TextField label={t("billing.toDate")} type="date" InputLabelProps={{ shrink: true }} value={ledgerToDate} onChange={(e) => setLedgerToDate(e.target.value)} />
             <Button variant="outlined" onClick={() => void loadLedger(selectedCustomerId)}>{t("common.filter")}</Button>
@@ -624,18 +620,15 @@ export default function TrustAccountingPage() {
         <DialogTitle>{t("trust.addDeposit")}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <FormControl fullWidth>
-              <InputLabel>{t("billing.customer")}</InputLabel>
-              <Select
-                value={depositForm.customerId}
-                label={t("billing.customer")}
-                onChange={(e) => setDepositForm((p) => ({ ...p, customerId: Number(e.target.value) }))}
-              >
-                {accountOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t("billing.customer")}
+              value={depositForm.customerId || null}
+              onChange={(value) => setDepositForm((p) => ({ ...p, customerId: value ?? 0 }))}
+              options={accountOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
+            />
             <TextField type="number" label={t("billing.amount")} value={depositForm.amount} onChange={(e) => setDepositForm((p) => ({ ...p, amount: Number(e.target.value) }))} />
             <TextField type="date" label={t("billing.date")} InputLabelProps={{ shrink: true }} value={depositForm.operationDate} onChange={(e) => setDepositForm((p) => ({ ...p, operationDate: e.target.value }))} />
             <TextField type="number" label={t("cases.caseCode")} value={depositForm.caseCode} onChange={(e) => setDepositForm((p) => ({ ...p, caseCode: e.target.value }))} />
@@ -653,18 +646,15 @@ export default function TrustAccountingPage() {
         <DialogTitle>{t("trust.addWithdrawal")}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <FormControl fullWidth>
-              <InputLabel>{t("billing.customer")}</InputLabel>
-              <Select
-                value={withdrawalForm.customerId}
-                label={t("billing.customer")}
-                onChange={(e) => setWithdrawalForm((p) => ({ ...p, customerId: Number(e.target.value) }))}
-              >
-                {accountOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t("billing.customer")}
+              value={withdrawalForm.customerId || null}
+              onChange={(value) => setWithdrawalForm((p) => ({ ...p, customerId: value ?? 0 }))}
+              options={accountOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
+            />
             <TextField type="number" label={t("billing.amount")} value={withdrawalForm.amount} onChange={(e) => setWithdrawalForm((p) => ({ ...p, amount: Number(e.target.value) }))} />
             <TextField type="date" label={t("billing.date")} InputLabelProps={{ shrink: true }} value={withdrawalForm.operationDate} onChange={(e) => setWithdrawalForm((p) => ({ ...p, operationDate: e.target.value }))} />
             <TextField type="number" label={t("cases.caseCode")} value={withdrawalForm.caseCode} onChange={(e) => setWithdrawalForm((p) => ({ ...p, caseCode: e.target.value }))} />
@@ -682,32 +672,28 @@ export default function TrustAccountingPage() {
         <DialogTitle>{t("trust.addAdjustment")}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <FormControl fullWidth>
-              <InputLabel>{t("billing.customer")}</InputLabel>
-              <Select
-                value={adjustmentForm.customerId}
-                label={t("billing.customer")}
-                onChange={(e) => setAdjustmentForm((p) => ({ ...p, customerId: Number(e.target.value) }))}
-              >
-                {accountOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t("billing.customer")}
+              value={adjustmentForm.customerId || null}
+              onChange={(value) => setAdjustmentForm((p) => ({ ...p, customerId: value ?? 0 }))}
+              options={accountOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
+            />
             <TextField type="number" label={t("billing.amount")} value={adjustmentForm.amount} onChange={(e) => setAdjustmentForm((p) => ({ ...p, amount: Number(e.target.value) }))} />
             <TextField type="date" label={t("billing.date")} InputLabelProps={{ shrink: true }} value={adjustmentForm.operationDate} onChange={(e) => setAdjustmentForm((p) => ({ ...p, operationDate: e.target.value }))} />
             <TextField type="number" label={t("cases.caseCode")} value={adjustmentForm.caseCode} onChange={(e) => setAdjustmentForm((p) => ({ ...p, caseCode: e.target.value }))} />
-            <FormControl fullWidth>
-              <InputLabel>{t("cases.type")}</InputLabel>
-              <Select
-                value={adjustmentForm.direction}
-                label={t("cases.type")}
-                onChange={(e) => setAdjustmentForm((p) => ({ ...p, direction: String(e.target.value) }))}
-              >
-                <MenuItem value="Increase">{t("trust.increase")}</MenuItem>
-                <MenuItem value="Decrease">{t("trust.decrease")}</MenuItem>
-              </Select>
-            </FormControl>
+            <SearchableSelect<string>
+              label={t("cases.type")}
+              value={adjustmentForm.direction}
+              onChange={(value) => setAdjustmentForm((p) => ({ ...p, direction: value ?? "Increase" }))}
+              options={[
+                { value: "Increase", label: t("trust.increase") },
+                { value: "Decrease", label: t("trust.decrease") },
+              ]}
+              disableClearable
+            />
             <TextField label={t("billing.notes")} value={adjustmentForm.description} onChange={(e) => setAdjustmentForm((p) => ({ ...p, description: e.target.value }))} />
             <TextField label={t("trust.reference")} value={adjustmentForm.reference} onChange={(e) => setAdjustmentForm((p) => ({ ...p, reference: e.target.value }))} />
           </Stack>

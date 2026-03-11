@@ -18,6 +18,7 @@ import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 import { useCurrency } from '../../src/hooks/useCurrency';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type BillingPayDto = { id: number; amount: number; dateOfOperation: string; notes: string; customerId: number; customerName?: string };
 type BillingReceiptDto = { id: number; amount: number; dateOfOperation: string; notes: string; employeeId: number };
@@ -301,13 +302,15 @@ export default function BillingPage() {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
             <TextField fullWidth label={t('billing.amount')} type="number" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: Number(e.target.value) })} variant="outlined" />
             <TextField fullWidth label={t('billing.date')} type="date" value={payForm.dateOfOperation} onChange={(e) => setPayForm({ ...payForm, dateOfOperation: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>{t('billing.customer')}</InputLabel>
-              <Select value={payForm.customerId} onChange={(e) => setPayForm({ ...payForm, customerId: Number(e.target.value) })} label={t('billing.customer')}>
-                <MenuItem value={0}>-</MenuItem>
-                {customers.map((c) => <MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.identity?.email || '-'}</MenuItem>)}
-              </Select>
-            </FormControl>
+            <SearchableSelect
+              label={t('billing.customer')}
+              value={payForm.customerId}
+              onChange={(value) => setPayForm({ ...payForm, customerId: Number(value || 0) })}
+              options={[
+                { value: 0, label: '-' },
+                ...customers.map((c) => ({ value: c.id, label: c.identity?.fullName || c.identity?.email || '-' })),
+              ]}
+            />
             <TextField fullWidth label={t('billing.notes')} value={payForm.notes} onChange={(e) => setPayForm({ ...payForm, notes: e.target.value })} variant="outlined" multiline rows={2} />
           </Box>
         </DialogContent>
@@ -324,13 +327,15 @@ export default function BillingPage() {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
             <TextField fullWidth label={t('billing.amount')} type="number" value={recForm.amount} onChange={(e) => setRecForm({ ...recForm, amount: Number(e.target.value) })} variant="outlined" />
             <TextField fullWidth label={t('billing.date')} type="date" value={recForm.dateOfOperation} onChange={(e) => setRecForm({ ...recForm, dateOfOperation: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>{t('billing.employee')}</InputLabel>
-              <Select value={recForm.employeeId} onChange={(e) => setRecForm({ ...recForm, employeeId: Number(e.target.value) })} label={t('billing.employee')}>
-                <MenuItem value={0}>-</MenuItem>
-                {employees.map((emp) => <MenuItem key={emp.id} value={emp.id}>{emp.identity?.fullName || emp.identity?.email || '-'}</MenuItem>)}
-              </Select>
-            </FormControl>
+            <SearchableSelect
+              label={t('billing.employee')}
+              value={recForm.employeeId}
+              onChange={(value) => setRecForm({ ...recForm, employeeId: Number(value || 0) })}
+              options={[
+                { value: 0, label: '-' },
+                ...employees.map((emp) => ({ value: emp.id, label: emp.identity?.fullName || emp.identity?.email || '-' })),
+              ]}
+            />
             <TextField fullWidth label={t('billing.notes')} value={recForm.notes} onChange={(e) => setRecForm({ ...recForm, notes: e.target.value })} variant="outlined" multiline rows={2} />
           </Box>
         </DialogContent>

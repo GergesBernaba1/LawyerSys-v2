@@ -20,6 +20,7 @@ import { Refresh as RefreshIcon, ShowChart as ChartIcon } from "@mui/icons-mater
 import api from "../../src/services/api";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "../../src/hooks/useCurrency";
+import SearchableSelect from "../../src/components/SearchableSelect";
 
 type TrustAccount = {
   customerId: number;
@@ -203,19 +204,27 @@ export default function TrustReportsPage() {
           <Typography variant="body2" color="text.secondary">{t("trustReports.subtitle")}</Typography>
         </Box>
         <Stack direction="row" spacing={1.5}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>{t("trustReports.months")}</InputLabel>
-            <Select value={months} label={t("trustReports.months")} onChange={(e) => setMonths(Number(e.target.value))}>
-              {monthsOptions.map((m) => <MenuItem key={m} value={m}>{m}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 240 }}>
-            <InputLabel>{t("billing.customer")}</InputLabel>
-            <Select value={customerId} label={t("billing.customer")} onChange={(e) => setCustomerId(String(e.target.value))}>
-              <MenuItem value="">{t("trustReports.allCustomers")}</MenuItem>
-              {accounts.map((a) => <MenuItem key={a.customerId} value={String(a.customerId)}>{a.customerName || "-"}</MenuItem>)}
-            </Select>
-          </FormControl>
+          <SearchableSelect<number>
+            size="small"
+            label={t("trustReports.months")}
+            value={months}
+            onChange={(value) => setMonths(value ?? monthsOptions[0])}
+            options={monthsOptions.map((m) => ({ value: m, label: String(m) }))}
+            disableClearable
+            sx={{ minWidth: 120 }}
+          />
+          <SearchableSelect<string>
+            size="small"
+            label={t("billing.customer")}
+            value={customerId}
+            onChange={(value) => setCustomerId(value ?? "")}
+            options={[
+              { value: "", label: t("trustReports.allCustomers") },
+              ...accounts.map((a) => ({ value: String(a.customerId), label: a.customerName || "-" })),
+            ]}
+            disableClearable
+            sx={{ minWidth: 240 }}
+          />
           <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => void load()} disabled={loading}>{t("trustReports.refresh")}</Button>
         </Stack>
       </Stack>

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
+using System.Globalization;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +15,17 @@ namespace LawyerSys.Controllers;
 public class CourtsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly ApplicationDbContext _applicationDbContext;
+    private readonly IUserContext _userContext;
 
-    public CourtsController(LegacyDbContext context)
+    public CourtsController(
+        LegacyDbContext context,
+        ApplicationDbContext applicationDbContext,
+        IUserContext userContext)
     {
         _context = context;
+        _applicationDbContext = applicationDbContext;
+        _userContext = userContext;
     }
 
     [HttpGet]
@@ -67,12 +76,29 @@ public class CourtsController : ControllerBase
         return Ok(MapToDto(court));
     }
 
+    [HttpGet("government-options")]
+    public async Task<ActionResult<IEnumerable<GovernamentDto>>> GetGovernmentOptions()
+    {
+        var items = await GetAllowedGovernmentOptionsAsync();
+        if (items.Count == 0)
+        {
+            return Ok(Array.Empty<GovernamentDto>());
+        }
+
+        return Ok(items);
+    }
+
     [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
     public async Task<ActionResult<CourtDto>> CreateCourt([FromBody] CreateCourtDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        if (!await CanUseGovernmentAsync(dto.GovId))
+        {
+            return BadRequest(new { message = "Selected city is outside the country saved in your profile." });
+        }
 
         var court = new Court
         {
@@ -97,6 +123,11 @@ public class CourtsController : ControllerBase
         var court = await _context.Courts.Include(c => c.Gov).FirstOrDefaultAsync(c => c.Id == id);
         if (court == null)
             return NotFound(new { message = "Court not found" });
+
+        if (dto.GovId.HasValue && !await CanUseGovernmentAsync(dto.GovId.Value))
+        {
+            return BadRequest(new { message = "Selected city is outside the country saved in your profile." });
+        }
 
         if (dto.Name != null) court.Name = dto.Name;
         if (dto.Address != null) court.Address = dto.Address;
@@ -131,4 +162,102 @@ public class CourtsController : ControllerBase
         GovId = c.Gov_Id,
         GovernmentName = c.Gov?.Gov_Name
     };
+
+    private async Task<bool> CanUseGovernmentAsync(int governmentId)
+    {
+        var allowedGovernmentIds = await GetAllowedGovernmentIdsAsync();
+        return allowedGovernmentIds.Contains(governmentId);
+    }
+
+    private async Task<List<int>> GetAllowedGovernmentIdsAsync()
+    {
+        var options = await GetAllowedGovernmentOptionsAsync();
+        return options.Select(option => option.Id).ToList();
+    }
+
+    private async Task<List<GovernamentDto>> GetAllowedGovernmentOptionsAsync()
+    {
+        var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+        var currentUserId = _userContext.GetUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+        {
+            return new List<GovernamentDto>();
+        }
+
+        var countryId = await _applicationDbContext.Users
+            .AsNoTracking()
+            .Where(user => user.Id == currentUserId)
+            .Select(user => user.CountryId)
+            .SingleOrDefaultAsync();
+
+        if (countryId is null or <= 0)
+        {
+            return new List<GovernamentDto>();
+        }
+
+        var cities = await _applicationDbContext.Cities
+            .AsNoTracking()
+            .Where(city => city.CountryId == countryId.Value)
+            .OrderBy(city => city.Name)
+            .Select(city => new { city.Name, city.NameAr })
+            .ToListAsync();
+
+        if (cities.Count == 0)
+        {
+            return new List<GovernamentDto>();
+        }
+
+        var governments = await _context.Governaments.ToListAsync();
+        var byName = governments
+            .GroupBy(government => NormalizeGovernmentName(government.Gov_Name))
+            .ToDictionary(group => group.Key, group => group.First());
+
+        var nextId = governments.Count == 0 ? 1 : governments.Max(government => government.Id) + 1;
+        var items = new List<GovernamentDto>();
+
+        foreach (var city in cities)
+        {
+            var normalizedEnglish = NormalizeGovernmentName(city.Name);
+            var normalizedArabic = NormalizeGovernmentName(city.NameAr);
+
+            if (!byName.TryGetValue(normalizedEnglish, out var government) &&
+                !string.IsNullOrWhiteSpace(normalizedArabic) &&
+                !byName.TryGetValue(normalizedArabic, out government))
+            {
+                government = new Governament
+                {
+                    Id = nextId++,
+                    Gov_Name = city.Name
+                };
+
+                _context.Governaments.Add(government);
+                byName[normalizedEnglish] = government;
+
+                if (!string.IsNullOrWhiteSpace(normalizedArabic))
+                {
+                    byName[normalizedArabic] = government;
+                }
+            }
+
+            items.Add(new GovernamentDto
+            {
+                Id = government.Id,
+                GovName = useArabic && !string.IsNullOrWhiteSpace(city.NameAr)
+                    ? city.NameAr
+                    : city.Name
+            });
+        }
+
+        if (_context.ChangeTracker.HasChanges())
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        return items;
+    }
+
+    private static string NormalizeGovernmentName(string? value)
+    {
+        return (value ?? string.Empty).Trim().ToLower();
+    }
 }

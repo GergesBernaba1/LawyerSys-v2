@@ -40,6 +40,7 @@ import {
 import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
 import useConfirmDialog from "../../src/hooks/useConfirmDialog";
+import SearchableSelect from "../../src/components/SearchableSelect";
 
 type CountryOption = {
   id: number;
@@ -321,25 +322,21 @@ export default function GovernmentsPage() {
             </Button>
           )}
           {isSuperAdmin && (
-            <FormControl size="small" sx={{ minWidth: { xs: "100%", md: 220 } }}>
-              <InputLabel id="country-filter-label">{t("governments.filterCountry")}</InputLabel>
-              <Select
-                labelId="country-filter-label"
-                value={selectedCountryId}
-                label={t("governments.filterCountry")}
-                onChange={(event) => {
-                  const nextValue = String(event.target.value)
-                  setSelectedCountryId(nextValue === "" ? "" : Number(nextValue))
-                }}
-              >
-                <MenuItem value="">{t("governments.allCountries")}</MenuItem>
-                {filterCountries.map((country) => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number | "">
+              size="small"
+              label={t("governments.filterCountry")}
+              value={selectedCountryId}
+              onChange={(value) => setSelectedCountryId(value ?? "")}
+              options={[
+                { value: "", label: t("governments.allCountries") },
+                ...filterCountries.map((country) => ({
+                  value: country.id,
+                  label: country.label,
+                })),
+              ]}
+              disableClearable
+              sx={{ minWidth: { xs: "100%", md: 220 } }}
+            />
           )}
           <Tooltip title={t("common.refresh")}>
             <span>
@@ -462,21 +459,16 @@ export default function GovernmentsPage() {
         <DialogContent>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             {isSuperAdmin ? (
-              <FormControl fullWidth>
-                <InputLabel id="edit-country-label">{t("governments.country")}</InputLabel>
-                <Select
-                  labelId="edit-country-label"
-                  value={form.countryId}
-                  label={t("governments.country")}
-                  onChange={(event) => setForm((current) => ({ ...current, countryId: Number(event.target.value) }))}
-                >
-                  {filterCountries.map((country) => (
-                    <MenuItem key={country.id} value={country.id}>
-                      {country.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <SearchableSelect<number>
+                label={t("governments.country")}
+                value={form.countryId || null}
+                onChange={(value) => setForm((current) => ({ ...current, countryId: value ?? 0 }))}
+                options={filterCountries.map((country) => ({
+                  value: country.id,
+                  label: country.label,
+                }))}
+                disableClearable
+              />
             ) : (
               <TextField label={t("governments.country")} value={userCountryName} fullWidth disabled />
             )}

@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type SitingDto = { id: number; caseCode?: number; sitingTime: string; sitingDate: string; sitingNotification: string; judgeName: string; notes: string };
 type CaseOption = { code: number; invitionType?: string };
@@ -237,22 +238,17 @@ export default function SitingsPage() {
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>{t('sitings.selectCase')}</InputLabel>
-              <Select
-                value={selectedCaseCode}
-                label={t('sitings.selectCase')}
-                onChange={(e) => setSelectedCaseCode(Number(e.target.value) || '')}
-                disabled={!!editItem}
-              >
-                <MenuItem value=""><em>-- {t('sitings.selectCase')} --</em></MenuItem>
-                {cases.map((c) => (
-                  <MenuItem key={c.code} value={c.code}>
-                    #{c.code}{c.invitionType ? ` - ${c.invitionType}` : ''}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t('sitings.selectCase')}
+              value={typeof selectedCaseCode === 'number' ? selectedCaseCode : null}
+              onChange={(value) => setSelectedCaseCode(value ?? '')}
+              disabled={!!editItem}
+              options={cases.map((c) => ({
+                value: c.code,
+                label: `#${c.code}${c.invitionType ? ` - ${c.invitionType}` : ''}`,
+                keywords: [String(c.code), c.invitionType || ''],
+              }))}
+            />
             <TextField fullWidth label={t('sitings.sitingDate')} type="date" value={form.sitingDate} onChange={(e) => setForm({ ...form, sitingDate: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
             <TextField fullWidth label={t('sitings.sitingTime')} type="datetime-local" value={form.sitingTime?.substring(0, 16) || ''} onChange={(e) => setForm({ ...form, sitingTime: new Date(e.target.value).toISOString() })} InputLabelProps={{ shrink: true }} variant="outlined" />
             <TextField fullWidth label={t('sitings.notificationDate')} type="datetime-local" value={form.sitingNotification?.substring(0, 16) || ''} onChange={(e) => setForm({ ...form, sitingNotification: new Date(e.target.value).toISOString() })} InputLabelProps={{ shrink: true }} variant="outlined" />

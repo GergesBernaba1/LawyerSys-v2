@@ -21,15 +21,12 @@ import {
   Snackbar,
   Alert,
   Tooltip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Chip,
 } from '@mui/material';
 import { ArrowBack, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import api from '../../../src/services/api';
 import { useAuth } from '../../../src/services/auth';
+import SearchableSelect from '../../../src/components/SearchableSelect';
 
 export default function CaseDetailsPage() {
   const { t } = useTranslation();
@@ -260,29 +257,29 @@ export default function CaseDetailsPage() {
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>{t('cases.status')}: </Typography>
                 <Chip label={t(`cases.statuses.${['new','inprogress','awaitinghearing','closed','won','lost'][data.Case.Status]}`) || ['New','In Progress','Awaiting Hearing','Closed','Won','Lost'][data.Case.Status]} size="small" color="default" variant="outlined" />
                 {hasAnyRole('Admin', 'Employee') && (
-                  <FormControl size="small" sx={{ ml: 1, minWidth: 160 }}>
-                    <InputLabel id="case-status-label">{t('cases.status')}</InputLabel>
-                    <Select
-                      labelId="case-status-label"
-                      value={data.Case.Status ?? 0}
-                      label={t('cases.status')}
-                      onChange={async (e) => {
-                        const newStatus = Number(e.target.value);
+                  <SearchableSelect<number>
+                    size="small"
+                    label={t('cases.status')}
+                    value={data.Case.Status ?? 0}
+                    onChange={async (value) => {
+                        const newStatus = Number(value ?? 0);
                         try {
                           await api.post(`/Cases/${code}/status`, { status: ['New','InProgress','AwaitingHearing','Closed','Won','Lost'][newStatus] });
                           setSnackbar({ open: true, message: 'Status updated', severity: 'success' });
                           await load();
                         } catch (err:any) { setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update status', severity:'error' }); }
-                      }}
-                    >
-                      <MenuItem value={0} disabled={!allowedNextValues.has(0)}>{t('cases.statuses.new')}</MenuItem>
-                      <MenuItem value={1} disabled={!allowedNextValues.has(1)}>{t('cases.statuses.inprogress')}</MenuItem>
-                      <MenuItem value={2} disabled={!allowedNextValues.has(2)}>{t('cases.statuses.awaitinghearing')}</MenuItem>
-                      <MenuItem value={3} disabled={!allowedNextValues.has(3)}>{t('cases.statuses.closed')}</MenuItem>
-                      <MenuItem value={4} disabled={!allowedNextValues.has(4)}>{t('cases.statuses.won')}</MenuItem>
-                      <MenuItem value={5} disabled={!allowedNextValues.has(5)}>{t('cases.statuses.lost')}</MenuItem>
-                    </Select>
-                  </FormControl>
+                    }}
+                    options={[
+                      { value: 0, label: t('cases.statuses.new'), disabled: !allowedNextValues.has(0) },
+                      { value: 1, label: t('cases.statuses.inprogress'), disabled: !allowedNextValues.has(1) },
+                      { value: 2, label: t('cases.statuses.awaitinghearing'), disabled: !allowedNextValues.has(2) },
+                      { value: 3, label: t('cases.statuses.closed'), disabled: !allowedNextValues.has(3) },
+                      { value: 4, label: t('cases.statuses.won'), disabled: !allowedNextValues.has(4) },
+                      { value: 5, label: t('cases.statuses.lost'), disabled: !allowedNextValues.has(5) },
+                    ]}
+                    disableClearable
+                    sx={{ ml: 1, minWidth: 160 }}
+                  />
                 )}
               </Box>
 
@@ -300,13 +297,13 @@ export default function CaseDetailsPage() {
                   <TextField label={t('cases.amount')} type="number" value={editFields.totalAmount ?? ''} onChange={(e)=>setEditFields({...editFields, totalAmount: Number(e.target.value)})} />
                   <TextField label={t('cases.notes')} value={editFields.notes} onChange={(e)=>setEditFields({...editFields, notes: e.target.value})} multiline rows={2} />
 
-                  <FormControl fullWidth>
-                    <InputLabel>{t('courts.name')}</InputLabel>
-                    <Select value={selectedCourtToSet} label={t('courts.name')} onOpen={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []); } }} onChange={(e)=>setSelectedCourtToSet(Number(e.target.value) || '')}>
-                      <MenuItem value=""><em>--</em></MenuItem>
-                      {courtsList.map(c=> (<MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>))}
-                    </Select>
-                  </FormControl>
+                  <SearchableSelect<number>
+                    label={t('courts.name')}
+                    value={typeof selectedCourtToSet === 'number' ? selectedCourtToSet : null}
+                    onOpen={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []); } }}
+                    onChange={(value)=>setSelectedCourtToSet(value ?? '')}
+                    options={courtsList.map((c)=> ({ value: c.id, label: c.name }))}
+                  />
                 </Box>
               )}
             </CardContent></Card>
@@ -452,13 +449,16 @@ export default function CaseDetailsPage() {
       <Dialog open={addCustomerOpen} onClose={()=>setAddCustomerOpen(false)}>
         <DialogTitle>{t('customers.add') || 'Add Customer to Case'}</DialogTitle>
         <DialogContent>
-          <FormControl fullWidth sx={{ mt:1 }}>
-            <InputLabel>{t('customers.customer')}</InputLabel>
-            <Select value={selectedCustomerToAdd} onChange={(e)=>setSelectedCustomerToAdd(Number(e.target.value) || '')}>
-              <MenuItem value=""><em>--</em></MenuItem>
-              {customersList.map(c => (<MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.user?.fullName || '-'}</MenuItem>))}
-            </Select>
-          </FormControl>
+          <SearchableSelect<number>
+            label={t('customers.customer')}
+            value={typeof selectedCustomerToAdd === 'number' ? selectedCustomerToAdd : null}
+            onChange={(value)=>setSelectedCustomerToAdd(value ?? '')}
+            options={customersList.map((c) => ({
+              value: c.id,
+              label: c.identity?.fullName || c.user?.fullName || '-',
+            }))}
+            sx={{ mt:1 }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={()=>setAddCustomerOpen(false)}>{t('app.cancel')}</Button>
@@ -543,13 +543,16 @@ export default function CaseDetailsPage() {
       <Dialog open={assignEmployeeOpen} onClose={()=>setAssignEmployeeOpen(false)}>
         <DialogTitle>{t('employees.add') || 'Assign Employee'}</DialogTitle>
         <DialogContent>
-          <FormControl fullWidth>
-            <InputLabel>{t('employees.employee') || 'Employee'}</InputLabel>
-            <Select value={selectedEmployeeToAdd} onChange={(e)=>setSelectedEmployeeToAdd(Number(e.target.value) || '')} onOpen={async ()=>{ if(employeesList.length===0){ const r = await api.get('/Employees'); setEmployeesList(r.data || []);} }}>
-              <MenuItem value=""><em>--</em></MenuItem>
-              {employeesList.map(emp=> (<MenuItem key={emp.id} value={emp.id}>{emp.user?.fullName || emp.user?.userName}</MenuItem>))}
-            </Select>
-          </FormControl>
+          <SearchableSelect<number>
+            label={t('employees.employee') || 'Employee'}
+            value={typeof selectedEmployeeToAdd === 'number' ? selectedEmployeeToAdd : null}
+            onChange={(value)=>setSelectedEmployeeToAdd(value ?? '')}
+            onOpen={async ()=>{ if(employeesList.length===0){ const r = await api.get('/Employees'); setEmployeesList(r.data || []);} }}
+            options={employeesList.map((emp)=> ({
+              value: emp.id,
+              label: emp.user?.fullName || emp.user?.userName,
+            }))}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={()=>setAssignEmployeeOpen(false)}>{t('app.cancel')}</Button>

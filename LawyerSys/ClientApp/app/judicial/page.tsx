@@ -15,6 +15,7 @@ import {
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type JudicialDocDto = { id: number; docType: string; docNum: number; docDetails: string; notes: string; numOfAgent: number; customerId: number; customerName?: string };
 type CustomerItem = { id: number; usersId: number; identity?: { fullName?: string; email?: string } };
@@ -198,19 +199,24 @@ export default function JudicialDocumentsPage() {
           showFirstButton
           showLastButton
         />
-        <FormControl size="small" sx={{ minWidth: 90 }}>
-          <InputLabel id="pagesize-label">/page</InputLabel>
-          <Select
-            labelId="pagesize-label"
-            value={pageSize}
-            label="/page"
-            onChange={(e) => { const ps = Number(e.target.value); setPageSize(ps); setPage(1); load(1); }}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-          </Select>
-        </FormControl>
+        <SearchableSelect<number>
+          size="small"
+          label="/page"
+          value={pageSize}
+          onChange={(value) => {
+            const ps = value ?? 10;
+            setPageSize(ps);
+            setPage(1);
+            load(1);
+          }}
+          options={[
+            { value: 5, label: '5' },
+            { value: 10, label: '10' },
+            { value: 20, label: '20' },
+          ]}
+          disableClearable
+          sx={{ minWidth: 90 }}
+        />
       </Box>
 
       {/* Create/Edit Dialog */}
@@ -224,13 +230,15 @@ export default function JudicialDocumentsPage() {
             <TextField fullWidth label={t('judicial.docNumber')} type="number" value={form.docNum} onChange={(e) => setForm({ ...form, docNum: Number(e.target.value) })} variant="outlined" />
             <TextField fullWidth label={t('judicial.agentNumber')} type="number" value={form.numOfAgent} onChange={(e) => setForm({ ...form, numOfAgent: Number(e.target.value) })} variant="outlined" />
             {!editItem && (
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>{t('judicial.customer')}</InputLabel>
-                <Select value={form.customerId} onChange={(e) => setForm({ ...form, customerId: Number(e.target.value) })} label={t('judicial.customer')}>
-                  <MenuItem value={0}>-</MenuItem>
-                  {customers.map((c) => <MenuItem key={c.id} value={c.id}>{c.identity?.fullName || c.identity?.email || '-'}</MenuItem>)}
-                </Select>
-              </FormControl>
+              <SearchableSelect
+                label={t('judicial.customer')}
+                value={form.customerId}
+                onChange={(value) => setForm({ ...form, customerId: Number(value || 0) })}
+                options={[
+                  { value: 0, label: '-' },
+                  ...customers.map((c) => ({ value: c.id, label: c.identity?.fullName || c.identity?.email || '-' })),
+                ]}
+              />
             )}
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField fullWidth label={t('judicial.details')} value={form.docDetails} onChange={(e) => setForm({ ...form, docDetails: e.target.value })} variant="outlined" multiline rows={3} />

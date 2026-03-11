@@ -7,11 +7,7 @@ import {
   Card,
   CardContent,
   Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
   Pagination,
-  Select,
   Stack,
   Table,
   TableBody,
@@ -22,6 +18,7 @@ import {
   Typography,
 } from '@mui/material';
 import api from '../../src/services/api';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type AuditLogItem = {
   id: number;
@@ -91,24 +88,34 @@ export default function AuditLogsPage() {
               }}
             />
 
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel>Action</InputLabel>
-              <Select value={action} label="Action" onChange={(e) => setAction(String(e.target.value))}>
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Create">Create</MenuItem>
-                <MenuItem value="Update">Update</MenuItem>
-                <MenuItem value="Delete">Delete</MenuItem>
-              </Select>
-            </FormControl>
+            <SearchableSelect<string>
+              size="small"
+              label="Action"
+              value={action}
+              onChange={(value) => setAction(value ?? '')}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'Create', label: 'Create' },
+                { value: 'Update', label: 'Update' },
+                { value: 'Delete', label: 'Delete' },
+              ]}
+              disableClearable
+              sx={{ minWidth: 160 }}
+            />
 
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Page Size</InputLabel>
-              <Select value={pageSize} label="Page Size" onChange={(e) => setPageSize(Number(e.target.value))}>
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={20}>20</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              size="small"
+              label="Page Size"
+              value={pageSize}
+              onChange={(value) => setPageSize(value ?? 20)}
+              options={[
+                { value: 10, label: '10' },
+                { value: 20, label: '20' },
+                { value: 50, label: '50' },
+              ]}
+              disableClearable
+              sx={{ minWidth: 120 }}
+            />
           </Stack>
         </CardContent>
       </Card>

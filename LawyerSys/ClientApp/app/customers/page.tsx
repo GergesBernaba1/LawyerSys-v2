@@ -24,10 +24,6 @@ import {
   Alert,
   Snackbar,
   Tooltip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Avatar,
   useTheme,
   TextField,
@@ -53,6 +49,7 @@ import api from '../../src/services/api';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type IdentityDto = { id: string; userName?: string; email?: string; fullName?: string; requiresPasswordReset?: boolean };
 type Customer = {
@@ -606,20 +603,13 @@ export default function CustomersPageClient() {
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
             {isSuperAdmin && (
-              <TextField
-                select
+              <SearchableSelect<number>
                 label={t('app.tenant')}
-                value={selectedTenantId}
-                onChange={(e) => setSelectedTenantId(e.target.value === '' ? '' : Number(e.target.value))}
-                fullWidth
-                variant="outlined"
-              >
-                {tenants.map((tenant) => (
-                  <MenuItem key={tenant.id} value={tenant.id}>
-                    {tenant.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                value={typeof selectedTenantId === 'number' ? selectedTenantId : null}
+                onChange={(value) => setSelectedTenantId(value ?? '')}
+                options={tenants.map((tenant) => ({ value: tenant.id, label: tenant.name }))}
+                disableClearable
+              />
             )}
             <TextField 
               label={t('customers.fullName')} 
@@ -839,21 +829,18 @@ export default function CustomersPageClient() {
               InputLabelProps={{ shrink: true }}
               variant="outlined"
             />
-            <FormControl fullWidth>
-              <InputLabel>{t('customers.selectUser')}</InputLabel>
-              <Select
-                label={t('customers.selectUser')}
-                value={editForm.usersId ? String(editForm.usersId) : ''}
-                onChange={(e) => setEditForm({ ...editForm, usersId: Number(e.target.value) })}
-                disabled={loadingUsers}
-              >
-                {usersOptions.map((u) => (
-                  <MenuItem key={u.id} value={String(u.id)}>
-                    {u.fullName || u.userName || `#${u.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t('customers.selectUser')}
+              value={editForm.usersId || null}
+              onChange={(value) => setEditForm({ ...editForm, usersId: value ?? 0 })}
+              disabled={loadingUsers}
+              loading={loadingUsers}
+              options={usersOptions.map((u) => ({
+                value: u.id,
+                label: u.fullName || u.userName || `#${u.id}`,
+                keywords: [u.userName || ''],
+              }))}
+            />
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
@@ -955,44 +942,43 @@ export default function CustomersPageClient() {
                             </Typography>
                           </Box>
                           <Box sx={{ minWidth: 200 }}>
-                            <FormControl fullWidth size="small">
-                              <InputLabel>{t('customers.assignEmployee')}</InputLabel>
-                              <Select 
-                                label={t('customers.assignEmployee')}
-                                defaultValue="" 
-                                onOpen={async ()=>{ 
-                                  if(employees.length===0){ 
-                                    const r = await api.get('/Employees');
-                                    const source = Array.isArray(r.data) ? r.data : (Array.isArray(r.data?.items) ? r.data.items : []);
-                                    const mappedEmployees = source.map((emp: any) => ({
-                                      id: Number(firstDefined(emp.id, emp.Id, 0)),
-                                      user: firstDefined(emp.user, emp.User),
-                                      identity: normalizeIdentity(firstDefined(emp.identity, emp.Identity)),
-                                    }));
-                                    setEmployees(mappedEmployees);
-                                  } 
-                                }} 
-                                onChange={async (e)=>{
-                                  try{
-                                    const empId = Number(e.target.value);
-                                    const prevEmployeeId = c.assignedEmployee?.id ?? null;
-                                    await api.post(`/Cases/${c.code}/assign-employee`, { employeeId: empId });
-                                    const r = await api.get(`/Customers/${profile.id}/profile`);
-                                    setProfile(normalizeProfile(r.data));
-                                    load();
-                                    setSnackbar({ open: true, message: t('customers.assignmentSuccess'), severity: 'success' });
-                                    setAssignmentUndo({ caseCode: c.code, prevEmployeeId: prevEmployeeId });
-                                  }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedAssign'), severity: 'error' }); }
-                                }}
-                                sx={{ borderRadius: 2 }}
-                              >
-                                {employees.map(emp => (
-                                  <MenuItem key={emp.id} value={emp.id}>
-                                    {emp.identity?.fullName || emp.user?.fullName || emp.user?.FullName || emp.user?.userName || emp.user?.UserName || '-'}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
+                            <SearchableSelect<number>
+                              size="small"
+                              label={t('customers.assignEmployee')}
+                              value={null}
+                              onOpen={async ()=>{ 
+                                if(employees.length===0){ 
+                                  const r = await api.get('/Employees');
+                                  const source = Array.isArray(r.data) ? r.data : (Array.isArray(r.data?.items) ? r.data.items : []);
+                                  const mappedEmployees = source.map((emp: any) => ({
+                                    id: Number(firstDefined(emp.id, emp.Id, 0)),
+                                    user: firstDefined(emp.user, emp.User),
+                                    identity: normalizeIdentity(firstDefined(emp.identity, emp.Identity)),
+                                  }));
+                                  setEmployees(mappedEmployees);
+                                } 
+                              }}
+                              onChange={async (value)=>{
+                                if (!value) {
+                                  return;
+                                }
+                                try{
+                                  const prevEmployeeId = c.assignedEmployee?.id ?? null;
+                                  await api.post(`/Cases/${c.code}/assign-employee`, { employeeId: value });
+                                  const r = await api.get(`/Customers/${profile.id}/profile`);
+                                  setProfile(normalizeProfile(r.data));
+                                  load();
+                                  setSnackbar({ open: true, message: t('customers.assignmentSuccess'), severity: 'success' });
+                                  setAssignmentUndo({ caseCode: c.code, prevEmployeeId: prevEmployeeId });
+                                }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedAssign'), severity: 'error' }); }
+                              }}
+                              options={employees.map((emp) => ({
+                                value: emp.id,
+                                label: emp.identity?.fullName || emp.user?.fullName || emp.user?.FullName || emp.user?.userName || emp.user?.UserName || '-',
+                                keywords: [emp.user?.userName || emp.user?.UserName || ''],
+                              }))}
+                              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                            />
                           </Box>
                         </Box>
                       </Paper>

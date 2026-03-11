@@ -29,6 +29,7 @@ import {
 import { useAuth } from '../../src/services/auth';
 import { useTranslation } from 'react-i18next';
 import api from '../../src/services/api';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type CountryOption = {
   id: number;
@@ -422,17 +423,16 @@ export default function RegisterPage() {
                   },
                 }}
               />
-              <TextField
-                margin="dense"
+              <SearchableSelect
+                label={t('register.country', { defaultValue: 'Country' })}
+                value={countryId}
+                onChange={(value) => setCountryId(value === null || value === '' ? '' : Number(value))}
+                options={[
+                  { value: '', label: t('register.selectCountry', { defaultValue: 'Select country' }) },
+                  ...countries.map((country) => ({ value: country.id, label: country.name })),
+                ]}
                 size="small"
                 required
-                fullWidth
-                select
-                id="countryId"
-                label={t('register.country', { defaultValue: 'Country' })}
-                name="countryId"
-                value={countryId}
-                onChange={(e) => setCountryId(e.target.value === '' ? '' : Number(e.target.value))}
                 sx={{
                   ...fieldSx,
                   '& .MuiOutlinedInput-root': {
@@ -440,16 +440,7 @@ export default function RegisterPage() {
                     backgroundColor: '#ffffff',
                   },
                 }}
-              >
-                <MenuItem value="">
-                  {t('register.selectCountry', { defaultValue: 'Select country' })}
-                </MenuItem>
-                {countries.map((country) => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
               <TextField
                 margin="dense"
                 size="small"

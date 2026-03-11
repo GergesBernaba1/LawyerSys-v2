@@ -26,6 +26,7 @@ import {
 import { Gavel as GavelIcon, Download as DownloadIcon, Refresh as RefreshIcon } from "@mui/icons-material";
 import api from "../../src/services/api";
 import { useTranslation } from "react-i18next";
+import SearchableSelect from "../../src/components/SearchableSelect";
 
 type CourtForm = { key: string; name: string; description: string };
 type DeadlineRule = { key: string; name: string; description: string; offsetDays: number; anchor: string };
@@ -240,14 +241,15 @@ export default function CourtAutomationPage() {
           <Typography variant="body2" color="text.secondary">{t("courtAutomation.subtitle")}</Typography>
         </Box>
         <Stack direction="row" spacing={1.25}>
-          <FormControl size="small" sx={{ minWidth: 320 }}>
-            <InputLabel>{t("courtAutomation.pack")}</InputLabel>
-            <Select value={packKey} label={t("courtAutomation.pack")} onChange={(e) => setPackKey(String(e.target.value))}>
-              {packs.map((p) => (
-                <MenuItem key={p.key} value={p.key}>{p.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <SearchableSelect<string>
+            size="small"
+            label={t("courtAutomation.pack")}
+            value={packKey}
+            onChange={(value) => setPackKey(value ?? "")}
+            options={packs.map((p) => ({ value: p.key, label: p.name }))}
+            disableClearable
+            sx={{ minWidth: 320 }}
+          />
           <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => void loadPackDetails(packKey)} disabled={!packKey}>
             {t("common.refresh")}
           </Button>
@@ -317,22 +319,28 @@ export default function CourtAutomationPage() {
               <Typography variant="h6" sx={{ mb: 1 }}>{t("courtAutomation.formGeneration")}</Typography>
               <Grid container spacing={1.5}>
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>{t("courtAutomation.form")}</InputLabel>
-                    <Select value={formKey} label={t("courtAutomation.form")} onChange={(e) => setFormKey(String(e.target.value))}>
-                      {(pack?.forms || []).map((f) => <MenuItem key={f.key} value={f.key}>{f.name}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                  <SearchableSelect<string>
+                    size="small"
+                    label={t("courtAutomation.form")}
+                    value={formKey}
+                    onChange={(value) => setFormKey(value ?? "")}
+                    options={(pack?.forms || []).map((f) => ({ value: f.key, label: f.name }))}
+                    disableClearable
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" label={t("billing.customer")} value={customerId} onChange={(e) => setCustomerId(e.target.value)} /></Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>{t("courtAutomation.format")}</InputLabel>
-                    <Select value={format} label={t("courtAutomation.format")} onChange={(e) => setFormat(String(e.target.value) as "txt" | "pdf")}>
-                      <MenuItem value="pdf">PDF</MenuItem>
-                      <MenuItem value="txt">TXT</MenuItem>
-                    </Select>
-                  </FormControl>
+                  <SearchableSelect<"txt" | "pdf">
+                    size="small"
+                    label={t("courtAutomation.format")}
+                    value={format}
+                    onChange={(value) => setFormat((value ?? "pdf") as "txt" | "pdf")}
+                    options={[
+                      { value: "pdf", label: "PDF" },
+                      { value: "txt", label: "TXT" },
+                    ]}
+                    disableClearable
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, md: 3 }}><TextField fullWidth size="small" label={t("courtAutomation.subject")} value={subject} onChange={(e) => setSubject(e.target.value)} /></Grid>
                 <Grid size={{ xs: 12, md: 2 }}><Button fullWidth variant="outlined" startIcon={<DownloadIcon />} onClick={() => void generateForm()}>{t("courtAutomation.generateForm")}</Button></Grid>
@@ -352,12 +360,14 @@ export default function CourtAutomationPage() {
               <Typography variant="h6" sx={{ mb: 1 }}>{t("courtAutomation.filingIntegrations")}</Typography>
               <Grid container spacing={1.5} sx={{ mb: 1.25 }}>
                 <Grid size={{ xs: 12, md: 3 }}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>{t("courtAutomation.channel")}</InputLabel>
-                    <Select value={filingChannel} label={t("courtAutomation.channel")} onChange={(e) => setFilingChannel(String(e.target.value))}>
-                      {(pack?.filingChannels || []).map((ch) => <MenuItem key={ch} value={ch}>{ch}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                  <SearchableSelect<string>
+                    size="small"
+                    label={t("courtAutomation.channel")}
+                    value={filingChannel}
+                    onChange={(value) => setFilingChannel(value ?? "")}
+                    options={(pack?.filingChannels || []).map((ch) => ({ value: ch, label: ch }))}
+                    disableClearable
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" label={t("courts.name")} value={courtId} onChange={(e) => setCourtId(e.target.value)} /></Grid>
                 <Grid size={{ xs: 12, md: 2 }}><TextField fullWidth size="small" type="date" label={t("courtAutomation.dueDate")} value={dueDate} onChange={(e) => setDueDate(e.target.value)} InputLabelProps={{ shrink: true }} /></Grid>

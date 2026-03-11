@@ -5,7 +5,7 @@ import {
   Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Skeleton,
   Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar,
-  Tooltip, TextField, MenuItem, useTheme,
+  Tooltip, TextField, useTheme,
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -15,6 +15,7 @@ import {
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type UserDto = { id: number; fullName: string; address?: string; job: string; phoneNumber: string; dateOfBirth: string; ssn: string; userName: string };
 type TenantOption = { id: number; name: string; isActive: boolean };
@@ -211,20 +212,13 @@ export default function UsersPage() {
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
             {!editItem && isSuperAdmin && (
-              <TextField
-                select
-                fullWidth
+              <SearchableSelect<number>
                 label={t('app.tenant')}
-                value={selectedTenantId}
-                onChange={(e) => setSelectedTenantId(e.target.value === '' ? '' : Number(e.target.value))}
-                variant="outlined"
-              >
-                {tenants.map((tenant) => (
-                  <MenuItem key={tenant.id} value={tenant.id}>
-                    {tenant.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                value={typeof selectedTenantId === 'number' ? selectedTenantId : null}
+                onChange={(value) => setSelectedTenantId(value ?? '')}
+                options={tenants.map((tenant) => ({ value: tenant.id, label: tenant.name }))}
+                disableClearable
+              />
             )}
             <TextField fullWidth label={t('users.fullName')} value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} variant="outlined" />
             {!editItem && <TextField fullWidth label={t('users.userName')} value={form.userName} onChange={(e) => setForm({ ...form, userName: e.target.value })} variant="outlined" />}

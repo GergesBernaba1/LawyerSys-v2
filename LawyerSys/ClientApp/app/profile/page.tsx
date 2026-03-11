@@ -17,6 +17,7 @@ import {
 import { Lock as LockIcon, Person as PersonIcon } from "@mui/icons-material";
 import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
+import SearchableSelect from "../../src/components/SearchableSelect";
 
 type MyProfile = {
   userName: string;
@@ -256,27 +257,20 @@ export default function ProfilePage() {
                 onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
                 fullWidth
               />
-              <TextField
-                select
+              <SearchableSelect
                 label={t("profile.country", { defaultValue: "Country" })}
                 value={profile.countryId ?? ""}
-                onChange={(e) =>
+                onChange={(value) =>
                   setProfile({
                     ...profile,
-                    countryId: e.target.value === "" ? null : Number(e.target.value),
+                    countryId: value === null || value === "" ? null : Number(value),
                   })
                 }
-                fullWidth
-              >
-                <MenuItem value="">
-                  {t("profile.selectCountry", { defaultValue: "Select country" })}
-                </MenuItem>
-                {countries.map((country) => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                options={[
+                  { value: "", label: t("profile.selectCountry", { defaultValue: "Select country" }) },
+                  ...countries.map((country) => ({ value: country.id, label: country.name })),
+                ]}
+              />
               {canEditTenant && profile.canManageTenant && (
                 <>
                   <TextField

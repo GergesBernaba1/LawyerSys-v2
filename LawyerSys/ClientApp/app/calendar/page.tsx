@@ -7,14 +7,11 @@ import {
   Card,
   CardContent,
   Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
   Typography,
 } from '@mui/material';
 import api from '../../src/services/api';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type CalendarEvent = {
   id: string;
@@ -84,34 +81,37 @@ export default function CalendarPage() {
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'center' }}>
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel>View</InputLabel>
-              <Select value={view} label="View" onChange={(e) => setView(e.target.value as 'month' | 'week')}>
-                <MenuItem value="month">Monthly</MenuItem>
-                <MenuItem value="week">Weekly</MenuItem>
-              </Select>
-            </FormControl>
+            <SearchableSelect<'month' | 'week'>
+              size="small"
+              label="View"
+              value={view}
+              onChange={(value) => setView((value ?? 'month') as 'month' | 'week')}
+              options={[
+                { value: 'month', label: 'Monthly' },
+                { value: 'week', label: 'Weekly' },
+              ]}
+              disableClearable
+              sx={{ minWidth: 180 }}
+            />
 
-            <FormControl size="small" sx={{ minWidth: 220 }}>
-              <InputLabel>Month</InputLabel>
-              <Select
-                value={`${anchorDate.getFullYear()}-${anchorDate.getMonth()}`}
-                label="Month"
-                onChange={(e) => {
-                  const [year, month] = String(e.target.value).split('-').map(Number);
-                  setAnchorDate(new Date(year, month, 1));
-                }}
-              >
-                {Array.from({ length: 12 }, (_, i) => {
-                  const d = new Date(new Date().getFullYear(), i, 1);
-                  return (
-                    <MenuItem key={i} value={`${d.getFullYear()}-${d.getMonth()}`}>
-                      {d.toLocaleString(undefined, { month: 'long', year: 'numeric' })}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
+            <SearchableSelect<string>
+              size="small"
+              label="Month"
+              value={`${anchorDate.getFullYear()}-${anchorDate.getMonth()}`}
+              onChange={(value) => {
+                const [year, month] = String(value ?? `${anchorDate.getFullYear()}-${anchorDate.getMonth()}`).split('-').map(Number);
+                setAnchorDate(new Date(year, month, 1));
+              }}
+              options={Array.from({ length: 12 }, (_, i) => {
+                const d = new Date(new Date().getFullYear(), i, 1);
+                return {
+                  value: `${d.getFullYear()}-${d.getMonth()}`,
+                  label: d.toLocaleString(undefined, { month: 'long', year: 'numeric' }),
+                };
+              })}
+              disableClearable
+              sx={{ minWidth: 220 }}
+            />
 
             <Typography color="text.secondary">
               {range.from.toLocaleDateString()} - {range.to.toLocaleDateString()}

@@ -15,12 +15,13 @@ import {
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
+import SearchableSelect from '../../src/components/SearchableSelect';
 
 type GovernmentDto = { id: number; govName: string };
 type CourtDto = { id: number; name: string; address: string; telephone: string; notes: string; govId: number; governmentName?: string };
 
 export default function CourtsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
   const { isAuthenticated } = useAuth();
@@ -37,7 +38,12 @@ export default function CourtsPage() {
   async function load() {
     setLoading(true);
     try {
-      const [courtsRes, govsRes] = await Promise.all([api.get('/Courts'), api.get('/Governments')]);
+      const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
+      const requestConfig = { headers: { 'Accept-Language': language } };
+      const [courtsRes, govsRes] = await Promise.all([
+        api.get('/Courts', requestConfig),
+        api.get('/Courts/government-options', requestConfig),
+      ]);
       setItems(courtsRes.data || []);
       setGovernments(govsRes.data || []);
     } catch {
@@ -47,7 +53,10 @@ export default function CourtsPage() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    void load();
+  }, [isAuthenticated, i18n.language, i18n.resolvedLanguage]);
 
   function openCreate() {
     setEditItem(null);
@@ -57,6 +66,11 @@ export default function CourtsPage() {
 
   function openEdit(item: CourtDto) {
     setEditItem(item);
+    setGovernments((current) =>
+      current.some((government) => government.id === item.govId)
+        ? current
+        : [...current, { id: item.govId, govName: item.governmentName || '' }]
+    );
     setForm({ name: item.name, address: item.address, telephone: item.telephone, notes: item.notes, govId: item.govId });
     setOpenDialog(true);
   }
@@ -124,7 +138,7 @@ export default function CourtsPage() {
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('courts.name')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('courts.address')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('courts.telephone')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('courts.government')}</TableCell>
+                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('courts.city', { defaultValue: t('courts.government') })}</TableCell>
                 <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>
               </TableRow>
             </TableHead>
@@ -182,13 +196,16 @@ export default function CourtsPage() {
             <TextField fullWidth label={t('courts.name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} variant="outlined" />
             <TextField fullWidth label={t('courts.address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} variant="outlined" />
             <TextField fullWidth label={t('courts.telephone')} value={form.telephone} onChange={(e) => setForm({ ...form, telephone: e.target.value })} variant="outlined" />
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>{t('courts.government')}</InputLabel>
-              <Select value={form.govId} onChange={(e) => setForm({ ...form, govId: Number(e.target.value) })} label={t('courts.government')}>
-                <MenuItem value={0}>-</MenuItem>
-                {governments.map((g) => <MenuItem key={g.id} value={g.id}>{g.govName}</MenuItem>)}
-              </Select>
-            </FormControl>
+            <SearchableSelect<number>
+              label={t('courts.city', { defaultValue: t('courts.government') })}
+              value={form.govId || 0}
+              onChange={(value) => setForm({ ...form, govId: value ?? 0 })}
+              options={[
+                { value: 0, label: '-' },
+                ...governments.map((g) => ({ value: g.id, label: g.govName })),
+              ]}
+              disableClearable
+            />
             <TextField fullWidth label={t('courts.notes')} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} variant="outlined" multiline rows={3} />
           </Box>
         </DialogContent>

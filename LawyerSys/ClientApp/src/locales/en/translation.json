@@ -357,6 +357,7 @@
                    "address":  "Address",
                    "telephone":  "Telephone",
                    "government":  "Governorate",
+                   "city":  "City",
                    "notes":  "Notes",
                    "newCourt":  "New Court",
                    "createNew":  "Create New Court",
