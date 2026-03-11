@@ -19,4 +19,54 @@
 <p><strong>الرقم القومي:</strong> {SSN}</p>
 <p>يرجى تغيير كلمة المرور عند أول تسجيل دخول. إذا لم تطلب هذا الحساب، اتصل بالدعم.</p>]]></value>
   </data>
+  <data name="RegistrationNotificationSubject" xml:space="preserve">
+    <value>تسجيل جديد في قضايا بانتظار التفعيل</value>
+  </data>
+  <data name="RegistrationNotificationBody" xml:space="preserve">
+    <value><![CDATA[<div style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.9;direction:rtl;text-align:right">
+<h2 style="margin-bottom:8px;color:#0f172a;">تسجيل جديد بانتظار التفعيل</h2>
+<p style="margin-top:0;">تم تسجيل مسؤول جهة جديد وهو بانتظار تفعيل الحساب من السوبر أدمن.</p>
+<table style="border-collapse:collapse;width:100%;max-width:720px;">
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>الاسم الكامل</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{FullName}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>اسم المستخدم</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{UserName}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>البريد الإلكتروني</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Email}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>اسم المكتب</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficeName}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>هاتف المكتب</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficePhone}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>الدولة</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Country}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>رقم الجهة</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{TenantId}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>وقت التسجيل UTC</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{RegisteredAtUtc}</td></tr>
+</table>
+<p style="margin-top:16px;">يرجى مراجعة الحساب وتفعيله من شاشة الإدارة عند الجاهزية.</p>
+</div>]]></value>
+  </data>
+  <data name="RegistrationPendingActivationMessage" xml:space="preserve">
+    <value>تم إكمال التسجيل. حسابك بانتظار التفعيل من مسؤول النظام.</value>
+  </data>
+  <data name="AccountPendingActivationMessage" xml:space="preserve">
+    <value>حسابك غير مفعل حتى الآن. يرجى التواصل مع مسؤول النظام لتفعيل الحساب.</value>
+  </data>
+  <data name="PasswordResetRequiredMessage" xml:space="preserve">
+    <value>إعادة تعيين كلمة المرور مطلوبة. يرجى إعادة تعيين كلمة المرور قبل تسجيل الدخول.</value>
+  </data>
+  <data name="AccountTenantMissingMessage" xml:space="preserve">
+    <value>الحساب غير مرتبط بجهة.</value>
+  </data>
+  <data name="TenantInactiveMessage" xml:space="preserve">
+    <value>الجهة الخاصة بك غير مفعلة. يرجى التواصل مع مسؤول النظام.</value>
+  </data>
+  <data name="RegistrationFieldUserName" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="RegistrationFieldEmail" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="RegistrationFieldPhone" xml:space="preserve">
+    <value>رقم الهاتف</value>
+  </data>
+  <data name="RegistrationFieldAlreadyUsedMessage" xml:space="preserve">
+    <value>قيمة {0} مستخدمة من قبل.</value>
+  </data>
+  <data name="RegistrationFieldsAlreadyUsedMessage" xml:space="preserve">
+    <value>الحقول التالية مستخدمة من قبل: {0}.</value>
+  </data>
 </root>

@@ -129,6 +129,7 @@
                      "signUp":  "Sign Up",
                      "passwordMismatch":  "Passwords do not match",
                      "accountCreated":  "Account created successfully! Redirecting to login...",
+                     "pendingActivation":  "Registration completed. Your account is pending activation by the system administrator.",
                      "registrationFailed":  "Registration failed. Please try again.",
                      "haveAccount":  "Already have an account? Sign in"
                  },

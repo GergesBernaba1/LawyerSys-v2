@@ -53,11 +53,11 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    const success = await login(userName, password);
-    if (success) {
+    const result = await login(userName, password);
+    if (result.success) {
       router.replace('/dashboard');
     } else {
-      setError(t('login.invalidCredentials') || 'Invalid credentials');
+      setError(result.message || t('login.invalidCredentials') || 'Invalid credentials');
     }
     setLoading(false);
   };

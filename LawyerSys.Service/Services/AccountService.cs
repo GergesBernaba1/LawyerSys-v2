@@ -7,6 +7,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using LawyerSys.Resources;
 
 namespace LawyerSys.Services
 {
@@ -15,15 +17,18 @@ namespace LawyerSys.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration,
-            ApplicationDbContext applicationDbContext)
+            ApplicationDbContext applicationDbContext,
+            IStringLocalizer<SharedResource> localizer)
         {
             _userManager = userManager;
             _configuration = configuration;
             _applicationDbContext = applicationDbContext;
+            _localizer = localizer;
         }
 
         public async Task<(string Token, DateTime Expires)> LoginAsync(LoginRequest model)
@@ -38,12 +43,12 @@ namespace LawyerSys.Services
 
             if (user.RequiresPasswordReset)
             {
-                throw new InvalidOperationException("Password reset required. Please reset your password before logging in.");
+                throw new InvalidOperationException(_localizer["PasswordResetRequiredMessage"].Value);
             }
 
             if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
             {
-                throw new InvalidOperationException("Account is disabled. Contact an administrator.");
+                throw new InvalidOperationException(_localizer["AccountPendingActivationMessage"].Value);
             }
 
             var valid = await _userManager.CheckPasswordAsync(user, model.Password);
@@ -54,12 +59,12 @@ namespace LawyerSys.Services
                 .SingleOrDefaultAsync(t => t.Id == user.TenantId);
             if (tenant == null)
             {
-                throw new InvalidOperationException("Account is not linked to a tenant.");
+                throw new InvalidOperationException(_localizer["AccountTenantMissingMessage"].Value);
             }
 
             if (!tenant.IsActive)
             {
-                throw new InvalidOperationException("Your tenant is inactive. Contact the system administrator.");
+                throw new InvalidOperationException(_localizer["TenantInactiveMessage"].Value);
             }
 
             return await CreateTokenAsync(user);

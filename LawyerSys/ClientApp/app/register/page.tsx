@@ -48,6 +48,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [countries, setCountries] = useState<CountryOption[]>([]);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const { register, isAuthenticated } = useAuth();
   const router = useRouter();
@@ -96,6 +97,7 @@ export default function RegisterPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     if (password !== confirmPassword) {
       setError(t('register.passwordMismatch') || 'Passwords do not match');
@@ -119,7 +121,7 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const success = await register(
+    const result = await register(
       userName,
       email,
       password,
@@ -128,10 +130,13 @@ export default function RegisterPage() {
       lawyerOfficeName,
       lawyerOfficePhoneNumber
     );
-    if (success) {
-      router.push('/login');
+    if (result.success) {
+      setSuccessMessage(result.message || t('register.pendingActivation', { defaultValue: 'Registration completed. Your account is pending activation by the system administrator.' }));
+      setTimeout(() => {
+        router.push('/login');
+      }, 1800);
     } else {
-      setError(t('register.registrationFailed') || 'Registration failed');
+      setError(result.message || t('register.registrationFailed') || 'Registration failed');
     }
     setLoading(false);
   };
@@ -553,6 +558,11 @@ export default function RegisterPage() {
               {error && (
                 <Alert severity="error" sx={{ mt: 2, borderRadius: 1.5 }}>
                   {error}
+                </Alert>
+              )}
+              {successMessage && (
+                <Alert severity="success" sx={{ mt: 2, borderRadius: 1.5 }}>
+                  {successMessage}
                 </Alert>
               )}
               <Button

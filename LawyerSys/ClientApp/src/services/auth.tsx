@@ -17,7 +17,7 @@ interface AuthContextValue {
   token: string | null;
   user: User | null;
   isAuthInitialized: boolean;
-  login: (user: string, pass: string) => Promise<boolean>;
+  login: (user: string, pass: string) => Promise<{ success: boolean; message?: string }>;
   register: (
     user: string,
     email: string,
@@ -26,7 +26,7 @@ interface AuthContextValue {
     countryId: number,
     lawyerOfficeName: string,
     lawyerOfficePhoneNumber: string
-  ) => Promise<boolean>;
+  ) => Promise<{ success: boolean; message?: string }>;
   setAuthToken: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -166,13 +166,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('lawyersys-active-tenant-id')
         clearApiGetCache()
         setAuthState((prev) => ({ ...prev, token: t, isAuthInitialized: true }))
-        return true
+        return { success: true }
       }
       console.warn('No token in response')
-      return false
+      return { success: false }
     } catch (e: any) {
       console.error('Login error:', e.response?.data || e.message)
-      return false
+      return {
+        success: false,
+        message: e?.response?.data?.message,
+      }
     }
   }
 
@@ -186,7 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     lawyerOfficePhoneNumber: string
   ) {
     try {
-      await api.post('/Account/register', {
+      const response = await api.post('/Account/register', {
         userName,
         email,
         password: pass,
@@ -195,9 +198,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lawyerOfficeName,
         lawyerOfficePhoneNumber,
       })
-      return true
-    } catch (e) {
-      return false
+      return {
+        success: true,
+        message: response.data?.message,
+      }
+    } catch (e: any) {
+      return {
+        success: false,
+        message: e?.response?.data?.message,
+      }
     }
   }
 

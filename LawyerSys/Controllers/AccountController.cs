@@ -8,6 +8,8 @@ using Serilog;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Security.Claims;
+using Microsoft.Extensions.Localization;
+using LawyerSys.Resources;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -18,19 +20,22 @@ public class AccountController : ControllerBase
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IEmailSender _emailSender;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public AccountController(
         IAccountService accountService,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         ApplicationDbContext applicationDbContext,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IStringLocalizer<SharedResource> localizer)
     {
         _accountService = accountService;
         _userManager = userManager;
         _roleManager = roleManager;
         _applicationDbContext = applicationDbContext;
         _emailSender = emailSender;
+        _localizer = localizer;
     }
 
     [HttpPost("register")]
@@ -38,6 +43,12 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+        model.UserName = (model.UserName ?? string.Empty).Trim();
+        model.Email = (model.Email ?? string.Empty).Trim();
+        model.FullName = (model.FullName ?? string.Empty).Trim();
+        model.LawyerOfficeName = (model.LawyerOfficeName ?? string.Empty).Trim();
+        model.LawyerOfficePhoneNumber = (model.LawyerOfficePhoneNumber ?? string.Empty).Trim();
+
         if (string.IsNullOrWhiteSpace(model.LawyerOfficeName))
         {
             return BadRequest(new { message = "Lawyer office name is required." });
@@ -56,6 +67,55 @@ public class AccountController : ControllerBase
         if (!countryExists)
         {
             return BadRequest(new { message = "Selected country is invalid." });
+        }
+
+        var duplicateFields = new List<string>();
+        var normalizedUserName = _userManager.NormalizeName(model.UserName);
+        if (!string.IsNullOrWhiteSpace(normalizedUserName))
+        {
+            var userNameExists = await _applicationDbContext.Users
+                .AsNoTracking()
+                .AnyAsync(user => user.NormalizedUserName == normalizedUserName);
+            if (userNameExists)
+            {
+                duplicateFields.Add(_localizer["RegistrationFieldUserName"].Value);
+            }
+        }
+
+        var normalizedEmail = _userManager.NormalizeEmail(model.Email);
+        if (!string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+            var emailExists = await _applicationDbContext.Users
+                .AsNoTracking()
+                .AnyAsync(user => user.NormalizedEmail == normalizedEmail);
+            if (emailExists)
+            {
+                duplicateFields.Add(_localizer["RegistrationFieldEmail"].Value);
+            }
+        }
+
+        var phoneExists = await _applicationDbContext.Users
+            .AsNoTracking()
+            .AnyAsync(user => user.PhoneNumber == model.LawyerOfficePhoneNumber);
+        if (phoneExists)
+        {
+            duplicateFields.Add(_localizer["RegistrationFieldPhone"].Value);
+        }
+
+        if (duplicateFields.Count == 1)
+        {
+            return BadRequest(new
+            {
+                message = _localizer["RegistrationFieldAlreadyUsedMessage", duplicateFields[0]].Value
+            });
+        }
+
+        if (duplicateFields.Count > 1)
+        {
+            return BadRequest(new
+            {
+                message = _localizer["RegistrationFieldsAlreadyUsedMessage", string.Join(", ", duplicateFields)].Value
+            });
         }
 
         await using var transaction = await _applicationDbContext.Database.BeginTransactionAsync();
@@ -80,6 +140,8 @@ public class AccountController : ControllerBase
             PhoneNumber = model.LawyerOfficePhoneNumber.Trim(),
             CountryId = model.CountryId,
             TenantId = tenant.Id,
+            LockoutEnabled = true,
+            LockoutEnd = DateTimeOffset.MaxValue,
             EmailConfirmed = false,
             RequiresPasswordReset = false
         };
@@ -110,23 +172,20 @@ public class AccountController : ControllerBase
             var countryName = await _applicationDbContext.Countries
                 .AsNoTracking()
                 .Where(country => country.Id == model.CountryId.Value)
-                .Select(country => country.Name)
+                .Select(country => GetLocalizedName(country.Name, country.NameAr))
                 .FirstOrDefaultAsync() ?? "Unknown";
 
-            var subject = "New LawyerSys Registration";
-            var body = $"""
-<p>A new user has registered in LawyerSys.</p>
-<ul>
-  <li><strong>Full Name:</strong> {System.Net.WebUtility.HtmlEncode(model.FullName ?? string.Empty)}</li>
-  <li><strong>Username:</strong> {System.Net.WebUtility.HtmlEncode(model.UserName ?? string.Empty)}</li>
-  <li><strong>Email:</strong> {System.Net.WebUtility.HtmlEncode(model.Email ?? string.Empty)}</li>
-  <li><strong>Office Name:</strong> {System.Net.WebUtility.HtmlEncode(model.LawyerOfficeName ?? string.Empty)}</li>
-  <li><strong>Office Phone:</strong> {System.Net.WebUtility.HtmlEncode(model.LawyerOfficePhoneNumber ?? string.Empty)}</li>
-  <li><strong>Country:</strong> {System.Net.WebUtility.HtmlEncode(countryName)}</li>
-  <li><strong>Tenant Id:</strong> {tenant.Id}</li>
-  <li><strong>Registered At (UTC):</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}</li>
-</ul>
-""";
+            var subject = _localizer["RegistrationNotificationSubject"].Value;
+            var template = _localizer["RegistrationNotificationBody"].Value;
+            var body = template
+                .Replace("{FullName}", System.Net.WebUtility.HtmlEncode(model.FullName ?? string.Empty))
+                .Replace("{UserName}", System.Net.WebUtility.HtmlEncode(model.UserName ?? string.Empty))
+                .Replace("{Email}", System.Net.WebUtility.HtmlEncode(model.Email ?? string.Empty))
+                .Replace("{OfficeName}", System.Net.WebUtility.HtmlEncode(model.LawyerOfficeName ?? string.Empty))
+                .Replace("{OfficePhone}", System.Net.WebUtility.HtmlEncode(model.LawyerOfficePhoneNumber ?? string.Empty))
+                .Replace("{Country}", System.Net.WebUtility.HtmlEncode(countryName))
+                .Replace("{TenantId}", tenant.Id.ToString(CultureInfo.InvariantCulture))
+                .Replace("{RegisteredAtUtc}", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
 
             await _emailSender.SendEmailAsync("gergesbernaba2@gmail.com", subject, body);
         }
@@ -135,7 +194,7 @@ public class AccountController : ControllerBase
             Log.Warning(ex, "User registration succeeded but notification email failed for {Email}", model.Email);
         }
 
-        return Ok(new { message = "User created." });
+        return Ok(new { message = _localizer["RegistrationPendingActivationMessage"].Value });
     }
 
     [HttpPost("login")]
