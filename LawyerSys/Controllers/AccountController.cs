@@ -129,7 +129,7 @@ public class AccountController : ControllerBase
             Name = model.LawyerOfficeName.Trim(),
             PhoneNumber = model.LawyerOfficePhoneNumber.Trim(),
             CountryId = model.CountryId,
-            IsActive = true,
+            IsActive = false,
             CreatedAtUtc = DateTime.UtcNow
         };
 

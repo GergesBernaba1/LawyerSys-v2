@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Healthy" xml:space="preserve">
+    <value>healthy</value>
+  </data>
+  <data name="AccountCreatedSubject" xml:space="preserve">
+    <value>Your LawyerSys account</value>
+  </data>
+  <data name="AccountCreatedBody" xml:space="preserve">
+    <value><![CDATA[<h3>Your LawyerSys account has been created</h3>
+<p><strong>Full name:</strong> {FullName}</p>
+<p><strong>Email:</strong> {Email}</p>
+<p><strong>Username:</strong> {UserName}</p>
+<p><strong>Temporary password:</strong> {Password}</p>
+<p><strong>Phone:</strong> {Phone}</p>
+<p><strong>Job:</strong> {Job}</p>
+<p><strong>Address:</strong> {Address}</p>
+<p><strong>Date of birth:</strong> {DateOfBirth}</p>
+<p><strong>SSN:</strong> {SSN}</p>
+<p>Please change your password on first login. If you did not request this account, contact support.</p>]]></value>
+  </data>
+  <data name="RegistrationNotificationSubject" xml:space="preserve">
+    <value>New LawyerSys registration pending activation</value>
+  </data>
+  <data name="RegistrationNotificationBody" xml:space="preserve">
+    <value><![CDATA[<div style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.7">
+<h2 style="margin-bottom:8px;color:#0f172a;">New registration pending activation</h2>
+<p style="margin-top:0;">A new tenant administrator has registered and is waiting for SuperAdmin activation.</p>
+<table style="border-collapse:collapse;width:100%;max-width:720px;">
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Full name</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{FullName}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Username</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{UserName}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Email</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Email}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Office name</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficeName}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Office phone</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficePhone}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Country</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Country}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Tenant ID</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{TenantId}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Registered at (UTC)</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{RegisteredAtUtc}</td></tr>
+</table>
+<p style="margin-top:16px;">Review the account and activate it from the administration screen when ready.</p>
+</div>]]></value>
+  </data>
+  <data name="RegistrationPendingActivationMessage" xml:space="preserve">
+    <value>Registration completed. Your account is pending activation by the system administrator.</value>
+  </data>
+  <data name="AccountPendingActivationMessage" xml:space="preserve">
+    <value>Your account is not active yet. Please contact the system administrator to activate your account.</value>
+  </data>
+  <data name="PasswordResetRequiredMessage" xml:space="preserve">
+    <value>Password reset required. Please reset your password before logging in.</value>
+  </data>
+  <data name="AccountTenantMissingMessage" xml:space="preserve">
+    <value>Account is not linked to a tenant.</value>
+  </data>
+  <data name="TenantInactiveMessage" xml:space="preserve">
+    <value>Your tenant is inactive. Contact the system administrator.</value>
+  </data>
+  <data name="RegistrationFieldUserName" xml:space="preserve">
+    <value>username</value>
+  </data>
+  <data name="RegistrationFieldEmail" xml:space="preserve">
+    <value>email</value>
+  </data>
+  <data name="RegistrationFieldPhone" xml:space="preserve">
+    <value>phone number</value>
+  </data>
+  <data name="RegistrationFieldAlreadyUsedMessage" xml:space="preserve">
+    <value>The {0} is already used.</value>
+  </data>
+  <data name="RegistrationFieldsAlreadyUsedMessage" xml:space="preserve">
+    <value>The following fields are already used: {0}.</value>
+  </data>
+  <data name="PasswordResetSubject" xml:space="preserve">
+    <value>Password reset request</value>
+  </data>
+  <data name="PasswordResetBody" xml:space="preserve">
+    <value><![CDATA[<h3>Password reset request</h3><p>Hello {FullName},</p><p>Use this link to reset your password:</p><p><a href="{ResetLink}">{ResetLink}</a></p><p>If the link does not open, use this token:</p><p><strong>User:</strong> {UserName}</p><p><strong>Token:</strong> {Token}</p>]]></value>
+  </data>
+</root>

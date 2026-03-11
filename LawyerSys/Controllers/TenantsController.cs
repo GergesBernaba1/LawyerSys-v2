@@ -114,7 +114,33 @@ public class TenantsController : ControllerBase
             return NotFound(new { message = "Tenant not found" });
         }
 
+        var wasActive = tenant.IsActive;
         tenant.IsActive = model.IsActive;
+
+        if (!wasActive && model.IsActive)
+        {
+            var adminUserIds = await (
+                from user in _applicationDbContext.Users
+                join userRole in _applicationDbContext.UserRoles on user.Id equals userRole.UserId
+                join role in _applicationDbContext.Roles on userRole.RoleId equals role.Id
+                where user.TenantId == tenant.Id && role.NormalizedName == "ADMIN"
+                select user.Id
+            ).Distinct().ToListAsync();
+
+            if (adminUserIds.Count > 0)
+            {
+                var pendingAdmins = await _applicationDbContext.Users
+                    .Where(user => adminUserIds.Contains(user.Id) && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                    .ToListAsync();
+
+                foreach (var pendingAdmin in pendingAdmins)
+                {
+                    pendingAdmin.LockoutEnabled = true;
+                    pendingAdmin.LockoutEnd = null;
+                }
+            }
+        }
+
         await _applicationDbContext.SaveChangesAsync();
         await _inAppNotificationService.NotifyTenantAdminsOfStatusChangeAsync(tenant, model.IsActive);
         return Ok(new { message = "Tenant status updated" });
