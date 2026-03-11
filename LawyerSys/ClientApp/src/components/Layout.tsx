@@ -23,6 +23,7 @@ import {
   ClickAwayListener,
   Breadcrumbs,
   Link,
+  InputAdornment,
   useTheme,
   useMediaQuery,
   Collapse,
@@ -64,7 +65,6 @@ import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   Home as HomeIcon,
-  Translate as TranslateIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   FactCheck as IntakeIcon,
   BorderColor as ESignIcon,
@@ -159,6 +159,7 @@ export default function Layout({ children }: LayoutProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [tenantOptions, setTenantOptions] = useState<TenantOption[]>([])
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('')
+  const [headerSearch, setHeaderSearch] = useState('')
   const chatEndRef = React.useRef<HTMLDivElement | null>(null)
   const isAdmin = hasRole('Admin')
   const isSuperAdmin = hasRole('SuperAdmin')
@@ -292,6 +293,32 @@ export default function Layout({ children }: LayoutProps) {
     }
   }
 
+  const handleHeaderSearchSubmit = () => {
+    const query = headerSearch.trim().toLowerCase()
+    if (!query) return
+
+    const profileLabel = t('app.profile').toLowerCase()
+    if (profileLabel.includes(query) || 'profile'.includes(query)) {
+      setHeaderSearch('')
+      handleNavigation('/profile')
+      return
+    }
+
+    const match = visibleMenuItems.find((item) => {
+      const label = t(`app.${item.key}`).toLowerCase()
+      return (
+        label.includes(query) ||
+        item.key.toLowerCase().includes(query) ||
+        item.path.toLowerCase().includes(query)
+      )
+    })
+
+    if (match) {
+      setHeaderSearch('')
+      handleNavigation(match.path)
+    }
+  }
+
   const collapsedWidth = 72;
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
@@ -377,11 +404,6 @@ export default function Layout({ children }: LayoutProps) {
       : pathname === '/ai-assistant'
       ? 'aiassistant'
       : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
-  const currentPageLabel = pathname === '/' ? t('app.dashboard') : t(`app.${currentPageKey}`)
-  const currentPageIcon =
-    pathname === '/'
-      ? <DashboardIcon />
-      : (visibleMenuItems.find((item) => item.key === currentPageKey)?.icon || <DashboardIcon />)
 
   const handleSendChat = async () => {
     const prompt = chatInput.trim()
@@ -709,47 +731,54 @@ export default function Layout({ children }: LayoutProps) {
             <Box
               sx={{
                 alignItems: 'center',
-                gap: 1.5,
                 minWidth: 0,
                 flex: 1,
-                bgcolor: alpha(theme.palette.primary.main, 0.04),
-                borderRadius: 4,
-                px: { xs: 1.25, sm: 1.5, md: 2 },
-                py: 1,
-                border: '1px solid',
-                borderColor: alpha(theme.palette.primary.main, 0.12),
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7)',
+                display: { xs: 'none', sm: 'flex' },
               }}
             >
-              <Box
-                sx={{
-                  width: 42,
-                  height: 42,
-                  flexShrink: 0,
-                  borderRadius: 3,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
-                  boxShadow: '0 10px 20px rgba(20, 52, 90, 0.22)',
+              <TextField
+                fullWidth
+                size="small"
+                value={headerSearch}
+                onChange={(event) => setHeaderSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    handleHeaderSearchSubmit()
+                  }
                 }}
-              >
-                {React.isValidElement(currentPageIcon)
-                  ? React.cloneElement(currentPageIcon as React.ReactElement, { fontSize: 'medium' })
-                  : currentPageIcon}
-              </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: 'primary.main', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                  {t('app.welcome')}
-                </Typography>
-                <Typography variant="h6" noWrap sx={{ fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                  {currentPageLabel}
-                </Typography>
-                <Typography variant="caption" noWrap sx={{ display: { xs: 'none', sm: 'block' }, color: 'text.secondary', fontWeight: 600 }}>
-                  {user?.fullName || user?.userName || 'LawyerSys'}
-                </Typography>
-              </Box>
+                placeholder={t('app.search')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 4,
+                    bgcolor: alpha(theme.palette.primary.main, 0.04),
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7)',
+                    '& fieldset': {
+                      borderColor: alpha(theme.palette.primary.main, 0.12),
+                    },
+                    '&:hover fieldset': {
+                      borderColor: alpha(theme.palette.primary.main, 0.2),
+                    },
+                    '&.Mui-focused': {
+                      bgcolor: alpha(theme.palette.background.paper, 0.96),
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    py: 1.1,
+                    fontWeight: 600,
+                  },
+                }}
+              />
             </Box>
           </Box>
 
@@ -782,8 +811,8 @@ export default function Layout({ children }: LayoutProps) {
               onClick={handleLangOpen}
               variant="text"
               size="medium"
-              startIcon={!isRTL ? <TranslateIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
-              endIcon={isRTL ? <TranslateIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
+              startIcon={!isRTL ? <HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
+              endIcon={isRTL ? <HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
               sx={{
                 minWidth: 0,
                 borderRadius: 3,
