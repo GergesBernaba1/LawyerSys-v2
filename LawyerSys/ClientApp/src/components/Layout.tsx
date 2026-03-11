@@ -64,6 +64,7 @@ import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   Home as HomeIcon,
+  Translate as TranslateIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   FactCheck as IntakeIcon,
   BorderColor as ESignIcon,
@@ -376,6 +377,11 @@ export default function Layout({ children }: LayoutProps) {
       : pathname === '/ai-assistant'
       ? 'aiassistant'
       : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
+  const currentPageLabel = pathname === '/' ? t('app.dashboard') : t(`app.${currentPageKey}`)
+  const currentPageIcon =
+    pathname === '/'
+      ? <DashboardIcon />
+      : (visibleMenuItems.find((item) => item.key === currentPageKey)?.icon || <DashboardIcon />)
 
   const handleSendChat = async () => {
     const prompt = chatInput.trim()
@@ -652,77 +658,102 @@ export default function Layout({ children }: LayoutProps) {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.shortest,
           }),
-          bgcolor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
+          bgcolor: alpha(theme.palette.background.paper, 0.9),
+          backdropFilter: 'blur(18px)',
           color: 'text.primary',
           zIndex: theme.zIndex.drawer + 2,
           borderBottom: '1px solid',
-          borderColor: alpha(theme.palette.divider, 0.1),
-          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          borderColor: alpha(theme.palette.primary.main, 0.1),
+          boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', minHeight: 72, px: { xs: 2, md: 4 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Toolbar sx={{ justifyContent: 'space-between', minHeight: { xs: 72, md: 78 }, px: { xs: 1.5, md: 3 }, gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 1.5 }, minWidth: 0, flex: 1 }}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ [isRTL ? 'ml' : 'mr']: 2, display: { md: 'none' }, bgcolor: 'grey.50' }}
+              sx={{
+                display: { md: 'none' },
+                width: 44,
+                height: 44,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: alpha(theme.palette.primary.main, 0.14),
+                bgcolor: alpha(theme.palette.background.paper, 0.95),
+                boxShadow: '0 8px 18px rgba(15, 23, 42, 0.06)',
+              }}
             >
               <MenuIcon />
             </IconButton>
 
-            {/* Desktop collapse toggle in header */}
             <IconButton
               aria-label="toggle sidebar"
               onClick={() => setCollapsed(!collapsed)}
-              sx={{ display: { xs: 'none', md: 'inline-flex' }, bgcolor: 'transparent', color: 'text.primary', [isRTL ? 'ml' : 'mr']: 1 }}
+              sx={{
+                display: { xs: 'none', md: 'inline-flex' },
+                width: 44,
+                height: 44,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: alpha(theme.palette.primary.main, 0.14),
+                bgcolor: alpha(theme.palette.background.paper, 0.95),
+                color: 'text.primary',
+                boxShadow: '0 8px 18px rgba(15, 23, 42, 0.06)',
+              }}
             >
               {isRTL ? (collapsed ? <ChevronLeftIcon /> : <ChevronRightIcon />) : (collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)}
             </IconButton>
-            
-            {/* Search Bar */}
+
             <Box
               sx={{
-                display: { xs: 'none', sm: 'flex' },
                 alignItems: 'center',
                 gap: 1.5,
-                bgcolor: 'grey.50',
-                borderRadius: 3,
-                px: 2.5,
+                minWidth: 0,
+                flex: 1,
+                bgcolor: alpha(theme.palette.primary.main, 0.04),
+                borderRadius: 4,
+                px: { xs: 1.25, sm: 1.5, md: 2 },
                 py: 1,
-                width: 350,
                 border: '1px solid',
-                borderColor: 'divider',
-                '&:focus-within': {
-                  bgcolor: 'white',
-                  borderColor: 'primary.main',
-                  boxShadow: '0 0 0 4px rgba(20, 52, 90, 0.12)',
-                  width: 400,
-                },
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                borderColor: alpha(theme.palette.primary.main, 0.12),
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7)',
               }}
             >
-              {isRTL ? (
-                <>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, opacity: 0.8, direction: 'rtl' }}>
-                    {t('app.search')}...
-                  </Typography>
-                  <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
-                </>
-              ) : (
-                <>
-                  <PersonSearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
-                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, opacity: 0.8 }}>
-                    {t('app.search')}...
-                  </Typography>
-                </>
-              )}
+              <Box
+                sx={{
+                  width: 42,
+                  height: 42,
+                  flexShrink: 0,
+                  borderRadius: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
+                  boxShadow: '0 10px 20px rgba(20, 52, 90, 0.22)',
+                }}
+              >
+                {React.isValidElement(currentPageIcon)
+                  ? React.cloneElement(currentPageIcon as React.ReactElement, { fontSize: 'medium' })
+                  : currentPageIcon}
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: 'primary.main', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  {t('app.welcome')}
+                </Typography>
+                <Typography variant="h6" noWrap sx={{ fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                  {currentPageLabel}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ display: { xs: 'none', sm: 'block' }, color: 'text.secondary', fontWeight: 600 }}>
+                  {user?.fullName || user?.userName || 'LawyerSys'}
+                </Typography>
+              </Box>
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
             {isSuperAdmin && tenantOptions.length > 0 && (
               <SearchableSelect<number>
                 size="small"
@@ -737,29 +768,37 @@ export default function Layout({ children }: LayoutProps) {
                 sx={{
                   minWidth: { xs: 150, md: 220 },
                   display: { xs: 'none', sm: 'flex' },
-                  '& .MuiOutlinedInput-root': { borderRadius: 2.5, backgroundColor: 'grey.50' },
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 3,
+                    backgroundColor: alpha(theme.palette.background.paper, 0.98),
+                    boxShadow: '0 8px 18px rgba(15, 23, 42, 0.05)',
+                  },
                 }}
                 helperText={t('app.selectTenant', 'Select tenant filter')}
               />
             )}
 
-            {/* Language Selector */}
             <Button
               onClick={handleLangOpen}
               variant="text"
               size="medium"
-              startIcon={!isRTL ? <HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
-              endIcon={isRTL ? <HomeIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
+              startIcon={!isRTL ? <TranslateIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
+              endIcon={isRTL ? <TranslateIcon sx={{ fontSize: 20, color: 'primary.main' }} /> : undefined}
               sx={{
-                borderRadius: 2.5,
+                minWidth: 0,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: alpha(theme.palette.primary.main, 0.14),
+                bgcolor: alpha(theme.palette.background.paper, 0.95),
+                boxShadow: '0 8px 18px rgba(15, 23, 42, 0.05)',
                 textTransform: 'none',
                 fontWeight: 800,
                 color: 'text.primary',
-                px: 2,
+                px: { xs: 1.25, sm: 1.75 },
                 '& .MuiButton-startIcon, & .MuiButton-endIcon': {
                   m: 0,
                 },
-                '&:hover': { bgcolor: 'primary.50' },
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
               }}
             >
               {isRTL ? 'العربية' : 'English'}
@@ -788,17 +827,33 @@ export default function Layout({ children }: LayoutProps) {
 
             {user && (
               <>
-                <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 24, alignSelf: 'center', opacity: 0.5 }} />
-                <IconButton 
+                <Button
                   onClick={handleProfileMenuOpen} 
                   sx={{ 
+                    minWidth: 0,
                     p: 0.5,
-                    border: '2px solid',
-                    borderColor: 'primary.50',
-                    transition: 'all 0.2s',
-                    '&:hover': { borderColor: 'primary.main', transform: 'scale(1.05)' }
+                    pl: { xs: 0.5, md: 1.25 },
+                    pr: 0.5,
+                    borderRadius: 999,
+                    border: '1px solid',
+                    borderColor: alpha(theme.palette.primary.main, 0.14),
+                    bgcolor: alpha(theme.palette.background.paper, 0.98),
+                    boxShadow: '0 8px 18px rgba(15, 23, 42, 0.05)',
+                    textTransform: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.25,
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) }
                   }}
                 >
+                  <Box sx={{ display: { xs: 'none', md: 'block' }, minWidth: 0, textAlign: isRTL ? 'right' : 'left' }}>
+                    <Typography noWrap sx={{ fontSize: '0.86rem', fontWeight: 800, color: 'text.primary', maxWidth: 140 }}>
+                      {user.fullName || user.userName}
+                    </Typography>
+                    <Typography noWrap sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600, maxWidth: 140 }}>
+                      {user.email || t('app.profile')}
+                    </Typography>
+                  </Box>
                   <Avatar
                     sx={{
                       background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
@@ -811,7 +866,7 @@ export default function Layout({ children }: LayoutProps) {
                   >
                     {(user.fullName?.charAt(0) || user.userName?.charAt(0) || 'U').toUpperCase()}
                   </Avatar>
-                </IconButton>
+                </Button>
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}

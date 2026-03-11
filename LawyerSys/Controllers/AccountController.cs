@@ -496,10 +496,10 @@ public class AccountController : ControllerBase
     {
         var roles = await _roleManager.Roles
             .AsNoTracking()
+            .Where(role => role.NormalizedName != "SUPERADMIN")
             .OrderBy(role => role.Name)
             .Select(role => role.Name ?? string.Empty)
             .Where(roleName => !string.IsNullOrWhiteSpace(roleName))
-            .Where(roleName => !roleName.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase))
             .ToListAsync();
 
         return Ok(roles);
