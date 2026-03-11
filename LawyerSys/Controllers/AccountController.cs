@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
+using LawyerSys.Services.Email;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -16,17 +17,20 @@ public class AccountController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApplicationDbContext _applicationDbContext;
+    private readonly IEmailSender _emailSender;
 
     public AccountController(
         IAccountService accountService,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        ApplicationDbContext applicationDbContext)
+        ApplicationDbContext applicationDbContext,
+        IEmailSender emailSender)
     {
         _accountService = accountService;
         _userManager = userManager;
         _roleManager = roleManager;
         _applicationDbContext = applicationDbContext;
+        _emailSender = emailSender;
     }
 
     [HttpPost("register")]
@@ -100,6 +104,37 @@ public class AccountController : ControllerBase
         }
 
         await transaction.CommitAsync();
+
+        try
+        {
+            var countryName = await _applicationDbContext.Countries
+                .AsNoTracking()
+                .Where(country => country.Id == model.CountryId.Value)
+                .Select(country => country.Name)
+                .FirstOrDefaultAsync() ?? "Unknown";
+
+            var subject = "New LawyerSys Registration";
+            var body = $"""
+<p>A new user has registered in LawyerSys.</p>
+<ul>
+  <li><strong>Full Name:</strong> {System.Net.WebUtility.HtmlEncode(model.FullName ?? string.Empty)}</li>
+  <li><strong>Username:</strong> {System.Net.WebUtility.HtmlEncode(model.UserName ?? string.Empty)}</li>
+  <li><strong>Email:</strong> {System.Net.WebUtility.HtmlEncode(model.Email ?? string.Empty)}</li>
+  <li><strong>Office Name:</strong> {System.Net.WebUtility.HtmlEncode(model.LawyerOfficeName ?? string.Empty)}</li>
+  <li><strong>Office Phone:</strong> {System.Net.WebUtility.HtmlEncode(model.LawyerOfficePhoneNumber ?? string.Empty)}</li>
+  <li><strong>Country:</strong> {System.Net.WebUtility.HtmlEncode(countryName)}</li>
+  <li><strong>Tenant Id:</strong> {tenant.Id}</li>
+  <li><strong>Registered At (UTC):</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}</li>
+</ul>
+""";
+
+            await _emailSender.SendEmailAsync("gergesbernaba2@gmail.com", subject, body);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "User registration succeeded but notification email failed for {Email}", model.Email);
+        }
+
         return Ok(new { message = "User created." });
     }
 

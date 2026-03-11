@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
+import { useCurrency } from '../../src/hooks/useCurrency';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type BillingPayDto = { id: number; amount: number; dateOfOperation: string; notes: string; customerId: number; customerName?: string };
@@ -28,6 +29,7 @@ export default function BillingPage() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
   const { isAuthenticated } = useAuth();
+  const { formatCurrency } = useCurrency();
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [tab, setTab] = useState(0);
@@ -119,7 +121,7 @@ export default function BillingPage() {
   }
 
   function formatAmount(a: number) {
-    return `${a.toLocaleString()} ${t('app.currency')}`;
+    return formatCurrency(a);
   }
 
   function employeeNameById(employeeId: number) {

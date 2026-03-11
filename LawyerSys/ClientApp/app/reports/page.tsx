@@ -23,6 +23,7 @@ import {
 import { Download as DownloadIcon } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../src/hooks/useCurrency';
 
 type MonthlyPoint = { year: number; month: number; payments: number; receipts: number; netCashFlow: number };
 type FinancialSummaryResponse = {
@@ -33,10 +34,9 @@ type OutstandingBalance = { customerId: number; customerName: string; casesTotal
 
 type CustomerOption = { id: number; user?: { fullName?: string } };
 
-const toCurrency = (value: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'SAR', maximumFractionDigits: 2 }).format(value || 0);
-
 export default function ReportsPage() {
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -148,7 +148,7 @@ export default function ReportsPage() {
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">{t('billing.totalPayments')}</Typography>
-              <Typography variant="h5">{toCurrency(summary?.summary.totalPayments || 0)}</Typography>
+              <Typography variant="h5">{formatCurrency(summary?.summary.totalPayments || 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -156,7 +156,7 @@ export default function ReportsPage() {
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">{t('billing.totalReceipts')}</Typography>
-              <Typography variant="h5">{toCurrency(summary?.summary.totalReceipts || 0)}</Typography>
+              <Typography variant="h5">{formatCurrency(summary?.summary.totalReceipts || 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -164,7 +164,7 @@ export default function ReportsPage() {
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">{t('billing.balance')}</Typography>
-              <Typography variant="h5">{toCurrency(summary?.summary.netCashFlow || 0)}</Typography>
+              <Typography variant="h5">{formatCurrency(summary?.summary.netCashFlow || 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -188,9 +188,9 @@ export default function ReportsPage() {
                   {(summary?.last6Months || []).map((point) => (
                     <TableRow key={`${point.year}-${point.month}`}>
                       <TableCell>{`${point.year}-${String(point.month).padStart(2, '0')}`}</TableCell>
-                      <TableCell>{toCurrency(point.payments)}</TableCell>
-                      <TableCell>{toCurrency(point.receipts)}</TableCell>
-                      <TableCell>{toCurrency(point.netCashFlow)}</TableCell>
+                      <TableCell>{formatCurrency(point.payments)}</TableCell>
+                      <TableCell>{formatCurrency(point.receipts)}</TableCell>
+                      <TableCell>{formatCurrency(point.netCashFlow)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -216,9 +216,9 @@ export default function ReportsPage() {
                   {balances.slice(0, 10).map((item) => (
                     <TableRow key={item.customerId}>
                       <TableCell>{item.customerName}</TableCell>
-                      <TableCell>{toCurrency(item.casesTotalAmount)}</TableCell>
-                      <TableCell>{toCurrency(item.paidAmount)}</TableCell>
-                      <TableCell>{toCurrency(item.outstandingBalance)}</TableCell>
+                      <TableCell>{formatCurrency(item.casesTotalAmount)}</TableCell>
+                      <TableCell>{formatCurrency(item.paidAmount)}</TableCell>
+                      <TableCell>{formatCurrency(item.outstandingBalance)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

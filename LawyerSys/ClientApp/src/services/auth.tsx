@@ -9,6 +9,8 @@ interface User {
   roles: string[];
   tenantId: number | null;
   tenantName: string;
+  countryId: number | null;
+  countryName: string;
 }
 
 interface AuthContextValue {
@@ -87,6 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
+    let cancelled = false;
+
     if (token) {
       const decoded = parseJwt(token);
       console.log('Decoded JWT:', decoded);
@@ -107,6 +111,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           roles,
           tenantId: Number(decoded.tenant_id || decoded.firm_id || 0) || null,
           tenantName: decoded.tenant_name || '',
+          countryId: Number(decoded.country_id || 0) || null,
+          countryName: decoded.country_name || '',
           token,
         };
         console.log('Setting user info:', userInfo);
@@ -119,10 +125,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             clearApiGetCache()
           }
         }
+
+        void api.get('/Account/me')
+          .then((response) => {
+            if (cancelled) return;
+
+            setUser((current) => {
+              if (!current) return current;
+
+              return {
+                ...current,
+                tenantId: Number(response.data?.tenantId || 0) || current.tenantId,
+                tenantName: response.data?.tenantName || current.tenantName,
+                countryId: Number(response.data?.countryId || 0) || current.countryId,
+                countryName: response.data?.countryName || current.countryName,
+              };
+            });
+          })
+          .catch(() => {
+            // Keep JWT-derived identity if profile hydration fails.
+          });
       }
     } else {
       setUser(null);
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   async function login(userName: string, pass: string) {

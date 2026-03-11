@@ -52,7 +52,7 @@ const emptyProfile: MyProfile = {
 };
 
 export default function ProfilePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === "rtl";
   const { isAuthenticated, setAuthToken, hasAnyRole } = useAuth();
@@ -87,9 +87,10 @@ export default function ProfilePage() {
     const loadPageData = async () => {
       setLoadingProfile(true);
       try {
+        const language = (i18n.resolvedLanguage || i18n.language || "en").startsWith("ar") ? "ar-SA" : "en-US";
         const [profileRes, countriesRes] = await Promise.all([
-          api.get("/Account/me"),
-          api.get("/Account/countries"),
+          api.get("/Account/me", { headers: { "Accept-Language": language } }),
+          api.get("/Account/countries", { headers: { "Accept-Language": language } }),
         ]);
         if (!mounted) return;
 
@@ -127,7 +128,7 @@ export default function ProfilePage() {
     return () => {
       mounted = false;
     };
-  }, [isAuthenticated, t]);
+  }, [isAuthenticated, i18n.language, i18n.resolvedLanguage, t]);
 
   async function saveProfile() {
     setSavingProfile(true);

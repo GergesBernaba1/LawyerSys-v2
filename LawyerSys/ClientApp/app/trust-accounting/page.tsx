@@ -38,6 +38,7 @@ import {
 import api from "../../src/services/api";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../src/services/auth";
+import { useCurrency } from "../../src/hooks/useCurrency";
 import type { PagedResult } from "../../src/types/paging";
 
 type TrustAccount = {
@@ -86,16 +87,10 @@ type TrustSummary = {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-const toMoney = (value: number) =>
-  new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: "SAR",
-    maximumFractionDigits: 2,
-  }).format(value || 0);
-
 export default function TrustAccountingPage() {
   const { t } = useTranslation();
   const { hasRole } = useAuth();
+  const { formatCurrency } = useCurrency();
   const isAdmin = hasRole("Admin");
 
   const [tab, setTab] = useState(0);
@@ -409,10 +404,10 @@ export default function TrustAccountingPage() {
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Card><CardContent><Typography color="text.secondary">{t("trust.bookBalance")}</Typography><Typography variant="h6">{toMoney(summary?.bookBalance || 0)}</Typography></CardContent></Card>
+          <Card><CardContent><Typography color="text.secondary">{t("trust.bookBalance")}</Typography><Typography variant="h6">{formatCurrency(summary?.bookBalance || 0)}</Typography></CardContent></Card>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <Card><CardContent><Typography color="text.secondary">{t("trust.clientLedgerBalance")}</Typography><Typography variant="h6">{toMoney(summary?.totalClientLedgerBalance || 0)}</Typography></CardContent></Card>
+          <Card><CardContent><Typography color="text.secondary">{t("trust.clientLedgerBalance")}</Typography><Typography variant="h6">{formatCurrency(summary?.totalClientLedgerBalance || 0)}</Typography></CardContent></Card>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
           <Card><CardContent><Typography color="text.secondary">{t("trust.activeAccounts")}</Typography><Typography variant="h6">{summary?.activeClientAccounts || 0}</Typography></CardContent></Card>
@@ -453,7 +448,7 @@ export default function TrustAccountingPage() {
               {accounts.map((a) => (
                 <TableRow key={a.customerId}>
                   <TableCell>{a.customerName || "-"}</TableCell>
-                  <TableCell>{toMoney(a.currentBalance)}</TableCell>
+                  <TableCell>{formatCurrency(a.currentBalance)}</TableCell>
                   <TableCell>{a.lastMovementDate || "-"}</TableCell>
                   <TableCell>
                     <Button
@@ -534,8 +529,8 @@ export default function TrustAccountingPage() {
                 <TableRow key={row.id}>
                   <TableCell>{row.operationDate}</TableCell>
                   <TableCell>{row.entryType}</TableCell>
-                  <TableCell>{toMoney(row.amount)}</TableCell>
-                  <TableCell>{toMoney(row.runningBalance)}</TableCell>
+                  <TableCell>{formatCurrency(row.amount)}</TableCell>
+                  <TableCell>{formatCurrency(row.runningBalance)}</TableCell>
                   <TableCell>{row.caseCode || "-"}</TableCell>
                   <TableCell>{row.description || "-"}</TableCell>
                 </TableRow>
@@ -580,10 +575,10 @@ export default function TrustAccountingPage() {
               {(reconciliations?.items || []).map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>{r.reconciliationDate}</TableCell>
-                  <TableCell>{toMoney(r.bankStatementBalance)}</TableCell>
-                  <TableCell>{toMoney(r.bookBalance)}</TableCell>
-                  <TableCell>{toMoney(r.clientLedgerBalance)}</TableCell>
-                  <TableCell>{toMoney(r.bankToBookDifference)}</TableCell>
+                  <TableCell>{formatCurrency(r.bankStatementBalance)}</TableCell>
+                  <TableCell>{formatCurrency(r.bookBalance)}</TableCell>
+                  <TableCell>{formatCurrency(r.clientLedgerBalance)}</TableCell>
+                  <TableCell>{formatCurrency(r.bankToBookDifference)}</TableCell>
                   <TableCell>{r.notes || "-"}</TableCell>
                 </TableRow>
               ))}

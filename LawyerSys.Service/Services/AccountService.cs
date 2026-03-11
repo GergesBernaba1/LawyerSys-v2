@@ -108,6 +108,11 @@ namespace LawyerSys.Services
                 claimsList.Add(new Claim(ClaimTypes.GroupSid, user.TenantId.ToString()));
             }
 
+            if (user.CountryId.HasValue && user.CountryId.Value > 0)
+            {
+                claimsList.Add(new Claim("country_id", user.CountryId.Value.ToString()));
+            }
+
             if (tenant != null)
             {
                 claimsList.Add(new Claim("tenant_name", tenant.Name));

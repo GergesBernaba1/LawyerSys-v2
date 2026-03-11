@@ -46,6 +46,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
+import { useCurrency } from '../../src/hooks/useCurrency';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
@@ -66,6 +67,7 @@ export default function CasesPageClient() {
   const params = useParams() as { locale?: string } | undefined;
   const locale = params?.locale || 'ar';
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
+  const { formatCurrency } = useCurrency();
   const router = useRouter();
   const { isAuthenticated, hasAnyRole } = useAuth();
   const { confirm, confirmDialog } = useConfirmDialog();
@@ -363,7 +365,7 @@ export default function CasesPageClient() {
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
                       {item.totalAmount ? (
                         <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
-                          ${item.totalAmount.toLocaleString()}
+                          {formatCurrency(item.totalAmount)}
                         </Typography>
                       ) : '-'}
                     </TableCell>

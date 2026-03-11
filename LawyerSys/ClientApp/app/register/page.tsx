@@ -68,7 +68,8 @@ export default function RegisterPage() {
 
     const loadCountries = async () => {
       try {
-        const res = await api.get('/Account/countries');
+        const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
+        const res = await api.get('/Account/countries', { headers: { 'Accept-Language': language } });
         if (!mounted) {
           return;
         }
@@ -90,7 +91,7 @@ export default function RegisterPage() {
     return () => {
       mounted = false;
     };
-  }, [t]);
+  }, [i18n.language, i18n.resolvedLanguage, t]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

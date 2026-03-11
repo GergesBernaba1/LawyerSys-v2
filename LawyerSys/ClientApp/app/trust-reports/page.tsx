@@ -19,6 +19,7 @@ import {
 import { Refresh as RefreshIcon, ShowChart as ChartIcon } from "@mui/icons-material";
 import api from "../../src/services/api";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "../../src/hooks/useCurrency";
 
 type TrustAccount = {
   customerId: number;
@@ -58,10 +59,8 @@ type TrendsReport = {
 };
 
 const monthLabel = (year: number, month: number) => `${String(month).padStart(2, "0")}/${String(year).slice(-2)}`;
-const money = (value: number) =>
-  new Intl.NumberFormat(undefined, { style: "currency", currency: "SAR", maximumFractionDigits: 2 }).format(value || 0);
 
-function MonthlyBarChart({ points, t }: { points: MonthlyPoint[]; t: any }) {
+function MonthlyBarChart({ points, t, formatCurrency }: { points: MonthlyPoint[]; t: any; formatCurrency: (value: number) => string }) {
   const max = Math.max(1, ...points.flatMap((p) => [p.deposits, p.withdrawals]));
 
   return (
@@ -74,8 +73,8 @@ function MonthlyBarChart({ points, t }: { points: MonthlyPoint[]; t: any }) {
         {points.map((p) => (
           <Box key={`${p.year}-${p.month}`} sx={{ textAlign: "center" }}>
             <Box sx={{ height: 170, display: "flex", alignItems: "end", justifyContent: "center", gap: 0.5 }}>
-              <Box title={`${t("trustReports.deposits")}: ${money(p.deposits)}`} sx={{ width: 10, height: `${(p.deposits / max) * 100}%`, minHeight: p.deposits > 0 ? 4 : 0, bgcolor: "success.main", borderRadius: 0.8 }} />
-              <Box title={`${t("trustReports.withdrawals")}: ${money(p.withdrawals)}`} sx={{ width: 10, height: `${(p.withdrawals / max) * 100}%`, minHeight: p.withdrawals > 0 ? 4 : 0, bgcolor: "error.main", borderRadius: 0.8 }} />
+              <Box title={`${t("trustReports.deposits")}: ${formatCurrency(p.deposits)}`} sx={{ width: 10, height: `${(p.deposits / max) * 100}%`, minHeight: p.deposits > 0 ? 4 : 0, bgcolor: "success.main", borderRadius: 0.8 }} />
+              <Box title={`${t("trustReports.withdrawals")}: ${formatCurrency(p.withdrawals)}`} sx={{ width: 10, height: `${(p.withdrawals / max) * 100}%`, minHeight: p.withdrawals > 0 ? 4 : 0, bgcolor: "error.main", borderRadius: 0.8 }} />
             </Box>
             <Typography variant="caption" color="text.secondary">{monthLabel(p.year, p.month)}</Typography>
           </Box>
@@ -136,7 +135,7 @@ function DualLineChart({ points, t }: { points: MonthlyPoint[]; t: any }) {
   );
 }
 
-function ReconciliationChart({ points, t }: { points: ReconciliationPoint[]; t: any }) {
+function ReconciliationChart({ points, t, formatCurrency }: { points: ReconciliationPoint[]; t: any; formatCurrency: (value: number) => string }) {
   const max = Math.max(1, ...points.map((p) => p.maxAbsoluteBankToBookDifference));
   return (
     <Box>
@@ -145,7 +144,7 @@ function ReconciliationChart({ points, t }: { points: ReconciliationPoint[]; t: 
         {points.map((p) => (
           <Box key={`${p.year}-${p.month}`} sx={{ textAlign: "center" }}>
             <Box sx={{ height: 160, display: "flex", alignItems: "end", justifyContent: "center" }}>
-              <Box title={`${t("trustReports.maxBankToBookDifference")}: ${money(p.maxAbsoluteBankToBookDifference)}`} sx={{ width: 16, height: `${(p.maxAbsoluteBankToBookDifference / max) * 100}%`, minHeight: p.maxAbsoluteBankToBookDifference > 0 ? 4 : 0, bgcolor: "warning.main", borderRadius: 0.8 }} />
+              <Box title={`${t("trustReports.maxBankToBookDifference")}: ${formatCurrency(p.maxAbsoluteBankToBookDifference)}`} sx={{ width: 16, height: `${(p.maxAbsoluteBankToBookDifference / max) * 100}%`, minHeight: p.maxAbsoluteBankToBookDifference > 0 ? 4 : 0, bgcolor: "warning.main", borderRadius: 0.8 }} />
             </Box>
             <Typography variant="caption" color="text.secondary">{monthLabel(p.year, p.month)}</Typography>
             <Typography variant="caption" display="block" color="text.secondary">n={p.count}</Typography>
@@ -158,6 +157,7 @@ function ReconciliationChart({ points, t }: { points: ReconciliationPoint[]; t: 
 
 export default function TrustReportsPage() {
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [months, setMonths] = useState(12);
@@ -223,17 +223,17 @@ export default function TrustReportsPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.deposits")}</Typography><Typography variant="h6">{money(report?.totalDeposits || 0)}</Typography></CardContent></Card></Grid>
-        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.withdrawals")}</Typography><Typography variant="h6">{money(report?.totalWithdrawals || 0)}</Typography></CardContent></Card></Grid>
-        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.netFlow")}</Typography><Typography variant="h6">{money(report?.netFlow || 0)}</Typography></CardContent></Card></Grid>
-        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.endingBalance")}</Typography><Typography variant="h6">{money(report?.endingBalance || 0)}</Typography></CardContent></Card></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.deposits")}</Typography><Typography variant="h6">{formatCurrency(report?.totalDeposits || 0)}</Typography></CardContent></Card></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.withdrawals")}</Typography><Typography variant="h6">{formatCurrency(report?.totalWithdrawals || 0)}</Typography></CardContent></Card></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.netFlow")}</Typography><Typography variant="h6">{formatCurrency(report?.netFlow || 0)}</Typography></CardContent></Card></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><Card><CardContent><Typography color="text.secondary">{t("trustReports.endingBalance")}</Typography><Typography variant="h6">{formatCurrency(report?.endingBalance || 0)}</Typography></CardContent></Card></Grid>
       </Grid>
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 2.5 }}>
             <Typography variant="h6" sx={{ mb: 1.5 }}>{t("trustReports.depositWithdrawalTrend")}</Typography>
-            {report?.monthlyPoints?.length ? <MonthlyBarChart points={report.monthlyPoints} t={t} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
+            {report?.monthlyPoints?.length ? <MonthlyBarChart points={report.monthlyPoints} t={t} formatCurrency={formatCurrency} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
           </Paper>
         </Grid>
         <Grid size={{ xs: 12 }}>
@@ -245,7 +245,7 @@ export default function TrustReportsPage() {
         <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 2.5 }}>
             <Typography variant="h6" sx={{ mb: 1.5 }}>{t("trustReports.reconciliationTrend")}</Typography>
-            {report?.reconciliationPoints?.length ? <ReconciliationChart points={report.reconciliationPoints} t={t} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
+            {report?.reconciliationPoints?.length ? <ReconciliationChart points={report.reconciliationPoints} t={t} formatCurrency={formatCurrency} /> : <Typography color="text.secondary" sx={{ textAlign: "center", py: 3 }}>{t("trustReports.noData")}</Typography>}
           </Paper>
         </Grid>
       </Grid>

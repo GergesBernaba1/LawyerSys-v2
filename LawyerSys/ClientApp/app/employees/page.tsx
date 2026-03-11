@@ -38,12 +38,14 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Badge as BadgeIcon,
+  Edit as EditIcon,
   Refresh as RefreshIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
 import api from '../../src/services/api';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
+import { useCurrency } from '../../src/hooks/useCurrency';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 
 type UserDto = { id: number; fullName?: string; userName?: string; email?: string };
@@ -111,6 +113,7 @@ export default function EmployeesPageClient() {
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
+  const { formatCurrency, currencyCode } = useCurrency();
   const isSuperAdmin = hasRole('SuperAdmin');
   const { confirm, confirmDialog } = useConfirmDialog();
 
@@ -118,11 +121,40 @@ export default function EmployeesPageClient() {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserDto[]>([]);
   const [tenants, setTenants] = useState<TenantOption[]>([]);
+  const [editItem, setEditItem] = useState<Employee | null>(null);
   const [selectedUser, setSelectedUser] = useState<number | ''>('');
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [salary, setSalary] = useState<number | ''>('');
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+
+  function parseSalaryInput(value: string): number | '' {
+    if (value.trim() === '') return '';
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : '';
+  }
+
+  function openCreateDialog() {
+    setEditItem(null);
+    setSelectedUser('');
+    setSalary('');
+    setOpenDialog(true);
+  }
+
+  function openEditDialog(item: Employee) {
+    setEditItem(item);
+    setSelectedUser(item.usersId || '');
+    setSalary(item.salary ?? '');
+    setOpenDialog(true);
+  }
+
+  function closeDialog() {
+    setOpenDialog(false);
+    setEditItem(null);
+    setSelectedUser('');
+    setSalary('');
+  }
 
   async function load() {
     setLoading(true);
@@ -175,21 +207,37 @@ export default function EmployeesPageClient() {
     void loadUsersForTenant(selectedTenantId);
   }, [openDialog, selectedTenantId]);
 
-  async function create() {
+  async function saveEmployee() {
+    if (salary === '') {
+      setSnackbar({ open: true, message: t('employees.salary', { defaultValue: 'Salary' }), severity: 'error' });
+      return;
+    }
+
+    if (editItem) {
+      try {
+        await api.put(`/Employees/${editItem.id}`, { salary: Number(salary) });
+        await load();
+        closeDialog();
+        setSnackbar({ open: true, message: t('employees.employeeUpdated', { defaultValue: 'Employee updated successfully' }), severity: 'success' });
+      } catch (err: any) {
+        setSnackbar({ open: true, message: err?.response?.data?.message ?? t('employees.failedUpdate', { defaultValue: 'Failed to update employee' }), severity: 'error' });
+      }
+      return;
+    }
+
     if (!selectedUser) {
       setSnackbar({ open: true, message: t('employees.pleaseSelectUser'), severity: 'error' });
       return;
     }
+
     try {
       await api.post(
         '/Employees',
-        { usersId: selectedUser, salary: Number(salary) || undefined },
+        { usersId: selectedUser, salary: Number(salary) },
         isSuperAdmin && selectedTenantId ? { headers: { 'X-Firm-Id': String(selectedTenantId) } } : undefined
       );
       await load();
-      setSelectedUser('');
-      setSalary('');
-      setOpenDialog(false);
+      closeDialog();
       setSnackbar({ open: true, message: t('employees.employeeCreated'), severity: 'success' });
     } catch (err: any) {
       setSnackbar({ open: true, message: err?.response?.data?.message ?? t('employees.failedCreate'), severity: 'error' });
@@ -266,12 +314,12 @@ export default function EmployeesPageClient() {
               <RefreshIcon />
             </IconButton>
           </Tooltip>
-          {hasRole('Admin') && (
+              {hasRole('Admin') && (
             <Button 
               variant="contained" 
               startIcon={!isRTL ? <AddIcon /> : undefined} 
               endIcon={isRTL ? <AddIcon /> : undefined} 
-              onClick={() => setOpenDialog(true)}
+              onClick={openCreateDialog}
               sx={{ 
                 borderRadius: 2.5, 
                 px: 3,
@@ -325,7 +373,7 @@ export default function EmployeesPageClient() {
                         <BadgeIcon fontSize="inherit" />
                       </Box>
                       <Typography variant="h6" gutterBottom>{t('employees.noEmployees')}</Typography>
-                      <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => setOpenDialog(true)}>
+                      <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={openCreateDialog}>
                         {t('employees.createFirst')}
                       </Button>
                     </Box>
@@ -352,7 +400,7 @@ export default function EmployeesPageClient() {
                     </TableCell>
                     <TableCell sx={{ py: 2, textAlign: 'center' }}>
                       <Chip 
-                        label={item.salary !== undefined && item.salary !== null ? `$${item.salary.toLocaleString()}` : '-'} 
+                        label={item.salary !== undefined && item.salary !== null ? formatCurrency(item.salary) : '-'} 
                         size="small" 
                         color="success" 
                         variant="outlined" 
@@ -361,6 +409,20 @@ export default function EmployeesPageClient() {
                     </TableCell>
                     <TableCell align="center" sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        {hasRole('Admin') && (
+                          <Tooltip title={t('app.edit')}>
+                            <IconButton
+                              color="primary"
+                              onClick={() => openEditDialog(item)}
+                              sx={{
+                                '&:hover': { bgcolor: 'primary.light', color: 'white' },
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         {hasRole('Admin') && (
                           <Tooltip title={t('app.delete')}>
                             <IconButton 
@@ -396,11 +458,11 @@ export default function EmployeesPageClient() {
         }}
       >
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>
-          {t('employees.createNew')}
+          {editItem ? t('app.edit') : t('employees.createNew')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
-            {isSuperAdmin && (
+            {!editItem && isSuperAdmin && (
               <TextField
                 select
                 fullWidth
@@ -419,32 +481,42 @@ export default function EmployeesPageClient() {
                 ))}
               </TextField>
             )}
-            <FormControl fullWidth variant="outlined">
-              <InputLabel>{t('employees.selectUser')}</InputLabel>
-              <Select 
-                value={selectedUser} 
-                label={t('employees.selectUser')} 
-                onChange={(e) => setSelectedUser(Number(e.target.value) || '')}
-                sx={{ borderRadius: 2 }}
-              >
-                <MenuItem value=""><em>-- {t('employees.selectUser')} --</em></MenuItem>
-                {users.map((u) => (
-                  <MenuItem key={u.id} value={u.id}>
-                    {u.fullName || u.userName || u.email || `#${u.id}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            {editItem ? (
+              <TextField
+                fullWidth
+                label={t('employees.fullName')}
+                value={editItem.displayName}
+                InputProps={{ readOnly: true }}
+                variant="outlined"
+              />
+            ) : (
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>{t('employees.selectUser')}</InputLabel>
+                <Select 
+                  value={selectedUser} 
+                  label={t('employees.selectUser')} 
+                  onChange={(e) => setSelectedUser(Number(e.target.value) || '')}
+                  sx={{ borderRadius: 2 }}
+                >
+                  <MenuItem value=""><em>-- {t('employees.selectUser')} --</em></MenuItem>
+                  {users.map((u) => (
+                    <MenuItem key={u.id} value={u.id}>
+                      {u.fullName || u.userName || u.email || `#${u.id}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
             
             <TextField 
               fullWidth 
               label={t('employees.salary')} 
               type="number" 
               value={salary} 
-              onChange={(e) => setSalary(Number(e.target.value) || '')} 
+              onChange={(e) => setSalary(parseSalaryInput(e.target.value))} 
               variant="outlined"
               InputProps={{ 
-                startAdornment: <Typography sx={{ mr: 1, color: 'text.secondary', fontWeight: 600 }}>$</Typography> 
+                startAdornment: <Typography sx={{ mr: 1, color: 'text.secondary', fontWeight: 600 }}>{currencyCode}</Typography> 
               }}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
             />
@@ -452,18 +524,18 @@ export default function EmployeesPageClient() {
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button 
-            onClick={() => setOpenDialog(false)}
+            onClick={closeDialog}
             sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}
           >
             {t('app.cancel')}
           </Button>
           <Button 
             variant="contained" 
-            onClick={create} 
-            disabled={!selectedUser || (isSuperAdmin && !selectedTenantId)}
+            onClick={saveEmployee} 
+            disabled={(!editItem && !selectedUser) || salary === '' || (!editItem && isSuperAdmin && !selectedTenantId)}
             sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
           >
-            {t('app.create')}
+            {editItem ? t('app.save') : t('app.create')}
           </Button>
         </DialogActions>
       </Dialog>
