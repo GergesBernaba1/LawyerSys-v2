@@ -12,11 +12,13 @@ import {
   Chip,
   CircularProgress,
   Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tabs,
   TextField,
   Typography,
   useTheme,
@@ -25,6 +27,7 @@ import { Grid } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
+import SearchableMultiSelect from "../../src/components/SearchableMultiSelect";
 
 type AdministrationCounts = {
   users: number;
@@ -71,11 +74,17 @@ type TenantManagement = {
   userCount: number;
 };
 
+type AdministrationTab = "overview" | "accounts" | "tenants";
+
+function isDefaultFirm(tenantName: string) {
+  return tenantName.trim().toLowerCase() === "default firm";
+}
+
 export default function AdministrationPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { isAuthenticated, hasRole } = useAuth();
+  const { user, isAuthenticated, hasRole } = useAuth();
   const isRTL = theme.direction === "rtl";
   const isAdmin = hasRole("Admin");
   const isSuperAdmin = hasRole("SuperAdmin");
@@ -83,19 +92,34 @@ export default function AdministrationPage() {
   const [overview, setOverview] = useState<AdministrationOverview | null>(null);
   const [accounts, setAccounts] = useState<IdentityUserManagement[]>([]);
   const [tenants, setTenants] = useState<TenantManagement[]>([]);
-  const [roleDrafts, setRoleDrafts] = useState<Record<string, string>>({});
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+  const [roleDrafts, setRoleDrafts] = useState<Record<string, string[]>>({});
   const [pendingAction, setPendingAction] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<AdministrationTab>("overview");
 
   useEffect(() => {
+    if (isAuthenticated && !user) {
+      return;
+    }
+
     if (isAuthenticated && !isAdmin) {
       router.replace("/dashboard");
     }
-  }, [isAuthenticated, isAdmin, router]);
+  }, [isAuthenticated, user, isAdmin, router]);
 
   useEffect(() => {
-    if (!isAuthenticated || !isAdmin) {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    if (!user) {
+      return;
+    }
+
+    if (!isAdmin) {
       setLoading(false);
       return;
     }
@@ -107,19 +131,21 @@ export default function AdministrationPage() {
         const requests: Promise<any>[] = [
           api.get("/Administration/overview"),
           api.get("/Account/users"),
+          api.get("/Account/users/roles"),
         ];
         if (isSuperAdmin) {
           requests.push(api.get("/Tenants"));
         }
 
-        const [response, usersResponse, tenantsResponse] = await Promise.all(requests);
+        const [response, usersResponse, rolesResponse, tenantsResponse] = await Promise.all(requests);
         if (mounted) {
           setOverview(response.data);
           setAccounts(usersResponse.data || []);
+          setAvailableRoles(rolesResponse.data || []);
           setTenants(isSuperAdmin ? (tenantsResponse?.data || []) : []);
-          const draftMap: Record<string, string> = {};
+          const draftMap: Record<string, string[]> = {};
           (usersResponse.data || []).forEach((u: IdentityUserManagement) => {
-            draftMap[u.id] = (u.roles || []).join(", ");
+            draftMap[u.id] = u.roles || [];
           });
           setRoleDrafts(draftMap);
         }
@@ -137,15 +163,21 @@ export default function AdministrationPage() {
     return () => {
       mounted = false;
     };
-  }, [t, isAuthenticated, isAdmin, isSuperAdmin]);
+  }, [t, isAuthenticated, user, isAdmin, isSuperAdmin]);
+
+  useEffect(() => {
+    if (!isSuperAdmin && activeTab === "tenants") {
+      setActiveTab("overview");
+    }
+  }, [activeTab, isSuperAdmin]);
 
   const refreshAccounts = async () => {
     const usersResponse = await api.get("/Account/users");
     const users = usersResponse.data || [];
     setAccounts(users);
-    const draftMap: Record<string, string> = {};
+    const draftMap: Record<string, string[]> = {};
     users.forEach((u: IdentityUserManagement) => {
-      draftMap[u.id] = (u.roles || []).join(", ");
+      draftMap[u.id] = u.roles || [];
     });
     setRoleDrafts(draftMap);
   };
@@ -163,11 +195,7 @@ export default function AdministrationPage() {
   const saveRoles = async (id: string) => {
     setPendingAction((prev) => ({ ...prev, [id]: true }));
     try {
-      const raw = roleDrafts[id] || "";
-      const roles = raw
-        .split(",")
-        .map((r) => r.trim())
-        .filter(Boolean);
+      const roles = roleDrafts[id] || [];
       await api.put(`/Account/users/${id}/roles`, { roles });
       await refreshAccounts();
     } finally {
@@ -258,132 +286,164 @@ export default function AdministrationPage() {
             ))}
           </Grid>
 
-          <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t("administration.table.module")}</TableCell>
-                  <TableCell>{t("administration.table.api")}</TableCell>
-                  <TableCell>{t("administration.table.view")}</TableCell>
-                  <TableCell>{t("administration.table.manage")}</TableCell>
-                  <TableCell align={isRTL ? "left" : "right"}>{t("administration.table.open")}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {overview.modules.map((module) => (
-                  <TableRow key={module.key} hover>
-                    <TableCell>{t(`administration.modules.${module.key}`)}</TableCell>
-                    <TableCell>
-                      <Chip size="small" label={module.apiPath} variant="outlined" />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        size="small"
-                        color={module.canView ? "success" : "default"}
-                        label={module.canView ? t("administration.yes") : t("administration.no")}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        size="small"
-                        color={module.canCreateOrUpdate ? "primary" : "default"}
-                        label={module.canCreateOrUpdate ? t("administration.manageEnabled") : t("administration.manageReadOnly")}
-                      />
-                    </TableCell>
-                    <TableCell align={isRTL ? "left" : "right"}>
-                      <Button size="small" variant="outlined" onClick={() => router.push(module.route)}>
-                        {t("administration.open")}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <Paper elevation={0} sx={{ mb: 3, borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_, value: AdministrationTab) => setActiveTab(value)}
+              variant="scrollable"
+              scrollButtons="auto"
+            >
+              <Tab value="overview" label={t("administration.tabs.overview")} />
+              <Tab value="accounts" label={t("administration.tabs.accounts")} />
+              {isSuperAdmin && <Tab value="tenants" label={t("administration.tabs.tenants")} />}
+            </Tabs>
           </Paper>
 
-          <Typography variant="h6" sx={{ mt: 4, mb: 1.5, fontWeight: 800 }}>
-            {t("administration.accounts.title")}
-          </Typography>
-          <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t("administration.accounts.user")}</TableCell>
-                  <TableCell>{t("administration.accounts.email")}</TableCell>
-                  <TableCell>{t("administration.accounts.status")}</TableCell>
-                  <TableCell>{t("administration.accounts.roles")}</TableCell>
-                  <TableCell align={isRTL ? "left" : "right"}>{t("administration.accounts.actions")}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {accounts.map((account) => (
-                  <TableRow key={account.id} hover>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{account.fullName || account.userName}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {account.userName}
-                        {account.tenantName ? ` • ${account.tenantName}` : ""}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{account.email || "-"}</TableCell>
-                    <TableCell>
-                      <Chip
-                        size="small"
-                        color={account.isEnabled ? "success" : "default"}
-                        label={account.isEnabled ? t("administration.accounts.enabled") : t("administration.accounts.disabled")}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ minWidth: 220 }}>
-                      <TextField
-                        size="small"
-                        fullWidth
-                        value={roleDrafts[account.id] || ""}
-                        onChange={(e) => setRoleDrafts((prev) => ({ ...prev, [account.id]: e.target.value }))}
-                        placeholder="Admin, Employee"
-                      />
-                    </TableCell>
-                    <TableCell align={isRTL ? "left" : "right"}>
-                      <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end" }}>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          disabled={!!pendingAction[account.id]}
-                          onClick={() => saveRoles(account.id)}
-                        >
-                          {t("administration.accounts.saveRoles")}
-                        </Button>
-                        {account.isEnabled ? (
-                          <Button
-                            size="small"
-                            color="warning"
-                            variant="contained"
-                            disabled={!!pendingAction[account.id]}
-                            onClick={() => runUserAction(account.id, "disable")}
-                          >
-                            {t("administration.accounts.disable")}
-                          </Button>
-                        ) : (
-                          <Button
-                            size="small"
-                            color="success"
-                            variant="contained"
-                            disabled={!!pendingAction[account.id]}
-                            onClick={() => runUserAction(account.id, "enable")}
-                          >
-                            {t("administration.accounts.enable")}
-                          </Button>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
-
-          {isSuperAdmin && (
+          {activeTab === "overview" && (
             <>
-              <Typography variant="h6" sx={{ mt: 4, mb: 1.5, fontWeight: 800 }}>
+              <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t("administration.table.module")}</TableCell>
+                      <TableCell>{t("administration.table.api")}</TableCell>
+                      <TableCell>{t("administration.table.view")}</TableCell>
+                      <TableCell>{t("administration.table.manage")}</TableCell>
+                      <TableCell align={isRTL ? "left" : "right"}>{t("administration.table.open")}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {overview.modules.map((module) => (
+                      <TableRow key={module.key} hover>
+                        <TableCell>{t(`administration.modules.${module.key}`)}</TableCell>
+                        <TableCell>
+                          <Chip size="small" label={module.apiPath} variant="outlined" />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            size="small"
+                            color={module.canView ? "success" : "default"}
+                            label={module.canView ? t("administration.yes") : t("administration.no")}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            size="small"
+                            color={module.canCreateOrUpdate ? "primary" : "default"}
+                            label={module.canCreateOrUpdate ? t("administration.manageEnabled") : t("administration.manageReadOnly")}
+                          />
+                        </TableCell>
+                        <TableCell align={isRTL ? "left" : "right"}>
+                          <Button size="small" variant="outlined" onClick={() => router.push(module.route)}>
+                            {t("administration.open")}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Paper>
+            </>
+          )}
+
+          {activeTab === "accounts" && (
+            <>
+              <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
+                {t("administration.accounts.title")}
+              </Typography>
+              <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t("administration.accounts.user")}</TableCell>
+                      <TableCell>{t("administration.accounts.email")}</TableCell>
+                      <TableCell>{t("administration.accounts.status")}</TableCell>
+                      <TableCell>{t("administration.accounts.roles")}</TableCell>
+                      <TableCell align={isRTL ? "left" : "right"}>{t("administration.accounts.actions")}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {accounts.map((account) => (
+                      <TableRow key={account.id} hover>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            {account.fullName || account.userName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {account.userName}
+                            {account.tenantName ? ` - ${account.tenantName}` : ""}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{account.email || "-"}</TableCell>
+                        <TableCell>
+                          <Chip
+                            size="small"
+                            color={account.isEnabled ? "success" : "default"}
+                            label={account.isEnabled ? t("administration.accounts.enabled") : t("administration.accounts.disabled")}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ minWidth: 220 }}>
+                          <SearchableMultiSelect<string>
+                            size="small"
+                            label={t("administration.accounts.roles")}
+                            value={roleDrafts[account.id] || []}
+                            onChange={(value) => setRoleDrafts((prev) => ({ ...prev, [account.id]: value }))}
+                            options={availableRoles.map((role) => ({
+                              value: role,
+                              label: role,
+                            }))}
+                            disabled={account.id === user?.id}
+                            limitTags={3}
+                          />
+                        </TableCell>
+                        <TableCell align={isRTL ? "left" : "right"}>
+                          <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end" }}>
+                            {account.id !== user?.id && (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                disabled={!!pendingAction[account.id]}
+                                onClick={() => saveRoles(account.id)}
+                              >
+                                {t("administration.accounts.saveRoles")}
+                              </Button>
+                            )}
+                            {account.isEnabled ? (
+                              account.id !== user?.id && (
+                                <Button
+                                  size="small"
+                                  color="warning"
+                                  variant="contained"
+                                  disabled={!!pendingAction[account.id]}
+                                  onClick={() => runUserAction(account.id, "disable")}
+                                >
+                                  {t("administration.accounts.disable")}
+                                </Button>
+                              )
+                            ) : (
+                              <Button
+                                size="small"
+                                color="success"
+                                variant="contained"
+                                disabled={!!pendingAction[account.id]}
+                                onClick={() => runUserAction(account.id, "enable")}
+                              >
+                                {t("administration.accounts.enable")}
+                              </Button>
+                            )}
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Paper>
+            </>
+          )}
+
+          {activeTab === "tenants" && isSuperAdmin && (
+            <>
+              <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
                 {t("administration.tenants.title", { defaultValue: "Tenants" })}
               </Typography>
               <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
@@ -415,17 +475,19 @@ export default function AdministrationPage() {
                           />
                         </TableCell>
                         <TableCell align={isRTL ? "left" : "right"}>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color={tenant.isActive ? "warning" : "success"}
-                            disabled={!!pendingAction[`tenant-${tenant.id}`]}
-                            onClick={() => toggleTenantStatus(tenant.id, !tenant.isActive)}
-                          >
-                            {tenant.isActive
-                              ? t("administration.tenants.deactivate", { defaultValue: "Deactivate" })
-                              : t("administration.tenants.activate", { defaultValue: "Activate" })}
-                          </Button>
+                          {!isDefaultFirm(tenant.name) && (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color={tenant.isActive ? "warning" : "success"}
+                              disabled={!!pendingAction[`tenant-${tenant.id}`]}
+                              onClick={() => toggleTenantStatus(tenant.id, !tenant.isActive)}
+                            >
+                              {tenant.isActive
+                                ? t("administration.tenants.deactivate", { defaultValue: "Deactivate" })
+                                : t("administration.tenants.activate", { defaultValue: "Activate" })}
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

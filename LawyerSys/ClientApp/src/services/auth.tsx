@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react'
 import api, { clearApiGetCache } from './api'
 
 interface User {
+  id: string;
   email: string;
   fullName: string;
   userName: string;
@@ -105,6 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         const userInfo = {
+          id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || decoded.nameid || decoded.sub || "",
           email: decoded.email || decoded.sub || 'User',
           fullName: decoded.fullName || '',
           userName: decoded.unique_name || decoded.preferred_username || decoded.sub || '',

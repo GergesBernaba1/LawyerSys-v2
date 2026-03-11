@@ -720,6 +720,11 @@
                             "no":  "No",
                             "manageEnabled":  "Manage",
                             "manageReadOnly":  "Read Only",
+                            "tabs":  {
+                                         "overview":  "Modules",
+                                         "accounts":  "Accounts",
+                                         "tenants":  "Tenants"
+                                     },
                             "cards":  {
                                           "users":  "Users",
                                           "employees":  "Employees",

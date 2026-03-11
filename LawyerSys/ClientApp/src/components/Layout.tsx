@@ -178,6 +178,7 @@ export default function Layout({ children }: LayoutProps) {
 
   React.useEffect(() => {
     if (!isAuthInitialized || isLayoutBypassedPage) return;
+    if (isAuthenticated && !user) return;
 
     let targetPath: string | null = null;
 
@@ -205,6 +206,7 @@ export default function Layout({ children }: LayoutProps) {
     isAuthInitialized,
     isLayoutBypassedPage,
     isAuthenticated,
+    user,
     pathname,
     isAdmin,
     isSuperAdmin,

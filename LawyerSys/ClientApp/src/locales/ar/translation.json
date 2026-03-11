@@ -724,6 +724,11 @@
                             "no":  "لا",
                             "manageEnabled":  "إدارة",
                             "manageReadOnly":  "قراءة فقط",
+                            "tabs":  {
+                                         "overview":  "الوحدات",
+                                         "accounts":  "الحسابات",
+                                         "tenants":  "الجهات"
+                                     },
                             "cards":  {
                                           "users":  "المستخدمون",
                                           "employees":  "الموظفون",

@@ -32,11 +32,15 @@ type TenantManagement = {
   userCount: number;
 };
 
+function isDefaultFirm(tenantName: string) {
+  return tenantName.trim().toLowerCase() === "default firm";
+}
+
 export default function TenantsPage() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { isAuthenticated, hasRole } = useAuth();
+  const { user, isAuthenticated, hasRole } = useAuth();
   const isRTL = theme.direction === "rtl";
   const isSuperAdmin = hasRole("SuperAdmin");
 
@@ -46,10 +50,14 @@ export default function TenantsPage() {
   const [pendingAction, setPendingAction] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
+    if (isAuthenticated && !user) {
+      return;
+    }
+
     if (isAuthenticated && !isSuperAdmin) {
       router.replace("/dashboard");
     }
-  }, [isAuthenticated, isSuperAdmin, router]);
+  }, [isAuthenticated, user, isSuperAdmin, router]);
 
   const loadTenants = async () => {
     setLoading(true);
@@ -67,13 +75,22 @@ export default function TenantsPage() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated || !isSuperAdmin) {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    if (!user) {
+      return;
+    }
+
+    if (!isSuperAdmin) {
       setLoading(false);
       return;
     }
 
     void loadTenants();
-  }, [isAuthenticated, isSuperAdmin, i18n.language, i18n.resolvedLanguage]);
+  }, [isAuthenticated, user, isSuperAdmin, i18n.language, i18n.resolvedLanguage]);
 
   const toggleTenantStatus = async (tenant: TenantManagement) => {
     setPendingAction((prev) => ({ ...prev, [tenant.id]: true }));
@@ -165,17 +182,19 @@ export default function TenantsPage() {
                     />
                   </TableCell>
                   <TableCell align={isRTL ? "left" : "right"}>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color={tenant.isActive ? "warning" : "success"}
-                      disabled={!!pendingAction[tenant.id]}
-                      onClick={() => void toggleTenantStatus(tenant)}
-                    >
-                      {tenant.isActive
-                        ? t("administration.tenants.deactivate", { defaultValue: "Deactivate" })
-                        : t("administration.tenants.activate", { defaultValue: "Activate" })}
-                    </Button>
+                    {!isDefaultFirm(tenant.name) && (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color={tenant.isActive ? "warning" : "success"}
+                        disabled={!!pendingAction[tenant.id]}
+                        onClick={() => void toggleTenantStatus(tenant)}
+                      >
+                        {tenant.isActive
+                          ? t("administration.tenants.deactivate", { defaultValue: "Deactivate" })
+                          : t("administration.tenants.activate", { defaultValue: "Activate" })}
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

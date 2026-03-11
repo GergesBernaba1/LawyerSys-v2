@@ -491,6 +491,28 @@ public class AccountController : ControllerBase
     }
 
     [Authorize(Policy = "AdminOnly")]
+    [HttpGet("users/roles")]
+    public async Task<IActionResult> GetAvailableRoles()
+    {
+        var query = _roleManager.Roles
+            .AsNoTracking()
+            .OrderBy(role => role.Name)
+            .AsQueryable();
+
+        if (!User.IsInRole("SuperAdmin"))
+        {
+            query = query.Where(role => role.Name != "SuperAdmin");
+        }
+
+        var roles = await query
+            .Select(role => role.Name ?? string.Empty)
+            .Where(roleName => !string.IsNullOrWhiteSpace(roleName))
+            .ToListAsync();
+
+        return Ok(roles);
+    }
+
+    [Authorize(Policy = "AdminOnly")]
     [HttpPost("users/{id}/enable")]
     public async Task<IActionResult> EnableUser(string id)
     {
@@ -546,6 +568,13 @@ public class AccountController : ControllerBase
     {
         var user = await FindAccessibleUserAsync(id);
         if (user == null) return NotFound(new { message = "User not found" });
+
+        var currentUserId = _userManager.GetUserId(User);
+        if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId == user.Id)
+        {
+            return BadRequest(new { message = "You cannot change your own roles." });
+        }
+
         var currentRoles = await _userManager.GetRolesAsync(user);
 
         if (!User.IsInRole("SuperAdmin") && currentRoles.Contains("SuperAdmin"))

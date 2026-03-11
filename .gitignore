@@ -241,6 +241,7 @@ coverage/
 
 # Next.js
 .next/
+.next-codex-verify/
 out/
 
 # Nuxt.js
