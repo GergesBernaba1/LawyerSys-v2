@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react'
-import api from './api'
+import api, { clearApiGetCache } from './api'
 
 interface User {
   email: string;
@@ -7,6 +7,8 @@ interface User {
   userName: string;
   token: string;
   roles: string[];
+  tenantId: number | null;
+  tenantName: string;
 }
 
 interface AuthContextValue {
@@ -14,7 +16,15 @@ interface AuthContextValue {
   user: User | null;
   isAuthInitialized: boolean;
   login: (user: string, pass: string) => Promise<boolean>;
-  register: (user: string, email: string, pass: string, fullName: string, countryId: number) => Promise<boolean>;
+  register: (
+    user: string,
+    email: string,
+    pass: string,
+    fullName: string,
+    countryId: number,
+    lawyerOfficeName: string,
+    lawyerOfficePhoneNumber: string
+  ) => Promise<boolean>;
   setAuthToken: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -95,10 +105,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fullName: decoded.fullName || '',
           userName: decoded.unique_name || decoded.preferred_username || decoded.sub || '',
           roles,
+          tenantId: Number(decoded.tenant_id || decoded.firm_id || 0) || null,
+          tenantName: decoded.tenant_name || '',
           token,
         };
         console.log('Setting user info:', userInfo);
         setUser(userInfo);
+
+        if (typeof window !== 'undefined' && userInfo.tenantId) {
+          const savedTenantId = localStorage.getItem('lawyersys-active-tenant-id')
+          if (!savedTenantId) {
+            localStorage.setItem('lawyersys-active-tenant-id', String(userInfo.tenantId))
+            clearApiGetCache()
+          }
+        }
       }
     } else {
       setUser(null);
@@ -113,6 +133,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const t = r.data?.token
       if (t) {
         localStorage.setItem('lawyersys-token', t)
+        localStorage.removeItem('lawyersys-active-tenant-id')
+        clearApiGetCache()
         setAuthState((prev) => ({ ...prev, token: t, isAuthInitialized: true }))
         return true
       }
@@ -124,9 +146,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  async function register(userName: string, email: string, pass: string, fullName: string, countryId: number) {
+  async function register(
+    userName: string,
+    email: string,
+    pass: string,
+    fullName: string,
+    countryId: number,
+    lawyerOfficeName: string,
+    lawyerOfficePhoneNumber: string
+  ) {
     try {
-      await api.post('/Account/register', { userName, email, password: pass, fullName, countryId })
+      await api.post('/Account/register', {
+        userName,
+        email,
+        password: pass,
+        fullName,
+        countryId,
+        lawyerOfficeName,
+        lawyerOfficePhoneNumber,
+      })
       return true
     } catch (e) {
       return false
@@ -135,11 +173,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   function setAuthToken(nextToken: string) {
     localStorage.setItem('lawyersys-token', nextToken)
+    clearApiGetCache()
     setAuthState((prev) => ({ ...prev, token: nextToken, isAuthInitialized: true }))
   }
 
   function logout() {
     localStorage.removeItem('lawyersys-token')
+    localStorage.removeItem('lawyersys-active-tenant-id')
+    clearApiGetCache()
     setAuthState((prev) => ({ ...prev, token: null, isAuthInitialized: true }))
     setUser(null)
   }

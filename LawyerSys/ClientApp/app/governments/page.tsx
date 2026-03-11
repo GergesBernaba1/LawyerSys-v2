@@ -280,7 +280,10 @@ export default function GovernmentsPage() {
                 labelId="country-filter-label"
                 value={selectedCountryId}
                 label={t("governments.filterCountry")}
-                onChange={(event) => setSelectedCountryId(event.target.value === "" ? "" : Number(event.target.value))}
+                onChange={(event) => {
+                  const nextValue = String(event.target.value)
+                  setSelectedCountryId(nextValue === "" ? "" : Number(nextValue))
+                }}
               >
                 <MenuItem value="">{t("governments.allCountries")}</MenuItem>
                 {filterCountries.map((country) => (

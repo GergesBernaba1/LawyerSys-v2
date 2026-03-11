@@ -39,6 +39,8 @@ export default function RegisterPage() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
+  const [lawyerOfficeName, setLawyerOfficeName] = useState('');
+  const [lawyerOfficePhoneNumber, setLawyerOfficePhoneNumber] = useState('');
   const [countryId, setCountryId] = useState<number | ''>('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -104,9 +106,27 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!lawyerOfficeName.trim()) {
+      setError(t('register.officeNameRequired', { defaultValue: 'Please enter the lawyer office name.' }));
+      return;
+    }
+
+    if (!lawyerOfficePhoneNumber.trim()) {
+      setError(t('register.officePhoneRequired', { defaultValue: 'Please enter the lawyer office phone number.' }));
+      return;
+    }
+
     setLoading(true);
 
-    const success = await register(userName, email, password, fullName, Number(countryId));
+    const success = await register(
+      userName,
+      email,
+      password,
+      fullName,
+      Number(countryId),
+      lawyerOfficeName,
+      lawyerOfficePhoneNumber
+    );
     if (success) {
       router.push('/login');
     } else {
@@ -352,6 +372,42 @@ export default function RegisterPage() {
                 autoFocus
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
+                sx={{
+                  ...fieldSx,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.6,
+                    backgroundColor: '#ffffff',
+                  },
+                }}
+              />
+              <TextField
+                margin="dense"
+                size="small"
+                required
+                fullWidth
+                id="lawyerOfficeName"
+                label={t('register.lawyerOfficeName', { defaultValue: 'Lawyer Office Name' })}
+                name="lawyerOfficeName"
+                value={lawyerOfficeName}
+                onChange={(e) => setLawyerOfficeName(e.target.value)}
+                sx={{
+                  ...fieldSx,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.6,
+                    backgroundColor: '#ffffff',
+                  },
+                }}
+              />
+              <TextField
+                margin="dense"
+                size="small"
+                required
+                fullWidth
+                id="lawyerOfficePhoneNumber"
+                label={t('register.lawyerOfficePhoneNumber', { defaultValue: 'Lawyer Office Phone Number' })}
+                name="lawyerOfficePhoneNumber"
+                value={lawyerOfficePhoneNumber}
+                onChange={(e) => setLawyerOfficePhoneNumber(e.target.value)}
                 sx={{
                   ...fieldSx,
                   '& .MuiOutlinedInput-root': {

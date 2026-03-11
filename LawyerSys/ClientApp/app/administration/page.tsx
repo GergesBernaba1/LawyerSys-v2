@@ -55,9 +55,20 @@ type IdentityUserManagement = {
   userName: string;
   email: string;
   fullName: string;
+  tenantId: number;
+  tenantName: string;
   requiresPasswordReset: boolean;
   isEnabled: boolean;
   roles: string[];
+};
+
+type TenantManagement = {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+  countryName: string;
+  userCount: number;
 };
 
 export default function AdministrationPage() {
@@ -67,9 +78,11 @@ export default function AdministrationPage() {
   const { isAuthenticated, hasRole } = useAuth();
   const isRTL = theme.direction === "rtl";
   const isAdmin = hasRole("Admin");
+  const isSuperAdmin = hasRole("SuperAdmin");
 
   const [overview, setOverview] = useState<AdministrationOverview | null>(null);
   const [accounts, setAccounts] = useState<IdentityUserManagement[]>([]);
+  const [tenants, setTenants] = useState<TenantManagement[]>([]);
   const [roleDrafts, setRoleDrafts] = useState<Record<string, string>>({});
   const [pendingAction, setPendingAction] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
@@ -91,13 +104,19 @@ export default function AdministrationPage() {
 
     (async () => {
       try {
-        const [response, usersResponse] = await Promise.all([
+        const requests: Promise<any>[] = [
           api.get("/Administration/overview"),
           api.get("/Account/users"),
-        ]);
+        ];
+        if (isSuperAdmin) {
+          requests.push(api.get("/Tenants"));
+        }
+
+        const [response, usersResponse, tenantsResponse] = await Promise.all(requests);
         if (mounted) {
           setOverview(response.data);
           setAccounts(usersResponse.data || []);
+          setTenants(isSuperAdmin ? (tenantsResponse?.data || []) : []);
           const draftMap: Record<string, string> = {};
           (usersResponse.data || []).forEach((u: IdentityUserManagement) => {
             draftMap[u.id] = (u.roles || []).join(", ");
@@ -118,7 +137,7 @@ export default function AdministrationPage() {
     return () => {
       mounted = false;
     };
-  }, [t, isAuthenticated, isAdmin]);
+  }, [t, isAuthenticated, isAdmin, isSuperAdmin]);
 
   const refreshAccounts = async () => {
     const usersResponse = await api.get("/Account/users");
@@ -153,6 +172,17 @@ export default function AdministrationPage() {
       await refreshAccounts();
     } finally {
       setPendingAction((prev) => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const toggleTenantStatus = async (id: number, isActive: boolean) => {
+    setPendingAction((prev) => ({ ...prev, [`tenant-${id}`]: true }));
+    try {
+      await api.put(`/Tenants/${id}/status`, { isActive });
+      const tenantsResponse = await api.get("/Tenants");
+      setTenants(tenantsResponse.data || []);
+    } finally {
+      setPendingAction((prev) => ({ ...prev, [`tenant-${id}`]: false }));
     }
   };
 
@@ -290,7 +320,10 @@ export default function AdministrationPage() {
                   <TableRow key={account.id} hover>
                     <TableCell>
                       <Typography variant="body2" sx={{ fontWeight: 700 }}>{account.fullName || account.userName}</Typography>
-                      <Typography variant="caption" color="text.secondary">{account.userName}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {account.userName}
+                        {account.tenantName ? ` • ${account.tenantName}` : ""}
+                      </Typography>
                     </TableCell>
                     <TableCell>{account.email || "-"}</TableCell>
                     <TableCell>
@@ -347,6 +380,60 @@ export default function AdministrationPage() {
               </TableBody>
             </Table>
           </Paper>
+
+          {isSuperAdmin && (
+            <>
+              <Typography variant="h6" sx={{ mt: 4, mb: 1.5, fontWeight: 800 }}>
+                {t("administration.tenants.title", { defaultValue: "Tenants" })}
+              </Typography>
+              <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t("administration.tenants.name", { defaultValue: "Tenant" })}</TableCell>
+                      <TableCell>{t("administration.tenants.country", { defaultValue: "Country" })}</TableCell>
+                      <TableCell>{t("administration.tenants.phone", { defaultValue: "Phone" })}</TableCell>
+                      <TableCell>{t("administration.tenants.users", { defaultValue: "Users" })}</TableCell>
+                      <TableCell>{t("administration.tenants.status", { defaultValue: "Status" })}</TableCell>
+                      <TableCell align={isRTL ? "left" : "right"}>{t("administration.tenants.actions", { defaultValue: "Actions" })}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {tenants.map((tenant) => (
+                      <TableRow key={tenant.id} hover>
+                        <TableCell sx={{ fontWeight: 700 }}>{tenant.name}</TableCell>
+                        <TableCell>{tenant.countryName || "-"}</TableCell>
+                        <TableCell>{tenant.phoneNumber || "-"}</TableCell>
+                        <TableCell>{tenant.userCount}</TableCell>
+                        <TableCell>
+                          <Chip
+                            size="small"
+                            color={tenant.isActive ? "success" : "default"}
+                            label={tenant.isActive
+                              ? t("administration.tenants.active", { defaultValue: "Active" })
+                              : t("administration.tenants.inactive", { defaultValue: "Inactive" })}
+                          />
+                        </TableCell>
+                        <TableCell align={isRTL ? "left" : "right"}>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            color={tenant.isActive ? "warning" : "success"}
+                            disabled={!!pendingAction[`tenant-${tenant.id}`]}
+                            onClick={() => toggleTenantStatus(tenant.id, !tenant.isActive)}
+                          >
+                            {tenant.isActive
+                              ? t("administration.tenants.deactivate", { defaultValue: "Deactivate" })
+                              : t("administration.tenants.activate", { defaultValue: "Activate" })}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Paper>
+            </>
+          )}
         </>
       )}
     </Box>

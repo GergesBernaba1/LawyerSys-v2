@@ -10,6 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Country> Countries => Set<Country>();
     public DbSet<City> Cities => Set<City>();
+    public DbSet<Tenant> Tenants => Set<Tenant>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -17,6 +18,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<ApplicationUser>(entity =>
         {
+            entity.HasOne(user => user.Tenant)
+                .WithMany(tenant => tenant.Users)
+                .HasForeignKey(user => user.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(user => user.Country)
                 .WithMany(country => country.Users)
                 .HasForeignKey(user => user.CountryId)
@@ -47,6 +52,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(country => country.Cities)
                 .HasForeignKey(city => city.CountryId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Tenant>(entity =>
+        {
+            entity.ToTable("Tenants");
+            entity.Property(tenant => tenant.Name)
+                .HasMaxLength(200);
+            entity.Property(tenant => tenant.PhoneNumber)
+                .HasMaxLength(32);
+            entity.Property(tenant => tenant.CreatedAtUtc);
+            entity.HasIndex(tenant => tenant.IsActive);
+            entity.HasOne(tenant => tenant.Country)
+                .WithMany(country => country.Tenants)
+                .HasForeignKey(tenant => tenant.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

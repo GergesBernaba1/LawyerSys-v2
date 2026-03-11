@@ -74,7 +74,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
-import api from '../services/api';
+import api, { clearApiGetCache } from '../services/api';
 
 const drawerWidth = 280;
 
@@ -125,6 +125,12 @@ interface ChatMessage {
   text: string;
 }
 
+interface TenantOption {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isLayoutBypassedPage =
@@ -147,8 +153,11 @@ export default function Layout({ children }: LayoutProps) {
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [tenantOptions, setTenantOptions] = useState<TenantOption[]>([])
+  const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('')
   const chatEndRef = React.useRef<HTMLDivElement | null>(null)
   const isAdmin = hasRole('Admin')
+  const isSuperAdmin = hasRole('SuperAdmin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
@@ -261,6 +270,18 @@ export default function Layout({ children }: LayoutProps) {
     router.push(path);
   };
 
+  const handleTenantChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextTenantId = Number(event.target.value)
+    if (!nextTenantId || Number.isNaN(nextTenantId)) return
+
+    setSelectedTenantId(nextTenantId)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lawyersys-active-tenant-id', String(nextTenantId))
+      clearApiGetCache()
+      window.location.reload()
+    }
+  }
+
   const collapsedWidth = 72;
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
@@ -272,6 +293,52 @@ export default function Layout({ children }: LayoutProps) {
   React.useEffect(() => {
     try { localStorage.setItem('layout.sidebarCollapsed', collapsed ? 'true' : 'false') } catch {}
   }, [collapsed]);
+
+  React.useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      setTenantOptions([])
+      setSelectedTenantId('')
+      return
+    }
+
+    let mounted = true
+
+    const loadTenants = async () => {
+      try {
+        const response = await api.get('/Tenants/available')
+        if (!mounted) return
+
+        const items = Array.isArray(response.data?.items) ? response.data.items : []
+        const currentTenantId = Number(response.data?.currentTenantId || 0) || 0
+        const savedTenantId = typeof window !== 'undefined'
+          ? Number(localStorage.getItem('lawyersys-active-tenant-id') || 0) || 0
+          : 0
+        const nextTenantId =
+          items.some((item: TenantOption) => item.id === savedTenantId)
+            ? savedTenantId
+            : items.some((item: TenantOption) => item.id === currentTenantId)
+              ? currentTenantId
+              : (items[0]?.id || 0)
+
+        setTenantOptions(items)
+        setSelectedTenantId(nextTenantId || '')
+
+        if (typeof window !== 'undefined' && nextTenantId > 0) {
+          localStorage.setItem('lawyersys-active-tenant-id', String(nextTenantId))
+          clearApiGetCache()
+        }
+      } catch {
+        if (!mounted) return
+        setTenantOptions([])
+        setSelectedTenantId('')
+      }
+    }
+
+    loadTenants()
+    return () => {
+      mounted = false
+    }
+  }, [isAuthenticated, isAdmin])
 
   React.useEffect(() => {
     if (!chatOpen || chatMessages.length > 0) return
@@ -647,6 +714,32 @@ export default function Layout({ children }: LayoutProps) {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {isAdmin && tenantOptions.length > 0 && (
+              <TextField
+                select
+                size="small"
+                label={t('app.tenant', 'Tenant')}
+                value={selectedTenantId}
+                onChange={handleTenantChange}
+                sx={{
+                  minWidth: { xs: 150, md: 220 },
+                  display: { xs: 'none', sm: 'flex' },
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2.5,
+                    backgroundColor: 'grey.50',
+                  },
+                }}
+                helperText={isSuperAdmin ? t('app.selectTenant', 'Select tenant filter') : undefined}
+              >
+                {tenantOptions.map((tenant) => (
+                  <MenuItem key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                    {!tenant.isActive ? ` (${t('administration.tenants.inactive', 'Inactive')})` : ''}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+
             {/* Language Selector */}
             <Button
               onClick={handleLangOpen}

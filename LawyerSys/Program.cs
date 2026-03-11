@@ -218,9 +218,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("EmployeeOrAdmin", policy => policy.RequireRole("Admin", "Employee"));
-    options.AddPolicy("CustomerAccess", policy => policy.RequireRole("Admin", "Employee", "Customer"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("SuperAdmin", "Admin"));
+    options.AddPolicy("EmployeeOrAdmin", policy => policy.RequireRole("SuperAdmin", "Admin", "Employee"));
+    options.AddPolicy("CustomerAccess", policy => policy.RequireRole("SuperAdmin", "Admin", "Employee", "Customer"));
 });
 
 var app = builder.Build();
@@ -305,6 +305,15 @@ try
     catch (Exception ex)
     {
         Log.Error(ex, "Error during time tracking schema initialization");
+    }
+
+    try
+    {
+        await DataSeeder.SeedAdminUser(scope.ServiceProvider);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during identity seed initialization");
     }
 }
 catch (Exception ex)

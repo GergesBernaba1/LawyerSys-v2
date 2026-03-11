@@ -24,6 +24,9 @@ type MyProfile = {
   email: string;
   phoneNumber: string;
   countryId: number | null;
+  tenantName: string;
+  tenantPhoneNumber: string;
+  canManageTenant: boolean;
 };
 
 type SnackbarState = {
@@ -43,13 +46,17 @@ const emptyProfile: MyProfile = {
   email: "",
   phoneNumber: "",
   countryId: null,
+  tenantName: "",
+  tenantPhoneNumber: "",
+  canManageTenant: false,
 };
 
 export default function ProfilePage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === "rtl";
-  const { isAuthenticated, setAuthToken } = useAuth();
+  const { isAuthenticated, setAuthToken, hasAnyRole } = useAuth();
+  const canEditTenant = hasAnyRole("Admin", "SuperAdmin");
 
   const [profile, setProfile] = useState<MyProfile>(emptyProfile);
   const [initialProfile, setInitialProfile] = useState<MyProfile>(emptyProfile);
@@ -95,6 +102,9 @@ export default function ProfilePage() {
           email: profileRes.data?.email ?? "",
           phoneNumber: profileRes.data?.phoneNumber ?? "",
           countryId: profileRes.data?.countryId ?? null,
+          tenantName: profileRes.data?.tenantName ?? "",
+          tenantPhoneNumber: profileRes.data?.tenantPhoneNumber ?? "",
+          canManageTenant: !!profileRes.data?.canManageTenant,
         };
         setProfile(incoming);
         setInitialProfile(incoming);
@@ -132,6 +142,9 @@ export default function ProfilePage() {
         email: res.data?.profile?.email ?? profile.email,
         phoneNumber: res.data?.profile?.phoneNumber ?? profile.phoneNumber,
         countryId: res.data?.profile?.countryId ?? profile.countryId,
+        tenantName: res.data?.profile?.tenantName ?? profile.tenantName,
+        tenantPhoneNumber: res.data?.profile?.tenantPhoneNumber ?? profile.tenantPhoneNumber,
+        canManageTenant: !!res.data?.profile?.canManageTenant,
       };
 
       if (typeof res.data?.token === "string" && res.data.token.length > 0) {
@@ -263,6 +276,22 @@ export default function ProfilePage() {
                   </MenuItem>
                 ))}
               </TextField>
+              {canEditTenant && profile.canManageTenant && (
+                <>
+                  <TextField
+                    label={t("profile.tenantName", { defaultValue: "Lawyer Office Name" })}
+                    value={profile.tenantName}
+                    onChange={(e) => setProfile({ ...profile, tenantName: e.target.value })}
+                    fullWidth
+                  />
+                  <TextField
+                    label={t("profile.tenantPhoneNumber", { defaultValue: "Lawyer Office Phone Number" })}
+                    value={profile.tenantPhoneNumber}
+                    onChange={(e) => setProfile({ ...profile, tenantPhoneNumber: e.target.value })}
+                    fullWidth
+                  />
+                </>
+              )}
               <Box sx={{ display: "flex", justifyContent: isRTL ? "flex-start" : "flex-end" }}>
                 <Button
                   variant="contained"

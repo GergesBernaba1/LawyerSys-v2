@@ -81,7 +81,9 @@
                 "timetracking": "تتبع الوقت",
                 "clientportal":  "بوابة العميل",
                 "administration":  "الإدارة",
-                "intake":  "الاستقبال"
+                "intake":  "الاستقبال",
+                "tenant":  "الجهة",
+                "selectTenant":  "اختر الجهة للتصفية"
             },
     "login":  {
                   "title":  "مرحباً بعودتك",
@@ -110,6 +112,10 @@
                      "subtitle":  "سجل للوصول إلى منصة قضايا",
                      "username":  "اسم المستخدم",
                      "fullName":  "الاسم الكامل",
+                     "lawyerOfficeName":  "اسم مكتب المحاماة",
+                     "lawyerOfficePhoneNumber":  "هاتف مكتب المحاماة",
+                     "officeNameRequired":  "يرجى إدخال اسم مكتب المحاماة",
+                     "officePhoneRequired":  "يرجى إدخال هاتف مكتب المحاماة",
                      "country":  "الدولة",
                      "selectCountry":  "اختر الدولة",
                      "countryRequired":  "يرجى اختيار الدولة",
@@ -749,7 +755,20 @@
                                              "enable":  "تفعيل",
                                              "disable":  "تعطيل",
                                              "saveRoles":  "حفظ الأدوار"
-                                         }
+                                         },
+                            "tenants":  {
+                                            "title":  "الجهات",
+                                            "name":  "الجهة",
+                                            "country":  "الدولة",
+                                            "phone":  "الهاتف",
+                                            "users":  "المستخدمون",
+                                            "status":  "الحالة",
+                                            "actions":  "الإجراءات",
+                                            "active":  "نشطة",
+                                            "inactive":  "غير نشطة",
+                                            "activate":  "تفعيل",
+                                            "deactivate":  "تعطيل"
+                                        }
                         },
     "documentGeneration":  {
                                "title":  "توليد مستند قانوني",
@@ -1064,6 +1083,8 @@
                     "fullName":  "الاسم الكامل",
                     "email":  "البريد الإلكتروني",
                     "phoneNumber":  "رقم الهاتف",
+                    "tenantName":  "اسم مكتب المحاماة",
+                    "tenantPhoneNumber":  "هاتف مكتب المحاماة",
                     "country":  "الدولة",
                     "selectCountry":  "اختر الدولة",
                     "saveProfile":  "حفظ الملف الشخصي",

@@ -8,6 +8,8 @@ public class ApplicationUser : IdentityUser
     // Full name of the user for display purposes
     public string FullName { get; set; } = string.Empty;
 
+    public int TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
     public int? CountryId { get; set; }
     public Country? Country { get; set; }
 }

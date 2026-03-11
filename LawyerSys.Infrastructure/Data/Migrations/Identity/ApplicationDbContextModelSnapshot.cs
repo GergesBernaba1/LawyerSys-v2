@@ -79,6 +79,9 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Identity
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -86,6 +89,8 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Identity
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -150,6 +155,42 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Identity
                         .IsUnique();
 
                     b.ToTable("Countries", (string)null);
+                });
+
+            modelBuilder.Entity("Tenant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("Tenants", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -286,10 +327,18 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Identity
 
             modelBuilder.Entity("ApplicationUser", b =>
                 {
+                    b.HasOne("Tenant", "Tenant")
+                        .WithMany("Users")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Country", "Country")
                         .WithMany("Users")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("Country");
                 });
@@ -301,6 +350,16 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Identity
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("Tenant", b =>
+                {
+                    b.HasOne("Country", "Country")
+                        .WithMany("Tenants")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Country");
                 });
@@ -359,6 +418,8 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Identity
             modelBuilder.Entity("Country", b =>
                 {
                     b.Navigation("Cities");
+
+                    b.Navigation("Tenants");
 
                     b.Navigation("Users");
                 });

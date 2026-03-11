@@ -25,17 +25,22 @@ public partial class LegacyDbContext : DbContext
                 return 1;
             }
 
-            var headerValue = httpContext.Request.Headers["X-Firm-Id"].FirstOrDefault();
-            if (int.TryParse(headerValue, out var fromHeader) && fromHeader > 0)
-            {
-                return fromHeader;
-            }
-
             var claimValue = httpContext.User.FindFirst("firm_id")?.Value
                              ?? httpContext.User.FindFirst("FirmId")?.Value
                              ?? httpContext.User.FindFirst("tenant_id")?.Value
                              ?? httpContext.User.FindFirst(ClaimTypes.GroupSid)?.Value;
-            if (int.TryParse(claimValue, out var fromClaim) && fromClaim > 0)
+            var hasClaimFirmId = int.TryParse(claimValue, out var fromClaim) && fromClaim > 0;
+
+            if (httpContext.User.IsInRole("SuperAdmin"))
+            {
+                var headerValue = httpContext.Request.Headers["X-Firm-Id"].FirstOrDefault();
+                if (int.TryParse(headerValue, out var fromHeader) && fromHeader > 0)
+                {
+                    return fromHeader;
+                }
+            }
+
+            if (hasClaimFirmId)
             {
                 return fromClaim;
             }

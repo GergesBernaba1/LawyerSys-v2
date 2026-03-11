@@ -6,6 +6,7 @@ using LawyerSys.Services;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -33,6 +34,14 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (string.IsNullOrWhiteSpace(model.LawyerOfficeName))
+        {
+            return BadRequest(new { message = "Lawyer office name is required." });
+        }
+        if (string.IsNullOrWhiteSpace(model.LawyerOfficePhoneNumber))
+        {
+            return BadRequest(new { message = "Lawyer office phone number is required." });
+        }
         if (model.CountryId is null or <= 0)
         {
             return BadRequest(new { message = "Country is required." });
@@ -45,18 +54,52 @@ public class AccountController : ControllerBase
             return BadRequest(new { message = "Selected country is invalid." });
         }
 
-        var user = new ApplicationUser { 
-            UserName = model.UserName, 
-            Email = model.Email, 
-            FullName = model.FullName,
-            CountryId = model.CountryId,
-            EmailConfirmed = false, 
-            RequiresPasswordReset = false 
-        };
-        var result = await _userManager.CreateAsync(user, model.Password);
-        if (!result.Succeeded) return BadRequest(result.Errors);
+        await using var transaction = await _applicationDbContext.Database.BeginTransactionAsync();
 
-        // Optionally add claims/roles here
+        var tenant = new Tenant
+        {
+            Name = model.LawyerOfficeName.Trim(),
+            PhoneNumber = model.LawyerOfficePhoneNumber.Trim(),
+            CountryId = model.CountryId,
+            IsActive = true,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        _applicationDbContext.Tenants.Add(tenant);
+        await _applicationDbContext.SaveChangesAsync();
+
+        var user = new ApplicationUser
+        {
+            UserName = model.UserName,
+            Email = model.Email,
+            FullName = model.FullName,
+            PhoneNumber = model.LawyerOfficePhoneNumber.Trim(),
+            CountryId = model.CountryId,
+            TenantId = tenant.Id,
+            EmailConfirmed = false,
+            RequiresPasswordReset = false
+        };
+
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (!result.Succeeded)
+        {
+            await transaction.RollbackAsync();
+            return BadRequest(result.Errors);
+        }
+
+        if (!await _roleManager.RoleExistsAsync("Admin"))
+        {
+            await _roleManager.CreateAsync(new IdentityRole("Admin"));
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
+        if (!roleResult.Succeeded)
+        {
+            await transaction.RollbackAsync();
+            return BadRequest(roleResult.Errors);
+        }
+
+        await transaction.CommitAsync();
         return Ok(new { message = "User created." });
     }
 
@@ -158,7 +201,11 @@ public class AccountController : ControllerBase
             Email = user.Email ?? string.Empty,
             PhoneNumber = user.PhoneNumber ?? string.Empty,
             CountryId = user.CountryId,
-            CountryName = GetLocalizedName(user.Country?.Name, user.Country?.NameAr)
+            CountryName = GetLocalizedName(user.Country?.Name, user.Country?.NameAr),
+            TenantId = user.TenantId,
+            TenantName = user.Tenant?.Name ?? string.Empty,
+            TenantPhoneNumber = user.Tenant?.PhoneNumber ?? string.Empty,
+            CanManageTenant = await UserCanManageTenantAsync(user)
         });
     }
 
@@ -174,6 +221,8 @@ public class AccountController : ControllerBase
         var requestedFullName = (model.FullName ?? string.Empty).Trim();
         var requestedPhoneNumber = (model.PhoneNumber ?? string.Empty).Trim();
         var requestedCountryId = model.CountryId;
+        var requestedTenantName = (model.TenantName ?? string.Empty).Trim();
+        var requestedTenantPhoneNumber = (model.TenantPhoneNumber ?? string.Empty).Trim();
 
         if (string.IsNullOrWhiteSpace(requestedUserName))
             return BadRequest(new { message = "Username is required." });
@@ -215,6 +264,29 @@ public class AccountController : ControllerBase
         user.PhoneNumber = string.IsNullOrWhiteSpace(requestedPhoneNumber) ? null : requestedPhoneNumber;
         user.CountryId = requestedCountryId;
 
+        if (await UserCanManageTenantAsync(user))
+        {
+            if (user.Tenant == null)
+            {
+                user.Tenant = await _applicationDbContext.Tenants.SingleOrDefaultAsync(tenant => tenant.Id == user.TenantId);
+            }
+
+            if (user.Tenant != null)
+            {
+                if (!string.IsNullOrWhiteSpace(requestedTenantName))
+                {
+                    user.Tenant.Name = requestedTenantName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(requestedTenantPhoneNumber))
+                {
+                    user.Tenant.PhoneNumber = requestedTenantPhoneNumber;
+                }
+
+                user.Tenant.CountryId = requestedCountryId;
+            }
+        }
+
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
@@ -240,7 +312,11 @@ public class AccountController : ControllerBase
                     .Select(country => useArabic && !string.IsNullOrWhiteSpace(country.NameAr)
                         ? country.NameAr
                         : country.Name)
-                    .FirstOrDefaultAsync() ?? string.Empty
+                    .FirstOrDefaultAsync() ?? string.Empty,
+                TenantId = user.TenantId,
+                TenantName = user.Tenant?.Name ?? string.Empty,
+                TenantPhoneNumber = user.Tenant?.PhoneNumber ?? string.Empty,
+                CanManageTenant = await UserCanManageTenantAsync(user)
             }
         });
     }
@@ -271,7 +347,30 @@ public class AccountController : ControllerBase
     [HttpGet("users")]
     public async Task<IActionResult> GetIdentityUsers()
     {
-        var users = await _userManager.Users
+        var requestedTenantId = GetRequestedTenantId();
+        var currentUser = await GetCurrentUserAsync();
+        if (currentUser == null)
+        {
+            return Unauthorized(new { message = "User not found" });
+        }
+
+        var query = _userManager.Users
+            .Include(u => u.Tenant)
+            .AsQueryable();
+
+        if (User.IsInRole("SuperAdmin"))
+        {
+            if (requestedTenantId.HasValue)
+            {
+                query = query.Where(user => user.TenantId == requestedTenantId.Value);
+            }
+        }
+        else
+        {
+            query = query.Where(user => user.TenantId == currentUser.TenantId);
+        }
+
+        var users = await query
             .OrderBy(u => u.UserName)
             .ToListAsync();
 
@@ -286,6 +385,8 @@ public class AccountController : ControllerBase
                 UserName = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 FullName = user.FullName,
+                TenantId = user.TenantId,
+                TenantName = user.Tenant?.Name ?? string.Empty,
                 RequiresPasswordReset = user.RequiresPasswordReset,
                 IsEnabled = !isDisabled,
                 Roles = roles.ToArray()
@@ -299,8 +400,14 @@ public class AccountController : ControllerBase
     [HttpPost("users/{id}/enable")]
     public async Task<IActionResult> EnableUser(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await FindAccessibleUserAsync(id);
         if (user == null) return NotFound(new { message = "User not found" });
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+        if (!User.IsInRole("SuperAdmin") && userRoles.Contains("SuperAdmin"))
+        {
+            return Forbid();
+        }
 
         user.LockoutEnabled = true;
         user.LockoutEnd = null;
@@ -315,8 +422,14 @@ public class AccountController : ControllerBase
     [HttpPost("users/{id}/disable")]
     public async Task<IActionResult> DisableUser(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await FindAccessibleUserAsync(id);
         if (user == null) return NotFound(new { message = "User not found" });
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+        if (!User.IsInRole("SuperAdmin") && userRoles.Contains("SuperAdmin"))
+        {
+            return Forbid();
+        }
 
         var currentUserId = _userManager.GetUserId(User);
         if (!string.IsNullOrWhiteSpace(currentUserId) && currentUserId == user.Id)
@@ -337,14 +450,25 @@ public class AccountController : ControllerBase
     [HttpPut("users/{id}/roles")]
     public async Task<IActionResult> SetUserRoles(string id, [FromBody] SetUserRolesRequest model)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await FindAccessibleUserAsync(id);
         if (user == null) return NotFound(new { message = "User not found" });
+        var currentRoles = await _userManager.GetRolesAsync(user);
+
+        if (!User.IsInRole("SuperAdmin") && currentRoles.Contains("SuperAdmin"))
+        {
+            return Forbid();
+        }
 
         var requestedRoles = (model.Roles ?? Array.Empty<string>())
             .Where(r => !string.IsNullOrWhiteSpace(r))
             .Select(r => r.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
+
+        if (!User.IsInRole("SuperAdmin") && requestedRoles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { message = "Only super administrators can assign the SuperAdmin role." });
+        }
 
         foreach (var role in requestedRoles)
         {
@@ -354,7 +478,6 @@ public class AccountController : ControllerBase
             }
         }
 
-        var currentRoles = await _userManager.GetRolesAsync(user);
         var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
         if (!removeResult.Succeeded) return BadRequest(removeResult.Errors);
 
@@ -377,8 +500,55 @@ public class AccountController : ControllerBase
         }
 
         return await _applicationDbContext.Users
+            .Include(user => user.Tenant)
             .Include(user => user.Country)
             .SingleOrDefaultAsync(user => user.Id == currentUserId);
+    }
+
+    private int? GetRequestedTenantId()
+    {
+        if (!User.IsInRole("SuperAdmin"))
+        {
+            return null;
+        }
+
+        var headerValue = Request.Headers["X-Firm-Id"].FirstOrDefault();
+        return int.TryParse(headerValue, out var tenantId) && tenantId > 0
+            ? tenantId
+            : null;
+    }
+
+    private async Task<ApplicationUser?> FindAccessibleUserAsync(string id)
+    {
+        var targetUser = await _applicationDbContext.Users
+            .Include(user => user.Tenant)
+            .SingleOrDefaultAsync(user => user.Id == id);
+        if (targetUser == null)
+        {
+            return null;
+        }
+
+        if (User.IsInRole("SuperAdmin"))
+        {
+            var requestedTenantId = GetRequestedTenantId();
+            if (requestedTenantId.HasValue && targetUser.TenantId != requestedTenantId.Value)
+            {
+                return null;
+            }
+
+            return targetUser;
+        }
+
+        var currentUser = await GetCurrentUserAsync();
+        return currentUser != null && targetUser.TenantId == currentUser.TenantId
+            ? targetUser
+            : null;
+    }
+
+    private async Task<bool> UserCanManageTenantAsync(ApplicationUser user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.Contains("Admin") || roles.Contains("SuperAdmin");
     }
 
     private static string BuildIdentityErrors(IEnumerable<IdentityError> errors)
@@ -400,6 +570,8 @@ public class IdentityUserManagementDto
     public string UserName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
+    public int TenantId { get; set; }
+    public string TenantName { get; set; } = string.Empty;
     public bool RequiresPasswordReset { get; set; }
     public bool IsEnabled { get; set; }
     public string[] Roles { get; set; } = Array.Empty<string>();
@@ -418,6 +590,10 @@ public class AccountProfileDto
     public string PhoneNumber { get; set; } = string.Empty;
     public int? CountryId { get; set; }
     public string CountryName { get; set; } = string.Empty;
+    public int TenantId { get; set; }
+    public string TenantName { get; set; } = string.Empty;
+    public string TenantPhoneNumber { get; set; } = string.Empty;
+    public bool CanManageTenant { get; set; }
 }
 
 public class UpdateMyProfileRequest
@@ -427,6 +603,8 @@ public class UpdateMyProfileRequest
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public int? CountryId { get; set; }
+    public string TenantName { get; set; } = string.Empty;
+    public string TenantPhoneNumber { get; set; } = string.Empty;
 }
 
 public class ChangePasswordRequest
@@ -442,6 +620,8 @@ public class RegisterRequest
     public string Password { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public int? CountryId { get; set; }
+    public string LawyerOfficeName { get; set; } = string.Empty;
+    public string LawyerOfficePhoneNumber { get; set; } = string.Empty;
 }
 
 public class CountryLookupDto

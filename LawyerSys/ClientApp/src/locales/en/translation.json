@@ -81,7 +81,9 @@
                 "timetracking":  "Time Tracking",
                 "clientportal":  "Client Portal",
                 "administration":  "Administration",
-                "intake":  "Intake"
+                "intake":  "Intake",
+                "tenant":  "Tenant",
+                "selectTenant":  "Select tenant filter"
             },
     "login":  {
                   "title":  "Welcome Back",
@@ -110,6 +112,10 @@
                      "subtitle":  "Register to access the Qadaya platform",
                      "username":  "Username",
                      "fullName":  "Full Name",
+                     "lawyerOfficeName":  "Lawyer Office Name",
+                     "lawyerOfficePhoneNumber":  "Lawyer Office Phone Number",
+                     "officeNameRequired":  "Please enter the lawyer office name",
+                     "officePhoneRequired":  "Please enter the lawyer office phone number",
                      "country":  "Country",
                      "selectCountry":  "Select country",
                      "countryRequired":  "Please select a country",
@@ -745,7 +751,20 @@
                                              "enable":  "Enable",
                                              "disable":  "Disable",
                                              "saveRoles":  "Save Roles"
-                                         }
+                                         },
+                            "tenants":  {
+                                            "title":  "Tenants",
+                                            "name":  "Tenant",
+                                            "country":  "Country",
+                                            "phone":  "Phone",
+                                            "users":  "Users",
+                                            "status":  "Status",
+                                            "actions":  "Actions",
+                                            "active":  "Active",
+                                            "inactive":  "Inactive",
+                                            "activate":  "Activate",
+                                            "deactivate":  "Deactivate"
+                                        }
                         },
     "documentGeneration":  {
                                "title":  "Generate Legal Document",
@@ -1060,6 +1079,8 @@
                     "fullName":  "Full Name",
                     "email":  "Email",
                     "phoneNumber":  "Phone Number",
+                    "tenantName":  "Lawyer Office Name",
+                    "tenantPhoneNumber":  "Lawyer Office Phone Number",
                     "country":  "Country",
                     "selectCountry":  "Select country",
                     "saveProfile":  "Save Profile",

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace LawyerSys.Services
@@ -13,11 +14,16 @@ namespace LawyerSys.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _applicationDbContext;
 
-        public AccountService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AccountService(
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration,
+            ApplicationDbContext applicationDbContext)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _applicationDbContext = applicationDbContext;
         }
 
         public async Task<(string Token, DateTime Expires)> LoginAsync(LoginRequest model)
@@ -43,6 +49,19 @@ namespace LawyerSys.Services
             var valid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!valid) throw new UnauthorizedAccessException("Invalid credentials");
 
+            var tenant = await _applicationDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(t => t.Id == user.TenantId);
+            if (tenant == null)
+            {
+                throw new InvalidOperationException("Account is not linked to a tenant.");
+            }
+
+            if (!tenant.IsActive)
+            {
+                throw new InvalidOperationException("Your tenant is inactive. Contact the system administrator.");
+            }
+
             return await CreateTokenAsync(user);
         }
 
@@ -54,6 +73,10 @@ namespace LawyerSys.Services
             var audience = jwtSection.GetValue<string>("Audience");
             var expireMinutes = jwtSection.GetValue<int>("ExpireMinutes");
 
+            var tenant = await _applicationDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(t => t.Id == user.TenantId);
+
             // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -61,6 +84,8 @@ namespace LawyerSys.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new Claim("fullName", user.FullName ?? string.Empty),
             };
 
@@ -73,6 +98,20 @@ namespace LawyerSys.Services
             if (!string.IsNullOrWhiteSpace(user.Email))
             {
                 claimsList.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
+                claimsList.Add(new Claim(ClaimTypes.Email, user.Email));
+            }
+
+            if (user.TenantId > 0)
+            {
+                claimsList.Add(new Claim("tenant_id", user.TenantId.ToString()));
+                claimsList.Add(new Claim("firm_id", user.TenantId.ToString()));
+                claimsList.Add(new Claim(ClaimTypes.GroupSid, user.TenantId.ToString()));
+            }
+
+            if (tenant != null)
+            {
+                claimsList.Add(new Claim("tenant_name", tenant.Name));
+                claimsList.Add(new Claim("tenant_active", tenant.IsActive ? "true" : "false"));
             }
 
             var token = new JwtSecurityToken(
