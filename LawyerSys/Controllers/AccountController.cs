@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
 using LawyerSys.Services.Email;
+using LawyerSys.Services.Notifications;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -21,6 +22,7 @@ public class AccountController : ControllerBase
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IEmailSender _emailSender;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
     public AccountController(
         IAccountService accountService,
@@ -28,7 +30,8 @@ public class AccountController : ControllerBase
         RoleManager<IdentityRole> roleManager,
         ApplicationDbContext applicationDbContext,
         IEmailSender emailSender,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IInAppNotificationService inAppNotificationService)
     {
         _accountService = accountService;
         _userManager = userManager;
@@ -36,6 +39,7 @@ public class AccountController : ControllerBase
         _applicationDbContext = applicationDbContext;
         _emailSender = emailSender;
         _localizer = localizer;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [HttpPost("register")]
@@ -169,6 +173,8 @@ public class AccountController : ControllerBase
 
         try
         {
+            await _inAppNotificationService.NotifySuperAdminsOfTenantRegistrationAsync(tenant, user);
+
             var countryName = await _applicationDbContext.Countries
                 .AsNoTracking()
                 .Where(country => country.Id == model.CountryId.Value)

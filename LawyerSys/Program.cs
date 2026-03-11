@@ -8,6 +8,7 @@ using LawyerSys.Services.TimeTracking;
 using LawyerSys.Services.Intake;
 using LawyerSys.Services.AIAssistant;
 using LawyerSys.Services.TrustAccounting;
+using LawyerSys.Realtime;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -16,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -29,6 +31,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .WriteTo.File("Logs/lawyersys-.log", rollingInterval: RollingInterval.Day));
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -153,6 +156,8 @@ builder.Services.AddScoped<LawyerSys.Services.IUserContext, LawyerSys.Services.U
 builder.Services.AddScoped<LawyerSys.Services.ICustomerService, LawyerSys.Services.CustomerService>();
 builder.Services.AddScoped<LawyerSys.Services.IEmployeeService, LawyerSys.Services.EmployeeService>();
 builder.Services.AddScoped<LawyerSys.Services.IAccountService, LawyerSys.Services.AccountService>();
+builder.Services.AddScoped<IInAppNotificationService, InAppNotificationService>();
+builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRealtimePublisher>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -214,6 +219,35 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSection.GetValue<string>("Audience"),
         IssuerSigningKey = new SymmetricSecurityKey(key),
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrWhiteSpace(accessToken) && path.StartsWithSegments("/hubs/notifications"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            if (context.Principal?.Identity is ClaimsIdentity identity)
+            {
+                var sub = context.Principal.FindFirst("sub")?.Value;
+                var nameIdentifier = identity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrWhiteSpace(nameIdentifier) && !string.IsNullOrWhiteSpace(sub))
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, sub));
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization(options =>
@@ -242,6 +276,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 try
 {

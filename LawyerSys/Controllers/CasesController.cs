@@ -5,6 +5,7 @@ using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
 using LawyerSys.Services;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -25,11 +26,13 @@ public class CasesController : ControllerBase
 
     private readonly LegacyDbContext _context;
     private readonly IUserContext _userContext;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public CasesController(LegacyDbContext context, IUserContext userContext)
+    public CasesController(LegacyDbContext context, IUserContext userContext, IInAppNotificationService inAppNotificationService)
     {
         _context = context;
         _userContext = userContext;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     // GET: api/cases
@@ -306,6 +309,7 @@ public class CasesController : ControllerBase
 
         _context.CaseStatusHistories.Add(history);
         await _context.SaveChangesAsync();
+        await _inAppNotificationService.NotifyCaseStatusChangedAsync(code, oldStatus, newStatus);
 
         return Ok(MapToDto(caseEntity));
     }

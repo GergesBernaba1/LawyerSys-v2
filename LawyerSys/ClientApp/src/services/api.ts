@@ -105,4 +105,6 @@ instance.interceptors.request.use((config) => {
   return config
 })
 
+export const REALTIME_BASE = API_BASE.replace(/\/api\/?$/, '')
+
 export default instance

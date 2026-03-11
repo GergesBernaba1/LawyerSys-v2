@@ -11,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Country> Countries => Set<Country>();
     public DbSet<City> Cities => Set<City>();
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -75,6 +76,47 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(country => country.Tenants)
                 .HasForeignKey(tenant => tenant.CountryId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notifications");
+            entity.Property(notification => notification.RecipientUserId)
+                .HasMaxLength(450);
+            entity.Property(notification => notification.SenderUserId)
+                .HasMaxLength(450);
+            entity.Property(notification => notification.Type)
+                .HasMaxLength(100);
+            entity.Property(notification => notification.Title)
+                .HasMaxLength(250);
+            entity.Property(notification => notification.TitleAr)
+                .HasMaxLength(250);
+            entity.Property(notification => notification.Message)
+                .HasMaxLength(2000);
+            entity.Property(notification => notification.MessageAr)
+                .HasMaxLength(2000);
+            entity.Property(notification => notification.Route)
+                .HasMaxLength(300);
+            entity.Property(notification => notification.RelatedEntityType)
+                .HasMaxLength(100);
+            entity.Property(notification => notification.RelatedEntityId)
+                .HasMaxLength(100);
+            entity.HasIndex(notification => notification.RecipientUserId);
+            entity.HasIndex(notification => new { notification.RecipientUserId, notification.IsRead, notification.CreatedAtUtc });
+            entity.HasIndex(notification => notification.TenantId);
+            entity.HasIndex(notification => notification.CreatedAtUtc);
+            entity.HasOne(notification => notification.RecipientUser)
+                .WithMany()
+                .HasForeignKey(notification => notification.RecipientUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(notification => notification.SenderUser)
+                .WithMany()
+                .HasForeignKey(notification => notification.SenderUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(notification => notification.Tenant)
+                .WithMany()
+                .HasForeignKey(notification => notification.TenantId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

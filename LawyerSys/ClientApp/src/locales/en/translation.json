@@ -83,9 +83,18 @@
                 "administration":  "Administration",
                 "tenants":  "Tenants",
                 "intake":  "Intake",
+                "notifications":  "Notifications",
                 "tenant":  "Tenant",
                 "selectTenant":  "Select tenant filter"
             },
+    "notifications":  {
+                          "empty":  "No notifications yet.",
+                          "filter":  {
+                                         "all":  "All",
+                                         "unread":  "Unread",
+                                         "read":  "Read"
+                                     }
+                      },
     "login":  {
                   "title":  "Welcome Back",
                   "subtitle":  "Sign in to access your dashboard",

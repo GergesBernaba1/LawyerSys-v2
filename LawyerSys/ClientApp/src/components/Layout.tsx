@@ -1,11 +1,13 @@
 'use client'
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import * as signalR from '@microsoft/signalr';
 import {
   Box,
   Drawer,
   AppBar,
   Toolbar,
+  Badge as MuiBadge,
   List,
   Typography,
   Divider,
@@ -71,12 +73,13 @@ import {
   Timer as TimeTrackingIcon,
   SmartToy as AiAssistantIcon,
   Rule as CourtAutomationIcon,
+  Notifications as NotificationsIcon,
   Close as CloseIcon,
   SendRounded as SendRoundedIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../services/auth';
 import { useTranslation } from 'react-i18next'
-import api, { clearApiGetCache } from '../services/api';
+import api, { clearApiGetCache, REALTIME_BASE } from '../services/api';
 import SearchableSelect from './SearchableSelect';
 
 const drawerWidth = 280;
@@ -135,6 +138,23 @@ interface TenantOption {
   isActive: boolean;
 }
 
+interface NotificationItem {
+  id: number;
+  title: string;
+  message: string;
+  route?: string | null;
+  timestamp: string;
+  isRead: boolean;
+}
+
+enum NotificationFilterValue {
+  All = 'All',
+  Unread = 'Unread',
+  Read = 'Read',
+}
+
+const NOTIFICATIONS_PAGE_SIZE = 12
+
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isLayoutBypassedPage =
@@ -150,7 +170,7 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter();
-  const { user, logout, isAuthenticated, isAuthInitialized, hasRole, hasAnyRole } = useAuth();
+  const { token, user, logout, isAuthenticated, isAuthInitialized, hasRole, hasAnyRole } = useAuth();
   const { t, i18n } = useTranslation()
   const [langAnchor, setLangAnchor] = useState<null | HTMLElement>(null)
   const [chatOpen, setChatOpen] = useState(false)
@@ -160,12 +180,22 @@ export default function Layout({ children }: LayoutProps) {
   const [tenantOptions, setTenantOptions] = useState<TenantOption[]>([])
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('')
   const [headerSearch, setHeaderSearch] = useState('')
+  const [notificationsAnchor, setNotificationsAnchor] = useState<null | HTMLElement>(null)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const [notificationsLoadingMore, setNotificationsLoadingMore] = useState(false)
+  const [notificationFilter, setNotificationFilter] = useState<NotificationFilterValue>(NotificationFilterValue.All)
+  const [notificationPage, setNotificationPage] = useState(1)
+  const [notificationsHasMore, setNotificationsHasMore] = useState(false)
+  const notificationConnectionRef = React.useRef<signalR.HubConnection | null>(null)
   const chatEndRef = React.useRef<HTMLDivElement | null>(null)
   const isAdmin = hasRole('Admin')
   const isSuperAdmin = hasRole('SuperAdmin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
+  const canUseNotifications = hasAnyRole('SuperAdmin', 'Admin', 'Employee', 'Customer')
   const visibleMenuItems = menuItems.filter((item) => {
     if (item.key === 'administration') return isAdmin
     if (item.key === 'tenants') return isSuperAdmin
@@ -257,6 +287,91 @@ export default function Layout({ children }: LayoutProps) {
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const loadNotifications = React.useCallback(async ({
+    filter = notificationFilter,
+    page = 1,
+    append = false,
+    pageSize = NOTIFICATIONS_PAGE_SIZE,
+  }: {
+    filter?: NotificationFilterValue
+    page?: number
+    append?: boolean
+    pageSize?: number
+  } = {}) => {
+    if (!isAuthenticated || !canUseNotifications) {
+      setNotifications([])
+      setUnreadNotifications(0)
+      setNotificationPage(1)
+      setNotificationsHasMore(false)
+      return
+    }
+
+    if (append) {
+      setNotificationsLoadingMore(true)
+    } else {
+      setNotificationsLoading(true)
+    }
+
+    try {
+      const response = await api.get('/Notifications', {
+        params: {
+          page,
+          pageSize,
+          filter,
+        },
+      })
+      const items = Array.isArray(response.data?.items) ? response.data.items : []
+      setNotifications((prev) => {
+        if (!append) {
+          return items
+        }
+
+        const existingIds = new Set(prev.map((item) => item.id))
+        return [...prev, ...items.filter((item: NotificationItem) => !existingIds.has(item.id))]
+      })
+      setUnreadNotifications(Number(response.data?.unreadCount || 0))
+      setNotificationPage(Number(response.data?.page || page))
+      setNotificationsHasMore(Boolean(response.data?.hasMore))
+    } catch {
+      if (!append) {
+        setNotifications([])
+        setNotificationPage(1)
+        setNotificationsHasMore(false)
+      }
+      setUnreadNotifications(0)
+    } finally {
+      if (append) {
+        setNotificationsLoadingMore(false)
+      } else {
+        setNotificationsLoading(false)
+      }
+    }
+  }, [isAuthenticated, canUseNotifications, notificationFilter])
+
+  const refreshNotifications = React.useCallback(() => {
+    const loadedCount = Math.max(
+      notifications.length,
+      notificationPage * NOTIFICATIONS_PAGE_SIZE,
+      NOTIFICATIONS_PAGE_SIZE,
+    )
+
+    return loadNotifications({
+      filter: notificationFilter,
+      page: 1,
+      append: false,
+      pageSize: Math.min(loadedCount, 50),
+    })
+  }, [loadNotifications, notificationFilter, notificationPage, notifications.length])
+
+  const handleNotificationsOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationsAnchor(event.currentTarget)
+    void loadNotifications({ filter: notificationFilter, page: 1 })
+  }
+
+  const handleNotificationsClose = () => {
+    setNotificationsAnchor(null)
+  }
 
   const handleOpenProfile = () => {
     handleProfileMenuClose();
@@ -378,6 +493,68 @@ export default function Layout({ children }: LayoutProps) {
   }, [isAuthenticated, isSuperAdmin])
 
   React.useEffect(() => {
+    if (!isAuthenticated || !canUseNotifications) {
+      setNotifications([])
+      setUnreadNotifications(0)
+      setNotificationPage(1)
+      setNotificationsHasMore(false)
+      return
+    }
+
+    void refreshNotifications()
+    const timer = window.setInterval(() => {
+      void refreshNotifications()
+    }, 60000)
+
+    return () => window.clearInterval(timer)
+  }, [isAuthenticated, canUseNotifications, refreshNotifications, pathname])
+
+  React.useEffect(() => {
+    if (!isAuthenticated || !canUseNotifications || !token) {
+      const existingConnection = notificationConnectionRef.current
+      notificationConnectionRef.current = null
+      if (existingConnection) {
+        void existingConnection.stop()
+      }
+      return
+    }
+
+    const hubUrl = `${REALTIME_BASE}/hubs/notifications`
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        accessTokenFactory: () => token,
+      })
+      .withAutomaticReconnect()
+      .build()
+
+    notificationConnectionRef.current = connection
+    connection.on('NotificationsChanged', () => {
+      void refreshNotifications()
+    })
+
+    void connection
+      .start()
+      .then(() => refreshNotifications())
+      .catch(() => undefined)
+
+    return () => {
+      connection.off('NotificationsChanged')
+      if (notificationConnectionRef.current === connection) {
+        notificationConnectionRef.current = null
+      }
+      void connection.stop()
+    }
+  }, [isAuthenticated, canUseNotifications, token, refreshNotifications])
+
+  React.useEffect(() => {
+    if (!notificationsAnchor || !canUseNotifications || !isAuthenticated) {
+      return
+    }
+
+    void loadNotifications({ filter: notificationFilter, page: 1 })
+  }, [notificationFilter, notificationsAnchor, canUseNotifications, isAuthenticated, loadNotifications])
+
+  React.useEffect(() => {
     if (!chatOpen || chatMessages.length > 0) return
     setChatMessages([
       {
@@ -404,6 +581,53 @@ export default function Layout({ children }: LayoutProps) {
       : pathname === '/ai-assistant'
       ? 'aiassistant'
       : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
+
+  const formatNotificationTime = (value: string) => {
+    try {
+      return new Intl.DateTimeFormat(lng.startsWith('ar') ? 'ar-EG' : 'en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(new Date(value))
+    } catch {
+      return value
+    }
+  }
+
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    try {
+      await api.post(`/Notifications/${notification.id}/read`)
+    } catch {
+      // keep UI responsive even if the read call fails
+    }
+
+    setNotifications((prev) =>
+      prev.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
+    )
+    setUnreadNotifications((prev) => Math.max(0, prev - (notification.isRead ? 0 : 1)))
+    setNotificationsAnchor(null)
+
+    if (notification.route) {
+      handleNavigation(notification.route)
+    }
+  }
+
+  const handleNotificationListScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (notificationsLoading || notificationsLoadingMore || !notificationsHasMore) {
+      return
+    }
+
+    const target = event.currentTarget
+    const remaining = target.scrollHeight - target.scrollTop - target.clientHeight
+    if (remaining > 80) {
+      return
+    }
+
+    void loadNotifications({
+      filter: notificationFilter,
+      page: notificationPage + 1,
+      append: true,
+    })
+  }
 
   const handleSendChat = async () => {
     const prompt = chatInput.trim()
@@ -805,6 +1029,134 @@ export default function Layout({ children }: LayoutProps) {
                 }}
                 helperText={t('app.selectTenant', 'Select tenant filter')}
               />
+            )}
+
+            {canUseNotifications && (
+              <>
+                <IconButton
+                  onClick={handleNotificationsOpen}
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: alpha(theme.palette.primary.main, 0.14),
+                    bgcolor: alpha(theme.palette.background.paper, 0.95),
+                    boxShadow: '0 8px 18px rgba(15, 23, 42, 0.05)',
+                    color: 'text.primary',
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
+                  }}
+                >
+                  <MuiBadge badgeContent={unreadNotifications} color="error" max={99}>
+                    <NotificationsIcon />
+                  </MuiBadge>
+                </IconButton>
+                <Menu
+                  anchorEl={notificationsAnchor}
+                  open={Boolean(notificationsAnchor)}
+                  onClose={handleNotificationsClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: isRTL ? 'left' : 'right' }}
+                  PaperProps={{
+                    elevation: 25,
+                    sx: {
+                      mt: 1.5,
+                      width: 360,
+                      maxWidth: 'calc(100vw - 24px)',
+                      borderRadius: 4,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      overflow: 'hidden',
+                    },
+                  }}
+                >
+                  <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                    <Typography sx={{ fontWeight: 900, mb: 1.25 }}>
+                      {t('app.notifications', 'Notifications')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {([
+                        { value: NotificationFilterValue.All, label: t('notifications.filter.all') },
+                        { value: NotificationFilterValue.Unread, label: t('notifications.filter.unread') },
+                        { value: NotificationFilterValue.Read, label: t('notifications.filter.read') },
+                      ] as { value: NotificationFilterValue; label: string }[]).map((filterOption) => (
+                        <Button
+                          key={filterOption.value}
+                          size="small"
+                          variant={notificationFilter === filterOption.value ? 'contained' : 'outlined'}
+                          onClick={() => setNotificationFilter(filterOption.value)}
+                          sx={{
+                            minWidth: 0,
+                            borderRadius: 999,
+                            px: 1.5,
+                            py: 0.5,
+                            textTransform: 'none',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {filterOption.label}
+                        </Button>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{ maxHeight: 420, overflowY: 'auto', p: 1 }}
+                    onScroll={handleNotificationListScroll}
+                  >
+                    {notificationsLoading ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                        <CircularProgress size={22} />
+                      </Box>
+                    ) : notifications.length === 0 ? (
+                      <Box sx={{ px: 2, py: 4 }}>
+                        <Typography color="text.secondary">
+                          {t('notifications.empty', 'No notifications yet.')}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      notifications.map((notification) => (
+                        <Button
+                          key={notification.id}
+                          onClick={() => void handleNotificationClick(notification)}
+                          sx={{
+                            width: '100%',
+                            display: 'block',
+                            textAlign: isRTL ? 'right' : 'left',
+                            textTransform: 'none',
+                            alignItems: 'stretch',
+                            justifyContent: 'flex-start',
+                            borderRadius: 3,
+                            px: 1.5,
+                            py: 1.25,
+                            mb: 0.75,
+                            bgcolor: notification.isRead ? 'transparent' : alpha(theme.palette.primary.main, 0.08),
+                            border: '1px solid',
+                            borderColor: notification.isRead ? 'transparent' : alpha(theme.palette.primary.main, 0.12),
+                            '&:hover': {
+                              bgcolor: alpha(theme.palette.primary.main, 0.12),
+                            },
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: notification.isRead ? 700 : 900, color: 'text.primary', mb: 0.5 }}>
+                            {notification.title}
+                          </Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.84rem', mb: 0.75 }}>
+                            {notification.message}
+                          </Typography>
+                          <Typography sx={{ color: 'text.disabled', fontSize: '0.74rem', fontWeight: 600 }}>
+                            {formatNotificationTime(notification.timestamp)}
+                          </Typography>
+                        </Button>
+                      ))
+                    )}
+                    {notificationsLoadingMore && (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', py: 1.5 }}>
+                        <CircularProgress size={20} />
+                      </Box>
+                    )}
+                  </Box>
+                </Menu>
+              </>
             )}
 
             <Button

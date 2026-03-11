@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -12,10 +13,12 @@ namespace LawyerSys.Controllers;
 public class CaseRelationsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public CaseRelationsController(LegacyDbContext context)
+    public CaseRelationsController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     // ========== CASE - CUSTOMER RELATIONS ==========
@@ -56,6 +59,7 @@ public class CaseRelationsController : ControllerBase
 
         _context.Custmors_Cases.Add(relation);
         await _context.SaveChangesAsync();
+        await _inAppNotificationService.NotifyCustomerAddedToCaseAsync(caseCode, customerId);
 
         return Ok(new { message = "Customer added to case", id = relation.Id });
     }
@@ -72,6 +76,7 @@ public class CaseRelationsController : ControllerBase
 
         _context.Custmors_Cases.Remove(relation);
         await _context.SaveChangesAsync();
+        await _inAppNotificationService.NotifyCustomerRemovedFromCaseAsync(caseCode, customerId);
 
         return Ok(new { message = "Customer removed from case" });
     }

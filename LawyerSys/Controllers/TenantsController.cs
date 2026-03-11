@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -13,13 +14,16 @@ public class TenantsController : ControllerBase
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
     public TenantsController(
         ApplicationDbContext applicationDbContext,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        IInAppNotificationService inAppNotificationService)
     {
         _applicationDbContext = applicationDbContext;
         _userManager = userManager;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [HttpGet("available")]
@@ -112,6 +116,7 @@ public class TenantsController : ControllerBase
 
         tenant.IsActive = model.IsActive;
         await _applicationDbContext.SaveChangesAsync();
+        await _inAppNotificationService.NotifyTenantAdminsOfStatusChangeAsync(tenant, model.IsActive);
         return Ok(new { message = "Tenant status updated" });
     }
 

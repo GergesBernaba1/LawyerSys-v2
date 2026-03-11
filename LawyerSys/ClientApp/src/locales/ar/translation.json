@@ -83,9 +83,18 @@
                 "administration":  "الإدارة",
                 "tenants":  "الجهات",
                 "intake":  "الاستقبال",
+                "notifications":  "الإشعارات",
                 "tenant":  "الجهة",
                 "selectTenant":  "اختر الجهة للتصفية"
             },
+    "notifications":  {
+                          "empty":  "لا توجد إشعارات حالياً.",
+                          "filter":  {
+                                         "all":  "الكل",
+                                         "unread":  "غير المقروءة",
+                                         "read":  "المقروءة"
+                                     }
+                      },
     "login":  {
                   "title":  "مرحباً بعودتك",
                   "subtitle":  "سجل دخولك للوصول إلى لوحة التحكم",
