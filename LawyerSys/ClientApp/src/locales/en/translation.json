@@ -792,7 +792,6 @@
                             "manageEnabled":  "Manage",
                             "manageReadOnly":  "Read Only",
                             "tabs":  {
-                                         "overview":  "Modules",
                                          "accounts":  "Accounts",
                                          "tenants":  "Tenants",
                                          "landing":  "Landing Page"
@@ -807,23 +806,6 @@
                                           "overdueTasks":  "Overdue Tasks",
                                           "auditLogs":  "Audit Logs"
                                       },
-                            "table":  {
-                                          "module":  "Module",
-                                          "api":  "API",
-                                          "view":  "View",
-                                          "manage":  "Manage",
-                                          "open":  "Open Page"
-                                      },
-                            "modules":  {
-                                            "users":  "Users",
-                                            "employees":  "Employees",
-                                            "customers":  "Customers",
-                                            "cases":  "Cases",
-                                            "tasks":  "Admin Tasks",
-                                            "trust":  "Trust Accounting",
-                                            "audit":  "Audit Logs",
-                                            "reports":  "Reports"
-                                        },
                             "roleLabels":  {
                                                "SuperAdmin":  "Super Admin",
                                                "Admin":  "Admin",

@@ -1055,7 +1055,6 @@ export default function Layout({ children }: LayoutProps) {
                     boxShadow: '0 8px 18px rgba(15, 23, 42, 0.05)',
                   },
                 }}
-                helperText={t('app.selectTenant', 'Select tenant filter')}
               />
             )}
 

@@ -41,17 +41,8 @@ type AdministrationCounts = {
   auditLogs: number;
 };
 
-type AdministrationModule = {
-  key: string;
-  route: string;
-  apiPath: string;
-  canView: boolean;
-  canCreateOrUpdate: boolean;
-};
-
 type AdministrationOverview = {
   counts: AdministrationCounts;
-  modules: AdministrationModule[];
 };
 
 type IdentityUserManagement = {
@@ -111,7 +102,7 @@ type LandingPageSettings = {
   updatedAtUtc?: string;
 };
 
-type AdministrationTab = "overview" | "accounts" | "tenants" | "landing";
+type AdministrationTab = "accounts" | "tenants" | "landing";
 
 const emptyLandingSettings: LandingPageSettings = {
   systemName: "",
@@ -206,7 +197,7 @@ export default function AdministrationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saveMessage, setSaveMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<AdministrationTab>("overview");
+  const [activeTab, setActiveTab] = useState<AdministrationTab>("accounts");
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -278,7 +269,7 @@ export default function AdministrationPage() {
 
   useEffect(() => {
     if (!isSuperAdmin && (activeTab === "tenants" || activeTab === "landing")) {
-      setActiveTab("overview");
+      setActiveTab("accounts");
     }
   }, [activeTab, isSuperAdmin]);
 
@@ -423,59 +414,11 @@ export default function AdministrationPage() {
               variant="scrollable"
               scrollButtons="auto"
             >
-              <Tab value="overview" label={t("administration.tabs.overview")} />
               <Tab value="accounts" label={t("administration.tabs.accounts")} />
               {isSuperAdmin && <Tab value="tenants" label={t("administration.tabs.tenants")} />}
               {isSuperAdmin && <Tab value="landing" label={t("administration.tabs.landing")} />}
             </Tabs>
           </Paper>
-
-          {activeTab === "overview" && (
-            <>
-              <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>{t("administration.table.module")}</TableCell>
-                      <TableCell>{t("administration.table.api")}</TableCell>
-                      <TableCell>{t("administration.table.view")}</TableCell>
-                      <TableCell>{t("administration.table.manage")}</TableCell>
-                      <TableCell align={isRTL ? "left" : "right"}>{t("administration.table.open")}</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {overview.modules.map((module) => (
-                      <TableRow key={module.key} hover>
-                        <TableCell>{t(`administration.modules.${module.key}`)}</TableCell>
-                        <TableCell>
-                          <Chip size="small" label={module.apiPath} variant="outlined" />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="small"
-                            color={module.canView ? "success" : "default"}
-                            label={module.canView ? t("administration.yes") : t("administration.no")}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="small"
-                            color={module.canCreateOrUpdate ? "primary" : "default"}
-                            label={module.canCreateOrUpdate ? t("administration.manageEnabled") : t("administration.manageReadOnly")}
-                          />
-                        </TableCell>
-                        <TableCell align={isRTL ? "left" : "right"}>
-                          <Button size="small" variant="outlined" onClick={() => router.push(module.route)}>
-                            {t("administration.open")}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Paper>
-            </>
-          )}
 
           {activeTab === "accounts" && (
             <>

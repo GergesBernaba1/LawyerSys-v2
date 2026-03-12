@@ -796,7 +796,6 @@
                             "manageEnabled":  "إدارة",
                             "manageReadOnly":  "قراءة فقط",
                             "tabs":  {
-                                         "overview":  "الوحدات",
                                          "accounts":  "الحسابات",
                                          "tenants":  "مكاتب المحامين",
                                          "landing":  "الصفحة التعريفية"
@@ -811,23 +810,6 @@
                                           "overdueTasks":  "المهام المتأخرة",
                                           "auditLogs":  "سجلات المراجعة"
                                       },
-                            "table":  {
-                                          "module":  "الوحدة",
-                                          "api":  "واجهة API",
-                                          "view":  "عرض",
-                                          "manage":  "إدارة",
-                                          "open":  "فتح الصفحة"
-                                      },
-                            "modules":  {
-                                            "users":  "المستخدمون",
-                                            "employees":  "الموظفون",
-                                            "customers":  "العملاء",
-                                            "cases":  "القضايا",
-                                            "tasks":  "المهام الإدارية",
-                                            "trust":  "حسابات الأمانات",
-                                            "audit":  "سجل المراجعة",
-                                            "reports":  "التقارير"
-                                        },
                             "roleLabels":  {
                                                "SuperAdmin":  "مدير عام",
                                                "Admin":  "مدير",
