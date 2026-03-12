@@ -158,6 +158,20 @@ type LandingPageSettings = {
   aboutTitleAr: string;
   aboutDescription: string;
   aboutDescriptionAr: string;
+  aboutPageTitle: string;
+  aboutPageTitleAr: string;
+  aboutPageSubtitle: string;
+  aboutPageSubtitleAr: string;
+  aboutPageDescription: string;
+  aboutPageDescriptionAr: string;
+  aboutPageMissionTitle: string;
+  aboutPageMissionTitleAr: string;
+  aboutPageMissionDescription: string;
+  aboutPageMissionDescriptionAr: string;
+  aboutPageVisionTitle: string;
+  aboutPageVisionTitleAr: string;
+  aboutPageVisionDescription: string;
+  aboutPageVisionDescriptionAr: string;
   feature1Title: string;
   feature1TitleAr: string;
   feature1Description: string;
@@ -170,6 +184,16 @@ type LandingPageSettings = {
   feature3TitleAr: string;
   feature3Description: string;
   feature3DescriptionAr: string;
+  contactPageTitle: string;
+  contactPageTitleAr: string;
+  contactPageSubtitle: string;
+  contactPageSubtitleAr: string;
+  contactPageDescription: string;
+  contactPageDescriptionAr: string;
+  contactAddress: string;
+  contactAddressAr: string;
+  contactWorkingHours: string;
+  contactWorkingHoursAr: string;
   contactEmail: string;
   contactPhone: string;
   updatedAtUtc?: string;
@@ -234,6 +258,20 @@ const emptyLandingSettings: LandingPageSettings = {
   aboutTitleAr: "",
   aboutDescription: "",
   aboutDescriptionAr: "",
+  aboutPageTitle: "",
+  aboutPageTitleAr: "",
+  aboutPageSubtitle: "",
+  aboutPageSubtitleAr: "",
+  aboutPageDescription: "",
+  aboutPageDescriptionAr: "",
+  aboutPageMissionTitle: "",
+  aboutPageMissionTitleAr: "",
+  aboutPageMissionDescription: "",
+  aboutPageMissionDescriptionAr: "",
+  aboutPageVisionTitle: "",
+  aboutPageVisionTitleAr: "",
+  aboutPageVisionDescription: "",
+  aboutPageVisionDescriptionAr: "",
   feature1Title: "",
   feature1TitleAr: "",
   feature1Description: "",
@@ -246,6 +284,16 @@ const emptyLandingSettings: LandingPageSettings = {
   feature3TitleAr: "",
   feature3Description: "",
   feature3DescriptionAr: "",
+  contactPageTitle: "",
+  contactPageTitleAr: "",
+  contactPageSubtitle: "",
+  contactPageSubtitleAr: "",
+  contactPageDescription: "",
+  contactPageDescriptionAr: "",
+  contactAddress: "",
+  contactAddressAr: "",
+  contactWorkingHours: "",
+  contactWorkingHoursAr: "",
   contactEmail: "",
   contactPhone: "",
   updatedAtUtc: "",
@@ -1300,6 +1348,130 @@ export default function AdministrationPage() {
                   </Card>
                 </Grid>
 
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.aboutPageEnglish")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageTitle")}
+                          value={landingSettings.aboutPageTitle}
+                          onChange={(e) => updateLandingField("aboutPageTitle", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageSubtitle")}
+                          value={landingSettings.aboutPageSubtitle}
+                          onChange={(e) => updateLandingField("aboutPageSubtitle", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageDescription")}
+                          value={landingSettings.aboutPageDescription}
+                          onChange={(e) => updateLandingField("aboutPageDescription", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={5}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageMissionTitle")}
+                          value={landingSettings.aboutPageMissionTitle}
+                          onChange={(e) => updateLandingField("aboutPageMissionTitle", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageMissionDescription")}
+                          value={landingSettings.aboutPageMissionDescription}
+                          onChange={(e) => updateLandingField("aboutPageMissionDescription", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={3}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageVisionTitle")}
+                          value={landingSettings.aboutPageVisionTitle}
+                          onChange={(e) => updateLandingField("aboutPageVisionTitle", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageVisionDescription")}
+                          value={landingSettings.aboutPageVisionDescription}
+                          onChange={(e) => updateLandingField("aboutPageVisionDescription", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={3}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.aboutPageArabic")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageTitleAr")}
+                          value={landingSettings.aboutPageTitleAr}
+                          onChange={(e) => updateLandingField("aboutPageTitleAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageSubtitleAr")}
+                          value={landingSettings.aboutPageSubtitleAr}
+                          onChange={(e) => updateLandingField("aboutPageSubtitleAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageDescriptionAr")}
+                          value={landingSettings.aboutPageDescriptionAr}
+                          onChange={(e) => updateLandingField("aboutPageDescriptionAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={5}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageMissionTitleAr")}
+                          value={landingSettings.aboutPageMissionTitleAr}
+                          onChange={(e) => updateLandingField("aboutPageMissionTitleAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageMissionDescriptionAr")}
+                          value={landingSettings.aboutPageMissionDescriptionAr}
+                          onChange={(e) => updateLandingField("aboutPageMissionDescriptionAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={3}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageVisionTitleAr")}
+                          value={landingSettings.aboutPageVisionTitleAr}
+                          onChange={(e) => updateLandingField("aboutPageVisionTitleAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutPageVisionDescriptionAr")}
+                          value={landingSettings.aboutPageVisionDescriptionAr}
+                          onChange={(e) => updateLandingField("aboutPageVisionDescriptionAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={3}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
                 <Grid size={{ xs: 12 }}>
                   <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
                     <CardContent>
@@ -1355,6 +1527,98 @@ export default function AdministrationPage() {
                           </Grid>
                         ))}
                       </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.contactPageEnglish")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.contactPageTitle")}
+                          value={landingSettings.contactPageTitle}
+                          onChange={(e) => updateLandingField("contactPageTitle", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactPageSubtitle")}
+                          value={landingSettings.contactPageSubtitle}
+                          onChange={(e) => updateLandingField("contactPageSubtitle", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactPageDescription")}
+                          value={landingSettings.contactPageDescription}
+                          onChange={(e) => updateLandingField("contactPageDescription", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactAddress")}
+                          value={landingSettings.contactAddress}
+                          onChange={(e) => updateLandingField("contactAddress", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactWorkingHours")}
+                          value={landingSettings.contactWorkingHours}
+                          onChange={(e) => updateLandingField("contactWorkingHours", e.target.value)}
+                          fullWidth
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.contactPageArabic")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.contactPageTitleAr")}
+                          value={landingSettings.contactPageTitleAr}
+                          onChange={(e) => updateLandingField("contactPageTitleAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactPageSubtitleAr")}
+                          value={landingSettings.contactPageSubtitleAr}
+                          onChange={(e) => updateLandingField("contactPageSubtitleAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={2}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactPageDescriptionAr")}
+                          value={landingSettings.contactPageDescriptionAr}
+                          onChange={(e) => updateLandingField("contactPageDescriptionAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactAddressAr")}
+                          value={landingSettings.contactAddressAr}
+                          onChange={(e) => updateLandingField("contactAddressAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactWorkingHoursAr")}
+                          value={landingSettings.contactWorkingHoursAr}
+                          onChange={(e) => updateLandingField("contactWorkingHoursAr", e.target.value)}
+                          fullWidth
+                        />
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>

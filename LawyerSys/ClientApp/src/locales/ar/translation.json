@@ -113,6 +113,22 @@
                                      "secondaryButtonText":  "تسجيل الدخول",
                                      "aboutTitle":  "مبنية لفرق قانونية تحتاج إلى مصدر حقيقة واحد",
                                      "aboutDescription":  "من أول تواصل مع العميل حتى آخر تحديث قضائي، تحافظ قضايا على وضوح المهام والمستندات والإشعارات والقرارات على مستوى المكتب كله.",
+                                     "aboutPage":  {
+                                                       "title":  "عن منصة تشغيل قانوني مبنية للمكاتب المنضبطة",
+                                                       "subtitle":  "بنينا قضايا لتمنح مكاتب المحاماة مساحة عمل موحدة لإدارة تنفيذ القضايا ومتابعة العملاء والفوترة والإدارة.",
+                                                       "description":  "صُممت قضايا حول الضغط التشغيلي الحقيقي داخل المكاتب القانونية: تحديثات متفرقة، متابعة متأخرة، عبء عمل غير واضح، وضعف الرؤية بين الفرق. هدفنا هو استبدال الأدوات المشتتة بمنصة واحدة منظمة تجعل العمل القانوني أوضح وأكثر انضباطاً وأسهل في الإدارة.",
+                                                       "missionTitle":  "رسالتنا",
+                                                       "missionDescription":  "مساعدة الفرق القانونية على تشغيل أعمالها بكفاءة أعلى وفجوات أقل وتنسيق أوضح ومسؤولية محددة عبر كل قضية وكل تفاعل مع العميل.",
+                                                       "visionTitle":  "رؤيتنا",
+                                                       "visionDescription":  "أن نكون الطبقة التشغيلية المركزية للمكاتب القانونية الحديثة التي تريد تحكماً قابلاً للتوسع دون التفريط في المهنية والانضباط."
+                                                   },
+                                     "contactPage":  {
+                                                         "title":  "تواصل مع فريقنا",
+                                                         "subtitle":  "تواصل معنا للاستفسارات التجارية أو التنسيق للبدء أو الإرشاد على المنتج أو دعم المنصة.",
+                                                         "description":  "استخدم بيانات التواصل التالية وسيقوم فريقنا بتوجيه طلبك إلى المسؤول المناسب بأسرع وقت ممكن.",
+                                                         "address":  "الرياض، المملكة العربية السعودية",
+                                                         "workingHours":  "من الأحد إلى الخميس، من 9:00 صباحاً إلى 6:00 مساءً"
+                                                     },
                                      "features":  {
                                                       "automation":  {
                                                                          "title":  "تشغيل قانوني منظم",
@@ -166,13 +182,31 @@
                              },
                     "contact":  {
                                     "email":  "البريد الإلكتروني",
-                                    "phone":  "الهاتف"
+                                    "phone":  "الهاتف",
+                                    "address":  "العنوان",
+                                    "workingHours":  "ساعات العمل"
+                                },
+                    "aboutPage":  {
+                                      "missionBadge":  "الرسالة",
+                                      "visionBadge":  "الرؤية",
+                                      "contactCardLabel":  "تواصل مع فريقنا",
+                                      "contactAction":  "الانتقال إلى تواصل معنا"
+                                  },
+                    "contactPage":  {
+                                        "emailAction":  "إرسال بريد",
+                                        "phoneAction":  "اتصال الآن",
+                                        "addressAction":  "عنوان المكتب",
+                                        "ctaTitle":  "تحتاج إلى عرض للنظام؟",
+                                        "ctaSubtitle":  "يمكنك إنشاء مكتب مباشرة أو الانتقال إلى صفحة من نحن لفهم تموضع المنصة للفرق القانونية.",
+                                        "learnMoreAction":  "اعرف المزيد عنا"
                                 },
                     "footer":  {
                                    "navigation":  "التنقل",
                                    "contact":  "التواصل",
                                    "links":  {
                                                  "home":  "الرئيسية",
+                                                 "aboutUs":  "من نحن",
+                                                 "contactUs":  "تواصل معنا",
                                                  "register":  "إنشاء مكتب جديد",
                                                  "login":  "تسجيل الدخول",
                                                  "dashboard":  "لوحة التحكم"
@@ -1006,6 +1040,10 @@
                                                              "actions":  "الأزرار والروابط",
                                                              "english":  "المحتوى الإنجليزي",
                                                              "arabic":  "المحتوى العربي",
+                                                             "aboutPageEnglish":  "صفحة من نحن (إنجليزي)",
+                                                             "aboutPageArabic":  "صفحة من نحن (عربي)",
+                                                             "contactPageEnglish":  "صفحة تواصل معنا (إنجليزي)",
+                                                             "contactPageArabic":  "صفحة تواصل معنا (عربي)",
                                                              "features":  "بطاقات المزايا"
                                                          },
                                             "fields":  {
@@ -1030,11 +1068,35 @@
                                                            "aboutTitleAr":  "عنوان قسم التعريف بالعربية",
                                                            "aboutDescription":  "وصف قسم التعريف",
                                                            "aboutDescriptionAr":  "وصف قسم التعريف بالعربية",
+                                                           "aboutPageTitle":  "عنوان صفحة من نحن",
+                                                           "aboutPageTitleAr":  "عنوان صفحة من نحن بالعربية",
+                                                           "aboutPageSubtitle":  "الوصف المختصر لصفحة من نحن",
+                                                           "aboutPageSubtitleAr":  "الوصف المختصر لصفحة من نحن بالعربية",
+                                                           "aboutPageDescription":  "الوصف الرئيسي لصفحة من نحن",
+                                                           "aboutPageDescriptionAr":  "الوصف الرئيسي لصفحة من نحن بالعربية",
+                                                           "aboutPageMissionTitle":  "عنوان الرسالة",
+                                                           "aboutPageMissionTitleAr":  "عنوان الرسالة بالعربية",
+                                                           "aboutPageMissionDescription":  "وصف الرسالة",
+                                                           "aboutPageMissionDescriptionAr":  "وصف الرسالة بالعربية",
+                                                           "aboutPageVisionTitle":  "عنوان الرؤية",
+                                                           "aboutPageVisionTitleAr":  "عنوان الرؤية بالعربية",
+                                                           "aboutPageVisionDescription":  "وصف الرؤية",
+                                                           "aboutPageVisionDescriptionAr":  "وصف الرؤية بالعربية",
                                                            "feature":  "الميزة {{number}}",
                                                            "featureTitle":  "عنوان الميزة",
                                                            "featureTitleAr":  "عنوان الميزة بالعربية",
                                                            "featureDescription":  "وصف الميزة",
-                                                           "featureDescriptionAr":  "وصف الميزة بالعربية"
+                                                           "featureDescriptionAr":  "وصف الميزة بالعربية",
+                                                           "contactPageTitle":  "عنوان صفحة تواصل معنا",
+                                                           "contactPageTitleAr":  "عنوان صفحة تواصل معنا بالعربية",
+                                                           "contactPageSubtitle":  "الوصف المختصر لصفحة تواصل معنا",
+                                                           "contactPageSubtitleAr":  "الوصف المختصر لصفحة تواصل معنا بالعربية",
+                                                           "contactPageDescription":  "الوصف الرئيسي لصفحة تواصل معنا",
+                                                           "contactPageDescriptionAr":  "الوصف الرئيسي لصفحة تواصل معنا بالعربية",
+                                                           "contactAddress":  "عنوان التواصل",
+                                                           "contactAddressAr":  "عنوان التواصل بالعربية",
+                                                           "contactWorkingHours":  "ساعات العمل",
+                                                           "contactWorkingHoursAr":  "ساعات العمل بالعربية"
                                                        }
                                         }
                         },

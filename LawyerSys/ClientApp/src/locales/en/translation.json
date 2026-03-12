@@ -113,6 +113,22 @@
                                      "secondaryButtonText":  "Sign in",
                                      "aboutTitle":  "Built for legal teams that need one source of truth",
                                      "aboutDescription":  "From the first customer conversation to the final court update, Qadaya keeps tasks, documents, notifications, and decisions visible across the whole firm.",
+                                     "aboutPage":  {
+                                                       "title":  "About a legal operating system built for disciplined firms",
+                                                       "subtitle":  "We built Qadaya to give legal offices one controlled workspace for case execution, client follow-up, billing, and administration.",
+                                                       "description":  "Qadaya is designed around the real operating pressure inside law firms: fragmented updates, delayed follow-up, hidden workload, and inconsistent visibility across teams. Our goal is to replace scattered tools with one structured platform that keeps legal work clear, accountable, and easier to manage.",
+                                                       "missionTitle":  "Our mission",
+                                                       "missionDescription":  "Help legal teams run stronger operations with fewer gaps, better coordination, and clear ownership across every case and client interaction.",
+                                                       "visionTitle":  "Our vision",
+                                                       "visionDescription":  "Become the central operational layer for modern legal offices that want scalable process control without losing professional rigor."
+                                                   },
+                                     "contactPage":  {
+                                                         "title":  "Contact our team",
+                                                         "subtitle":  "Reach out for commercial questions, onboarding coordination, product guidance, or platform support.",
+                                                         "description":  "Use the contact details below and our team will route your request to the right owner as quickly as possible.",
+                                                         "address":  "Riyadh, Saudi Arabia",
+                                                         "workingHours":  "Sunday to Thursday, 9:00 AM to 6:00 PM"
+                                                     },
                                      "features":  {
                                                       "automation":  {
                                                                          "title":  "Structured legal operations",
@@ -166,13 +182,31 @@
                              },
                     "contact":  {
                                     "email":  "Email",
-                                    "phone":  "Phone"
+                                    "phone":  "Phone",
+                                    "address":  "Address",
+                                    "workingHours":  "Working hours"
+                                },
+                    "aboutPage":  {
+                                      "missionBadge":  "Mission",
+                                      "visionBadge":  "Vision",
+                                      "contactCardLabel":  "Connect with our team",
+                                      "contactAction":  "Go to contact us"
+                                  },
+                    "contactPage":  {
+                                        "emailAction":  "Send email",
+                                        "phoneAction":  "Call now",
+                                        "addressAction":  "Office address",
+                                        "ctaTitle":  "Need a system walkthrough?",
+                                        "ctaSubtitle":  "You can create a tenant directly or move to the about page to understand how the platform is positioned for legal teams.",
+                                        "learnMoreAction":  "Learn more about us"
                                 },
                     "footer":  {
                                    "navigation":  "Navigation",
                                    "contact":  "Contact",
                                    "links":  {
                                                  "home":  "Home",
+                                                 "aboutUs":  "About us",
+                                                 "contactUs":  "Contact us",
                                                  "register":  "Create tenant",
                                                  "login":  "Sign in",
                                                  "dashboard":  "Dashboard"
@@ -1002,6 +1036,10 @@
                                                              "actions":  "Actions",
                                                              "english":  "English content",
                                                              "arabic":  "Arabic content",
+                                                             "aboutPageEnglish":  "About us page (English)",
+                                                             "aboutPageArabic":  "About us page (Arabic)",
+                                                             "contactPageEnglish":  "Contact us page (English)",
+                                                             "contactPageArabic":  "Contact us page (Arabic)",
                                                              "features":  "Feature cards"
                                                          },
                                             "fields":  {
@@ -1026,11 +1064,35 @@
                                                            "aboutTitleAr":  "About title (Arabic)",
                                                            "aboutDescription":  "About description",
                                                            "aboutDescriptionAr":  "About description (Arabic)",
+                                                           "aboutPageTitle":  "About page title",
+                                                           "aboutPageTitleAr":  "About page title (Arabic)",
+                                                           "aboutPageSubtitle":  "About page subtitle",
+                                                           "aboutPageSubtitleAr":  "About page subtitle (Arabic)",
+                                                           "aboutPageDescription":  "About page description",
+                                                           "aboutPageDescriptionAr":  "About page description (Arabic)",
+                                                           "aboutPageMissionTitle":  "Mission title",
+                                                           "aboutPageMissionTitleAr":  "Mission title (Arabic)",
+                                                           "aboutPageMissionDescription":  "Mission description",
+                                                           "aboutPageMissionDescriptionAr":  "Mission description (Arabic)",
+                                                           "aboutPageVisionTitle":  "Vision title",
+                                                           "aboutPageVisionTitleAr":  "Vision title (Arabic)",
+                                                           "aboutPageVisionDescription":  "Vision description",
+                                                           "aboutPageVisionDescriptionAr":  "Vision description (Arabic)",
                                                            "feature":  "Feature {{number}}",
                                                            "featureTitle":  "Feature title",
                                                            "featureTitleAr":  "Feature title (Arabic)",
                                                            "featureDescription":  "Feature description",
-                                                           "featureDescriptionAr":  "Feature description (Arabic)"
+                                                           "featureDescriptionAr":  "Feature description (Arabic)",
+                                                           "contactPageTitle":  "Contact page title",
+                                                           "contactPageTitleAr":  "Contact page title (Arabic)",
+                                                           "contactPageSubtitle":  "Contact page subtitle",
+                                                           "contactPageSubtitleAr":  "Contact page subtitle (Arabic)",
+                                                           "contactPageDescription":  "Contact page description",
+                                                           "contactPageDescriptionAr":  "Contact page description (Arabic)",
+                                                           "contactAddress":  "Contact address",
+                                                           "contactAddressAr":  "Contact address (Arabic)",
+                                                           "contactWorkingHours":  "Working hours",
+                                                           "contactWorkingHoursAr":  "Working hours (Arabic)"
                                                        }
                                         }
                         },

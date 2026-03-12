@@ -12,7 +12,6 @@ import {
   Chip,
   CircularProgress,
   Container,
-  Link,
   Paper,
   Stack,
   TextField,
@@ -23,19 +22,20 @@ import {
 import {
   ArrowOutward as ArrowOutwardIcon,
   AutoAwesome as AutoAwesomeIcon,
-  Balance as BalanceIcon,
   Bolt as BoltIcon,
   Insights as InsightsIcon,
   Security as SecurityIcon,
 } from "@mui/icons-material";
 import api from "../src/services/api";
 import { useAuth } from "../src/services/auth";
-
-type LandingFeature = {
-  iconKey: string;
-  title: string;
-  description: string;
-};
+import PublicSiteShell from "../src/components/public/PublicSiteShell";
+import {
+  buildLandingData,
+  getDefaultLandingPage,
+  getRequestLanguage,
+  type LandingFeature,
+  type LandingPageData,
+} from "../src/services/publicSite";
 
 type PricingOption = {
   subscriptionPackageId: number;
@@ -71,22 +71,6 @@ type PartnerTenant = {
   userCount: number;
 };
 
-type LandingPageData = {
-  systemName: string;
-  tagline: string;
-  heroTitle: string;
-  heroSubtitle: string;
-  primaryButtonText: string;
-  primaryButtonUrl: string;
-  secondaryButtonText: string;
-  secondaryButtonUrl: string;
-  aboutTitle: string;
-  aboutDescription: string;
-  contactEmail: string;
-  contactPhone: string;
-  features: LandingFeature[];
-};
-
 type DemoRequestForm = {
   fullName: string;
   email: string;
@@ -116,78 +100,12 @@ function getFeatureIcon(iconKey: string) {
   }
 }
 
-function getDefaultLandingPage(t: (key: string) => string): LandingPageData {
-  return {
-    systemName: t("landing.defaults.systemName"),
-    tagline: t("landing.defaults.tagline"),
-    heroTitle: t("landing.defaults.heroTitle"),
-    heroSubtitle: t("landing.defaults.heroSubtitle"),
-    primaryButtonText: t("landing.defaults.primaryButtonText"),
-    primaryButtonUrl: "/register",
-    secondaryButtonText: t("landing.defaults.secondaryButtonText"),
-    secondaryButtonUrl: "/login",
-    aboutTitle: t("landing.defaults.aboutTitle"),
-    aboutDescription: t("landing.defaults.aboutDescription"),
-    contactEmail: "support@qadaya.app",
-    contactPhone: "01018206558",
-    features: [
-      {
-        iconKey: "automation",
-        title: t("landing.defaults.features.automation.title"),
-        description: t("landing.defaults.features.automation.description"),
-      },
-      {
-        iconKey: "collaboration",
-        title: t("landing.defaults.features.collaboration.title"),
-        description: t("landing.defaults.features.collaboration.description"),
-      },
-      {
-        iconKey: "insight",
-        title: t("landing.defaults.features.insight.title"),
-        description: t("landing.defaults.features.insight.description"),
-      },
-    ],
-  };
-}
-
-function pickText(value: string | null | undefined, fallback: string) {
-  return typeof value === "string" && value.trim().length > 0 ? value : fallback;
-}
-
-function buildLandingData(responseData: Partial<LandingPageData> | undefined, fallback: LandingPageData): LandingPageData {
-  const responseFeatures = Array.isArray(responseData?.features) ? responseData?.features : [];
-
-  return {
-    systemName: pickText(responseData?.systemName, fallback.systemName),
-    tagline: pickText(responseData?.tagline, fallback.tagline),
-    heroTitle: pickText(responseData?.heroTitle, fallback.heroTitle),
-    heroSubtitle: pickText(responseData?.heroSubtitle, fallback.heroSubtitle),
-    primaryButtonText: pickText(responseData?.primaryButtonText, fallback.primaryButtonText),
-    primaryButtonUrl: pickText(responseData?.primaryButtonUrl, fallback.primaryButtonUrl),
-    secondaryButtonText: pickText(responseData?.secondaryButtonText, fallback.secondaryButtonText),
-    secondaryButtonUrl: pickText(responseData?.secondaryButtonUrl, fallback.secondaryButtonUrl),
-    aboutTitle: pickText(responseData?.aboutTitle, fallback.aboutTitle),
-    aboutDescription: pickText(responseData?.aboutDescription, fallback.aboutDescription),
-    contactEmail: pickText(responseData?.contactEmail, fallback.contactEmail),
-    contactPhone: pickText(responseData?.contactPhone, fallback.contactPhone),
-    features: fallback.features.map((feature, index) => {
-      const responseFeature = responseFeatures[index];
-      return {
-        iconKey: pickText(responseFeature?.iconKey, feature.iconKey),
-        title: pickText(responseFeature?.title, feature.title),
-        description: pickText(responseFeature?.description, feature.description),
-      };
-    }),
-  };
-}
-
 export default function LandingPage() {
   const router = useRouter();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const { isAuthenticated, isAuthInitialized } = useAuth();
   const currentLanguage = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar") ? "ar" : "en";
-  const isRTL = currentLanguage === "ar";
   const fallbackData = useMemo(() => getDefaultLandingPage(t), [t]);
   const [data, setData] = useState<LandingPageData>(fallbackData);
   const [packages, setPackages] = useState<PricingPackage[]>([]);
@@ -202,7 +120,6 @@ export default function LandingPage() {
     const buildCard = (billingCycle: "Monthly" | "Annual") => {
       const options = packages
         .map((pkg) => ({
-          description: pkg.description,
           features: pkg.features || [],
           option: billingCycle === "Monthly" ? pkg.monthlyOption : pkg.annualOption,
         }))
@@ -221,10 +138,7 @@ export default function LandingPage() {
         ),
       );
 
-      const prices = options
-        .map((item) => item.option?.price ?? 0)
-        .filter((price) => price > 0);
-      const currency = options[0].option?.currency || "";
+      const prices = options.map((item) => item.option?.price ?? 0).filter((price) => price > 0);
 
       return {
         billingCycle,
@@ -235,7 +149,7 @@ export default function LandingPage() {
             : t("subscription.public.annualDescription", { defaultValue: "Pay annually for a longer billing cycle and simpler renewal planning." }),
         features,
         price: prices.length > 0 ? Math.min(...prices) : 0,
-        currency,
+        currency: options[0].option?.currency || "",
       };
     };
 
@@ -248,7 +162,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     let mounted = true;
-    const requestLanguage = currentLanguage === "ar" ? "ar-SA" : "en-US";
+    const requestLanguage = getRequestLanguage(currentLanguage);
 
     (async () => {
       try {
@@ -307,15 +221,6 @@ export default function LandingPage() {
     [t],
   );
 
-  const footerLinks = useMemo(
-    () => [
-      { label: t("landing.footer.links.home"), path: "/" },
-      { label: t("landing.footer.links.register"), path: data.primaryButtonUrl || "/register" },
-      { label: isAuthenticated ? t("landing.footer.links.dashboard") : t("landing.footer.links.login"), path: isAuthenticated ? "/dashboard" : (data.secondaryButtonUrl || "/login") },
-    ],
-    [data.primaryButtonUrl, data.secondaryButtonUrl, isAuthenticated, t],
-  );
-
   const navigateTo = (target?: string) => {
     if (!target) {
       return;
@@ -351,11 +256,10 @@ export default function LandingPage() {
     setDemoMessage("");
 
     try {
-      const requestLanguage = currentLanguage === "ar" ? "ar-SA" : "en-US";
       const response = await api.post("/DemoRequests", demoForm, {
         skipTenantHeader: true,
         headers: {
-          "Accept-Language": requestLanguage,
+          "Accept-Language": getRequestLanguage(currentLanguage),
         },
       } as any);
       setDemoForm(emptyDemoRequestForm);
@@ -368,119 +272,19 @@ export default function LandingPage() {
   };
 
   return (
-    <Box
-      dir={isRTL ? "rtl" : "ltr"}
-      sx={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(21,93,117,0.22) 0%, rgba(21,93,117,0) 34%), linear-gradient(180deg, #f3f8fb 0%, #ffffff 42%, #edf3f7 100%)",
-      }}
+    <PublicSiteShell
+      data={data}
+      currentLanguage={currentLanguage}
+      onChangeLanguage={changeLanguage}
+      onNavigate={navigateTo}
+      isAuthenticated={isAuthenticated}
+      isAuthInitialized={isAuthInitialized}
+      extraHeaderActions={
+        <Button variant="outlined" onClick={() => document.getElementById("landing-demo-section")?.scrollIntoView({ behavior: "smooth" })}>
+          {t("landing.demo.bookButton", { defaultValue: "Book a demo" })}
+        </Button>
+      }
     >
-      <Box
-        sx={{
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-          backdropFilter: "blur(18px)",
-          backgroundColor: alpha("#ffffff", 0.84),
-          borderBottom: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.12),
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box
-            sx={{
-              py: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 2,
-              flexWrap: "wrap",
-            }}
-          >
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 3,
-                  display: "grid",
-                  placeItems: "center",
-                  color: "common.white",
-                  background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
-                  boxShadow: "0 12px 24px -16px rgba(18,58,99,0.65)",
-                }}
-              >
-                <BalanceIcon />
-              </Box>
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: "-0.03em" }}>
-                  {data.systemName || t("app.title")}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {data.tagline}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
-              <Stack
-                direction="row"
-                spacing={0.75}
-                sx={{
-                  p: 0.5,
-                  borderRadius: 999,
-                  bgcolor: alpha(theme.palette.primary.main, 0.06),
-                }}
-              >
-                {(["ar", "en"] as const).map((languageCode) => (
-                  <Button
-                    key={languageCode}
-                    size="small"
-                    variant={currentLanguage === languageCode ? "contained" : "text"}
-                    onClick={() => changeLanguage(languageCode)}
-                    sx={{
-                      minWidth: 52,
-                      borderRadius: 999,
-                      fontWeight: 800,
-                      color: currentLanguage === languageCode ? "common.white" : "text.secondary",
-                      background:
-                        currentLanguage === languageCode
-                          ? "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)"
-                          : "transparent",
-                    }}
-                  >
-                    {languageCode === "ar" ? t("landing.languages.ar") : t("landing.languages.en")}
-                  </Button>
-                ))}
-              </Stack>
-              {isAuthInitialized && isAuthenticated && (
-                <Button variant="outlined" onClick={() => router.push("/dashboard")}>
-                  {t("landing.actions.dashboard")}
-                </Button>
-              )}
-              <Button variant="text" onClick={() => navigateTo(data.secondaryButtonUrl || "/login")}>
-                {data.secondaryButtonText || t("landing.actions.login")}
-              </Button>
-              <Button variant="outlined" onClick={() => document.getElementById("landing-demo-section")?.scrollIntoView({ behavior: "smooth" })}>
-                {t("landing.demo.bookButton", { defaultValue: "Book a demo" })}
-              </Button>
-              <Button
-                variant="contained"
-                endIcon={<ArrowOutwardIcon />}
-                onClick={() => navigateTo(data.primaryButtonUrl || "/register")}
-                sx={{
-                  background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
-                  boxShadow: "0 14px 28px -18px rgba(18,58,99,0.7)",
-                }}
-              >
-                {data.primaryButtonText || t("landing.actions.register")}
-              </Button>
-            </Stack>
-          </Box>
-        </Container>
-      </Box>
-
       <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 } }}>
         {error && (
           <Alert severity="warning" sx={{ mb: 3 }}>
@@ -544,11 +348,7 @@ export default function LandingPage() {
               </Typography>
             </Box>
 
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1.5}
-              sx={{ mt: 4, position: "relative", zIndex: 1 }}
-            >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 4, position: "relative", zIndex: 1 }}>
               <Button
                 size="large"
                 variant="contained"
@@ -661,7 +461,7 @@ export default function LandingPage() {
               gap: 2,
             }}
           >
-            {(data.features || []).map((feature, index) => (
+            {(data.features || []).map((feature: LandingFeature, index) => (
               <Card
                 key={`${feature.title}-${index}`}
                 elevation={0}
@@ -796,16 +596,9 @@ export default function LandingPage() {
                   <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75 }}>
                     {partner.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                  <Typography variant="body2" color="text.secondary">
                     {partner.countryName || t("landing.partners.countryFallback", { defaultValue: "Regional partner" })}
                   </Typography>
-                  <Chip
-                    size="small"
-                    label={t("landing.partners.users", {
-                      defaultValue: "{{count}} active users",
-                      count: partner.userCount,
-                    })}
-                  />
                 </CardContent>
               </Card>
             ))}
@@ -863,100 +656,6 @@ export default function LandingPage() {
           </Box>
         </Paper>
       </Container>
-
-      <Box
-        component="footer"
-        sx={{
-          borderTop: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.12),
-          background: "linear-gradient(180deg, rgba(14,43,73,1) 0%, rgba(18,58,99,1) 100%)",
-          color: "common.white",
-          py: 5,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1.2fr) repeat(2, minmax(220px, 0.4fr))" },
-              gap: 3,
-            }}
-          >
-            <Box>
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 3,
-                    display: "grid",
-                    placeItems: "center",
-                    color: "common.white",
-                    backgroundColor: alpha("#ffffff", 0.12),
-                  }}
-                >
-                  <BalanceIcon />
-                </Box>
-                <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                  {data.systemName}
-                </Typography>
-              </Stack>
-              <Typography variant="body2" sx={{ opacity: 0.82, maxWidth: 560, lineHeight: 1.9 }}>
-                {data.tagline}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
-                {t("landing.footer.navigation")}
-              </Typography>
-              <Stack spacing={1}>
-                {footerLinks.map((item) => (
-                  <Link
-                    key={item.label}
-                    component="button"
-                    onClick={() => navigateTo(item.path)}
-                    underline="hover"
-                    color="inherit"
-                    sx={{ textAlign: "start", opacity: 0.86 }}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </Stack>
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
-                {t("landing.footer.contact")}
-              </Typography>
-              <Stack spacing={1}>
-                <Typography variant="body2" sx={{ opacity: 0.86 }}>
-                  {t("landing.contact.email")}: {data.contactEmail || "-"}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.86 }}>
-                  {t("landing.contact.phone")}: {data.contactPhone || "-"}
-                </Typography>
-              </Stack>
-            </Box>
-          </Box>
-
-          <Typography
-            variant="caption"
-            sx={{
-              display: "block",
-              mt: 4,
-              pt: 2,
-              borderTop: "1px solid",
-              borderColor: alpha("#ffffff", 0.14),
-              opacity: 0.72,
-              textAlign: "center",
-            }}
-          >
-            {t("landing.footer.copyright", { year: new Date().getFullYear(), systemName: data.systemName })}
-          </Typography>
-        </Container>
-      </Box>
-    </Box>
+    </PublicSiteShell>
   );
 }
