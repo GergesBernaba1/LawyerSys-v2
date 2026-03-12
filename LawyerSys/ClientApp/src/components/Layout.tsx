@@ -60,6 +60,7 @@ import {
   Link as LinkIcon,
   Login as LoginIcon,
   Logout as LogoutIcon,
+  SearchRounded as SearchRoundedIcon,
   ExpandLess,
   ExpandMore,
   ChevronLeft as ChevronLeftIcon,
@@ -185,6 +186,7 @@ export default function Layout({ children }: LayoutProps) {
   const [tenantOptions, setTenantOptions] = useState<TenantOption[]>([])
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('')
   const [headerSearch, setHeaderSearch] = useState('')
+  const [menuSearch, setMenuSearch] = useState('')
   const [systemBrandName, setSystemBrandName] = useState('')
   const [notificationsAnchor, setNotificationsAnchor] = useState<null | HTMLElement>(null)
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
@@ -212,6 +214,19 @@ export default function Layout({ children }: LayoutProps) {
     if (item.key === 'subscription') return canUseSubscription
     return true
   })
+  const filteredMenuItems = React.useMemo(() => {
+    const query = menuSearch.trim().toLowerCase()
+    if (!query) return visibleMenuItems
+
+    return visibleMenuItems.filter((item) => {
+      const label = t(`app.${item.key}`).toLowerCase()
+      return (
+        label.includes(query) ||
+        item.key.toLowerCase().includes(query) ||
+        item.path.toLowerCase().includes(query)
+      )
+    })
+  }, [menuSearch, t, visibleMenuItems])
   // Start from SSR default language to keep hydrated text identical.
   const [lng, setLng] = useState('ar')
   const assistantLanguage: 'ar' | 'en' = (lng && lng.startsWith('ar')) ? 'ar' : 'en'
@@ -801,14 +816,36 @@ export default function Layout({ children }: LayoutProps) {
       
       <Box sx={{ px: 3, mb: 2, mt: 1 }}>
         {!collapsed && (
-          <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary', opacity: 0.5, letterSpacing: '0.1em' }}>
-            {t('app.menu')}
-          </Typography>
+          <Box sx={{ display: 'grid', gap: 1.25 }}>
+            <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary', opacity: 0.5, letterSpacing: '0.1em' }}>
+              {t('app.menu')}
+            </Typography>
+            <TextField
+              size="small"
+              value={menuSearch}
+              onChange={(event) => setMenuSearch(event.target.value)}
+              placeholder={t('app.search')}
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchRoundedIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
+              }}
+            />
+          </Box>
         )}
       </Box>
 
       <List sx={{ flex: 1, px: 2, py: 0 }}>
-        {visibleMenuItems.map((item) => (
+        {filteredMenuItems.map((item) => (
           <ListItem key={item.key} disablePadding sx={{ mb: 0.8 }}>
             <Tooltip title={t(`app.${item.key}`)} placement={isRTL ? 'left' : 'right'} disableHoverListener={!collapsed}>
               <ListItemButton
@@ -866,6 +903,19 @@ export default function Layout({ children }: LayoutProps) {
             </Tooltip>
           </ListItem>
         ))}
+        {!collapsed && filteredMenuItems.length === 0 && (
+          <Box
+            sx={{
+              px: 2,
+              py: 2.5,
+              textAlign: 'center',
+              color: 'text.secondary',
+              fontWeight: 600,
+            }}
+          >
+            {t('app.noResults')}
+          </Box>
+        )}
       </List>
 
       <Box sx={{ p: 2, mt: 'auto' }}>
