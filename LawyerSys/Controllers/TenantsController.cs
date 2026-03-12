@@ -13,6 +13,7 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class TenantsController : ControllerBase
 {
+    private const string DefaultFirmName = "Default Firm";
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IInAppNotificationService _inAppNotificationService;
@@ -87,21 +88,27 @@ public class TenantsController : ControllerBase
                     : tenant.Country != null ? tenant.Country.Name : string.Empty,
                 UserCount = tenant.Users.Count,
                 ContactEmail = tenant.ContactEmail,
-                CurrentPackageName = tenant.Subscriptions
-                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
-                    .Select(subscription => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" &&
-                        !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
-                        ? subscription.SubscriptionPackage.NameAr
-                        : subscription.SubscriptionPackage.Name)
-                    .FirstOrDefault() ?? string.Empty,
-                SubscriptionStatus = tenant.Subscriptions
-                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
-                    .Select(subscription => subscription.Status.ToString())
-                    .FirstOrDefault() ?? string.Empty,
-                SubscriptionEndDateUtc = tenant.Subscriptions
-                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
-                    .Select(subscription => (DateTime?)subscription.EndDateUtc)
-                    .FirstOrDefault()
+                CurrentPackageName = tenant.Name == DefaultFirmName
+                    ? string.Empty
+                    : tenant.Subscriptions
+                        .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                        .Select(subscription => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" &&
+                            !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
+                            ? subscription.SubscriptionPackage.NameAr
+                            : subscription.SubscriptionPackage.Name)
+                        .FirstOrDefault() ?? string.Empty,
+                SubscriptionStatus = tenant.Name == DefaultFirmName
+                    ? string.Empty
+                    : tenant.Subscriptions
+                        .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                        .Select(subscription => subscription.Status.ToString())
+                        .FirstOrDefault() ?? string.Empty,
+                SubscriptionEndDateUtc = tenant.Name == DefaultFirmName
+                    ? null
+                    : tenant.Subscriptions
+                        .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                        .Select(subscription => (DateTime?)subscription.EndDateUtc)
+                        .FirstOrDefault()
             })
             .ToListAsync();
 
@@ -140,21 +147,27 @@ public class TenantsController : ControllerBase
                     : tenant.Country != null ? tenant.Country.Name : string.Empty,
                 UserCount = tenant.Users.Count,
                 ContactEmail = tenant.ContactEmail,
-                CurrentPackageName = tenant.Subscriptions
-                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
-                    .Select(subscription => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" &&
-                        !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
-                        ? subscription.SubscriptionPackage.NameAr
-                        : subscription.SubscriptionPackage.Name)
-                    .FirstOrDefault() ?? string.Empty,
-                SubscriptionStatus = tenant.Subscriptions
-                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
-                    .Select(subscription => subscription.Status.ToString())
-                    .FirstOrDefault() ?? string.Empty,
-                SubscriptionEndDateUtc = tenant.Subscriptions
-                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
-                    .Select(subscription => (DateTime?)subscription.EndDateUtc)
-                    .FirstOrDefault()
+                CurrentPackageName = tenant.Name == DefaultFirmName
+                    ? string.Empty
+                    : tenant.Subscriptions
+                        .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                        .Select(subscription => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" &&
+                            !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
+                            ? subscription.SubscriptionPackage.NameAr
+                            : subscription.SubscriptionPackage.Name)
+                        .FirstOrDefault() ?? string.Empty,
+                SubscriptionStatus = tenant.Name == DefaultFirmName
+                    ? string.Empty
+                    : tenant.Subscriptions
+                        .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                        .Select(subscription => subscription.Status.ToString())
+                        .FirstOrDefault() ?? string.Empty,
+                SubscriptionEndDateUtc = tenant.Name == DefaultFirmName
+                    ? null
+                    : tenant.Subscriptions
+                        .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                        .Select(subscription => (DateTime?)subscription.EndDateUtc)
+                        .FirstOrDefault()
             })
             .ToListAsync();
 

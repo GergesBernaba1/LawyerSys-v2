@@ -7,6 +7,8 @@ using Serilog;
 
 public static class DataSeeder
 {
+    private const string DefaultFirmName = "Default Firm";
+
     public static async Task SeedAdminUser(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
@@ -145,79 +147,26 @@ public static class DataSeeder
             Log.Information("Admin user already exists.");
         }
 
-        var defaultPackage = await applicationDbContext.SubscriptionPackages
-            .AsNoTracking()
-            .Where(package => package.IsActive)
-            .OrderBy(package => package.DisplayOrder)
-            .ThenBy(package => package.Price)
-            .FirstOrDefaultAsync();
-
-        if (defaultPackage != null)
+        if (string.Equals(defaultTenant.Name?.Trim(), DefaultFirmName, StringComparison.OrdinalIgnoreCase))
         {
-            var hasSubscription = await applicationDbContext.TenantSubscriptions
-                .AnyAsync(subscription => subscription.TenantId == defaultTenant.Id);
-
-            if (!hasSubscription)
+            var seededTransactions = await applicationDbContext.TenantBillingTransactions
+                .Where(transaction => transaction.TenantId == defaultTenant.Id)
+                .ToListAsync();
+            if (seededTransactions.Count > 0)
             {
-                var now = DateTime.UtcNow;
-                var currentEnd = defaultPackage.BillingCycle == SubscriptionBillingCycle.Annual
-                    ? now.AddYears(1)
-                    : now.AddMonths(1);
-                var nextEnd = defaultPackage.BillingCycle == SubscriptionBillingCycle.Annual
-                    ? currentEnd.AddYears(1)
-                    : currentEnd.AddMonths(1);
+                applicationDbContext.TenantBillingTransactions.RemoveRange(seededTransactions);
+            }
 
-                var subscription = new TenantSubscription
-                {
-                    TenantId = defaultTenant.Id,
-                    SubscriptionPackageId = defaultPackage.Id,
-                    Status = TenantSubscriptionStatus.Active,
-                    StartDateUtc = now,
-                    EndDateUtc = currentEnd,
-                    NextBillingDateUtc = currentEnd,
-                    CreatedAtUtc = now,
-                    UpdatedAtUtc = now,
-                };
+            var seededSubscriptions = await applicationDbContext.TenantSubscriptions
+                .Where(subscription => subscription.TenantId == defaultTenant.Id)
+                .ToListAsync();
+            if (seededSubscriptions.Count > 0)
+            {
+                applicationDbContext.TenantSubscriptions.RemoveRange(seededSubscriptions);
+            }
 
-                applicationDbContext.TenantSubscriptions.Add(subscription);
-                await applicationDbContext.SaveChangesAsync();
-
-                applicationDbContext.TenantBillingTransactions.Add(new TenantBillingTransaction
-                {
-                    TenantId = defaultTenant.Id,
-                    TenantSubscriptionId = subscription.Id,
-                    SubscriptionPackageId = defaultPackage.Id,
-                    Status = TenantBillingTransactionStatus.Paid,
-                    BillingCycle = defaultPackage.BillingCycle,
-                    Amount = defaultPackage.Price,
-                    Currency = defaultPackage.Currency,
-                    PeriodStartUtc = now,
-                    PeriodEndUtc = currentEnd,
-                    DueDateUtc = now,
-                    PaidAtUtc = now,
-                    Reference = "SEEDED",
-                    Notes = "Seeded default tenant subscription",
-                    CreatedAtUtc = now,
-                    UpdatedAtUtc = now,
-                });
-
-                applicationDbContext.TenantBillingTransactions.Add(new TenantBillingTransaction
-                {
-                    TenantId = defaultTenant.Id,
-                    TenantSubscriptionId = subscription.Id,
-                    SubscriptionPackageId = defaultPackage.Id,
-                    Status = TenantBillingTransactionStatus.Pending,
-                    BillingCycle = defaultPackage.BillingCycle,
-                    Amount = defaultPackage.Price,
-                    Currency = defaultPackage.Currency,
-                    PeriodStartUtc = currentEnd,
-                    PeriodEndUtc = nextEnd,
-                    DueDateUtc = currentEnd,
-                    Notes = "Upcoming renewal",
-                    CreatedAtUtc = now,
-                    UpdatedAtUtc = now,
-                });
-
+            if (seededTransactions.Count > 0 || seededSubscriptions.Count > 0)
+            {
                 await applicationDbContext.SaveChangesAsync();
             }
         }

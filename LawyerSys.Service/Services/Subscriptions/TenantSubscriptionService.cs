@@ -6,6 +6,7 @@ namespace LawyerSys.Services.Subscriptions;
 
 public class TenantSubscriptionService : ITenantSubscriptionService
 {
+    private const string DefaultFirmName = "Default Firm";
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
@@ -26,6 +27,11 @@ public class TenantSubscriptionService : ITenantSubscriptionService
 
     public async Task<TenantSubscription> CreateSubscriptionForTenantAsync(Tenant tenant, int packageId, CancellationToken cancellationToken = default)
     {
+        if (IsDefaultFirm(tenant.Name))
+        {
+            throw new InvalidOperationException("Default Firm does not use subscriptions.");
+        }
+
         var package = await _applicationDbContext.SubscriptionPackages
             .SingleOrDefaultAsync(item => item.Id == packageId && item.IsActive, cancellationToken);
 
@@ -118,6 +124,15 @@ public class TenantSubscriptionService : ITenantSubscriptionService
             return;
         }
 
+        var tenant = await _applicationDbContext.Tenants
+            .AsNoTracking()
+            .SingleOrDefaultAsync(item => item.Id == user.TenantId, cancellationToken);
+
+        if (tenant != null && IsDefaultFirm(tenant.Name))
+        {
+            return;
+        }
+
         var subscription = await GetCurrentSubscriptionAsync(user.TenantId, cancellationToken);
         if (subscription == null)
         {
@@ -144,8 +159,8 @@ public class TenantSubscriptionService : ITenantSubscriptionService
 
         if (subscription.Status == TenantSubscriptionStatus.PendingActivation)
         {
-            var tenant = subscription.Tenant;
-            if (tenant != null && tenant.IsActive)
+            var subscriptionTenant = subscription.Tenant;
+            if (subscriptionTenant != null && subscriptionTenant.IsActive)
             {
                 subscription.Status = TenantSubscriptionStatus.Active;
                 subscription.UpdatedAtUtc = now;
@@ -156,6 +171,15 @@ public class TenantSubscriptionService : ITenantSubscriptionService
 
     public async Task ActivatePendingSubscriptionAsync(int tenantId, CancellationToken cancellationToken = default)
     {
+        var tenant = await _applicationDbContext.Tenants
+            .AsNoTracking()
+            .SingleOrDefaultAsync(item => item.Id == tenantId, cancellationToken);
+
+        if (tenant != null && IsDefaultFirm(tenant.Name))
+        {
+            return;
+        }
+
         var subscription = await GetCurrentSubscriptionAsync(tenantId, cancellationToken);
         if (subscription == null)
         {
@@ -177,6 +201,15 @@ public class TenantSubscriptionService : ITenantSubscriptionService
 
     public async Task<TenantSubscription> ChangeTenantPackageAsync(int tenantId, int packageId, CancellationToken cancellationToken = default)
     {
+        var tenant = await _applicationDbContext.Tenants
+            .AsNoTracking()
+            .SingleOrDefaultAsync(item => item.Id == tenantId, cancellationToken);
+
+        if (tenant != null && IsDefaultFirm(tenant.Name))
+        {
+            throw new InvalidOperationException("Default Firm does not use subscriptions.");
+        }
+
         var package = await _applicationDbContext.SubscriptionPackages
             .SingleOrDefaultAsync(item => item.Id == packageId && item.IsActive, cancellationToken);
         if (package == null)
@@ -361,6 +394,11 @@ public class TenantSubscriptionService : ITenantSubscriptionService
         return billingCycle == SubscriptionBillingCycle.Annual
             ? startUtc.AddYears(1)
             : startUtc.AddMonths(1);
+    }
+
+    private static bool IsDefaultFirm(string? tenantName)
+    {
+        return string.Equals(tenantName?.Trim(), DefaultFirmName, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string Normalize(string? value) => (value ?? string.Empty).Trim();

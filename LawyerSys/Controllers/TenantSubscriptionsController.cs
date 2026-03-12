@@ -12,6 +12,7 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class TenantSubscriptionsController : ControllerBase
 {
+    private const string DefaultFirmName = "Default Firm";
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITenantSubscriptionService _tenantSubscriptionService;
@@ -94,17 +95,23 @@ public class TenantSubscriptionsController : ControllerBase
 
         try
         {
+            var tenant = await _applicationDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(item => item.Id == tenantId);
+
+            if (tenant == null)
+            {
+                return NotFound(new { message = "Tenant not found" });
+            }
+
+            if (string.Equals(tenant.Name?.Trim(), DefaultFirmName, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new { message = "Default Firm does not use subscriptions." });
+            }
+
             var existingSubscription = await _tenantSubscriptionService.GetCurrentSubscriptionAsync(tenantId);
             if (existingSubscription == null)
             {
-                var tenant = await _applicationDbContext.Tenants
-                    .SingleOrDefaultAsync(item => item.Id == tenantId);
-
-                if (tenant == null)
-                {
-                    return NotFound(new { message = "Tenant not found" });
-                }
-
                 await _tenantSubscriptionService.CreateSubscriptionForTenantAsync(tenant, request.SubscriptionPackageId);
             }
             else
@@ -135,6 +142,7 @@ public class TenantSubscriptionsController : ControllerBase
         var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
         var tenantsQuery = _applicationDbContext.Tenants
             .AsNoTracking()
+            .Where(tenant => tenant.Name != DefaultFirmName)
             .AsQueryable();
 
         if (tenantId.HasValue && tenantId.Value > 0)
@@ -177,6 +185,7 @@ public class TenantSubscriptionsController : ControllerBase
 
         var transactionsQuery = _applicationDbContext.TenantBillingTransactions
             .AsNoTracking()
+            .Where(transaction => transaction.Tenant.Name != DefaultFirmName)
             .AsQueryable();
 
         if (tenantId.HasValue && tenantId.Value > 0)
@@ -276,6 +285,19 @@ public class TenantSubscriptionsController : ControllerBase
         if (tenant == null)
         {
             return null;
+        }
+
+        if (string.Equals(tenant.Name?.Trim(), DefaultFirmName, StringComparison.OrdinalIgnoreCase))
+        {
+            return new TenantSubscriptionDetailsDto
+            {
+                HasSubscription = false,
+                TenantId = tenant.Id,
+                TenantName = tenant.Name,
+                TenantEmail = tenant.ContactEmail,
+                AvailablePackages = Array.Empty<SubscriptionPackagePublicGroupDto>(),
+                Transactions = Array.Empty<TenantBillingTransactionDto>(),
+            };
         }
 
         var transactions = subscription == null
