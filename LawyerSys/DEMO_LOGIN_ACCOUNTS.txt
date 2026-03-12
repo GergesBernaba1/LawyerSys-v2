@@ -1,0 +1,84 @@
+LawyerSys demo login accounts
+============================
+
+These accounts are created by the development demo seed when:
+- Seed:EnableDemoData = true
+- the API has been restarted so the seed runs
+
+Login accepts either username or email.
+
+Available now
+-------------
+SuperAdmin
+Username/email: gergesbernaba2@gmail.com
+Password: Gerges@GoGoAdmin123
+
+Atlas Litigation Hub
+Username: atlas.admin
+Email: atlas.admin@demo.local
+Password: DemoTenant@123
+
+Atlas Litigation Hub
+Username: atlas.employee
+Email: atlas.employee@demo.local
+Password: DemoTenant@123
+
+Atlas Litigation Hub
+Username: atlas.customer
+Email: atlas.customer@demo.local
+Password: DemoTenant@123
+
+Cedar Corporate Advisory
+Username: cedar.admin
+Email: cedar.admin@demo.local
+Password: DemoTenant@123
+
+Cedar Corporate Advisory
+Username: cedar.employee
+Email: cedar.employee@demo.local
+Password: DemoTenant@123
+
+Cedar Corporate Advisory
+Username: cedar.customer
+Email: cedar.customer@demo.local
+Password: DemoTenant@123
+
+Seeded but blocked by tenant state
+----------------------------------
+Nile Startup Counsel
+Username: nile.admin
+Email: nile.admin@demo.local
+Password: DemoTenant@123
+Status: tenant inactive
+
+Nile Startup Counsel
+Username: nile.employee
+Email: nile.employee@demo.local
+Password: DemoTenant@123
+Status: tenant inactive
+
+Nile Startup Counsel
+Username: nile.customer
+Email: nile.customer@demo.local
+Password: DemoTenant@123
+Status: tenant inactive
+
+Seeded but blocked by subscription state
+----------------------------------------
+Horizon Dispute Resolution
+Username: horizon.admin
+Email: horizon.admin@demo.local
+Password: DemoTenant@123
+Status: expired subscription
+
+Horizon Dispute Resolution
+Username: horizon.employee
+Email: horizon.employee@demo.local
+Password: DemoTenant@123
+Status: expired subscription
+
+Horizon Dispute Resolution
+Username: horizon.customer
+Email: horizon.customer@demo.local
+Password: DemoTenant@123
+Status: expired subscription

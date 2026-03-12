@@ -355,6 +355,7 @@ try
     try
     {
         await DataSeeder.SeedAdminUser(scope.ServiceProvider);
+        await DemoDataSeeder.SeedDemoData(scope.ServiceProvider);
     }
     catch (Exception ex)
     {
