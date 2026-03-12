@@ -181,6 +181,7 @@ export default function Layout({ children }: LayoutProps) {
   const [tenantOptions, setTenantOptions] = useState<TenantOption[]>([])
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('')
   const [headerSearch, setHeaderSearch] = useState('')
+  const [systemBrandName, setSystemBrandName] = useState('')
   const [notificationsAnchor, setNotificationsAnchor] = useState<null | HTMLElement>(null)
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [unreadNotifications, setUnreadNotifications] = useState(0)
@@ -278,6 +279,7 @@ export default function Layout({ children }: LayoutProps) {
   const handleLangClose = () => setLangAnchor(null)
   const changeLang = (lng: string) => {
     try {
+      localStorage.setItem('i18nextLng', lng)
       document.documentElement.setAttribute('dir', lng.startsWith('ar') ? 'rtl' : 'ltr')
       document.documentElement.setAttribute('lang', lng.startsWith('ar') ? 'ar' : 'en')
     } catch {}
@@ -556,6 +558,31 @@ export default function Layout({ children }: LayoutProps) {
   }, [notificationFilter, notificationsAnchor, canUseNotifications, isAuthenticated, loadNotifications])
 
   React.useEffect(() => {
+    let mounted = true
+    const requestLanguage = (i18n.resolvedLanguage || i18n.language || lng || 'ar').startsWith('ar') ? 'ar-SA' : 'en-US'
+
+    void api.get('/LandingPage', {
+      skipTenantHeader: true,
+      headers: {
+        'Accept-Language': requestLanguage,
+      },
+    } as any)
+      .then((response) => {
+        if (!mounted) return
+        const nextName = String(response.data?.systemName || '').trim()
+        setSystemBrandName(nextName)
+      })
+      .catch(() => {
+        if (!mounted) return
+        setSystemBrandName('')
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [i18n.language, i18n.resolvedLanguage, lng])
+
+  React.useEffect(() => {
     if (!chatOpen || chatMessages.length > 0) return
     setChatMessages([
       {
@@ -741,7 +768,7 @@ export default function Layout({ children }: LayoutProps) {
           </Box>
           {!collapsed && (
             <Typography variant="h5" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              LawyerSys
+              {systemBrandName || t('app.title')}
             </Typography>
           )}
         </Box>
