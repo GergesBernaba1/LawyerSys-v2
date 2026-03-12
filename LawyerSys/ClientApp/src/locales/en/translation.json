@@ -1100,7 +1100,15 @@
                         "subtitle":  "Activate or deactivate registered tenants. Inactive tenants cannot log in.",
                         "failedLoad":  "Failed to load tenants.",
                         "statusUpdateFailed":  "Failed to update tenant status.",
-                        "empty":  "No tenants found."
+                        "empty":  "No tenants found.",
+                        "manageSubscription":  "Manage subscription",
+                        "subscriptionDialogTitle":  "Manage subscription - {{tenant}}",
+                        "subscriptionPageSubtitle":  "Review and manage this tenant subscription from a dedicated page.",
+                        "subscriptionLoadFailed":  "Failed to load tenant subscription.",
+                        "packageUpdateFailed":  "Failed to update tenant package.",
+                        "transactionUpdateFailed":  "Failed to update billing transaction.",
+                        "noTransactions":  "No billing transactions found.",
+                        "noPackageSelected":  "This tenant has not chosen any package yet."
                     },
     "documentGeneration":  {
                                "title":  "Generate Legal Document",

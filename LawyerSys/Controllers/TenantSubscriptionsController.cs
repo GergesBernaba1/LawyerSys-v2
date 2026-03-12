@@ -69,6 +69,61 @@ public class TenantSubscriptionsController : ControllerBase
     }
 
     [Authorize(Policy = "AdminOnly")]
+    [HttpGet("admin/{tenantId:int}")]
+    public async Task<IActionResult> GetAdminTenantSubscription(int tenantId)
+    {
+        if (!User.IsInRole("SuperAdmin"))
+        {
+            return Forbid();
+        }
+
+        var payload = await BuildTenantSubscriptionPayloadAsync(tenantId, limitTransactions: 50);
+        return payload == null
+            ? NotFound(new { message = "Tenant not found" })
+            : Ok(payload);
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPut("admin/{tenantId:int}/package")]
+    public async Task<IActionResult> ChangeAdminTenantPackage(int tenantId, [FromBody] ChangeTenantPackageRequest request)
+    {
+        if (!User.IsInRole("SuperAdmin"))
+        {
+            return Forbid();
+        }
+
+        try
+        {
+            var existingSubscription = await _tenantSubscriptionService.GetCurrentSubscriptionAsync(tenantId);
+            if (existingSubscription == null)
+            {
+                var tenant = await _applicationDbContext.Tenants
+                    .SingleOrDefaultAsync(item => item.Id == tenantId);
+
+                if (tenant == null)
+                {
+                    return NotFound(new { message = "Tenant not found" });
+                }
+
+                await _tenantSubscriptionService.CreateSubscriptionForTenantAsync(tenant, request.SubscriptionPackageId);
+            }
+            else
+            {
+                await _tenantSubscriptionService.ChangeTenantPackageAsync(tenantId, request.SubscriptionPackageId);
+            }
+
+            var payload = await BuildTenantSubscriptionPayloadAsync(tenantId, limitTransactions: 50);
+            return payload == null
+                ? NotFound(new { message = "Tenant not found" })
+                : Ok(payload);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("admin")]
     public async Task<IActionResult> GetAdminBillingOverview([FromQuery] int? tenantId = null)
     {
@@ -210,38 +265,47 @@ public class TenantSubscriptionsController : ControllerBase
             .Where(item => item.TenantId == tenantId)
             .OrderByDescending(item => item.UpdatedAtUtc)
             .FirstOrDefaultAsync();
+        var tenant = subscription?.Tenant;
+        if (tenant == null)
+        {
+            tenant = await _applicationDbContext.Tenants
+                .AsNoTracking()
+                .SingleOrDefaultAsync(item => item.Id == tenantId);
+        }
 
-        if (subscription == null)
+        if (tenant == null)
         {
             return null;
         }
 
-        var transactions = await _applicationDbContext.TenantBillingTransactions
-            .AsNoTracking()
-            .Include(item => item.SubscriptionPackage)
-            .Where(item => item.TenantId == tenantId)
-            .OrderByDescending(item => item.DueDateUtc)
-            .Take(limitTransactions)
-            .Select(transaction => new TenantBillingTransactionDto
-            {
-                Id = transaction.Id,
-                TenantId = transaction.TenantId,
-                TenantName = subscription.Tenant.Name,
-                PackageName = useArabic && !string.IsNullOrWhiteSpace(transaction.SubscriptionPackage.NameAr)
-                    ? transaction.SubscriptionPackage.NameAr
-                    : transaction.SubscriptionPackage.Name,
-                BillingCycle = transaction.BillingCycle.ToString(),
-                Status = transaction.Status.ToString(),
-                Amount = transaction.Amount,
-                Currency = transaction.Currency,
-                DueDateUtc = transaction.DueDateUtc,
-                PaidAtUtc = transaction.PaidAtUtc,
-                PeriodStartUtc = transaction.PeriodStartUtc,
-                PeriodEndUtc = transaction.PeriodEndUtc,
-                Reference = transaction.Reference,
-                Notes = transaction.Notes,
-            })
-            .ToListAsync();
+        var transactions = subscription == null
+            ? new List<TenantBillingTransactionDto>()
+            : await _applicationDbContext.TenantBillingTransactions
+                .AsNoTracking()
+                .Include(item => item.SubscriptionPackage)
+                .Where(item => item.TenantId == tenantId)
+                .OrderByDescending(item => item.DueDateUtc)
+                .Take(limitTransactions)
+                .Select(transaction => new TenantBillingTransactionDto
+                {
+                    Id = transaction.Id,
+                    TenantId = transaction.TenantId,
+                    TenantName = tenant.Name,
+                    PackageName = useArabic && !string.IsNullOrWhiteSpace(transaction.SubscriptionPackage.NameAr)
+                        ? transaction.SubscriptionPackage.NameAr
+                        : transaction.SubscriptionPackage.Name,
+                    BillingCycle = transaction.BillingCycle.ToString(),
+                    Status = transaction.Status.ToString(),
+                    Amount = transaction.Amount,
+                    Currency = transaction.Currency,
+                    DueDateUtc = transaction.DueDateUtc,
+                    PaidAtUtc = transaction.PaidAtUtc,
+                    PeriodStartUtc = transaction.PeriodStartUtc,
+                    PeriodEndUtc = transaction.PeriodEndUtc,
+                    Reference = transaction.Reference,
+                    Notes = transaction.Notes,
+                })
+                .ToListAsync();
 
         var availablePackages = await _applicationDbContext.SubscriptionPackages
             .AsNoTracking()
@@ -251,30 +315,37 @@ public class TenantSubscriptionsController : ControllerBase
 
         return new TenantSubscriptionDetailsDto
         {
-            TenantId = subscription.TenantId,
-            TenantName = subscription.Tenant.Name,
-            TenantEmail = subscription.Tenant.ContactEmail,
-            Status = subscription.Status.ToString(),
-            PackageId = subscription.SubscriptionPackageId,
-            PackageName = useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
-                ? subscription.SubscriptionPackage.NameAr
-                : subscription.SubscriptionPackage.Name,
-            PackageDescription = useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.DescriptionAr)
-                ? subscription.SubscriptionPackage.DescriptionAr
-                : subscription.SubscriptionPackage.Description,
-            BillingCycle = subscription.SubscriptionPackage.BillingCycle.ToString(),
-            OfficeSize = subscription.SubscriptionPackage.OfficeSize.ToString(),
-            Price = subscription.SubscriptionPackage.Price,
-            Currency = subscription.SubscriptionPackage.Currency,
-            PackageFeatures = new[]
-            {
-                useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.Feature1Ar) ? subscription.SubscriptionPackage.Feature1Ar : subscription.SubscriptionPackage.Feature1,
-                useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.Feature2Ar) ? subscription.SubscriptionPackage.Feature2Ar : subscription.SubscriptionPackage.Feature2,
-                useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.Feature3Ar) ? subscription.SubscriptionPackage.Feature3Ar : subscription.SubscriptionPackage.Feature3,
-            }.Where(feature => !string.IsNullOrWhiteSpace(feature)).ToArray(),
-            StartDateUtc = subscription.StartDateUtc,
-            EndDateUtc = subscription.EndDateUtc,
-            NextBillingDateUtc = subscription.NextBillingDateUtc,
+            HasSubscription = subscription != null,
+            TenantId = tenant.Id,
+            TenantName = tenant.Name,
+            TenantEmail = tenant.ContactEmail,
+            Status = subscription?.Status.ToString() ?? string.Empty,
+            PackageId = subscription?.SubscriptionPackageId ?? 0,
+            PackageName = subscription == null
+                ? string.Empty
+                : useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
+                    ? subscription.SubscriptionPackage.NameAr
+                    : subscription.SubscriptionPackage.Name,
+            PackageDescription = subscription == null
+                ? string.Empty
+                : useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.DescriptionAr)
+                    ? subscription.SubscriptionPackage.DescriptionAr
+                    : subscription.SubscriptionPackage.Description,
+            BillingCycle = subscription?.SubscriptionPackage.BillingCycle.ToString() ?? string.Empty,
+            OfficeSize = subscription?.SubscriptionPackage.OfficeSize.ToString() ?? string.Empty,
+            Price = subscription?.SubscriptionPackage.Price ?? 0,
+            Currency = subscription?.SubscriptionPackage.Currency ?? string.Empty,
+            PackageFeatures = subscription == null
+                ? Array.Empty<string>()
+                : new[]
+                {
+                    useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.Feature1Ar) ? subscription.SubscriptionPackage.Feature1Ar : subscription.SubscriptionPackage.Feature1,
+                    useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.Feature2Ar) ? subscription.SubscriptionPackage.Feature2Ar : subscription.SubscriptionPackage.Feature2,
+                    useArabic && !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.Feature3Ar) ? subscription.SubscriptionPackage.Feature3Ar : subscription.SubscriptionPackage.Feature3,
+                }.Where(feature => !string.IsNullOrWhiteSpace(feature)).ToArray(),
+            StartDateUtc = subscription?.StartDateUtc,
+            EndDateUtc = subscription?.EndDateUtc,
+            NextBillingDateUtc = subscription?.NextBillingDateUtc,
             Transactions = transactions,
             AvailablePackages = SubscriptionPackageMapper.BuildPublicGroups(availablePackages, useArabic),
         };
@@ -296,6 +367,7 @@ public class TenantSubscriptionsController : ControllerBase
 
 public class TenantSubscriptionDetailsDto
 {
+    public bool HasSubscription { get; set; }
     public int TenantId { get; set; }
     public string TenantName { get; set; } = string.Empty;
     public string TenantEmail { get; set; } = string.Empty;
@@ -308,9 +380,9 @@ public class TenantSubscriptionDetailsDto
     public decimal Price { get; set; }
     public string Currency { get; set; } = string.Empty;
     public IReadOnlyList<string> PackageFeatures { get; set; } = Array.Empty<string>();
-    public DateTime StartDateUtc { get; set; }
-    public DateTime EndDateUtc { get; set; }
-    public DateTime NextBillingDateUtc { get; set; }
+    public DateTime? StartDateUtc { get; set; }
+    public DateTime? EndDateUtc { get; set; }
+    public DateTime? NextBillingDateUtc { get; set; }
     public IReadOnlyList<TenantBillingTransactionDto> Transactions { get; set; } = Array.Empty<TenantBillingTransactionDto>();
     public IReadOnlyList<SubscriptionPackagePublicGroupDto> AvailablePackages { get; set; } = Array.Empty<SubscriptionPackagePublicGroupDto>();
 }

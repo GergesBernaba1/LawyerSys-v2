@@ -1104,7 +1104,15 @@
                         "subtitle":  "يمكنك تفعيل أو تعطيل مكاتب المحامين المسجلة. المكتب غير النشط لا يمكن لأي مستخدم فيه تسجيل الدخول.",
                         "failedLoad":  "فشل تحميل مكاتب المحامين.",
                         "statusUpdateFailed":  "فشل تحديث حالة المكتب.",
-                        "empty":  "لا توجد مكاتب محامين."
+                        "empty":  "لا توجد مكاتب محامين.",
+                        "manageSubscription":  "إدارة الاشتراك",
+                        "subscriptionDialogTitle":  "إدارة اشتراك {{tenant}}",
+                        "subscriptionPageSubtitle":  "راجع وأدر اشتراك هذا المكتب من صفحة مستقلة.",
+                        "subscriptionLoadFailed":  "فشل تحميل اشتراك المكتب.",
+                        "packageUpdateFailed":  "فشل تحديث باقة المكتب.",
+                        "transactionUpdateFailed":  "فشل تحديث معاملة الفوترة.",
+                        "noTransactions":  "لا توجد معاملات فوترة.",
+                        "noPackageSelected":  "هذا المكتب لم يختر أي باقة بعد."
                     },
     "documentGeneration":  {
                                "title":  "توليد مستند قانوني",

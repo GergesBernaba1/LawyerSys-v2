@@ -27,13 +27,36 @@ type TenantManagement = {
   id: number;
   name: string;
   phoneNumber: string;
+  contactEmail: string;
   isActive: boolean;
   countryName: string;
   userCount: number;
+  currentPackageName: string;
+  subscriptionStatus: string;
+  subscriptionEndDateUtc?: string | null;
 };
 
 function isDefaultFirm(tenantName: string) {
   return tenantName.trim().toLowerCase() === "default firm";
+}
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case "Active":
+    case "Paid":
+      return "success" as const;
+    case "Pending":
+      return "warning" as const;
+    case "Overdue":
+    case "Expired":
+      return "error" as const;
+    default:
+      return "default" as const;
+  }
+}
+
+function formatDate(value?: string | null) {
+  return value ? new Date(value).toLocaleDateString() : "-";
 }
 
 export default function TenantsPage() {
@@ -47,7 +70,7 @@ export default function TenantsPage() {
   const [tenants, setTenants] = useState<TenantManagement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [pendingAction, setPendingAction] = useState<Record<number, boolean>>({});
+  const [pendingAction, setPendingAction] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -66,7 +89,7 @@ export default function TenantsPage() {
     try {
       const language = (i18n.resolvedLanguage || i18n.language || "en").startsWith("ar") ? "ar-SA" : "en-US";
       const response = await api.get("/Tenants", { headers: { "Accept-Language": language } });
-      setTenants(response.data || []);
+      setTenants((response.data || []).filter((tenant: TenantManagement) => !isDefaultFirm(tenant.name)));
     } catch (e: any) {
       setError(e?.response?.data?.message || t("tenantsPage.failedLoad", { defaultValue: "Failed to load tenants." }));
     } finally {
@@ -93,14 +116,14 @@ export default function TenantsPage() {
   }, [isAuthenticated, user, isSuperAdmin, i18n.language, i18n.resolvedLanguage]);
 
   const toggleTenantStatus = async (tenant: TenantManagement) => {
-    setPendingAction((prev) => ({ ...prev, [tenant.id]: true }));
+    setPendingAction((prev) => ({ ...prev, [`tenant-${tenant.id}`]: true }));
     try {
       await api.put(`/Tenants/${tenant.id}/status`, { isActive: !tenant.isActive });
       await loadTenants();
     } catch (e: any) {
       setError(e?.response?.data?.message || t("tenantsPage.statusUpdateFailed", { defaultValue: "Failed to update tenant status." }));
     } finally {
-      setPendingAction((prev) => ({ ...prev, [tenant.id]: false }));
+      setPendingAction((prev) => ({ ...prev, [`tenant-${tenant.id}`]: false }));
     }
   };
 
@@ -158,7 +181,10 @@ export default function TenantsPage() {
                 <TableCell>{t("administration.tenants.name", { defaultValue: "Tenant" })}</TableCell>
                 <TableCell>{t("administration.tenants.country", { defaultValue: "Country" })}</TableCell>
                 <TableCell>{t("administration.tenants.phone", { defaultValue: "Phone" })}</TableCell>
+                <TableCell>{t("administration.tenants.email", { defaultValue: "Email" })}</TableCell>
                 <TableCell>{t("administration.tenants.users", { defaultValue: "Users" })}</TableCell>
+                <TableCell>{t("administration.tenants.package", { defaultValue: "Package" })}</TableCell>
+                <TableCell>{t("administration.tenants.subscription", { defaultValue: "Subscription" })}</TableCell>
                 <TableCell>{t("administration.tenants.status", { defaultValue: "Status" })}</TableCell>
                 <TableCell align={isRTL ? "left" : "right"}>{t("administration.tenants.actions", { defaultValue: "Actions" })}</TableCell>
               </TableRow>
@@ -169,7 +195,23 @@ export default function TenantsPage() {
                   <TableCell sx={{ fontWeight: 700 }}>{tenant.name}</TableCell>
                   <TableCell>{tenant.countryName || "-"}</TableCell>
                   <TableCell>{tenant.phoneNumber || "-"}</TableCell>
+                  <TableCell>{tenant.contactEmail || "-"}</TableCell>
                   <TableCell>{tenant.userCount}</TableCell>
+                  <TableCell>{tenant.currentPackageName || ""}</TableCell>
+                  <TableCell>
+                    {!!tenant.subscriptionStatus && (
+                      <Chip
+                        size="small"
+                        color={getStatusColor(tenant.subscriptionStatus)}
+                        label={t(`subscription.status.${tenant.subscriptionStatus.toLowerCase()}`, { defaultValue: tenant.subscriptionStatus })}
+                      />
+                    )}
+                    {!!tenant.subscriptionStatus && tenant.subscriptionEndDateUtc && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                        {formatDate(tenant.subscriptionEndDateUtc)}
+                      </Typography>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Chip
                       size="small"
@@ -182,25 +224,28 @@ export default function TenantsPage() {
                     />
                   </TableCell>
                   <TableCell align={isRTL ? "left" : "right"}>
-                    {!isDefaultFirm(tenant.name) && (
+                    <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end", flexWrap: "wrap" }}>
+                      <Button size="small" variant="outlined" onClick={() => router.push(`/tenants/${tenant.id}/subscription`)}>
+                        {t("tenantsPage.manageSubscription", { defaultValue: "Manage subscription" })}
+                      </Button>
                       <Button
                         size="small"
                         variant="contained"
                         color={tenant.isActive ? "warning" : "success"}
-                        disabled={!!pendingAction[tenant.id]}
+                        disabled={!!pendingAction[`tenant-${tenant.id}`]}
                         onClick={() => void toggleTenantStatus(tenant)}
                       >
                         {tenant.isActive
                           ? t("administration.tenants.deactivate", { defaultValue: "Deactivate" })
                           : t("administration.tenants.activate", { defaultValue: "Activate" })}
                       </Button>
-                    )}
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
               {tenants.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
                     {t("tenantsPage.empty", { defaultValue: "No tenants found." })}
                   </TableCell>
                 </TableRow>

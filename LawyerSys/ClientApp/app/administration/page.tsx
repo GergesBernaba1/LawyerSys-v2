@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
@@ -30,21 +30,6 @@ import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
 import SearchableMultiSelect from "../../src/components/SearchableMultiSelect";
 import type { SearchableOption } from "../../src/components/SearchableSelect";
-
-type AdministrationCounts = {
-  users: number;
-  employees: number;
-  customers: number;
-  cases: number;
-  hearings: number;
-  tasks: number;
-  overdueTasks: number;
-  auditLogs: number;
-};
-
-type AdministrationOverview = {
-  counts: AdministrationCounts;
-};
 
 type IdentityUserManagement = {
   id: string;
@@ -346,7 +331,6 @@ export default function AdministrationPage() {
   const isAdmin = hasRole("Admin");
   const isSuperAdmin = hasRole("SuperAdmin");
 
-  const [overview, setOverview] = useState<AdministrationOverview | null>(null);
   const [accounts, setAccounts] = useState<IdentityUserManagement[]>([]);
   const [tenants, setTenants] = useState<TenantManagement[]>([]);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
@@ -392,7 +376,6 @@ export default function AdministrationPage() {
     (async () => {
       try {
         const requests: Promise<any>[] = [
-          api.get("/Administration/overview"),
           api.get("/Account/users"),
           api.get("/Account/users/roles"),
         ];
@@ -404,9 +387,8 @@ export default function AdministrationPage() {
           requests.push(api.get("/DemoRequests", { skipTenantHeader: true } as any));
         }
 
-        const [response, usersResponse, rolesResponse, tenantsResponse, landingResponse, packagesResponse, billingResponse, demoRequestsResponse] = await Promise.all(requests);
+        const [usersResponse, rolesResponse, tenantsResponse, landingResponse, packagesResponse, billingResponse, demoRequestsResponse] = await Promise.all(requests);
         if (mounted) {
-          setOverview(response.data);
           setAccounts(usersResponse.data || []);
           setAvailableRoles((rolesResponse.data || []).filter((role: string) => role !== "SuperAdmin"));
           setTenants(isSuperAdmin ? (tenantsResponse?.data || []) : []);
@@ -617,21 +599,6 @@ export default function AdministrationPage() {
     }
   };
 
-  const cards = useMemo(() => {
-    if (!overview) return [];
-
-    return [
-      { key: "users", value: overview.counts.users },
-      { key: "employees", value: overview.counts.employees },
-      { key: "customers", value: overview.counts.customers },
-      { key: "cases", value: overview.counts.cases },
-      { key: "hearings", value: overview.counts.hearings },
-      { key: "tasks", value: overview.counts.tasks },
-      { key: "overdueTasks", value: overview.counts.overdueTasks },
-      { key: "auditLogs", value: overview.counts.auditLogs },
-    ];
-  }, [overview]);
-
   return (
     <Box dir={isRTL ? "rtl" : "ltr"} sx={{ pb: 4 }}>
       <Paper
@@ -670,25 +637,8 @@ export default function AdministrationPage() {
         </Alert>
       )}
 
-      {!loading && !error && overview && (
+      {!loading && !error && (
         <>
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            {cards.map((card) => (
-              <Grid key={card.key} size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
-                  <CardContent>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {t(`administration.cards.${card.key}`)}
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                      {card.value}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-
           <Paper elevation={0} sx={{ mb: 3, borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
             <Tabs
               value={activeTab}
@@ -722,7 +672,9 @@ export default function AdministrationPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {accounts.map((account) => (
+                    {accounts.map((account) => {
+                      const isDefaultFirmAccount = !!account.tenantName && isDefaultFirm(account.tenantName);
+                      return (
                       <TableRow key={account.id} hover>
                         <TableCell>
                           <Typography variant="body2" sx={{ fontWeight: 700 }}>
@@ -748,13 +700,13 @@ export default function AdministrationPage() {
                             value={roleDrafts[account.id] || []}
                             onChange={(value) => setRoleDrafts((prev) => ({ ...prev, [account.id]: value }))}
                             options={getRoleOptions(t, availableRoles, roleDrafts[account.id] || [])}
-                            disabled={account.id === user?.id}
+                            disabled={account.id === user?.id || isDefaultFirmAccount}
                             limitTags={3}
                           />
                         </TableCell>
                         <TableCell align={isRTL ? "left" : "right"}>
                           <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end" }}>
-                            {account.id !== user?.id && (
+                            {!isDefaultFirmAccount && account.id !== user?.id && (
                               <Button
                                 size="small"
                                 variant="outlined"
@@ -764,7 +716,7 @@ export default function AdministrationPage() {
                                 {t("administration.accounts.saveRoles")}
                               </Button>
                             )}
-                            {account.isEnabled ? (
+                            {!isDefaultFirmAccount && account.isEnabled ? (
                               account.id !== user?.id && (
                                 <Button
                                   size="small"
@@ -776,7 +728,7 @@ export default function AdministrationPage() {
                                   {t("administration.accounts.disable")}
                                 </Button>
                               )
-                            ) : (
+                            ) : !isDefaultFirmAccount ? (
                               <Button
                                 size="small"
                                 color="success"
@@ -786,11 +738,12 @@ export default function AdministrationPage() {
                               >
                                 {t("administration.accounts.enable")}
                               </Button>
-                            )}
+                            ) : null}
                           </Box>
                         </TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </Paper>
@@ -1058,12 +1011,12 @@ export default function AdministrationPage() {
                         </TableCell>
                         <TableCell align={isRTL ? "left" : "right"}>
                           <Box sx={{ display: "flex", gap: 1, justifyContent: isRTL ? "flex-start" : "flex-end" }}>
-                            {transaction.status !== "Paid" && (
+                            {!isDefaultFirm(transaction.tenantName) && transaction.status !== "Paid" && (
                               <Button size="small" variant="contained" color="success" disabled={!!pendingAction[`billing-${transaction.id}`]} onClick={() => updateTransactionStatus(transaction.id, "pay")}>
                                 {t("administration.billing.markPaid", { defaultValue: "Mark paid" })}
                               </Button>
                             )}
-                            {transaction.status === "Pending" && (
+                            {!isDefaultFirm(transaction.tenantName) && transaction.status === "Pending" && (
                               <Button size="small" variant="outlined" color="warning" disabled={!!pendingAction[`billing-${transaction.id}`]} onClick={() => updateTransactionStatus(transaction.id, "cancel")}>
                                 {t("administration.billing.cancel", { defaultValue: "Cancel" })}
                               </Button>
