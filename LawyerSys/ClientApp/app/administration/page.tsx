@@ -12,6 +12,7 @@ import {
   Chip,
   CircularProgress,
   Paper,
+  TextField,
   Tab,
   Table,
   TableBody,
@@ -74,7 +75,79 @@ type TenantManagement = {
   userCount: number;
 };
 
-type AdministrationTab = "overview" | "accounts" | "tenants";
+type LandingPageSettings = {
+  systemName: string;
+  systemNameAr: string;
+  tagline: string;
+  taglineAr: string;
+  heroTitle: string;
+  heroTitleAr: string;
+  heroSubtitle: string;
+  heroSubtitleAr: string;
+  primaryButtonText: string;
+  primaryButtonTextAr: string;
+  primaryButtonUrl: string;
+  secondaryButtonText: string;
+  secondaryButtonTextAr: string;
+  secondaryButtonUrl: string;
+  aboutTitle: string;
+  aboutTitleAr: string;
+  aboutDescription: string;
+  aboutDescriptionAr: string;
+  feature1Title: string;
+  feature1TitleAr: string;
+  feature1Description: string;
+  feature1DescriptionAr: string;
+  feature2Title: string;
+  feature2TitleAr: string;
+  feature2Description: string;
+  feature2DescriptionAr: string;
+  feature3Title: string;
+  feature3TitleAr: string;
+  feature3Description: string;
+  feature3DescriptionAr: string;
+  contactEmail: string;
+  contactPhone: string;
+  updatedAtUtc?: string;
+};
+
+type AdministrationTab = "overview" | "accounts" | "tenants" | "landing";
+
+const emptyLandingSettings: LandingPageSettings = {
+  systemName: "",
+  systemNameAr: "",
+  tagline: "",
+  taglineAr: "",
+  heroTitle: "",
+  heroTitleAr: "",
+  heroSubtitle: "",
+  heroSubtitleAr: "",
+  primaryButtonText: "",
+  primaryButtonTextAr: "",
+  primaryButtonUrl: "",
+  secondaryButtonText: "",
+  secondaryButtonTextAr: "",
+  secondaryButtonUrl: "",
+  aboutTitle: "",
+  aboutTitleAr: "",
+  aboutDescription: "",
+  aboutDescriptionAr: "",
+  feature1Title: "",
+  feature1TitleAr: "",
+  feature1Description: "",
+  feature1DescriptionAr: "",
+  feature2Title: "",
+  feature2TitleAr: "",
+  feature2Description: "",
+  feature2DescriptionAr: "",
+  feature3Title: "",
+  feature3TitleAr: "",
+  feature3Description: "",
+  feature3DescriptionAr: "",
+  contactEmail: "",
+  contactPhone: "",
+  updatedAtUtc: "",
+};
 
 function isDefaultFirm(tenantName: string) {
   return tenantName.trim().toLowerCase() === "default firm";
@@ -128,9 +201,11 @@ export default function AdministrationPage() {
   const [tenants, setTenants] = useState<TenantManagement[]>([]);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [roleDrafts, setRoleDrafts] = useState<Record<string, string[]>>({});
+  const [landingSettings, setLandingSettings] = useState<LandingPageSettings>(emptyLandingSettings);
   const [pendingAction, setPendingAction] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
   const [activeTab, setActiveTab] = useState<AdministrationTab>("overview");
 
   useEffect(() => {
@@ -169,14 +244,16 @@ export default function AdministrationPage() {
         ];
         if (isSuperAdmin) {
           requests.push(api.get("/Tenants"));
+          requests.push(api.get("/LandingPage/admin", { skipTenantHeader: true } as any));
         }
 
-        const [response, usersResponse, rolesResponse, tenantsResponse] = await Promise.all(requests);
+        const [response, usersResponse, rolesResponse, tenantsResponse, landingResponse] = await Promise.all(requests);
         if (mounted) {
           setOverview(response.data);
           setAccounts(usersResponse.data || []);
           setAvailableRoles((rolesResponse.data || []).filter((role: string) => role !== "SuperAdmin"));
           setTenants(isSuperAdmin ? (tenantsResponse?.data || []) : []);
+          setLandingSettings(isSuperAdmin ? { ...emptyLandingSettings, ...(landingResponse?.data || {}) } : emptyLandingSettings);
           const draftMap: Record<string, string[]> = {};
           (usersResponse.data || []).forEach((u: IdentityUserManagement) => {
             draftMap[u.id] = u.roles || [];
@@ -200,7 +277,7 @@ export default function AdministrationPage() {
   }, [t, isAuthenticated, user, isAdmin, isSuperAdmin]);
 
   useEffect(() => {
-    if (!isSuperAdmin && activeTab === "tenants") {
+    if (!isSuperAdmin && (activeTab === "tenants" || activeTab === "landing")) {
       setActiveTab("overview");
     }
   }, [activeTab, isSuperAdmin]);
@@ -245,6 +322,25 @@ export default function AdministrationPage() {
       setTenants(tenantsResponse.data || []);
     } finally {
       setPendingAction((prev) => ({ ...prev, [`tenant-${id}`]: false }));
+    }
+  };
+
+  const updateLandingField = <K extends keyof LandingPageSettings>(field: K, value: LandingPageSettings[K]) => {
+    setLandingSettings((prev) => ({ ...prev, [field]: value }));
+    setSaveMessage("");
+  };
+
+  const saveLandingPage = async () => {
+    setPendingAction((prev) => ({ ...prev, landing: true }));
+    setSaveMessage("");
+    try {
+      const response = await api.put("/LandingPage", landingSettings, { skipTenantHeader: true } as any);
+      setLandingSettings({ ...emptyLandingSettings, ...(response.data || {}) });
+      setSaveMessage(t("administration.landing.saveSuccess"));
+    } catch (e: any) {
+      setSaveMessage(e?.response?.data?.message || t("administration.landing.saveFailed"));
+    } finally {
+      setPendingAction((prev) => ({ ...prev, landing: false }));
     }
   };
 
@@ -330,6 +426,7 @@ export default function AdministrationPage() {
               <Tab value="overview" label={t("administration.tabs.overview")} />
               <Tab value="accounts" label={t("administration.tabs.accounts")} />
               {isSuperAdmin && <Tab value="tenants" label={t("administration.tabs.tenants")} />}
+              {isSuperAdmin && <Tab value="landing" label={t("administration.tabs.landing")} />}
             </Tabs>
           </Paper>
 
@@ -525,6 +622,277 @@ export default function AdministrationPage() {
                   </TableBody>
                 </Table>
               </Paper>
+            </>
+          )}
+
+          {activeTab === "landing" && isSuperAdmin && (
+            <>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2, mb: 2 }}>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                    {t("administration.landing.title")}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {t("administration.landing.subtitle")}
+                  </Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  onClick={saveLandingPage}
+                  disabled={!!pendingAction.landing}
+                >
+                  {t("administration.landing.save")}
+                </Button>
+              </Box>
+
+              {saveMessage && (
+                <Alert severity={saveMessage === t("administration.landing.saveSuccess") ? "success" : "error"} sx={{ mb: 2 }}>
+                  {saveMessage}
+                </Alert>
+              )}
+
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.general")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.systemName")}
+                          value={landingSettings.systemName}
+                          onChange={(e) => updateLandingField("systemName", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.systemNameAr")}
+                          value={landingSettings.systemNameAr}
+                          onChange={(e) => updateLandingField("systemNameAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactEmail")}
+                          value={landingSettings.contactEmail}
+                          onChange={(e) => updateLandingField("contactEmail", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.contactPhone")}
+                          value={landingSettings.contactPhone}
+                          onChange={(e) => updateLandingField("contactPhone", e.target.value)}
+                          fullWidth
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.actions")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.primaryButtonUrl")}
+                          value={landingSettings.primaryButtonUrl}
+                          onChange={(e) => updateLandingField("primaryButtonUrl", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.secondaryButtonUrl")}
+                          value={landingSettings.secondaryButtonUrl}
+                          onChange={(e) => updateLandingField("secondaryButtonUrl", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.updatedAt")}
+                          value={landingSettings.updatedAtUtc ? new Date(landingSettings.updatedAtUtc).toLocaleString() : "-"}
+                          fullWidth
+                          disabled
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.english")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.tagline")}
+                          value={landingSettings.tagline}
+                          onChange={(e) => updateLandingField("tagline", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.heroTitle")}
+                          value={landingSettings.heroTitle}
+                          onChange={(e) => updateLandingField("heroTitle", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.heroSubtitle")}
+                          value={landingSettings.heroSubtitle}
+                          onChange={(e) => updateLandingField("heroSubtitle", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.primaryButtonText")}
+                          value={landingSettings.primaryButtonText}
+                          onChange={(e) => updateLandingField("primaryButtonText", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.secondaryButtonText")}
+                          value={landingSettings.secondaryButtonText}
+                          onChange={(e) => updateLandingField("secondaryButtonText", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutTitle")}
+                          value={landingSettings.aboutTitle}
+                          onChange={(e) => updateLandingField("aboutTitle", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutDescription")}
+                          value={landingSettings.aboutDescription}
+                          onChange={(e) => updateLandingField("aboutDescription", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.arabic")}
+                      </Typography>
+                      <Box sx={{ display: "grid", gap: 2 }}>
+                        <TextField
+                          label={t("administration.landing.fields.taglineAr")}
+                          value={landingSettings.taglineAr}
+                          onChange={(e) => updateLandingField("taglineAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.heroTitleAr")}
+                          value={landingSettings.heroTitleAr}
+                          onChange={(e) => updateLandingField("heroTitleAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.heroSubtitleAr")}
+                          value={landingSettings.heroSubtitleAr}
+                          onChange={(e) => updateLandingField("heroSubtitleAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.primaryButtonTextAr")}
+                          value={landingSettings.primaryButtonTextAr}
+                          onChange={(e) => updateLandingField("primaryButtonTextAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.secondaryButtonTextAr")}
+                          value={landingSettings.secondaryButtonTextAr}
+                          onChange={(e) => updateLandingField("secondaryButtonTextAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutTitleAr")}
+                          value={landingSettings.aboutTitleAr}
+                          onChange={(e) => updateLandingField("aboutTitleAr", e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label={t("administration.landing.fields.aboutDescriptionAr")}
+                          value={landingSettings.aboutDescriptionAr}
+                          onChange={(e) => updateLandingField("aboutDescriptionAr", e.target.value)}
+                          fullWidth
+                          multiline
+                          minRows={4}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                        {t("administration.landing.sections.features")}
+                      </Typography>
+                      <Grid container spacing={2}>
+                        {[1, 2, 3].map((index) => (
+                          <Grid key={index} size={{ xs: 12, md: 4 }}>
+                            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%" }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
+                                {t("administration.landing.fields.feature", { number: index })}
+                              </Typography>
+                              <Box sx={{ display: "grid", gap: 2 }}>
+                                <TextField
+                                  label={t("administration.landing.fields.featureTitle")}
+                                  value={landingSettings[`feature${index}Title` as keyof LandingPageSettings] as string}
+                                  onChange={(e) =>
+                                    updateLandingField(`feature${index}Title` as keyof LandingPageSettings, e.target.value as never)
+                                  }
+                                  fullWidth
+                                />
+                                <TextField
+                                  label={t("administration.landing.fields.featureTitleAr")}
+                                  value={landingSettings[`feature${index}TitleAr` as keyof LandingPageSettings] as string}
+                                  onChange={(e) =>
+                                    updateLandingField(`feature${index}TitleAr` as keyof LandingPageSettings, e.target.value as never)
+                                  }
+                                  fullWidth
+                                />
+                                <TextField
+                                  label={t("administration.landing.fields.featureDescription")}
+                                  value={landingSettings[`feature${index}Description` as keyof LandingPageSettings] as string}
+                                  onChange={(e) =>
+                                    updateLandingField(`feature${index}Description` as keyof LandingPageSettings, e.target.value as never)
+                                  }
+                                  fullWidth
+                                  multiline
+                                  minRows={3}
+                                />
+                                <TextField
+                                  label={t("administration.landing.fields.featureDescriptionAr")}
+                                  value={landingSettings[`feature${index}DescriptionAr` as keyof LandingPageSettings] as string}
+                                  onChange={(e) =>
+                                    updateLandingField(`feature${index}DescriptionAr` as keyof LandingPageSettings, e.target.value as never)
+                                  }
+                                  fullWidth
+                                  multiline
+                                  minRows={3}
+                                />
+                              </Box>
+                            </Paper>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
             </>
           )}
         </>

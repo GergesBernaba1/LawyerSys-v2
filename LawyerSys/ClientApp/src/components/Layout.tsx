@@ -92,7 +92,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { key: 'dashboard', icon: <DashboardIcon />, path: '/' },
+  { key: 'dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { key: 'cases', icon: <GavelIcon />, path: '/cases' },
   { key: 'customers', icon: <PeopleIcon />, path: '/customers' },
   { key: 'employees', icon: <BadgeIcon />, path: '/employees' },
@@ -158,6 +158,7 @@ const NOTIFICATIONS_PAGE_SIZE = 12
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isLayoutBypassedPage =
+    pathname === '/' ||
     pathname === '/login' ||
     pathname === '/register' ||
     pathname === '/forgot-password' ||
@@ -1363,7 +1364,7 @@ export default function Layout({ children }: LayoutProps) {
             >
               <Link
                 component="button"
-                onClick={() => handleNavigation('/')}
+                onClick={() => handleNavigation('/dashboard')}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -1379,7 +1380,7 @@ export default function Layout({ children }: LayoutProps) {
                 <HomeIcon sx={{ fontSize: 20 }} />
                 {t('app.dashboard')}
               </Link>
-              {pathname !== '/' && (
+              {pathname !== '/dashboard' && (
                 <Typography 
                   variant="body2" 
                   sx={{ 
@@ -1399,7 +1400,7 @@ export default function Layout({ children }: LayoutProps) {
               )}
             </Breadcrumbs>
             <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.03em', color: 'text.primary' }}>
-              {pathname === '/' ? t('app.dashboard') : t(`app.${currentPageKey}`)}
+              {pathname === '/dashboard' ? t('app.dashboard') : t(`app.${currentPageKey}`)}
             </Typography>
           </Box>
           

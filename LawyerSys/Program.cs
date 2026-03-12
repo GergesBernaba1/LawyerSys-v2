@@ -36,7 +36,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    var supportedCultures = new[] { new CultureInfo("en-US"), new CultureInfo("ar-SA") };
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en"),
+        new CultureInfo("en-US"),
+        new CultureInfo("ar"),
+        new CultureInfo("ar-SA")
+    };
     options.DefaultRequestCulture = new RequestCulture("en-US");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;

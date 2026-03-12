@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<City> Cities => Set<City>();
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<LandingPageSettings> LandingPageSettings => Set<LandingPageSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +77,43 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(country => country.Tenants)
                 .HasForeignKey(tenant => tenant.CountryId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<LandingPageSettings>(entity =>
+        {
+            entity.ToTable("LandingPageSettings");
+            entity.Property(settings => settings.SystemName).HasMaxLength(150);
+            entity.Property(settings => settings.SystemNameAr).HasMaxLength(150);
+            entity.Property(settings => settings.Tagline).HasMaxLength(200);
+            entity.Property(settings => settings.TaglineAr).HasMaxLength(200);
+            entity.Property(settings => settings.HeroTitle).HasMaxLength(250);
+            entity.Property(settings => settings.HeroTitleAr).HasMaxLength(250);
+            entity.Property(settings => settings.HeroSubtitle).HasMaxLength(2000);
+            entity.Property(settings => settings.HeroSubtitleAr).HasMaxLength(2000);
+            entity.Property(settings => settings.PrimaryButtonText).HasMaxLength(120);
+            entity.Property(settings => settings.PrimaryButtonTextAr).HasMaxLength(120);
+            entity.Property(settings => settings.PrimaryButtonUrl).HasMaxLength(300);
+            entity.Property(settings => settings.SecondaryButtonText).HasMaxLength(120);
+            entity.Property(settings => settings.SecondaryButtonTextAr).HasMaxLength(120);
+            entity.Property(settings => settings.SecondaryButtonUrl).HasMaxLength(300);
+            entity.Property(settings => settings.AboutTitle).HasMaxLength(180);
+            entity.Property(settings => settings.AboutTitleAr).HasMaxLength(180);
+            entity.Property(settings => settings.AboutDescription).HasMaxLength(3000);
+            entity.Property(settings => settings.AboutDescriptionAr).HasMaxLength(3000);
+            entity.Property(settings => settings.Feature1Title).HasMaxLength(150);
+            entity.Property(settings => settings.Feature1TitleAr).HasMaxLength(150);
+            entity.Property(settings => settings.Feature1Description).HasMaxLength(1000);
+            entity.Property(settings => settings.Feature1DescriptionAr).HasMaxLength(1000);
+            entity.Property(settings => settings.Feature2Title).HasMaxLength(150);
+            entity.Property(settings => settings.Feature2TitleAr).HasMaxLength(150);
+            entity.Property(settings => settings.Feature2Description).HasMaxLength(1000);
+            entity.Property(settings => settings.Feature2DescriptionAr).HasMaxLength(1000);
+            entity.Property(settings => settings.Feature3Title).HasMaxLength(150);
+            entity.Property(settings => settings.Feature3TitleAr).HasMaxLength(150);
+            entity.Property(settings => settings.Feature3Description).HasMaxLength(1000);
+            entity.Property(settings => settings.Feature3DescriptionAr).HasMaxLength(1000);
+            entity.Property(settings => settings.ContactEmail).HasMaxLength(256);
+            entity.Property(settings => settings.ContactPhone).HasMaxLength(64);
         });
 
         modelBuilder.Entity<Notification>(entity =>

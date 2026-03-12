@@ -38,7 +38,7 @@ export default function ForgotPasswordPage(){
   // Redirect authenticated users away from forgot-password page
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/');
+      router.push('/dashboard');
     }
   }, [isAuthenticated, router]);
 

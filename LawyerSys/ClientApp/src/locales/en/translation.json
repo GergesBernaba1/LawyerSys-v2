@@ -95,6 +95,68 @@
                                          "read":  "Read"
                                      }
                       },
+    "landing":  {
+                    "failedLoad":  "Failed to load landing page data. Showing fallback content.",
+                    "badge":  "Legal operations platform",
+                    "highlights":  "Highlights",
+                    "featuresTitle":  "Core advantages",
+                    "featuresSubtitle":  "One platform for the operating layer of your legal business",
+                    "contactTitle":  "Contact and onboarding",
+                    "contactSubtitle":  "Use the configured contact channels below for commercial or implementation follow-up.",
+                    "defaults":  {
+                                     "systemName":  "Qadaya",
+                                     "tagline":  "Legal work, client intake, and firm operations in one controlled workspace.",
+                                     "heroTitle":  "Run your legal practice with clarity, speed, and stronger follow-through.",
+                                     "heroSubtitle":  "Qadaya helps legal teams manage cases, courts, customers, billing, signatures, and administration from a single operating system.",
+                                     "primaryButtonText":  "Create tenant",
+                                     "secondaryButtonText":  "Sign in",
+                                     "aboutTitle":  "Built for legal teams that need one source of truth",
+                                     "aboutDescription":  "From the first customer conversation to the final court update, Qadaya keeps tasks, documents, notifications, and decisions visible across the whole firm.",
+                                     "features":  {
+                                                      "automation":  {
+                                                                         "title":  "Structured legal operations",
+                                                                         "description":  "Track cases, hearings, documents, and financial workflows without scattered spreadsheets."
+                                                                     },
+                                                      "collaboration":  {
+                                                                           "title":  "Firm and client coordination",
+                                                                           "description":  "Keep teams and customers aligned with assignments, timelines, and status visibility."
+                                                                       },
+                                                      "insight":  {
+                                                                      "title":  "Super admin control",
+                                                                      "description":  "Manage tenants, permissions, settings, and platform-wide structure from one control layer."
+                                                                  }
+                                                  }
+                                 },
+                    "actions":  {
+                                    "dashboard":  "Open dashboard",
+                                    "login":  "Sign in",
+                                    "register":  "Create tenant"
+                                },
+                    "languages":  {
+                                      "ar":  "AR",
+                                      "en":  "EN"
+                                  },
+                    "stats":  {
+                                  "availability":  "access for your firm",
+                                  "workspace":  "shared workspace",
+                                  "visibility":  "degree operational visibility"
+                              },
+                    "contact":  {
+                                    "email":  "Email",
+                                    "phone":  "Phone"
+                                },
+                    "footer":  {
+                                   "navigation":  "Navigation",
+                                   "contact":  "Contact",
+                                   "links":  {
+                                                 "home":  "Home",
+                                                 "register":  "Create tenant",
+                                                 "login":  "Sign in",
+                                                 "dashboard":  "Dashboard"
+                                             },
+                                   "copyright":  "© {{year}} {{systemName}}. All rights reserved."
+                                }
+                      },
     "login":  {
                   "title":  "Welcome Back",
                   "subtitle":  "Sign in to access your dashboard",
@@ -732,7 +794,8 @@
                             "tabs":  {
                                          "overview":  "Modules",
                                          "accounts":  "Accounts",
-                                         "tenants":  "Tenants"
+                                         "tenants":  "Tenants",
+                                         "landing":  "Landing Page"
                                      },
                             "cards":  {
                                           "users":  "Users",
@@ -792,6 +855,48 @@
                                             "inactive":  "Inactive",
                                             "activate":  "Activate",
                                             "deactivate":  "Deactivate"
+                                        },
+                            "landing":  {
+                                            "title":  "Landing page content",
+                                            "subtitle":  "Control the public home page text, actions, and contact details for the system.",
+                                            "save":  "Save landing page",
+                                            "saveSuccess":  "Landing page updated successfully.",
+                                            "saveFailed":  "Failed to save landing page settings.",
+                                            "sections":  {
+                                                             "general":  "General",
+                                                             "actions":  "Actions",
+                                                             "english":  "English content",
+                                                             "arabic":  "Arabic content",
+                                                             "features":  "Feature cards"
+                                                         },
+                                            "fields":  {
+                                                           "systemName":  "System name",
+                                                           "systemNameAr":  "System name (Arabic)",
+                                                           "contactEmail":  "Contact email",
+                                                           "contactPhone":  "Contact phone",
+                                                           "primaryButtonUrl":  "Primary button URL",
+                                                           "secondaryButtonUrl":  "Secondary button URL",
+                                                           "updatedAt":  "Last updated",
+                                                           "tagline":  "Tagline",
+                                                           "taglineAr":  "Tagline (Arabic)",
+                                                           "heroTitle":  "Hero title",
+                                                           "heroTitleAr":  "Hero title (Arabic)",
+                                                           "heroSubtitle":  "Hero subtitle",
+                                                           "heroSubtitleAr":  "Hero subtitle (Arabic)",
+                                                           "primaryButtonText":  "Primary button text",
+                                                           "primaryButtonTextAr":  "Primary button text (Arabic)",
+                                                           "secondaryButtonText":  "Secondary button text",
+                                                           "secondaryButtonTextAr":  "Secondary button text (Arabic)",
+                                                           "aboutTitle":  "About title",
+                                                           "aboutTitleAr":  "About title (Arabic)",
+                                                           "aboutDescription":  "About description",
+                                                           "aboutDescriptionAr":  "About description (Arabic)",
+                                                           "feature":  "Feature {{number}}",
+                                                           "featureTitle":  "Feature title",
+                                                           "featureTitleAr":  "Feature title (Arabic)",
+                                                           "featureDescription":  "Feature description",
+                                                           "featureDescriptionAr":  "Feature description (Arabic)"
+                                                       }
                                         }
                         },
     "tenantsPage":  {
