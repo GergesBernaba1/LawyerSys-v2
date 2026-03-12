@@ -813,7 +813,7 @@ export default function LandingPage() {
                 key={activePartner.id}
                 elevation={0}
                 sx={{
-                  borderRadius: 4,
+                  borderRadius: 999,
                   border: "1px solid",
                   borderColor: alpha(theme.palette.primary.main, 0.12),
                   background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,251,0.98) 100%)",
@@ -833,13 +833,21 @@ export default function LandingPage() {
                   },
                 }}
               >
-                <CardContent sx={{ p: 2.5 }}>
+                <CardContent
+                  sx={{
+                    p: { xs: 2.5, md: 3 },
+                    minHeight: { xs: 160, md: 180 },
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
                   <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.25 }}>
                     <Box
                       sx={{
-                        width: 52,
-                        height: 52,
-                        borderRadius: 3,
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
                         display: "grid",
                         placeItems: "center",
                         color: "primary.main",
@@ -849,7 +857,9 @@ export default function LandingPage() {
                         flexShrink: 0,
                       }}
                     >
-                      {getPartnerIcon(partnerPage)}
+                      <Box sx={{ transform: "scale(0.8)", display: "grid", placeItems: "center" }}>
+                        {getPartnerIcon(partnerPage)}
+                      </Box>
                     </Box>
                     <Chip
                       size="small"
