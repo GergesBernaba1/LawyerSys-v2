@@ -161,6 +161,8 @@ export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const isLayoutBypassedPage =
     pathname === '/' ||
+    pathname === '/about-us' ||
+    pathname === '/contact-us' ||
     pathname === '/login' ||
     pathname === '/register' ||
     pathname === '/forgot-password' ||
