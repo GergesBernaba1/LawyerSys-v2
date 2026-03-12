@@ -54,6 +54,30 @@ public class InAppNotificationService : IInAppNotificationService
             cancellationToken);
     }
 
+    public async Task NotifySuperAdminsOfDemoRequestAsync(DemoRequest demoRequest, CancellationToken cancellationToken = default)
+    {
+        var recipientIds = await GetUserIdsInRolesAsync(new[] { "SUPERADMIN" }, null, cancellationToken);
+        if (recipientIds.Count == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            recipientIds,
+            new NotificationContent
+            {
+                Type = "DemoRequestPending",
+                Title = "New demo request",
+                TitleAr = "طلب عرض تجريبي جديد",
+                Message = $"{demoRequest.FullName} requested a demo for \"{demoRequest.OfficeName}\".",
+                MessageAr = $"قدم {demoRequest.FullName} طلب عرض تجريبي للمكتب \"{demoRequest.OfficeName}\".",
+                Route = "/administration",
+                RelatedEntityType = "DemoRequest",
+                RelatedEntityId = demoRequest.Id.ToString()
+            },
+            cancellationToken);
+    }
+
     public async Task NotifyTenantAdminsOfStatusChangeAsync(Tenant tenant, bool isActive, CancellationToken cancellationToken = default)
     {
         var actor = await GetCurrentActorAsync(cancellationToken);
@@ -81,6 +105,68 @@ public class InAppNotificationService : IInAppNotificationService
                 MessageAr = $"قام {actor.DisplayName} {(isActive ? "بتفعيل" : "بإيقاف")} المكتب \"{tenant.Name}\".",
                 Route = "/administration",
                 RelatedEntityType = "Tenant",
+                RelatedEntityId = tenant.Id.ToString()
+            },
+            cancellationToken);
+    }
+
+    public async Task NotifyTenantBillingDueAsync(Tenant tenant, SubscriptionPackage package, DateTime dueDateUtc, int daysRemaining, CancellationToken cancellationToken = default)
+    {
+        var tenantRecipientIds = await GetUserIdsInRolesAsync(new[] { "ADMIN", "EMPLOYEE" }, tenant.Id, cancellationToken);
+        var superAdminRecipientIds = await GetUserIdsInRolesAsync(new[] { "SUPERADMIN" }, null, cancellationToken);
+        var recipientIds = tenantRecipientIds
+            .Concat(superAdminRecipientIds)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        if (recipientIds.Length == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            recipientIds,
+            new NotificationContent
+            {
+                TenantId = tenant.Id,
+                Type = "TenantBillingDue",
+                Title = $"Tenant billing due in {daysRemaining} day{(daysRemaining == 1 ? string.Empty : "s")}",
+                TitleAr = daysRemaining == 1 ? "استحقاق فاتورة الاشتراك غداً" : $"استحقاق فاتورة الاشتراك خلال {daysRemaining} أيام",
+                Message = $"Tenant \"{tenant.Name}\" has a {MapCycleLabel(package.BillingCycle).ToLowerInvariant()} renewal due on {dueDateUtc:yyyy-MM-dd}.",
+                MessageAr = $"اشتراك المكتب \"{tenant.Name}\" يستحق {MapCycleLabelAr(package.BillingCycle)} بتاريخ {dueDateUtc:yyyy-MM-dd}.",
+                Route = "/administration",
+                RelatedEntityType = "TenantBillingTransaction",
+                RelatedEntityId = tenant.Id.ToString()
+            },
+            cancellationToken);
+    }
+
+    public async Task NotifyTenantSubscriptionExpiredAsync(Tenant tenant, SubscriptionPackage package, CancellationToken cancellationToken = default)
+    {
+        var tenantRecipientIds = await GetUserIdsInRolesAsync(new[] { "ADMIN", "EMPLOYEE" }, tenant.Id, cancellationToken);
+        var superAdminRecipientIds = await GetUserIdsInRolesAsync(new[] { "SUPERADMIN" }, null, cancellationToken);
+        var recipientIds = tenantRecipientIds
+            .Concat(superAdminRecipientIds)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        if (recipientIds.Length == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            recipientIds,
+            new NotificationContent
+            {
+                TenantId = tenant.Id,
+                Type = "TenantSubscriptionExpired",
+                Title = "Tenant subscription expired",
+                TitleAr = "انتهى اشتراك المكتب",
+                Message = $"Tenant \"{tenant.Name}\" no longer has an active {MapCycleLabel(package.BillingCycle).ToLowerInvariant()} subscription.",
+                MessageAr = $"انتهى اشتراك المكتب \"{tenant.Name}\" من نوع {MapCycleLabelAr(package.BillingCycle)}.",
+                Route = "/administration",
+                RelatedEntityType = "TenantSubscription",
                 RelatedEntityId = tenant.Id.ToString()
             },
             cancellationToken);
@@ -525,6 +611,16 @@ public class InAppNotificationService : IInAppNotificationService
             CaseStatus.Lost => "مخسورة",
             _ => "محدثة"
         };
+    }
+
+    private static string MapCycleLabel(SubscriptionBillingCycle billingCycle)
+    {
+        return billingCycle == SubscriptionBillingCycle.Annual ? "Annual" : "Monthly";
+    }
+
+    private static string MapCycleLabelAr(SubscriptionBillingCycle billingCycle)
+    {
+        return billingCycle == SubscriptionBillingCycle.Annual ? "سنوي" : "شهري";
     }
 
     private sealed record NotificationContent

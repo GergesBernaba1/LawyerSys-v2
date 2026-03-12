@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using LawyerSys.Services.Notifications;
+using LawyerSys.Services.Subscriptions;
 
 namespace LawyerSys.Controllers;
 
@@ -15,15 +16,42 @@ public class TenantsController : ControllerBase
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly ITenantSubscriptionService _tenantSubscriptionService;
 
     public TenantsController(
         ApplicationDbContext applicationDbContext,
         UserManager<ApplicationUser> userManager,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        ITenantSubscriptionService tenantSubscriptionService)
     {
         _applicationDbContext = applicationDbContext;
         _userManager = userManager;
         _inAppNotificationService = inAppNotificationService;
+        _tenantSubscriptionService = tenantSubscriptionService;
+    }
+
+    [AllowAnonymous]
+    [HttpGet("public-partners")]
+    public async Task<IActionResult> GetPublicPartners()
+    {
+        var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+        var items = await _applicationDbContext.Tenants
+            .AsNoTracking()
+            .Include(tenant => tenant.Country)
+            .Where(tenant => tenant.IsActive && tenant.Name != "Default Firm")
+            .OrderBy(tenant => tenant.Name)
+            .Select(tenant => new PublicTenantPartnerDto
+            {
+                Id = tenant.Id,
+                Name = tenant.Name,
+                CountryName = useArabic && tenant.Country != null && !string.IsNullOrWhiteSpace(tenant.Country.NameAr)
+                    ? tenant.Country.NameAr
+                    : tenant.Country != null ? tenant.Country.Name : string.Empty,
+                UserCount = tenant.Users.Count,
+            })
+            .ToListAsync();
+
+        return Ok(items);
     }
 
     [HttpGet("available")]
@@ -57,7 +85,23 @@ public class TenantsController : ControllerBase
                 CountryName = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" && tenant.Country != null && !string.IsNullOrWhiteSpace(tenant.Country.NameAr)
                     ? tenant.Country.NameAr
                     : tenant.Country != null ? tenant.Country.Name : string.Empty,
-                UserCount = tenant.Users.Count
+                UserCount = tenant.Users.Count,
+                ContactEmail = tenant.ContactEmail,
+                CurrentPackageName = tenant.Subscriptions
+                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                    .Select(subscription => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" &&
+                        !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
+                        ? subscription.SubscriptionPackage.NameAr
+                        : subscription.SubscriptionPackage.Name)
+                    .FirstOrDefault() ?? string.Empty,
+                SubscriptionStatus = tenant.Subscriptions
+                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                    .Select(subscription => subscription.Status.ToString())
+                    .FirstOrDefault() ?? string.Empty,
+                SubscriptionEndDateUtc = tenant.Subscriptions
+                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                    .Select(subscription => (DateTime?)subscription.EndDateUtc)
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
@@ -81,6 +125,8 @@ public class TenantsController : ControllerBase
         var tenants = await _applicationDbContext.Tenants
             .AsNoTracking()
             .Include(tenant => tenant.Country)
+            .Include(tenant => tenant.Subscriptions)
+                .ThenInclude(subscription => subscription.SubscriptionPackage)
             .OrderBy(tenant => tenant.Name)
             .Select(tenant => new TenantLookupDto
             {
@@ -92,7 +138,23 @@ public class TenantsController : ControllerBase
                 CountryName = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" && tenant.Country != null && !string.IsNullOrWhiteSpace(tenant.Country.NameAr)
                     ? tenant.Country.NameAr
                     : tenant.Country != null ? tenant.Country.Name : string.Empty,
-                UserCount = tenant.Users.Count
+                UserCount = tenant.Users.Count,
+                ContactEmail = tenant.ContactEmail,
+                CurrentPackageName = tenant.Subscriptions
+                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                    .Select(subscription => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" &&
+                        !string.IsNullOrWhiteSpace(subscription.SubscriptionPackage.NameAr)
+                        ? subscription.SubscriptionPackage.NameAr
+                        : subscription.SubscriptionPackage.Name)
+                    .FirstOrDefault() ?? string.Empty,
+                SubscriptionStatus = tenant.Subscriptions
+                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                    .Select(subscription => subscription.Status.ToString())
+                    .FirstOrDefault() ?? string.Empty,
+                SubscriptionEndDateUtc = tenant.Subscriptions
+                    .OrderByDescending(subscription => subscription.UpdatedAtUtc)
+                    .Select(subscription => (DateTime?)subscription.EndDateUtc)
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
@@ -142,6 +204,10 @@ public class TenantsController : ControllerBase
         }
 
         await _applicationDbContext.SaveChangesAsync();
+        if (tenant.IsActive)
+        {
+            await _tenantSubscriptionService.ActivatePendingSubscriptionAsync(tenant.Id);
+        }
         await _inAppNotificationService.NotifyTenantAdminsOfStatusChangeAsync(tenant, model.IsActive);
         return Ok(new { message = "Tenant status updated" });
     }
@@ -172,13 +238,25 @@ public class TenantLookupDto
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+    public string ContactEmail { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public int? CountryId { get; set; }
     public string CountryName { get; set; } = string.Empty;
     public int UserCount { get; set; }
+    public string CurrentPackageName { get; set; } = string.Empty;
+    public string SubscriptionStatus { get; set; } = string.Empty;
+    public DateTime? SubscriptionEndDateUtc { get; set; }
 }
 
 public class UpdateTenantStatusRequest
 {
     public bool IsActive { get; set; }
+}
+
+public class PublicTenantPartnerDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string CountryName { get; set; } = string.Empty;
+    public int UserCount { get; set; }
 }

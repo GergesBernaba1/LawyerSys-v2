@@ -34,6 +34,7 @@ public static class DataSeeder
                 Id = 1,
                 Name = configuration.GetValue<string>("AdminSeed:TenantName") ?? "Default Firm",
                 PhoneNumber = configuration.GetValue<string>("AdminSeed:TenantPhoneNumber") ?? string.Empty,
+                ContactEmail = configuration.GetValue<string>("AdminSeed:Email") ?? "gergesbernaba2@gmail.com",
                 CountryId = 1,
                 IsActive = true,
                 CreatedAtUtc = DateTime.UtcNow
@@ -101,6 +102,12 @@ public static class DataSeeder
                 }
             }
 
+            if (string.IsNullOrWhiteSpace(defaultTenant.ContactEmail))
+            {
+                defaultTenant.ContactEmail = adminEmail;
+                await applicationDbContext.SaveChangesAsync();
+            }
+
             var resetToken = await userManager.GeneratePasswordResetTokenAsync(adminUser);
             var resetResult = await userManager.ResetPasswordAsync(adminUser, resetToken, adminPassword);
             if (!resetResult.Succeeded)
@@ -136,6 +143,83 @@ public static class DataSeeder
             }
 
             Log.Information("Admin user already exists.");
+        }
+
+        var defaultPackage = await applicationDbContext.SubscriptionPackages
+            .AsNoTracking()
+            .Where(package => package.IsActive)
+            .OrderBy(package => package.DisplayOrder)
+            .ThenBy(package => package.Price)
+            .FirstOrDefaultAsync();
+
+        if (defaultPackage != null)
+        {
+            var hasSubscription = await applicationDbContext.TenantSubscriptions
+                .AnyAsync(subscription => subscription.TenantId == defaultTenant.Id);
+
+            if (!hasSubscription)
+            {
+                var now = DateTime.UtcNow;
+                var currentEnd = defaultPackage.BillingCycle == SubscriptionBillingCycle.Annual
+                    ? now.AddYears(1)
+                    : now.AddMonths(1);
+                var nextEnd = defaultPackage.BillingCycle == SubscriptionBillingCycle.Annual
+                    ? currentEnd.AddYears(1)
+                    : currentEnd.AddMonths(1);
+
+                var subscription = new TenantSubscription
+                {
+                    TenantId = defaultTenant.Id,
+                    SubscriptionPackageId = defaultPackage.Id,
+                    Status = TenantSubscriptionStatus.Active,
+                    StartDateUtc = now,
+                    EndDateUtc = currentEnd,
+                    NextBillingDateUtc = currentEnd,
+                    CreatedAtUtc = now,
+                    UpdatedAtUtc = now,
+                };
+
+                applicationDbContext.TenantSubscriptions.Add(subscription);
+                await applicationDbContext.SaveChangesAsync();
+
+                applicationDbContext.TenantBillingTransactions.Add(new TenantBillingTransaction
+                {
+                    TenantId = defaultTenant.Id,
+                    TenantSubscriptionId = subscription.Id,
+                    SubscriptionPackageId = defaultPackage.Id,
+                    Status = TenantBillingTransactionStatus.Paid,
+                    BillingCycle = defaultPackage.BillingCycle,
+                    Amount = defaultPackage.Price,
+                    Currency = defaultPackage.Currency,
+                    PeriodStartUtc = now,
+                    PeriodEndUtc = currentEnd,
+                    DueDateUtc = now,
+                    PaidAtUtc = now,
+                    Reference = "SEEDED",
+                    Notes = "Seeded default tenant subscription",
+                    CreatedAtUtc = now,
+                    UpdatedAtUtc = now,
+                });
+
+                applicationDbContext.TenantBillingTransactions.Add(new TenantBillingTransaction
+                {
+                    TenantId = defaultTenant.Id,
+                    TenantSubscriptionId = subscription.Id,
+                    SubscriptionPackageId = defaultPackage.Id,
+                    Status = TenantBillingTransactionStatus.Pending,
+                    BillingCycle = defaultPackage.BillingCycle,
+                    Amount = defaultPackage.Price,
+                    Currency = defaultPackage.Currency,
+                    PeriodStartUtc = currentEnd,
+                    PeriodEndUtc = nextEnd,
+                    DueDateUtc = currentEnd,
+                    Notes = "Upcoming renewal",
+                    CreatedAtUtc = now,
+                    UpdatedAtUtc = now,
+                });
+
+                await applicationDbContext.SaveChangesAsync();
+            }
         }
     }
 }

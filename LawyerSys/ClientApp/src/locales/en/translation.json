@@ -79,6 +79,7 @@
                 "courtautomation":  "Court Automation",
                 "esign":  "eSignature",
                 "timetracking":  "Time Tracking",
+                "subscription":  "Subscription",
                 "clientportal":  "Client Portal",
                 "administration":  "Administration",
                 "tenants":  "Tenants",
@@ -138,9 +139,31 @@
                                   },
                     "stats":  {
                                   "availability":  "access for your firm",
+                                  "packages":  "office packages",
                                   "workspace":  "shared workspace",
                                   "visibility":  "degree operational visibility"
                               },
+                    "partners":  {
+                                     "title":  "Our partners",
+                                     "subtitle":  "Law firms already operating with our platform",
+                                     "countryFallback":  "Regional partner",
+                                     "users":  "{{count}} active users"
+                                 },
+                    "demo":  {
+                                 "bookButton":  "Book a demo",
+                                 "title":  "Book a demo",
+                                 "subtitle":  "Request a guided demo for your office and our team will review and approve it.",
+                                 "submit":  "Send demo request",
+                                 "success":  "Demo request submitted successfully.",
+                                 "failed":  "Failed to submit demo request.",
+                                 "fields":  {
+                                                "fullName":  "Full name",
+                                                "officeName":  "Office name",
+                                                "email":  "Email",
+                                                "phoneNumber":  "Phone number",
+                                                "notes":  "Notes"
+                                            }
+                             },
                     "contact":  {
                                     "email":  "Email",
                                     "phone":  "Phone"
@@ -192,7 +215,11 @@
                      "selectCountry":  "Select country",
                      "countryRequired":  "Please select a country",
                      "failedCountries":  "Failed to load countries",
+                     "failedPackages":  "Failed to load subscription packages",
                      "email":  "Email",
+                     "package":  "Subscription Package",
+                     "packageRequired":  "Please select a subscription package",
+                     "selectedPackage":  "Selected plan",
                      "password":  "Password",
                      "confirmPassword":  "Confirm Password",
                      "createAccount":  "Create Account",
@@ -782,6 +809,59 @@
                             "failedGenerate":  "Failed to generate court form",
                             "failedSubmit":  "Failed to submit filing"
                         },
+    "subscription":  {
+                         "title":  "Subscription",
+                         "subtitle":  "Review your current package and billing history.",
+                         "failedLoad":  "Failed to load subscription data.",
+                         "superAdminNotice":  "Super admin billing is available from Administration.",
+                         "pricingTitle":  "Pricing packages",
+                         "pricingSubtitle":  "Choose monthly or annual billing",
+                         "choosePackage":  "Choose package",
+                         "changePackage":  "Switch to this package",
+                         "changePackageToMonthly":  "Switch to monthly",
+                         "changePackageToAnnual":  "Switch to annual",
+                         "currentPackageTitle":  "Current subscription",
+                         "public":  {
+                                        "monthlyDescription":  "Pay monthly with a flexible recurring subscription.",
+                                        "annualDescription":  "Pay annually for a longer billing cycle and simpler renewal planning.",
+                                        "startsFrom":  "Starts from"
+                                    },
+                         "tenantEmail":  "Tenant email",
+                         "availablePackages":  "Available packages",
+                         "transactionsTitle":  "Billing transactions",
+                         "officeSize":  {
+                                            "small":  "Small office",
+                                            "medium":  "Medium office"
+                                        },
+                         "billingCycle":  {
+                                              "monthly":  "Monthly",
+                                              "annual":  "Annual"
+                                          },
+                         "status":  {
+                                        "pendingactivation":  "Pending activation",
+                                        "active":  "Active",
+                                        "expired":  "Expired",
+                                        "suspended":  "Suspended",
+                                        "pending":  "Pending",
+                                        "paid":  "Paid",
+                                        "cancelled":  "Cancelled",
+                                        "overdue":  "Overdue"
+                                    },
+                         "cards":  {
+                                       "price":  "Current price",
+                                       "status":  "Subscription status",
+                                       "nextBilling":  "Next billing",
+                                       "endDate":  "Current period ends"
+                                   },
+                         "table":  {
+                                       "package":  "Package",
+                                       "cycle":  "Cycle",
+                                       "amount":  "Amount",
+                                       "dueDate":  "Due date",
+                                       "status":  "Status",
+                                       "reference":  "Reference"
+                                   }
+                     },
     "administration":  {
                             "title":  "Administration Center",
                             "subtitle":  "Centralized overview for core management actions",
@@ -794,6 +874,9 @@
                             "tabs":  {
                                          "accounts":  "Accounts",
                                          "tenants":  "Tenants",
+                                         "pricing":  "Pricing",
+                                         "billing":  "Tenant Billing",
+                                         "demos":  "Demo Requests",
                                          "landing":  "Landing Page"
                                      },
                             "cards":  {
@@ -830,13 +913,83 @@
                                             "name":  "Tenant",
                                             "country":  "Country",
                                             "phone":  "Phone",
+                                            "email":  "Email",
                                             "users":  "Users",
+                                            "package":  "Package",
+                                            "subscription":  "Subscription",
                                             "status":  "Status",
                                             "actions":  "Actions",
                                             "active":  "Active",
                                             "inactive":  "Inactive",
                                             "activate":  "Activate",
-                                            "deactivate":  "Deactivate"
+                                            "deactivate":  "Deactivate",
+                                            "ourOffice":  "Our office"
+                                        },
+                            "pricing":  {
+                                            "title":  "Pricing packages",
+                                            "subtitle":  "Manage the packages shown on the landing page and registration flow.",
+                                            "newPackage":  "New package",
+                                            "createPackage":  "Create package",
+                                            "editPackage":  "Edit package",
+                                            "table":  {
+                                                          "package":  "Package",
+                                                          "officeSize":  "Office size",
+                                                          "monthly":  "Monthly",
+                                                          "annual":  "Annual",
+                                                          "status":  "Status",
+                                                          "actions":  "Actions"
+                                                      },
+                                            "fields":  {
+                                                           "name":  "Name",
+                                                           "nameAr":  "Name (Arabic)",
+                                                           "description":  "Description",
+                                                           "descriptionAr":  "Description (Arabic)",
+                                                           "feature1":  "Feature 1",
+                                                           "feature1Ar":  "Feature 1 (Arabic)",
+                                                           "feature2":  "Feature 2",
+                                                           "feature2Ar":  "Feature 2 (Arabic)",
+                                                           "feature3":  "Feature 3",
+                                                           "feature3Ar":  "Feature 3 (Arabic)",
+                                                           "officeSize":  "Office size",
+                                                           "monthlyPrice":  "Monthly price",
+                                                           "annualPrice":  "Annual price",
+                                                           "currency":  "Currency",
+                                                           "displayOrder":  "Display order",
+                                                           "active":  "Visibility"
+                                                       }
+                                        },
+                            "demos":  {
+                                           "title":  "Demo requests",
+                                           "approve":  "Approve",
+                                           "reject":  "Reject",
+                                           "table":  {
+                                                         "contact":  "Contact",
+                                                         "office":  "Office",
+                                                         "notes":  "Notes",
+                                                         "status":  "Status",
+                                                         "actions":  "Actions"
+                                                     },
+                                           "status":  {
+                                                          "pending":  "Pending",
+                                                          "approved":  "Approved",
+                                                          "rejected":  "Rejected"
+                                                      }
+                                       },
+                            "billing":  {
+                                            "title":  "Tenant billing",
+                                            "currentPackage":  "Current package",
+                                            "subscriptionStatus":  "Subscription status",
+                                            "nextBillingDate":  "Next billing date",
+                                            "markPaid":  "Mark paid",
+                                            "cancel":  "Cancel",
+                                            "table":  {
+                                                          "tenant":  "Tenant",
+                                                          "package":  "Package",
+                                                          "amount":  "Amount",
+                                                          "dueDate":  "Due date",
+                                                          "status":  "Status",
+                                                          "actions":  "Actions"
+                                                      }
                                         },
                             "landing":  {
                                             "title":  "Landing page content",

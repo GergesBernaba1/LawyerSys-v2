@@ -74,6 +74,7 @@ import {
   SmartToy as AiAssistantIcon,
   Rule as CourtAutomationIcon,
   Notifications as NotificationsIcon,
+  WorkspacePremium as WorkspacePremiumIcon,
   Close as CloseIcon,
   SendRounded as SendRoundedIcon,
 } from '@mui/icons-material';
@@ -118,6 +119,7 @@ const menuItems: MenuItem[] = [
   { key: 'intake', icon: <IntakeIcon />, path: '/intake' },
   { key: 'esign', icon: <ESignIcon />, path: '/esign' },
   { key: 'timetracking', icon: <TimeTrackingIcon />, path: '/timetracking' },
+  { key: 'subscription', icon: <WorkspacePremiumIcon />, path: '/subscription' },
   { key: 'tenants', icon: <ApartmentIcon />, path: '/tenants' },
   { key: 'administration', icon: <AdminPanelSettingsIcon />, path: '/administration' },
 ];
@@ -197,6 +199,7 @@ export default function Layout({ children }: LayoutProps) {
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
+  const canUseSubscription = !hasRole('SuperAdmin') && hasAnyRole('Admin', 'Employee')
   const canUseNotifications = hasAnyRole('SuperAdmin', 'Admin', 'Employee', 'Customer')
   const visibleMenuItems = menuItems.filter((item) => {
     if (item.key === 'administration') return isAdmin
@@ -204,6 +207,7 @@ export default function Layout({ children }: LayoutProps) {
     if (item.key === 'intake') return canUseIntake
     if (item.key === 'esign') return canUseESign
     if (item.key === 'timetracking') return canUseTimeTracking
+    if (item.key === 'subscription') return canUseSubscription
     return true
   })
   // Start from SSR default language to keep hydrated text identical.
@@ -231,6 +235,8 @@ export default function Layout({ children }: LayoutProps) {
       targetPath = '/dashboard';
     } else if (pathname === '/timetracking' && !canUseTimeTracking) {
       targetPath = '/dashboard';
+    } else if (pathname === '/subscription' && !canUseSubscription) {
+      targetPath = '/dashboard';
     }
 
     if (targetPath && pathname !== targetPath) {
@@ -247,6 +253,7 @@ export default function Layout({ children }: LayoutProps) {
     canUseIntake,
     canUseESign,
     canUseTimeTracking,
+    canUseSubscription,
     router,
   ]);
 

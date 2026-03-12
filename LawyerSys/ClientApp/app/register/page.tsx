@@ -11,9 +11,10 @@ import {
   Link as MuiLink,
   Container,
   Avatar,
+  Chip,
   IconButton,
   InputAdornment,
-  MenuItem,
+  Stack,
   useTheme,
 } from '@mui/material';
 import {
@@ -36,6 +37,23 @@ type CountryOption = {
   name: string;
 };
 
+type SubscriptionPackageCycleOption = {
+  subscriptionPackageId: number;
+  billingCycle: string;
+  price: number;
+  currency: string;
+  isActive: boolean;
+};
+
+type SubscriptionPackageOption = {
+  name: string;
+  description: string;
+  officeSize: string;
+  features: string[];
+  monthlyOption?: SubscriptionPackageCycleOption | null;
+  annualOption?: SubscriptionPackageCycleOption | null;
+};
+
 export default function RegisterPage() {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -48,6 +66,9 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [countries, setCountries] = useState<CountryOption[]>([]);
+  const [packages, setPackages] = useState<SubscriptionPackageOption[]>([]);
+  const [selectedOfficeSize, setSelectedOfficeSize] = useState<string>("");
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState<"Monthly" | "Annual">("Monthly");
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -95,10 +116,48 @@ export default function RegisterPage() {
     };
   }, [i18n.language, i18n.resolvedLanguage, t]);
 
+  useEffect(() => {
+    let mounted = true;
+    const loadPackages = async () => {
+      try {
+        const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
+        const res = await api.get('/SubscriptionPackages/public', {
+          headers: { 'Accept-Language': language },
+          skipTenantHeader: true,
+        } as any);
+        if (!mounted) {
+          return;
+        }
+
+        const nextPackages = Array.isArray(res.data) ? res.data : [];
+        setPackages(nextPackages);
+        if (nextPackages.length > 0) {
+          setSelectedOfficeSize((current) => current || nextPackages[0].officeSize);
+          setSelectedBillingCycle(nextPackages[0].monthlyOption ? "Monthly" : "Annual");
+        }
+      } catch {
+        if (mounted) {
+          setError(t('register.failedPackages', { defaultValue: 'Failed to load subscription packages.' }));
+        }
+      }
+    };
+
+    loadPackages();
+    return () => {
+      mounted = false;
+    };
+  }, [i18n.language, i18n.resolvedLanguage, t]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
     setSuccessMessage('');
+
+    const selectedGroup = packages.find((pkg) => pkg.officeSize === selectedOfficeSize) || null;
+    const selectedPackageId =
+      selectedBillingCycle === "Annual"
+        ? selectedGroup?.annualOption?.subscriptionPackageId ?? null
+        : selectedGroup?.monthlyOption?.subscriptionPackageId ?? null;
 
     if (password !== confirmPassword) {
       setError(t('register.passwordMismatch') || 'Passwords do not match');
@@ -120,6 +179,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!selectedPackageId) {
+      setError(t('register.packageRequired', { defaultValue: 'Please select a subscription package.' }));
+      return;
+    }
+
     setLoading(true);
 
     const result = await register(
@@ -129,7 +193,8 @@ export default function RegisterPage() {
       fullName,
       Number(countryId),
       lawyerOfficeName,
-      lawyerOfficePhoneNumber
+      lawyerOfficePhoneNumber,
+      selectedPackageId
     );
     if (result.success) {
       setSuccessMessage(result.message || t('register.pendingActivation', { defaultValue: 'Registration completed. Your account is pending activation by the system administrator.' }));
@@ -367,6 +432,85 @@ export default function RegisterPage() {
             </Box>
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, '@media (max-height: 820px)': { mt: 0.5 } }}>
+              <Box sx={{ mb: 1.5 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+                  {t('register.package', { defaultValue: 'Subscription Package' })}
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
+                    gap: 1.2,
+                  }}
+                >
+                  {packages.map((pkg) => {
+                    const selected = selectedOfficeSize === pkg.officeSize;
+                    const selectedOption = selectedBillingCycle === "Annual" ? pkg.annualOption : pkg.monthlyOption;
+                    return (
+                      <Paper
+                        key={pkg.officeSize}
+                        elevation={0}
+                        onClick={() => setSelectedOfficeSize(pkg.officeSize)}
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: selected ? 'primary.main' : 'divider',
+                          bgcolor: selected ? 'primary.50' : '#ffffff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.8 }}>
+                          {pkg.description}
+                        </Typography>
+                        <Box sx={{ mt: 1, mb: 1.25 }}>
+                          {(pkg.features || []).map((feature) => (
+                            <Typography key={feature} variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                              • {feature}
+                            </Typography>
+                          ))}
+                        </Box>
+                        <Stack direction="row" spacing={1} sx={{ mb: 0.8, flexWrap: 'wrap' }}>
+                          {pkg.monthlyOption && (
+                            <Chip
+                              size="small"
+                              variant={selected && selectedBillingCycle === "Monthly" ? "filled" : "outlined"}
+                              color={selected && selectedBillingCycle === "Monthly" ? "primary" : "default"}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setSelectedOfficeSize(pkg.officeSize);
+                                setSelectedBillingCycle("Monthly");
+                              }}
+                              label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${pkg.monthlyOption.price.toFixed(0)} ${pkg.monthlyOption.currency}`}
+                            />
+                          )}
+                          {pkg.annualOption && (
+                            <Chip
+                              size="small"
+                              variant={selected && selectedBillingCycle === "Annual" ? "filled" : "outlined"}
+                              color={selected && selectedBillingCycle === "Annual" ? "primary" : "default"}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setSelectedOfficeSize(pkg.officeSize);
+                                setSelectedBillingCycle("Annual");
+                              }}
+                              label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${pkg.annualOption.price.toFixed(0)} ${pkg.annualOption.currency}`}
+                            />
+                          )}
+                        </Stack>
+                        {selectedOption && (
+                          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700 }}>
+                            {t('register.selectedPackage', { defaultValue: 'Selected plan' })}: {selectedBillingCycle === "Annual"
+                              ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
+                              : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}
+                          </Typography>
+                        )}
+                      </Paper>
+                    );
+                  })}
+                </Box>
+              </Box>
               <TextField
                 margin="dense"
                 size="small"

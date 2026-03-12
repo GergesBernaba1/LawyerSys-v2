@@ -26,7 +26,8 @@ interface AuthContextValue {
     fullName: string,
     countryId: number,
     lawyerOfficeName: string,
-    lawyerOfficePhoneNumber: string
+    lawyerOfficePhoneNumber: string,
+    subscriptionPackageId: number
   ) => Promise<{ success: boolean; message?: string }>;
   setAuthToken: (token: string) => void;
   logout: () => void;
@@ -188,7 +189,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fullName: string,
     countryId: number,
     lawyerOfficeName: string,
-    lawyerOfficePhoneNumber: string
+    lawyerOfficePhoneNumber: string,
+    subscriptionPackageId: number
   ) {
     try {
       const response = await api.post('/Account/register', {
@@ -199,6 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         countryId,
         lawyerOfficeName,
         lawyerOfficePhoneNumber,
+        subscriptionPackageId,
       })
       return {
         success: true,

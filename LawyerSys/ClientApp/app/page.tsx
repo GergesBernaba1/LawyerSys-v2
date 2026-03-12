@@ -15,6 +15,7 @@ import {
   Link,
   Paper,
   Stack,
+  TextField,
   Typography,
   alpha,
   useTheme,
@@ -36,6 +37,40 @@ type LandingFeature = {
   description: string;
 };
 
+type PricingOption = {
+  subscriptionPackageId: number;
+  billingCycle: string;
+  price: number;
+  currency: string;
+  isActive: boolean;
+};
+
+type PricingPackage = {
+  officeSize: string;
+  name: string;
+  description: string;
+  features: string[];
+  monthlyOption?: PricingOption | null;
+  annualOption?: PricingOption | null;
+  displayOrder: number;
+};
+
+type PricingCycleCard = {
+  billingCycle: "Monthly" | "Annual";
+  title: string;
+  description: string;
+  features: string[];
+  price: number;
+  currency: string;
+};
+
+type PartnerTenant = {
+  id: number;
+  name: string;
+  countryName: string;
+  userCount: number;
+};
+
 type LandingPageData = {
   systemName: string;
   tagline: string;
@@ -50,6 +85,22 @@ type LandingPageData = {
   contactEmail: string;
   contactPhone: string;
   features: LandingFeature[];
+};
+
+type DemoRequestForm = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  officeName: string;
+  notes: string;
+};
+
+const emptyDemoRequestForm: DemoRequestForm = {
+  fullName: "",
+  email: "",
+  phoneNumber: "",
+  officeName: "",
+  notes: "",
 };
 
 function getFeatureIcon(iconKey: string) {
@@ -139,8 +190,57 @@ export default function LandingPage() {
   const isRTL = currentLanguage === "ar";
   const fallbackData = useMemo(() => getDefaultLandingPage(t), [t]);
   const [data, setData] = useState<LandingPageData>(fallbackData);
+  const [packages, setPackages] = useState<PricingPackage[]>([]);
+  const [partners, setPartners] = useState<PartnerTenant[]>([]);
+  const [demoForm, setDemoForm] = useState<DemoRequestForm>(emptyDemoRequestForm);
   const [loading, setLoading] = useState(true);
+  const [demoSubmitting, setDemoSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [demoMessage, setDemoMessage] = useState("");
+
+  const pricingCycleCards = useMemo<PricingCycleCard[]>(() => {
+    const buildCard = (billingCycle: "Monthly" | "Annual") => {
+      const options = packages
+        .map((pkg) => ({
+          description: pkg.description,
+          features: pkg.features || [],
+          option: billingCycle === "Monthly" ? pkg.monthlyOption : pkg.annualOption,
+        }))
+        .filter((item) => item.option);
+
+      if (options.length === 0) {
+        return null;
+      }
+
+      const features = Array.from(
+        new Set(
+          options
+            .flatMap((item) => item.features)
+            .map((feature) => feature.trim())
+            .filter((feature) => feature.length > 0),
+        ),
+      );
+
+      const prices = options
+        .map((item) => item.option?.price ?? 0)
+        .filter((price) => price > 0);
+      const currency = options[0].option?.currency || "";
+
+      return {
+        billingCycle,
+        title: t(`subscription.billingCycle.${billingCycle.toLowerCase()}`, { defaultValue: billingCycle }),
+        description:
+          billingCycle === "Monthly"
+            ? t("subscription.public.monthlyDescription", { defaultValue: "Pay monthly with a flexible recurring subscription." })
+            : t("subscription.public.annualDescription", { defaultValue: "Pay annually for a longer billing cycle and simpler renewal planning." }),
+        features,
+        price: prices.length > 0 ? Math.min(...prices) : 0,
+        currency,
+      };
+    };
+
+    return [buildCard("Monthly"), buildCard("Annual")].filter((item): item is PricingCycleCard => item !== null);
+  }, [packages, t]);
 
   useEffect(() => {
     setData(fallbackData);
@@ -152,20 +252,38 @@ export default function LandingPage() {
 
     (async () => {
       try {
-        const response = await api.get("/LandingPage", {
-          skipTenantHeader: true,
-          headers: {
-            "Accept-Language": requestLanguage,
-          },
-        } as any);
+        const [landingResponse, packagesResponse, partnersResponse] = await Promise.all([
+          api.get("/LandingPage", {
+            skipTenantHeader: true,
+            headers: {
+              "Accept-Language": requestLanguage,
+            },
+          } as any),
+          api.get("/SubscriptionPackages/public", {
+            skipTenantHeader: true,
+            headers: {
+              "Accept-Language": requestLanguage,
+            },
+          } as any),
+          api.get("/Tenants/public-partners", {
+            skipTenantHeader: true,
+            headers: {
+              "Accept-Language": requestLanguage,
+            },
+          } as any),
+        ]);
 
         if (mounted) {
-          setData(buildLandingData(response.data, fallbackData));
+          setData(buildLandingData(landingResponse.data, fallbackData));
+          setPackages(Array.isArray(packagesResponse.data) ? packagesResponse.data : []);
+          setPartners(Array.isArray(partnersResponse.data) ? partnersResponse.data : []);
           setError("");
         }
       } catch {
         if (mounted) {
           setData(fallbackData);
+          setPackages([]);
+          setPartners([]);
           setError(t("landing.failedLoad"));
         }
       } finally {
@@ -183,7 +301,7 @@ export default function LandingPage() {
   const stats = useMemo(
     () => [
       { value: "24/7", label: t("landing.stats.availability") },
-      { value: "1", label: t("landing.stats.workspace") },
+      { value: "2", label: t("landing.stats.packages", { defaultValue: "Office packages" }) },
       { value: "360", label: t("landing.stats.visibility") },
     ],
     [t],
@@ -221,6 +339,32 @@ export default function LandingPage() {
     } catch {}
 
     void i18n.changeLanguage(nextLanguage);
+  };
+
+  const updateDemoField = <K extends keyof DemoRequestForm>(field: K, value: DemoRequestForm[K]) => {
+    setDemoForm((current) => ({ ...current, [field]: value }));
+    setDemoMessage("");
+  };
+
+  const submitDemoRequest = async () => {
+    setDemoSubmitting(true);
+    setDemoMessage("");
+
+    try {
+      const requestLanguage = currentLanguage === "ar" ? "ar-SA" : "en-US";
+      const response = await api.post("/DemoRequests", demoForm, {
+        skipTenantHeader: true,
+        headers: {
+          "Accept-Language": requestLanguage,
+        },
+      } as any);
+      setDemoForm(emptyDemoRequestForm);
+      setDemoMessage(response.data?.message || t("landing.demo.success", { defaultValue: "Demo request submitted successfully." }));
+    } catch (e: any) {
+      setDemoMessage(e?.response?.data?.message || t("landing.demo.failed", { defaultValue: "Failed to submit demo request." }));
+    } finally {
+      setDemoSubmitting(false);
+    }
   };
 
   return (
@@ -317,6 +461,9 @@ export default function LandingPage() {
               )}
               <Button variant="text" onClick={() => navigateTo(data.secondaryButtonUrl || "/login")}>
                 {data.secondaryButtonText || t("landing.actions.login")}
+              </Button>
+              <Button variant="outlined" onClick={() => document.getElementById("landing-demo-section")?.scrollIntoView({ behavior: "smooth" })}>
+                {t("landing.demo.bookButton", { defaultValue: "Book a demo" })}
               </Button>
               <Button
                 variant="contained"
@@ -420,7 +567,7 @@ export default function LandingPage() {
               <Button
                 size="large"
                 variant="outlined"
-                onClick={() => navigateTo(data.secondaryButtonUrl || "/login")}
+                onClick={() => document.getElementById("landing-demo-section")?.scrollIntoView({ behavior: "smooth" })}
                 sx={{
                   px: 3.5,
                   py: 1.35,
@@ -432,7 +579,7 @@ export default function LandingPage() {
                   },
                 }}
               >
-                {data.secondaryButtonText || t("landing.actions.login")}
+                {t("landing.demo.bookButton", { defaultValue: "Book a demo" })}
               </Button>
             </Stack>
           </Paper>
@@ -553,7 +700,120 @@ export default function LandingPage() {
           </Box>
         </Box>
 
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
+            {t("subscription.pricingTitle", { defaultValue: "Pricing packages" })}
+          </Typography>
+          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mb: 2.5 }}>
+            {t("subscription.pricingSubtitle", { defaultValue: "Choose monthly or annual billing" })}
+          </Typography>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
+              gap: 2,
+            }}
+          >
+            {pricingCycleCards.map((card) => (
+              <Card
+                key={card.billingCycle}
+                elevation={0}
+                sx={{
+                  borderRadius: 5,
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.primary.main, 0.12),
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,251,0.98) 100%)",
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 900, mb: 0.75 }}>
+                    {card.title}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5 }}>
+                    {card.description}
+                  </Typography>
+
+                  <Stack spacing={1} sx={{ mb: 2 }}>
+                    {card.features.map((feature) => (
+                      <Typography key={feature} variant="body2" color="text.secondary">
+                        - {feature}
+                      </Typography>
+                    ))}
+                  </Stack>
+
+                  <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                      {t("subscription.public.startsFrom", { defaultValue: "Starts from" })}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, mt: 0.75 }}>
+                      {card.price.toFixed(0)} {card.currency}
+                    </Typography>
+                  </Paper>
+
+                  <Button
+                    variant="contained"
+                    onClick={() => router.push("/register")}
+                    sx={{
+                      background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                    }}
+                  >
+                    {t("subscription.choosePackage", { defaultValue: "Choose package" })}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+        </Box>
+
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
+            {t("landing.partners.title", { defaultValue: "Our partners" })}
+          </Typography>
+          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mb: 2.5 }}>
+            {t("landing.partners.subtitle", { defaultValue: "Law firms already operating with our platform" })}
+          </Typography>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "repeat(3, minmax(0, 1fr))" },
+              gap: 2,
+            }}
+          >
+            {partners.map((partner) => (
+              <Card
+                key={partner.id}
+                elevation={0}
+                sx={{
+                  borderRadius: 5,
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.primary.main, 0.12),
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,251,0.98) 100%)",
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.75 }}>
+                    {partner.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                    {partner.countryName || t("landing.partners.countryFallback", { defaultValue: "Regional partner" })}
+                  </Typography>
+                  <Chip
+                    size="small"
+                    label={t("landing.partners.users", {
+                      defaultValue: "{{count}} active users",
+                      count: partner.userCount,
+                    })}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+        </Box>
+
         <Paper
+          id="landing-demo-section"
           elevation={0}
           sx={{
             p: { xs: 3, md: 4 },
@@ -567,24 +827,39 @@ export default function LandingPage() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1.2fr) minmax(280px, 0.8fr)" },
+              gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) minmax(320px, 0.9fr)" },
               gap: 3,
-              alignItems: "center",
+              alignItems: "start",
             }}
           >
             <Box>
               <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mb: 1 }}>
-                {t("landing.contactTitle")}
+                {t("landing.demo.title", { defaultValue: "Book a demo" })}
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9 }}>
-                {t("landing.contactSubtitle")}
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.9, mb: 2 }}>
+                {t("landing.demo.subtitle", { defaultValue: "Request a guided demo for your office and our team will review and approve it." })}
               </Typography>
+              <Stack spacing={1.25}>
+                <Chip label={`${t("landing.contact.email")}: ${data.contactEmail || "-"}`} sx={{ justifyContent: "flex-start" }} />
+                <Chip label={`${t("landing.contact.phone")}: ${data.contactPhone || "-"}`} sx={{ justifyContent: "flex-start" }} />
+              </Stack>
             </Box>
 
-            <Stack spacing={1.25}>
-              <Chip label={`${t("landing.contact.email")}: ${data.contactEmail || "-"}`} sx={{ justifyContent: "flex-start" }} />
-              <Chip label={`${t("landing.contact.phone")}: ${data.contactPhone || "-"}`} sx={{ justifyContent: "flex-start" }} />
-            </Stack>
+            <Box sx={{ display: "grid", gap: 1.5 }}>
+              <TextField label={t("landing.demo.fields.fullName", { defaultValue: "Full name" })} value={demoForm.fullName} onChange={(e) => updateDemoField("fullName", e.target.value)} fullWidth />
+              <TextField label={t("landing.demo.fields.officeName", { defaultValue: "Office name" })} value={demoForm.officeName} onChange={(e) => updateDemoField("officeName", e.target.value)} fullWidth />
+              <TextField label={t("landing.demo.fields.email", { defaultValue: "Email" })} value={demoForm.email} onChange={(e) => updateDemoField("email", e.target.value)} fullWidth />
+              <TextField label={t("landing.demo.fields.phoneNumber", { defaultValue: "Phone number" })} value={demoForm.phoneNumber} onChange={(e) => updateDemoField("phoneNumber", e.target.value)} fullWidth />
+              <TextField label={t("landing.demo.fields.notes", { defaultValue: "Notes" })} value={demoForm.notes} onChange={(e) => updateDemoField("notes", e.target.value)} fullWidth multiline minRows={3} />
+              {demoMessage && (
+                <Alert severity={demoMessage.toLowerCase().includes("success") || demoMessage.toLowerCase().includes("submitted") ? "success" : "info"}>
+                  {demoMessage}
+                </Alert>
+              )}
+              <Button variant="contained" onClick={submitDemoRequest} disabled={demoSubmitting}>
+                {t("landing.demo.submit", { defaultValue: "Send demo request" })}
+              </Button>
+            </Box>
           </Box>
         </Paper>
       </Container>

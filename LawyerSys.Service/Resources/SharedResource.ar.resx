@@ -33,6 +33,7 @@
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>اسم المكتب</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficeName}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>هاتف المكتب</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficePhone}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>الدولة</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Country}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>الباقة</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Package}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>رقم الجهة</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{TenantId}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>وقت التسجيل UTC</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{RegisteredAtUtc}</td></tr>
 </table>
@@ -53,6 +54,27 @@
   </data>
   <data name="TenantInactiveMessage" xml:space="preserve">
     <value>الجهة الخاصة بك غير مفعلة. يرجى التواصل مع مسؤول النظام.</value>
+  </data>
+  <data name="SubscriptionPackageRequiredMessage" xml:space="preserve">
+    <value>يرجى اختيار باقة الاشتراك.</value>
+  </data>
+  <data name="SubscriptionPackageInvalidMessage" xml:space="preserve">
+    <value>الباقة المحددة غير صالحة.</value>
+  </data>
+  <data name="TenantSubscriptionAlreadyExistsMessage" xml:space="preserve">
+    <value>لدى هذا المكتب اشتراك قائم بالفعل.</value>
+  </data>
+  <data name="TenantSubscriptionMissingMessage" xml:space="preserve">
+    <value>لا يوجد سجل اشتراك فعال لهذا المكتب.</value>
+  </data>
+  <data name="TenantSubscriptionExpiredMessage" xml:space="preserve">
+    <value>انتهى اشتراك المكتب. يرجى التواصل مع مسؤول النظام.</value>
+  </data>
+  <data name="TenantSubscriptionSuspendedMessage" xml:space="preserve">
+    <value>تم تعليق اشتراك المكتب. يرجى التواصل مع مسؤول النظام.</value>
+  </data>
+  <data name="TenantBillingTransactionMissingMessage" xml:space="preserve">
+    <value>تعذر العثور على عملية الفوترة.</value>
   </data>
   <data name="RegistrationFieldUserName" xml:space="preserve">
     <value>اسم المستخدم</value>

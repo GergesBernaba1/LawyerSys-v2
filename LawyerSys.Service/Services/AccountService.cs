@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using LawyerSys.Resources;
+using LawyerSys.Services.Subscriptions;
 
 namespace LawyerSys.Services
 {
@@ -18,17 +19,20 @@ namespace LawyerSys.Services
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly ITenantSubscriptionService _tenantSubscriptionService;
 
         public AccountService(
             UserManager<ApplicationUser> userManager,
             IConfiguration configuration,
             ApplicationDbContext applicationDbContext,
-            IStringLocalizer<SharedResource> localizer)
+            IStringLocalizer<SharedResource> localizer,
+            ITenantSubscriptionService tenantSubscriptionService)
         {
             _userManager = userManager;
             _configuration = configuration;
             _applicationDbContext = applicationDbContext;
             _localizer = localizer;
+            _tenantSubscriptionService = tenantSubscriptionService;
         }
 
         public async Task<(string Token, DateTime Expires)> LoginAsync(LoginRequest model)
@@ -66,6 +70,12 @@ namespace LawyerSys.Services
             {
                 throw new InvalidOperationException(_localizer["TenantInactiveMessage"].Value);
             }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            await _tenantSubscriptionService.EnsureTenantCanLoginAsync(
+                user,
+                roles.Contains("SuperAdmin"),
+                CancellationToken.None);
 
             return await CreateTokenAsync(user);
         }

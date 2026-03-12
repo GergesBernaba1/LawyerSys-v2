@@ -13,6 +13,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<LandingPageSettings> LandingPageSettings => Set<LandingPageSettings>();
+    public DbSet<SubscriptionPackage> SubscriptionPackages => Set<SubscriptionPackage>();
+    public DbSet<TenantSubscription> TenantSubscriptions => Set<TenantSubscription>();
+    public DbSet<TenantBillingTransaction> TenantBillingTransactions => Set<TenantBillingTransaction>();
+    public DbSet<DemoRequest> DemoRequests => Set<DemoRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,12 +75,90 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasMaxLength(200);
             entity.Property(tenant => tenant.PhoneNumber)
                 .HasMaxLength(32);
+            entity.Property(tenant => tenant.ContactEmail)
+                .HasMaxLength(256);
             entity.Property(tenant => tenant.CreatedAtUtc);
             entity.HasIndex(tenant => tenant.IsActive);
             entity.HasOne(tenant => tenant.Country)
                 .WithMany(country => country.Tenants)
                 .HasForeignKey(tenant => tenant.CountryId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<SubscriptionPackage>(entity =>
+        {
+            entity.ToTable("SubscriptionPackages");
+            entity.Property(package => package.Name).HasMaxLength(120);
+            entity.Property(package => package.NameAr).HasMaxLength(120);
+            entity.Property(package => package.Description).HasMaxLength(1000);
+            entity.Property(package => package.DescriptionAr).HasMaxLength(1000);
+            entity.Property(package => package.Feature1).HasMaxLength(300);
+            entity.Property(package => package.Feature1Ar).HasMaxLength(300);
+            entity.Property(package => package.Feature2).HasMaxLength(300);
+            entity.Property(package => package.Feature2Ar).HasMaxLength(300);
+            entity.Property(package => package.Feature3).HasMaxLength(300);
+            entity.Property(package => package.Feature3Ar).HasMaxLength(300);
+            entity.Property(package => package.Currency).HasMaxLength(12);
+            entity.Property(package => package.Price).HasColumnType("numeric(18,2)");
+            entity.HasIndex(package => new { package.OfficeSize, package.BillingCycle }).IsUnique();
+            entity.HasIndex(package => new { package.IsActive, package.DisplayOrder });
+        });
+
+        modelBuilder.Entity<TenantSubscription>(entity =>
+        {
+            entity.ToTable("TenantSubscriptions");
+            entity.HasIndex(subscription => subscription.TenantId);
+            entity.HasIndex(subscription => subscription.SubscriptionPackageId);
+            entity.HasIndex(subscription => new { subscription.TenantId, subscription.Status });
+            entity.HasOne(subscription => subscription.Tenant)
+                .WithMany(tenant => tenant.Subscriptions)
+                .HasForeignKey(subscription => subscription.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(subscription => subscription.SubscriptionPackage)
+                .WithMany(package => package.TenantSubscriptions)
+                .HasForeignKey(subscription => subscription.SubscriptionPackageId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<TenantBillingTransaction>(entity =>
+        {
+            entity.ToTable("TenantBillingTransactions");
+            entity.Property(transaction => transaction.Currency).HasMaxLength(12);
+            entity.Property(transaction => transaction.Amount).HasColumnType("numeric(18,2)");
+            entity.Property(transaction => transaction.Reference).HasMaxLength(128);
+            entity.Property(transaction => transaction.Notes).HasMaxLength(2000);
+            entity.HasIndex(transaction => transaction.TenantId);
+            entity.HasIndex(transaction => transaction.TenantSubscriptionId);
+            entity.HasIndex(transaction => transaction.SubscriptionPackageId);
+            entity.HasIndex(transaction => new { transaction.Status, transaction.DueDateUtc });
+            entity.HasOne(transaction => transaction.Tenant)
+                .WithMany(tenant => tenant.BillingTransactions)
+                .HasForeignKey(transaction => transaction.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(transaction => transaction.TenantSubscription)
+                .WithMany(subscription => subscription.BillingTransactions)
+                .HasForeignKey(transaction => transaction.TenantSubscriptionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(transaction => transaction.SubscriptionPackage)
+                .WithMany(package => package.BillingTransactions)
+                .HasForeignKey(transaction => transaction.SubscriptionPackageId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DemoRequest>(entity =>
+        {
+            entity.ToTable("DemoRequests");
+            entity.Property(request => request.FullName).HasMaxLength(200);
+            entity.Property(request => request.Email).HasMaxLength(256);
+            entity.Property(request => request.PhoneNumber).HasMaxLength(64);
+            entity.Property(request => request.OfficeName).HasMaxLength(200);
+            entity.Property(request => request.Notes).HasMaxLength(2000);
+            entity.Property(request => request.ReviewedByUserId).HasMaxLength(450);
+            entity.HasIndex(request => new { request.Status, request.CreatedAtUtc });
+            entity.HasOne(request => request.ReviewedByUser)
+                .WithMany()
+                .HasForeignKey(request => request.ReviewedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<LandingPageSettings>(entity =>

@@ -33,6 +33,7 @@
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Office name</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficeName}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Office phone</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{OfficePhone}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Country</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Country}</td></tr>
+  <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Package</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{Package}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Tenant ID</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{TenantId}</td></tr>
   <tr><td style="padding:8px;border:1px solid #e5e7eb;"><strong>Registered at (UTC)</strong></td><td style="padding:8px;border:1px solid #e5e7eb;">{RegisteredAtUtc}</td></tr>
 </table>
@@ -53,6 +54,27 @@
   </data>
   <data name="TenantInactiveMessage" xml:space="preserve">
     <value>Your tenant is inactive. Contact the system administrator.</value>
+  </data>
+  <data name="SubscriptionPackageRequiredMessage" xml:space="preserve">
+    <value>Please select a subscription package.</value>
+  </data>
+  <data name="SubscriptionPackageInvalidMessage" xml:space="preserve">
+    <value>The selected subscription package is invalid.</value>
+  </data>
+  <data name="TenantSubscriptionAlreadyExistsMessage" xml:space="preserve">
+    <value>This tenant already has a subscription.</value>
+  </data>
+  <data name="TenantSubscriptionMissingMessage" xml:space="preserve">
+    <value>Your tenant does not have an active subscription record.</value>
+  </data>
+  <data name="TenantSubscriptionExpiredMessage" xml:space="preserve">
+    <value>Your tenant subscription has expired. Please contact the system administrator.</value>
+  </data>
+  <data name="TenantSubscriptionSuspendedMessage" xml:space="preserve">
+    <value>Your tenant subscription is suspended. Please contact the system administrator.</value>
+  </data>
+  <data name="TenantBillingTransactionMissingMessage" xml:space="preserve">
+    <value>The billing transaction was not found.</value>
   </data>
   <data name="RegistrationFieldUserName" xml:space="preserve">
     <value>username</value>

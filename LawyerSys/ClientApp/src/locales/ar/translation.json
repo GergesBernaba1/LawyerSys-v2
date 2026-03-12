@@ -79,6 +79,7 @@
                 "courtautomation":  "أتمتة المحاكم",
                 "esign":  "التوقيع الإلكتروني",
                 "timetracking": "تتبع الوقت",
+                "subscription":  "الاشتراك",
                 "clientportal":  "بوابة العميل",
                 "administration":  "الإدارة",
                 "tenants":  "مكاتب المحامين",
@@ -138,9 +139,31 @@
                                   },
                     "stats":  {
                                   "availability":  "وصول دائم للمكتب",
+                                  "packages":  "باقتان للمكاتب",
                                   "workspace":  "مساحة عمل موحدة",
                                   "visibility":  "درجة من الوضوح التشغيلي"
                               },
+                    "partners":  {
+                                     "title":  "شركاؤنا",
+                                     "subtitle":  "مكاتب محاماة تعمل بالفعل على منصتنا",
+                                     "countryFallback":  "شريك إقليمي",
+                                     "users":  "{{count}} مستخدم نشط"
+                                 },
+                    "demo":  {
+                                 "bookButton":  "احجز عرضاً تجريبياً",
+                                 "title":  "احجز عرضاً تجريبياً",
+                                 "subtitle":  "أرسل طلب عرض تجريبي لمكتبك وسيقوم فريقنا بمراجعته واعتماده.",
+                                 "submit":  "إرسال طلب العرض",
+                                 "success":  "تم إرسال طلب العرض التجريبي بنجاح.",
+                                 "failed":  "فشل إرسال طلب العرض التجريبي.",
+                                 "fields":  {
+                                                "fullName":  "الاسم الكامل",
+                                                "officeName":  "اسم المكتب",
+                                                "email":  "البريد الإلكتروني",
+                                                "phoneNumber":  "رقم الهاتف",
+                                                "notes":  "ملاحظات"
+                                            }
+                             },
                     "contact":  {
                                     "email":  "البريد الإلكتروني",
                                     "phone":  "الهاتف"
@@ -192,7 +215,11 @@
                      "selectCountry":  "اختر الدولة",
                      "countryRequired":  "يرجى اختيار الدولة",
                      "failedCountries":  "فشل تحميل الدول",
+                     "failedPackages":  "فشل تحميل باقات الاشتراك",
                      "email":  "البريد الإلكتروني",
+                     "package":  "باقة الاشتراك",
+                     "packageRequired":  "يرجى اختيار باقة الاشتراك",
+                     "selectedPackage":  "الخطة المختارة",
                      "password":  "كلمة المرور",
                      "confirmPassword":  "تأكيد كلمة المرور",
                      "createAccount":  "إنشاء حساب",
@@ -786,6 +813,59 @@
                             "failedGenerate":  "فشل توليد نموذج المحكمة",
                             "failedSubmit":  "فشل إرسال الإيداع"
                         },
+    "subscription":  {
+                         "title":  "الاشتراك",
+                         "subtitle":  "راجع باقتك الحالية وسجل الفوترة الخاص بالمكتب.",
+                         "failedLoad":  "فشل تحميل بيانات الاشتراك.",
+                         "superAdminNotice":  "يمكن للسوبر أدمن متابعة فوترة الجهات من شاشة الإدارة.",
+                         "pricingTitle":  "باقات الاشتراك",
+                         "pricingSubtitle":  "اختر الفوترة الشهرية أو السنوية",
+                         "choosePackage":  "اختيار الباقة",
+                         "changePackage":  "التحويل إلى هذه الباقة",
+                         "changePackageToMonthly":  "التحويل إلى الشهري",
+                         "changePackageToAnnual":  "التحويل إلى السنوي",
+                         "currentPackageTitle":  "الاشتراك الحالي",
+                         "public":  {
+                                        "monthlyDescription":  "ادفع شهرياً باشتراك مرن ومتجدد.",
+                                        "annualDescription":  "ادفع سنوياً لفترة فوترة أطول وتجديد أبسط.",
+                                        "startsFrom":  "يبدأ من"
+                                    },
+                         "tenantEmail":  "بريد المكتب",
+                         "availablePackages":  "الباقات المتاحة",
+                         "transactionsTitle":  "عمليات الفوترة",
+                         "officeSize":  {
+                                            "small":  "مكتب صغير",
+                                            "medium":  "مكتب متوسط"
+                                        },
+                         "billingCycle":  {
+                                              "monthly":  "شهري",
+                                              "annual":  "سنوي"
+                                          },
+                         "status":  {
+                                        "pendingactivation":  "بانتظار التفعيل",
+                                        "active":  "نشط",
+                                        "expired":  "منتهي",
+                                        "suspended":  "معلق",
+                                        "pending":  "معلق السداد",
+                                        "paid":  "مدفوع",
+                                        "cancelled":  "ملغي",
+                                        "overdue":  "متأخر"
+                                    },
+                         "cards":  {
+                                       "price":  "السعر الحالي",
+                                       "status":  "حالة الاشتراك",
+                                       "nextBilling":  "الفاتورة القادمة",
+                                       "endDate":  "نهاية الفترة الحالية"
+                                   },
+                         "table":  {
+                                       "package":  "الباقة",
+                                       "cycle":  "الدورية",
+                                       "amount":  "المبلغ",
+                                       "dueDate":  "تاريخ الاستحقاق",
+                                       "status":  "الحالة",
+                                       "reference":  "المرجع"
+                                   }
+                     },
     "administration":  {
                             "title":  "مركز الإدارة",
                             "subtitle":  "نظرة مركزية لإدارة أهم إجراءات النظام",
@@ -798,6 +878,9 @@
                             "tabs":  {
                                          "accounts":  "الحسابات",
                                          "tenants":  "مكاتب المحامين",
+                                         "pricing":  "الباقات",
+                                         "billing":  "فوترة الجهات",
+                                         "demos":  "طلبات العروض",
                                          "landing":  "الصفحة التعريفية"
                                      },
                             "cards":  {
@@ -834,13 +917,83 @@
                                             "name":  "مكتب المحاماة",
                                             "country":  "الدولة",
                                             "phone":  "الهاتف",
+                                            "email":  "البريد الإلكتروني",
                                             "users":  "المستخدمون",
+                                            "package":  "الباقة",
+                                            "subscription":  "الاشتراك",
                                             "status":  "الحالة",
                                             "actions":  "الإجراءات",
                                             "active":  "نشطة",
                                             "inactive":  "غير نشطة",
                                             "activate":  "تفعيل",
-                                            "deactivate":  "تعطيل"
+                                            "deactivate":  "تعطيل",
+                                            "ourOffice":  "مكتبنا"
+                                        },
+                            "pricing":  {
+                                            "title":  "باقات الاشتراك",
+                                            "subtitle":  "إدارة الباقات الظاهرة في الصفحة التعريفية ونموذج التسجيل.",
+                                            "newPackage":  "باقة جديدة",
+                                            "createPackage":  "إنشاء باقة",
+                                            "editPackage":  "تعديل باقة",
+                                            "table":  {
+                                                          "package":  "الباقة",
+                                                          "officeSize":  "حجم المكتب",
+                                                          "monthly":  "شهري",
+                                                          "annual":  "سنوي",
+                                                          "status":  "الحالة",
+                                                          "actions":  "الإجراءات"
+                                                      },
+                                            "fields":  {
+                                                           "name":  "الاسم",
+                                                           "nameAr":  "الاسم بالعربية",
+                                                           "description":  "الوصف",
+                                                           "descriptionAr":  "الوصف بالعربية",
+                                                           "feature1":  "الميزة الأولى",
+                                                           "feature1Ar":  "الميزة الأولى بالعربية",
+                                                           "feature2":  "الميزة الثانية",
+                                                           "feature2Ar":  "الميزة الثانية بالعربية",
+                                                           "feature3":  "الميزة الثالثة",
+                                                           "feature3Ar":  "الميزة الثالثة بالعربية",
+                                                           "officeSize":  "حجم المكتب",
+                                                           "monthlyPrice":  "السعر الشهري",
+                                                           "annualPrice":  "السعر السنوي",
+                                                           "currency":  "العملة",
+                                                           "displayOrder":  "ترتيب العرض",
+                                                           "active":  "الظهور"
+                                                       }
+                                        },
+                            "demos":  {
+                                           "title":  "طلبات العروض التجريبية",
+                                           "approve":  "اعتماد",
+                                           "reject":  "رفض",
+                                           "table":  {
+                                                         "contact":  "بيانات التواصل",
+                                                         "office":  "المكتب",
+                                                         "notes":  "الملاحظات",
+                                                         "status":  "الحالة",
+                                                         "actions":  "الإجراءات"
+                                                     },
+                                           "status":  {
+                                                          "pending":  "بانتظار المراجعة",
+                                                          "approved":  "تم الاعتماد",
+                                                          "rejected":  "مرفوض"
+                                                      }
+                                       },
+                            "billing":  {
+                                            "title":  "فوترة الجهات",
+                                            "currentPackage":  "الباقة الحالية",
+                                            "subscriptionStatus":  "حالة الاشتراك",
+                                            "nextBillingDate":  "تاريخ الفاتورة القادمة",
+                                            "markPaid":  "تأكيد السداد",
+                                            "cancel":  "إلغاء",
+                                            "table":  {
+                                                          "tenant":  "الجهة",
+                                                          "package":  "الباقة",
+                                                          "amount":  "المبلغ",
+                                                          "dueDate":  "تاريخ الاستحقاق",
+                                                          "status":  "الحالة",
+                                                          "actions":  "الإجراءات"
+                                                      }
                                         },
                             "landing":  {
                                             "title":  "محتوى الصفحة التعريفية",

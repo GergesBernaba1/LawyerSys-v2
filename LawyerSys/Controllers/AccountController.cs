@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using LawyerSys.Services;
 using LawyerSys.Services.Email;
 using LawyerSys.Services.Notifications;
+using LawyerSys.Services.Subscriptions;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -23,6 +24,7 @@ public class AccountController : ControllerBase
     private readonly IEmailSender _emailSender;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly ITenantSubscriptionService _tenantSubscriptionService;
 
     public AccountController(
         IAccountService accountService,
@@ -31,7 +33,8 @@ public class AccountController : ControllerBase
         ApplicationDbContext applicationDbContext,
         IEmailSender emailSender,
         IStringLocalizer<SharedResource> localizer,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        ITenantSubscriptionService tenantSubscriptionService)
     {
         _accountService = accountService;
         _userManager = userManager;
@@ -40,6 +43,7 @@ public class AccountController : ControllerBase
         _emailSender = emailSender;
         _localizer = localizer;
         _inAppNotificationService = inAppNotificationService;
+        _tenantSubscriptionService = tenantSubscriptionService;
     }
 
     [HttpPost("register")]
@@ -65,12 +69,22 @@ public class AccountController : ControllerBase
         {
             return BadRequest(new { message = "Country is required." });
         }
+        if (model.SubscriptionPackageId <= 0)
+        {
+            return BadRequest(new { message = _localizer["SubscriptionPackageRequiredMessage"].Value });
+        }
 
         var countryExists = await _applicationDbContext.Countries
             .AnyAsync(country => country.Id == model.CountryId.Value);
         if (!countryExists)
         {
             return BadRequest(new { message = "Selected country is invalid." });
+        }
+
+        var selectedPackage = await _tenantSubscriptionService.GetActivePackageAsync(model.SubscriptionPackageId);
+        if (selectedPackage == null)
+        {
+            return BadRequest(new { message = _localizer["SubscriptionPackageInvalidMessage"].Value });
         }
 
         var duplicateFields = new List<string>();
@@ -128,6 +142,7 @@ public class AccountController : ControllerBase
         {
             Name = model.LawyerOfficeName.Trim(),
             PhoneNumber = model.LawyerOfficePhoneNumber.Trim(),
+            ContactEmail = model.Email.Trim(),
             CountryId = model.CountryId,
             IsActive = false,
             CreatedAtUtc = DateTime.UtcNow
@@ -169,6 +184,16 @@ public class AccountController : ControllerBase
             return BadRequest(roleResult.Errors);
         }
 
+        try
+        {
+            await _tenantSubscriptionService.CreateSubscriptionForTenantAsync(tenant, model.SubscriptionPackageId);
+        }
+        catch (InvalidOperationException ex)
+        {
+            await transaction.RollbackAsync();
+            return BadRequest(new { message = ex.Message });
+        }
+
         await transaction.CommitAsync();
 
         try
@@ -180,6 +205,7 @@ public class AccountController : ControllerBase
                 .Where(country => country.Id == model.CountryId.Value)
                 .Select(country => GetLocalizedName(country.Name, country.NameAr))
                 .FirstOrDefaultAsync() ?? "Unknown";
+            var packageName = GetLocalizedName(selectedPackage.Name, selectedPackage.NameAr);
 
             var subject = _localizer["RegistrationNotificationSubject"].Value;
             var template = _localizer["RegistrationNotificationBody"].Value;
@@ -190,6 +216,7 @@ public class AccountController : ControllerBase
                 .Replace("{OfficeName}", System.Net.WebUtility.HtmlEncode(model.LawyerOfficeName ?? string.Empty))
                 .Replace("{OfficePhone}", System.Net.WebUtility.HtmlEncode(model.LawyerOfficePhoneNumber ?? string.Empty))
                 .Replace("{Country}", System.Net.WebUtility.HtmlEncode(countryName))
+                .Replace("{Package}", System.Net.WebUtility.HtmlEncode(packageName))
                 .Replace("{TenantId}", tenant.Id.ToString(CultureInfo.InvariantCulture))
                 .Replace("{RegisteredAtUtc}", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
 
@@ -744,6 +771,7 @@ public class RegisterRequest
     public int? CountryId { get; set; }
     public string LawyerOfficeName { get; set; } = string.Empty;
     public string LawyerOfficePhoneNumber { get; set; } = string.Empty;
+    public int SubscriptionPackageId { get; set; }
 }
 
 public class CountryLookupDto

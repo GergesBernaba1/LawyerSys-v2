@@ -7,6 +7,7 @@ using LawyerSys.Services.Reminders;
 using LawyerSys.Services.TimeTracking;
 using LawyerSys.Services.Intake;
 using LawyerSys.Services.AIAssistant;
+using LawyerSys.Services.Subscriptions;
 using LawyerSys.Services.TrustAccounting;
 using LawyerSys.Realtime;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -157,11 +158,14 @@ builder.Services.Configure<HearingReminderOptions>(builder.Configuration.GetSect
 builder.Services.AddHostedService<HearingReminderBackgroundService>();
 builder.Services.Configure<TaskReminderOptions>(builder.Configuration.GetSection("Reminders:Task"));
 builder.Services.AddHostedService<TaskReminderBackgroundService>();
+builder.Services.Configure<TenantSubscriptionReminderOptions>(builder.Configuration.GetSection("Reminders:TenantSubscriptions"));
+builder.Services.AddHostedService<TenantSubscriptionReminderBackgroundService>();
 
 builder.Services.AddScoped<LawyerSys.Services.IUserContext, LawyerSys.Services.UserContext>();
 builder.Services.AddScoped<LawyerSys.Services.ICustomerService, LawyerSys.Services.CustomerService>();
 builder.Services.AddScoped<LawyerSys.Services.IEmployeeService, LawyerSys.Services.EmployeeService>();
 builder.Services.AddScoped<LawyerSys.Services.IAccountService, LawyerSys.Services.AccountService>();
+builder.Services.AddScoped<ITenantSubscriptionService, TenantSubscriptionService>();
 builder.Services.AddScoped<IInAppNotificationService, InAppNotificationService>();
 builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRealtimePublisher>();
 
