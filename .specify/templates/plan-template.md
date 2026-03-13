@@ -31,14 +31,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- Tenant isolation is explicit for every affected API, query, file/report path, and admin flow.
-- Authorization, JWT/Identity impact, and required audit coverage are defined for all sensitive
-  actions.
-- Migration and parity impact are documented for any legacy behavior, route, report, or DTO change.
-- Automated validation is identified for the affected slice: backend tests, frontend type-check or
-  build, and Playwright coverage for critical UI flows when applicable.
-- Arabic/English localization impact and RTL/LTR behavior are accounted for for every user-facing
-  change.
+[Gates determined based on constitution file]
 
 ## Project Structure
 
