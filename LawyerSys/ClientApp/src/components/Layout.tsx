@@ -216,6 +216,7 @@ export default function Layout({ children }: LayoutProps) {
   const isEmployee = hasRole('Employee')
   const isSuperAdmin = hasRole('SuperAdmin')
   const isCustomerOnly = hasRole('Customer') && !isAdmin && !isEmployee && !isSuperAdmin
+  const isEmployeeOnly = isEmployee && !isAdmin && !isSuperAdmin && !hasRole('Customer')
   const canUseUserManagement = hasAnyRole('Admin', 'SuperAdmin')
   const canUseAuditLogs = hasAnyRole('Admin', 'SuperAdmin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
@@ -225,8 +226,27 @@ export default function Layout({ children }: LayoutProps) {
   const canUseSubscription = isAdmin && !isSuperAdmin
   const canUseNotifications = hasAnyRole('SuperAdmin', 'Admin', 'Employee', 'Customer')
   const customerMenuKeys = new Set(['cases', 'clientportal', 'customermessages', 'customerdocuments'])
+  const employeeMenuKeys = new Set([
+    'dashboard',
+    'workqueue',
+    'cases',
+    'customers',
+    'files',
+    'sitings',
+    'consultations',
+    'judicial',
+    'tasks',
+    'billing',
+    'trustaccounting',
+    'trustreports',
+    'calendar',
+    'intake',
+    'esign',
+    'timetracking',
+  ])
   const visibleMenuItems = menuItems.filter((item) => {
     if (isCustomerOnly) return customerMenuKeys.has(item.key)
+    if (isEmployeeOnly) return employeeMenuKeys.has(item.key)
     if (item.key === 'clientportal' || item.key === 'customermessages' || item.key === 'customerdocuments') return false
     if (item.key === 'administration') return isAdmin
     if (item.key === 'tenants') return isSuperAdmin
@@ -246,6 +266,27 @@ export default function Layout({ children }: LayoutProps) {
       return false
     }
 
+    if (isEmployeeOnly) {
+      if (path === '/profile') return true
+      if (path === '/dashboard' || path.startsWith('/dashboard/')) return true
+      if (path === '/employee-workqueue' || path.startsWith('/employee-workqueue/')) return true
+      if (path === '/cases' || path.startsWith('/cases/')) return true
+      if (path === '/customers' || path.startsWith('/customers/')) return true
+      if (path === '/files' || path.startsWith('/files/')) return true
+      if (path === '/sitings' || path.startsWith('/sitings/')) return true
+      if (path === '/consultations' || path.startsWith('/consultations/')) return true
+      if (path === '/judicial' || path.startsWith('/judicial/')) return true
+      if (path === '/tasks' || path.startsWith('/tasks/')) return true
+      if (path === '/billing' || path.startsWith('/billing/')) return true
+      if (path === '/trust-accounting' || path.startsWith('/trust-accounting/')) return true
+      if (path === '/trust-reports' || path.startsWith('/trust-reports/')) return true
+      if (path === '/calendar' || path.startsWith('/calendar/')) return true
+      if (path === '/intake' || path.startsWith('/intake/')) return true
+      if (path === '/esign' || path.startsWith('/esign/')) return true
+      if (path === '/timetracking' || path.startsWith('/timetracking/')) return true
+      return false
+    }
+
     if (path === '/client-portal' || path.startsWith('/client-portal/')) return false
     if (path === '/users' || path.startsWith('/users/')) return canUseUserManagement
     if (path === '/auditlogs' || path.startsWith('/auditlogs/')) return canUseAuditLogs
@@ -253,7 +294,7 @@ export default function Layout({ children }: LayoutProps) {
     if (path === '/employee-workqueue' || path.startsWith('/employee-workqueue/')) return canUseEmployeeWorkQueue
 
     return true
-  }, [canUseAuditLogs, canUseEmployeeWorkQueue, canUseSubscription, canUseUserManagement, isCustomerOnly])
+  }, [canUseAuditLogs, canUseEmployeeWorkQueue, canUseSubscription, canUseUserManagement, isCustomerOnly, isEmployeeOnly])
   const filteredMenuItems = React.useMemo(() => {
     const query = menuSearch.trim().toLowerCase()
     if (!query) return visibleMenuItems
@@ -318,6 +359,7 @@ export default function Layout({ children }: LayoutProps) {
     isAdmin,
     isCustomerOnly,
     isSuperAdmin,
+    isEmployeeOnly,
     canUseAuditLogs,
     canUseEmployeeWorkQueue,
     canUseIntake,

@@ -299,6 +299,7 @@
     "dashboard":  {
                       "welcomeBack":  "Welcome back",
                       "subtitle":  "Manage your law firm\u0027s cases, clients, and documents efficiently.",
+                      "employeeSubtitle":  "Here is the work currently assigned to you.",
                       "apiDocs":  "API Docs",
                       "totalCases":  "Total Cases",
                       "customers":  "Customers",
@@ -325,7 +326,18 @@
                       "startFirstCase":  "Start by adding your first legal case.",
                       "thisMonth":  "this month",
                       "sinceLastWeek":  "since last week",
-                      "viewAllCases":  "View All Cases"
+                      "viewAllCases":  "View All Cases",
+                      "workQueue":  "My Work Queue",
+                      "myCases":  "My Cases",
+                      "myTasks":  "My Tasks",
+                      "myLeads":  "My Leads",
+                      "myConsultations":  "My Consultations",
+                      "openCases":  "Open Cases",
+                      "qualifiedLeads":  "Qualified Leads",
+                      "myOverdueTasks":  "My Overdue Tasks",
+                      "noOverdueTasks":  "No overdue tasks assigned to you.",
+                      "myFollowUps":  "My Follow-ups",
+                      "noFollowUps":  "No follow-ups are scheduled right now."
                   },
     "cases":  {
                   "title":  "Cases",
@@ -676,6 +688,8 @@
     "consultations":  {
                           "title":  "Consultations",
                           "management":  "Consultations Management",
+                          "myConsultations":  "My Consultations",
+                          "totalAssigned":  "Assigned consultations",
                           "state":  "State",
                           "type":  "Type",
                           "subject":  "Subject",
@@ -685,6 +699,7 @@
                           "notes":  "Notes",
                           "newConsultation":  "New Consultation",
                           "createNew":  "Create New Consultation",
+                          "createMyConsultation":  "Create consultation",
                           "totalConsultations":  "Total Consultations",
                           "noConsultations":  "No consultations found",
                           "createFirst":  "Create First Consultation",
@@ -695,7 +710,9 @@
                           "failedLoad":  "Failed to load consultations data",
                           "failedCreate":  "Failed to create consultation",
                           "failedUpdate":  "Failed to update consultation",
-                          "failedDelete":  "Failed to delete consultation"
+                          "failedDelete":  "Failed to delete consultation",
+                          "employeeHint":  "Only consultations assigned to you appear here.",
+                          "assignmentHint":  "Assign consultations to employees so they appear in their work queue and notifications."
                       },
     "judicial":  {
                      "title":  "Judicial Documents",
@@ -723,6 +740,8 @@
     "tasks":  {
                   "title":  "Admin Tasks",
                   "management":  "Admin Tasks Management",
+                  "myTasks":  "My Tasks",
+                  "totalAssigned":  "Assigned tasks",
                   "taskName":  "Task Name",
                   "taskType":  "Task Type",
                   "startDate":  "Start Date",
@@ -731,7 +750,9 @@
                   "notes":  "Notes",
                   "employee":  "Assigned Employee",
                   "newTask":  "New Task",
+                  "task":  "Task",
                   "createNew":  "Create New Task",
+                  "createMyTask":  "Create my task",
                   "totalTasks":  "Total Tasks",
                   "noTasks":  "No tasks found",
                   "createFirst":  "Create First Task",
@@ -744,10 +765,15 @@
                   "failedUpdate":  "Failed to update task",
                   "failedDelete":  "Failed to delete task",
                   "upcoming":  "Upcoming Tasks",
-                  "overdue":  "Overdue Tasks"
+                  "overdue":  "Overdue Tasks",
+                  "employeeHint":  "Only tasks assigned to you appear here.",
+                  "assignmentHint":  "Employee access to tasks is assignment-based. Assign the task to the right employee so it appears in their queue and notifications."
               },
     "billing":  {
                     "title":  "Billing",
+                    "subtitle":  "Payments, receipts, and balance overview.",
+                    "employeeSubtitle":  "Read-only billing activity for the customers assigned to your cases.",
+                    "employeeHint":  "Employees can review assigned billing activity here, but only admins can create or delete records.",
                     "management":  "Billing Management",
                     "payments":  "Payments",
                     "receipts":  "Receipts",
@@ -784,6 +810,8 @@
                 },
     "trust":  {
                   "management":  "Trust Accounting",
+                  "employeeTitle":  "Assigned Trust Ledger",
+                  "employeeHint":  "You can review only the customers assigned to your cases. Reconciliations and adjustments stay admin-only.",
                   "accounts":  "Accounts",
                   "ledger":  "Ledger",
                   "reconciliations":  "Reconciliations",
@@ -821,6 +849,8 @@
     "trustReports":  {
                          "title":  "Trust Reports",
                          "subtitle":  "Monthly trust trends and reconciliation quality",
+                         "employeeSubtitle":  "Trend reporting for the trust balances attached to your assigned customers.",
+                         "employeeHint":  "This report is filtered to the customers attached to your assigned cases.",
                          "months":  "Months",
                          "allCustomers":  "All Customers",
                          "refresh":  "Refresh",
@@ -1227,6 +1257,10 @@
     "intake":  {
                    "title":  "Intake Pipeline",
                    "subtitle":  "Review, qualify, and convert new leads",
+                   "myAssignedLeads":  "My Assigned Leads",
+                   "myAssignedLeadsSubtitle":  "Review and progress only the leads assigned to you.",
+                   "employeeHint":  "Only leads assigned to you appear here.",
+                   "assignmentHint":  "Assign each lead to an employee so it shows up in their work queue and notifications.",
                    "search":  "Search lead",
                    "status":  "Status",
                    "checkConflict":  "Check Conflict",
@@ -1248,13 +1282,14 @@
                                  "status":  "Status",
                                  "conflict":  "Conflict",
                                  "assignment":  "Assignment",
+                                 "assignedTo":  "Assigned to",
                                  "actions":  "Actions"
                              },
                    "assignment":  {
                                      "assign":  "Assign",
                                      "employee":  "Employee",
                                      "unassigned":  "Unassigned",
-                                     "followUp":  "Next Follow-up",
+                                     "followUp":  "Follow-up",
                                      "assignedAt":  "Assigned At",
                                      "employeeRequired":  "Please select an employee",
                                      "failedAssign":  "Failed to assign lead"
@@ -1341,6 +1376,9 @@
     "timetracking":  {
                          "title":  "Time Tracking",
                          "subtitle":  "Capture work sessions and generate billing suggestions",
+                         "employeeTitle":  "My Time Tracking",
+                         "employeeSubtitle":  "Track time only for the cases assigned to you.",
+                         "employeeHint":  "Only your own entries and assigned cases appear here.",
                          "startTitle":  "Start New Session",
                          "caseCode":  "Case Code",
                          "customerId":  "Customer ID",
@@ -1351,11 +1389,13 @@
                          "stop":  "Stop",
                          "running":  "Running",
                          "stopped":  "Stopped",
+                         "totalMinutes":  "Tracked minutes",
                          "minutes":  "minutes",
                          "failedLoad":  "Failed to load time tracking data",
                          "failedStart":  "Failed to start time session",
                          "failedStop":  "Failed to stop time session",
                          "runningNotice":  "There are {{count}} running time sessions",
+                         "viewRunning":  "View running timers",
                          "table":  {
                                        "entry":  "Entry",
                                        "status":  "Status",
@@ -1370,6 +1410,20 @@
                                              "amount":  "Suggested Amount"
                                          }
                      },
+    "calendar":  {
+                     "subtitle":  "Events, hearings, reminders, and task dates.",
+                     "employeeTitle":  "My Calendar",
+                     "employeeSubtitle":  "Assigned hearings, reminders, and task dates for your workload.",
+                     "employeeHint":  "Only your assigned hearings, reminders, and task dates are shown here.",
+                     "view":  "View",
+                     "monthly":  "Monthly",
+                     "weekly":  "Weekly",
+                     "month":  "Month",
+                     "today":  "Today",
+                     "thisWeek":  "This week",
+                     "thisMonth":  "This month",
+                     "noEvents":  "No events in selected range."
+                 },
     "clientPortal":  {
                          "welcome":  "Welcome",
                          "client":  "Client",
