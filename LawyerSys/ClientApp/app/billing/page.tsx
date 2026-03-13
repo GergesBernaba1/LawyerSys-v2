@@ -29,9 +29,11 @@ export default function BillingPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
-  const { isAuthenticated } = useAuth();
+  const { hasAnyRole, hasRole } = useAuth();
   const { formatCurrency } = useCurrency();
   const { confirm, confirmDialog } = useConfirmDialog();
+  const canManageBilling = hasAnyRole('Admin', 'SuperAdmin');
+  const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !hasRole('SuperAdmin');
 
   const [tab, setTab] = useState(0);
   const [payments, setPayments] = useState<BillingPayDto[]>([]);
@@ -141,6 +143,11 @@ export default function BillingPage() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('billing.management')}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isEmployeeOnly
+                ? t('billing.employeeSubtitle', { defaultValue: 'Read-only billing activity for the customers assigned to your cases.' })
+                : t('billing.subtitle', { defaultValue: 'Payments, receipts, and balance overview.' })}
+            </Typography>
           </Box>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -153,6 +160,12 @@ export default function BillingPage() {
       </Box>
 
       {/* Summary Cards */}
+      {isEmployeeOnly && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t('billing.employeeHint', { defaultValue: 'Employees can review assigned billing activity here, but only admins can create or delete records.' })}
+        </Alert>
+      )}
+
       {summary && (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2, mb: 4 }}>
           <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
@@ -190,12 +203,14 @@ export default function BillingPage() {
       {/* Payments Tab */}
       {tab === 0 && (
         <>
-          <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mb: 2 }}>
-            <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={() => setOpenPayDialog(true)}
-              sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
-              {t('billing.createNewPayment')}
-            </Button>
-          </Box>
+          {canManageBilling && (
+            <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mb: 2 }}>
+              <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={() => setOpenPayDialog(true)}
+                sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
+                {t('billing.createNewPayment')}
+              </Button>
+            </Box>
+          )}
           <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
             <TableContainer>
               <Table sx={{ minWidth: 650 }}>
@@ -205,17 +220,17 @@ export default function BillingPage() {
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.date')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.customer')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.notes')}</TableCell>
-                    <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>
+                    {canManageBilling && <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <TableRow key={i}>{[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
+                      <TableRow key={i}>{[...Array(canManageBilling ? 5 : 4)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
                     ))
                   ) : payments.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                      <TableCell colSpan={canManageBilling ? 5 : 4} align="center" sx={{ py: 8 }}>
                         <Typography color="text.secondary">{t('billing.noPayments')}</Typography>
                       </TableCell>
                     </TableRow>
@@ -225,13 +240,15 @@ export default function BillingPage() {
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.dateOfOperation)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{item.customerName || '-'}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.notes || '-'}</TableCell>
-                      <TableCell align={isRTL ? 'left' : 'right'}>
-                        <Tooltip title={t('common.delete')}>
-                          <IconButton color="error" onClick={() => removePayment(item.id)} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
+                      {canManageBilling && (
+                        <TableCell align={isRTL ? 'left' : 'right'}>
+                          <Tooltip title={t('common.delete')}>
+                            <IconButton color="error" onClick={() => removePayment(item.id)} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -244,12 +261,14 @@ export default function BillingPage() {
       {/* Receipts Tab */}
       {tab === 1 && (
         <>
-          <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mb: 2 }}>
-            <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={() => setOpenRecDialog(true)}
-              sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
-              {t('billing.createNewReceipt')}
-            </Button>
-          </Box>
+          {canManageBilling && (
+            <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mb: 2 }}>
+              <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={() => setOpenRecDialog(true)}
+                sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
+                {t('billing.createNewReceipt')}
+              </Button>
+            </Box>
+          )}
           <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
             <TableContainer>
               <Table sx={{ minWidth: 650 }}>
@@ -259,17 +278,17 @@ export default function BillingPage() {
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.date')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.employee')}</TableCell>
                     <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left', fontWeight: 700 }}>{t('billing.notes')}</TableCell>
-                    <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>
+                    {canManageBilling && <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5, fontWeight: 700 }}>{t('common.actions')}</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <TableRow key={i}>{[...Array(5)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
+                      <TableRow key={i}>{[...Array(canManageBilling ? 5 : 4)].map((__, j) => <TableCell key={j}><Skeleton variant="text" /></TableCell>)}</TableRow>
                     ))
                   ) : receipts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                      <TableCell colSpan={canManageBilling ? 5 : 4} align="center" sx={{ py: 8 }}>
                         <Typography color="text.secondary">{t('billing.noReceipts')}</Typography>
                       </TableCell>
                     </TableRow>
@@ -279,13 +298,15 @@ export default function BillingPage() {
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{formatDate(item.dateOfOperation)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left' }}>{employeeNameById(item.employeeId)}</TableCell>
                       <TableCell sx={{ textAlign: isRTL ? 'right' : 'left', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.notes || '-'}</TableCell>
-                      <TableCell align={isRTL ? 'left' : 'right'}>
-                        <Tooltip title={t('common.delete')}>
-                          <IconButton color="error" onClick={() => removeReceipt(item.id)} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
+                      {canManageBilling && (
+                        <TableCell align={isRTL ? 'left' : 'right'}>
+                          <Tooltip title={t('common.delete')}>
+                            <IconButton color="error" onClick={() => removeReceipt(item.id)} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -296,7 +317,7 @@ export default function BillingPage() {
       )}
 
       {/* Payment Dialog */}
-      <Dialog open={openPayDialog} onClose={() => setOpenPayDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
+      <Dialog open={canManageBilling && openPayDialog} onClose={() => setOpenPayDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>{t('billing.createNewPayment')}</DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
@@ -321,7 +342,7 @@ export default function BillingPage() {
       </Dialog>
 
       {/* Receipt Dialog */}
-      <Dialog open={openRecDialog} onClose={() => setOpenRecDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
+      <Dialog open={canManageBilling && openRecDialog} onClose={() => setOpenRecDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>{t('billing.createNewReceipt')}</DialogTitle>
         <DialogContent sx={{ px: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>

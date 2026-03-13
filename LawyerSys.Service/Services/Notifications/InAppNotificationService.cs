@@ -696,6 +696,95 @@ public class InAppNotificationService : IInAppNotificationService
             cancellationToken);
     }
 
+    public async Task NotifyEmployeeTaskAssignedAsync(int employeeId, int taskId, string taskName, DateTime reminderDate, CancellationToken cancellationToken = default)
+    {
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientUserId = await GetEmployeeUserIdAsync(employeeId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(recipientUserId) || string.Equals(recipientUserId, actor.UserId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            new[] { recipientUserId },
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = _userContext.GetTenantId(),
+                Type = "TaskAssignment",
+                Title = "Task assigned",
+                TitleAr = "تم إسناد مهمة",
+                Message = $"{actor.DisplayName} assigned you the task \"{taskName}\" due on {reminderDate:yyyy-MM-dd HH:mm}.",
+                MessageAr = $"قام {actor.DisplayName} بإسناد المهمة \"{taskName}\" إليك بموعد تذكير {reminderDate:yyyy-MM-dd HH:mm}.",
+                Route = "/tasks",
+                RelatedEntityType = "Task",
+                RelatedEntityId = taskId.ToString()
+            },
+            cancellationToken);
+    }
+
+    public async Task NotifyEmployeeLeadAssignedAsync(int employeeId, int leadId, string subject, DateTime? nextFollowUpAt, CancellationToken cancellationToken = default)
+    {
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientUserId = await GetEmployeeUserIdAsync(employeeId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(recipientUserId) || string.Equals(recipientUserId, actor.UserId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var followUpText = nextFollowUpAt.HasValue
+            ? $" Next follow-up: {nextFollowUpAt.Value:yyyy-MM-dd HH:mm}."
+            : string.Empty;
+        var followUpTextAr = nextFollowUpAt.HasValue
+            ? $" المتابعة القادمة: {nextFollowUpAt.Value:yyyy-MM-dd HH:mm}."
+            : string.Empty;
+
+        await CreateNotificationsAsync(
+            new[] { recipientUserId },
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = _userContext.GetTenantId(),
+                Type = "LeadAssignment",
+                Title = "Lead assigned",
+                TitleAr = "تم إسناد عميل محتمل",
+                Message = $"{actor.DisplayName} assigned you the lead \"{subject}\".{followUpText}",
+                MessageAr = $"قام {actor.DisplayName} بإسناد العميل المحتمل \"{subject}\" إليك.{followUpTextAr}",
+                Route = "/intake",
+                RelatedEntityType = "IntakeLead",
+                RelatedEntityId = leadId.ToString()
+            },
+            cancellationToken);
+    }
+
+    public async Task NotifyEmployeeConsultationAssignedAsync(int employeeId, int consultationId, string subject, DateTime consultationDate, CancellationToken cancellationToken = default)
+    {
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientUserId = await GetEmployeeUserIdAsync(employeeId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(recipientUserId) || string.Equals(recipientUserId, actor.UserId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var safeSubject = string.IsNullOrWhiteSpace(subject) ? $"Consultation #{consultationId}" : subject.Trim();
+        await CreateNotificationsAsync(
+            new[] { recipientUserId },
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = _userContext.GetTenantId(),
+                Type = "ConsultationAssignment",
+                Title = "Consultation assigned",
+                TitleAr = "تم إسناد استشارة",
+                Message = $"{actor.DisplayName} assigned you the consultation \"{safeSubject}\" on {consultationDate:yyyy-MM-dd HH:mm}.",
+                MessageAr = $"قام {actor.DisplayName} بإسناد الاستشارة \"{safeSubject}\" إليك بتاريخ {consultationDate:yyyy-MM-dd HH:mm}.",
+                Route = "/consultations",
+                RelatedEntityType = "Consultation",
+                RelatedEntityId = consultationId.ToString()
+            },
+            cancellationToken);
+    }
+
     private async Task CreateNotificationsAsync(IEnumerable<string> recipientUserIds, NotificationContent content, CancellationToken cancellationToken)
     {
         var ids = recipientUserIds
@@ -998,6 +1087,17 @@ public class InAppNotificationService : IInAppNotificationService
             .Where(user => user.NormalizedUserName == normalizedUserName)
             .Select(user => user.Id)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<string?> GetEmployeeUserIdAsync(int employeeId, CancellationToken cancellationToken)
+    {
+        var userName = await _legacyDbContext.Employees
+            .AsNoTracking()
+            .Where(employee => employee.id == employeeId)
+            .Select(employee => employee.Users.User_Name)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return await FindApplicationUserIdByUserNameAsync(userName, cancellationToken);
     }
 
     private async Task NotifyCustomersOfCaseUpdateAsync(

@@ -23,7 +23,8 @@ export default function ConsultationsPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasRole } = useAuth();
+  const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !hasRole('SuperAdmin');
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<ConsultationDto[]>([]);
@@ -188,8 +189,8 @@ export default function ConsultationsPage() {
             <ChatIcon fontSize="medium" />
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('consultations.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{t('consultations.totalConsultations')}: <strong>{items.length}</strong></Typography>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{isEmployeeOnly ? t('consultations.myConsultations', { defaultValue: 'My Consultations' }) : t('consultations.management')}</Typography>
+            <Typography variant="body2" color="text.secondary">{(isEmployeeOnly ? t('consultations.totalAssigned', { defaultValue: 'Assigned consultations' }) : t('consultations.totalConsultations'))}: <strong>{items.length}</strong></Typography>
           </Box>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -200,10 +201,16 @@ export default function ConsultationsPage() {
           </Tooltip>
           <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={openCreate}
             sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
-            {t('consultations.createNew')}
+            {isEmployeeOnly ? t('consultations.createMyConsultation', { defaultValue: 'Create consultation' }) : t('consultations.createNew')}
           </Button>
         </Box>
       </Box>
+
+      <Alert severity={isEmployeeOnly ? 'info' : 'warning'} sx={{ mb: 2 }}>
+        {isEmployeeOnly
+          ? t('consultations.employeeHint', { defaultValue: 'Only consultations assigned to you appear here.' })
+          : t('consultations.assignmentHint', { defaultValue: 'Assign consultations to employees so they appear in their work queue and notifications.' })}
+      </Alert>
 
       {/* Table */}
       <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
@@ -294,16 +301,18 @@ export default function ConsultationsPage() {
                 renderInput={(params) => <TextField {...params} label={t('customers.customers') || 'Customers'} />}
               />
             </Box>
-            <Box sx={{ gridColumn: '1 / -1' }}>
-              <Autocomplete
-                multiple
-                options={allEmployees}
-                value={allEmployees.filter(e => selectedEmployeeIds.includes(e.id))}
-                getOptionLabel={(option) => option.name}
-                onChange={(_, value) => setSelectedEmployeeIds(value.map(v => v.id))}
-                renderInput={(params) => <TextField {...params} label={t('employees.employees') || 'Employees'} />}
-              />
-            </Box>
+            {!isEmployeeOnly && (
+              <Box sx={{ gridColumn: '1 / -1' }}>
+                <Autocomplete
+                  multiple
+                  options={allEmployees}
+                  value={allEmployees.filter(e => selectedEmployeeIds.includes(e.id))}
+                  getOptionLabel={(option) => option.name}
+                  onChange={(_, value) => setSelectedEmployeeIds(value.map(v => v.id))}
+                  renderInput={(params) => <TextField {...params} label={t('employees.employees') || 'Employees'} />}
+                />
+              </Box>
+            )}
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>

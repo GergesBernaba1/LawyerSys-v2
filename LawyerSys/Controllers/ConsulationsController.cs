@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -13,16 +15,37 @@ namespace LawyerSys.Controllers;
 public class ConsulationsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IEmployeeAccessService _employeeAccessService;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public ConsulationsController(LegacyDbContext context)
+    public ConsulationsController(
+        LegacyDbContext context,
+        IEmployeeAccessService employeeAccessService,
+        IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _employeeAccessService = employeeAccessService;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ConsulationDto>>> GetConsulations([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
         IQueryable<Consulation> query = _context.Consulations;
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue)
+                return Ok(Array.Empty<ConsulationDto>());
+
+            var consultationIds = await _context.Consulations_Employees
+                .Where(item => item.Employee_Id == employeeId.Value)
+                .Select(item => item.Consl_ID)
+                .ToListAsync();
+
+            query = query.Where(c => consultationIds.Contains(c.Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -56,6 +79,9 @@ public class ConsulationsController : ControllerBase
         if (consulation == null)
             return NotFound(new { message = "Consultation not found" });
 
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
+
         return Ok(MapToDto(consulation));
     }
 
@@ -80,6 +106,26 @@ public class ConsulationsController : ControllerBase
         _context.Consulations.Add(consulation);
         await _context.SaveChangesAsync();
 
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue)
+                return Forbid();
+
+            var relationExists = await _context.Consulations_Employees
+                .AnyAsync(item => item.Consl_ID == consulation.Id && item.Employee_Id == employeeId.Value);
+
+            if (!relationExists)
+            {
+                _context.Consulations_Employees.Add(new Consulations_Employee
+                {
+                    Consl_ID = consulation.Id,
+                    Employee_Id = employeeId.Value
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+
         return CreatedAtAction(nameof(GetConsulation), new { id = consulation.Id }, MapToDto(consulation));
     }
 
@@ -90,6 +136,9 @@ public class ConsulationsController : ControllerBase
         var consulation = await _context.Consulations.FindAsync(id);
         if (consulation == null)
             return NotFound(new { message = "Consultation not found" });
+
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
 
         if (dto.ConsultionState != null) consulation.Consultion_State = dto.ConsultionState;
         if (dto.Type != null) consulation.Type = dto.Type;
@@ -111,6 +160,9 @@ public class ConsulationsController : ControllerBase
         if (consulation == null)
             return NotFound(new { message = "Consultation not found" });
 
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
+
         _context.Consulations.Remove(consulation);
         await _context.SaveChangesAsync();
         return Ok(new { message = "Consultation deleted" });
@@ -124,6 +176,9 @@ public class ConsulationsController : ControllerBase
         var exists = await _context.Consulations.AnyAsync(c => c.Id == id);
         if (!exists)
             return NotFound(new { message = "Consultation not found" });
+
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
 
         var relations = await _context.Consltitions_Custmors
             .Include(r => r.Customer)
@@ -146,6 +201,9 @@ public class ConsulationsController : ControllerBase
         var consulationExists = await _context.Consulations.AnyAsync(c => c.Id == id);
         if (!consulationExists)
             return NotFound(new { message = "Consultation not found" });
+
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
 
         var customerExists = await _context.Customers.AnyAsync(c => c.Id == customerId);
         if (!customerExists)
@@ -173,6 +231,9 @@ public class ConsulationsController : ControllerBase
     [HttpDelete("{id}/customers/{customerId}")]
     public async Task<ActionResult> RemoveCustomerFromConsulation(int id, int customerId)
     {
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
+
         var relation = await _context.Consltitions_Custmors
             .FirstOrDefaultAsync(r => r.Consl_Id == id && r.Customer_Id == customerId);
 
@@ -194,6 +255,9 @@ public class ConsulationsController : ControllerBase
         if (!exists)
             return NotFound(new { message = "Consultation not found" });
 
+        if (!await CanAccessConsultationAsync(id))
+            return Forbid();
+
         var relations = await _context.Consulations_Employees
             .Include(r => r.Employee)
                 .ThenInclude(e => e.Users)
@@ -212,8 +276,11 @@ public class ConsulationsController : ControllerBase
     [HttpPost("{id}/employees/{employeeId}")]
     public async Task<ActionResult> AddEmployeeToConsulation(int id, int employeeId)
     {
-        var consulationExists = await _context.Consulations.AnyAsync(c => c.Id == id);
-        if (!consulationExists)
+        if (!await _employeeAccessService.IsCurrentUserAdminAsync())
+            return Forbid();
+
+        var consulation = await _context.Consulations.FirstOrDefaultAsync(c => c.Id == id);
+        if (consulation == null)
             return NotFound(new { message = "Consultation not found" });
 
         var employeeExists = await _context.Employees.AnyAsync(e => e.id == employeeId);
@@ -234,6 +301,12 @@ public class ConsulationsController : ControllerBase
 
         _context.Consulations_Employees.Add(relation);
         await _context.SaveChangesAsync();
+        await _inAppNotificationService.NotifyEmployeeConsultationAssignedAsync(
+            employeeId,
+            id,
+            consulation.Subject,
+            consulation.Date_time,
+            HttpContext.RequestAborted);
 
         return Ok(new { message = "Employee added to consultation", id = relation.Id });
     }
@@ -242,6 +315,9 @@ public class ConsulationsController : ControllerBase
     [HttpDelete("{id}/employees/{employeeId}")]
     public async Task<ActionResult> RemoveEmployeeFromConsulation(int id, int employeeId)
     {
+        if (!await _employeeAccessService.IsCurrentUserAdminAsync())
+            return Forbid();
+
         var relation = await _context.Consulations_Employees
             .FirstOrDefaultAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId);
 
@@ -252,6 +328,19 @@ public class ConsulationsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Employee removed from consultation" });
+    }
+
+    private async Task<bool> CanAccessConsultationAsync(int id)
+    {
+        if (await _employeeAccessService.IsCurrentUserAdminAsync())
+            return true;
+
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+            return false;
+
+        var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+        return employeeId.HasValue && await _context.Consulations_Employees
+            .AnyAsync(item => item.Consl_ID == id && item.Employee_Id == employeeId.Value);
     }
 
     private static ConsulationDto MapToDto(Consulation c) => new()

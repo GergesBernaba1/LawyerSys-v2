@@ -80,6 +80,7 @@
                 "courtautomation":  "Court Automation",
                 "esign":  "eSignature",
                 "timetracking":  "Time Tracking",
+                "workqueue":  "Work Queue",
                 "subscription":  "Subscription",
                 "clientportal":  "Client Portal",
                 "customermessages": "Messages",
@@ -107,6 +108,24 @@
                                          "system": "System"
                                      }
                       },
+    "employeeWorkQueue": {
+                              "title": "My Work Queue",
+                              "subtitle": "Everything that currently needs your attention in one place.",
+                              "failedLoad": "Failed to load your work queue.",
+                              "totalOpen": "Open queue items",
+                              "todayFocus": "Today focus",
+                              "overdueTasks": "My Overdue Tasks",
+                              "followUps": "My Follow-ups",
+                              "todayHearings": "Today and Upcoming Hearings",
+                              "runningTimers": "Running Timers",
+                              "unreadUpdates": "Unread Updates",
+                              "noneOverdue": "No overdue tasks assigned to you.",
+                              "noneFollowUps": "No follow-ups are scheduled right now.",
+                              "noneHearings": "No hearings or reminders in the selected window.",
+                              "noneTimers": "No timers are currently running.",
+                              "noneNotifications": "No unread employee updates right now.",
+                              "lead": "Lead"
+                          },
     "landing":  {
                     "failedLoad":  "Failed to load landing page data. Showing fallback content.",
                     "badge":  "Legal operations platform",

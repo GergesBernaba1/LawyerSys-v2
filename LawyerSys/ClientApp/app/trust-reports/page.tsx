@@ -21,6 +21,7 @@ import api from "../../src/services/api";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "../../src/hooks/useCurrency";
 import SearchableSelect from "../../src/components/SearchableSelect";
+import { useAuth } from "../../src/services/auth";
 
 type TrustAccount = {
   customerId: number;
@@ -159,6 +160,9 @@ function ReconciliationChart({ points, t, formatCurrency }: { points: Reconcilia
 export default function TrustReportsPage() {
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
+  const { hasAnyRole } = useAuth();
+  const canManageTrust = hasAnyRole("Admin", "SuperAdmin");
+  const isEmployeeOnly = !canManageTrust;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [months, setMonths] = useState(12);
@@ -201,7 +205,11 @@ export default function TrustReportsPage() {
             <ChartIcon color="primary" />
             <Typography variant="h5" sx={{ fontWeight: 800 }}>{t("trustReports.title")}</Typography>
           </Stack>
-          <Typography variant="body2" color="text.secondary">{t("trustReports.subtitle")}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {isEmployeeOnly
+              ? t("trustReports.employeeSubtitle", { defaultValue: "Trend reporting for the trust balances attached to your assigned customers." })
+              : t("trustReports.subtitle")}
+          </Typography>
         </Box>
         <Stack direction="row" spacing={1.5}>
           <SearchableSelect<number>
@@ -228,6 +236,12 @@ export default function TrustReportsPage() {
           <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => void load()} disabled={loading}>{t("trustReports.refresh")}</Button>
         </Stack>
       </Stack>
+
+      {isEmployeeOnly && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t("trustReports.employeeHint", { defaultValue: "This report is filtered to the customers attached to your assigned cases." })}
+        </Alert>
+      )}
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 

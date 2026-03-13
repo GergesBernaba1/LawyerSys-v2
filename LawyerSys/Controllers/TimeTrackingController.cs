@@ -1,6 +1,7 @@
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +14,32 @@ namespace LawyerSys.Controllers;
 public class TimeTrackingController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IUserContext _userContext;
+    private readonly IEmployeeAccessService _employeeAccessService;
 
-    public TimeTrackingController(LegacyDbContext context)
+    public TimeTrackingController(
+        LegacyDbContext context,
+        IUserContext userContext,
+        IEmployeeAccessService employeeAccessService)
     {
         _context = context;
+        _userContext = userContext;
+        _employeeAccessService = employeeAccessService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TimeTrackingEntryDto>>> GetEntries([FromQuery] string? status = null)
     {
         IQueryable<TimeTrackingEntry> query = _context.TimeTrackingEntries.OrderByDescending(x => x.StartedAt);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var userName = _userContext.GetUserName();
+            if (string.IsNullOrWhiteSpace(userName))
+                return Ok(Array.Empty<TimeTrackingEntryDto>());
+
+            query = query.Where(x => x.StartedBy == userName);
+        }
 
         if (!string.IsNullOrWhiteSpace(status))
         {
@@ -38,6 +55,15 @@ public class TimeTrackingController : ControllerBase
     public async Task<ActionResult<TimeTrackingEntryDto>> Start([FromBody] StartTimeTrackingDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            if (dto.CaseCode.HasValue && !await _employeeAccessService.CanAccessCaseAsync(dto.CaseCode.Value))
+                return Forbid();
+
+            if (dto.CustomerId.HasValue && !await _employeeAccessService.CanAccessCustomerAsync(dto.CustomerId.Value))
+                return Forbid();
+        }
 
         var now = DateTime.UtcNow;
         var item = new TimeTrackingEntry
@@ -67,6 +93,8 @@ public class TimeTrackingController : ControllerBase
         if (item == null) return NotFound(new { message = "Time entry not found" });
         if (!item.Status.Equals("Running", StringComparison.OrdinalIgnoreCase))
             return BadRequest(new { message = "Time entry already stopped" });
+        if (!await CanAccessEntryAsync(item))
+            return Forbid();
 
         var now = DateTime.UtcNow;
         item.EndedAt = now;
@@ -89,8 +117,19 @@ public class TimeTrackingController : ControllerBase
     {
         if (hourlyRate < 0) return BadRequest(new { message = "hourlyRate must be non-negative" });
 
-        var grouped = await _context.TimeTrackingEntries
-            .Where(x => x.Status == "Stopped")
+        var query = _context.TimeTrackingEntries
+            .Where(x => x.Status == "Stopped");
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var userName = _userContext.GetUserName();
+            if (string.IsNullOrWhiteSpace(userName))
+                return Ok(Array.Empty<TimeTrackingSuggestionDto>());
+
+            query = query.Where(x => x.StartedBy == userName);
+        }
+
+        var grouped = await query
             .GroupBy(x => new { x.CaseCode, x.CustomerId })
             .Select(g => new TimeTrackingSuggestionDto
             {
@@ -105,6 +144,27 @@ public class TimeTrackingController : ControllerBase
             .ToListAsync();
 
         return Ok(grouped);
+    }
+
+    private async Task<bool> CanAccessEntryAsync(TimeTrackingEntry entry)
+    {
+        if (await _employeeAccessService.IsCurrentUserAdminAsync())
+            return true;
+
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+            return false;
+
+        var userName = _userContext.GetUserName();
+        if (string.IsNullOrWhiteSpace(userName) || !string.Equals(entry.StartedBy, userName, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (entry.CaseCode.HasValue && !await _employeeAccessService.CanAccessCaseAsync(entry.CaseCode.Value))
+            return false;
+
+        if (entry.CustomerId.HasValue && !await _employeeAccessService.CanAccessCustomerAsync(entry.CustomerId.Value))
+            return false;
+
+        return true;
     }
 
     private static TimeTrackingEntryDto MapToDto(TimeTrackingEntry x) => new()

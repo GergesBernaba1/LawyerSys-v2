@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
@@ -14,11 +15,16 @@ namespace LawyerSys.Controllers;
 public class JudicialDocumentsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
 
-    public JudicialDocumentsController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
+    public JudicialDocumentsController(
+        LegacyDbContext context,
+        IEmployeeAccessService employeeAccessService,
+        IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
     }
 
@@ -28,6 +34,14 @@ public class JudicialDocumentsController : ControllerBase
         IQueryable<Judicial_Document> query = _context.Judicial_Documents
             .Include(d => d.Customers)
                 .ThenInclude(c => c.Users);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var assignedCustomerIds = await _employeeAccessService.GetAssignedCustomerIdsAsync();
+            query = assignedCustomerIds.Length == 0
+                ? query.Where(_ => false)
+                : query.Where(d => assignedCustomerIds.Contains(d.Customers_Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -68,6 +82,8 @@ public class JudicialDocumentsController : ControllerBase
 
         if (doc == null)
             return NotFound(new { message = "Document not found" });
+        if (!await CanAccessDocumentAsync(doc))
+            return Forbid();
 
         return Ok(MapToDto(doc));
     }
@@ -75,6 +91,15 @@ public class JudicialDocumentsController : ControllerBase
     [HttpGet("bycustomer/{customerId}")]
     public async Task<ActionResult<IEnumerable<JudicialDocumentDto>>> GetByCustomer(int customerId)
     {
+        if (!await _employeeAccessService.CanAccessCustomerAsync(customerId))
+        {
+            var isEmployeeOnly = await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync();
+            if (isEmployeeOnly)
+            {
+                return Forbid();
+            }
+        }
+
         var docs = await _context.Judicial_Documents
             .Include(d => d.Customers)
                 .ThenInclude(c => c.Users)
@@ -94,6 +119,8 @@ public class JudicialDocumentsController : ControllerBase
         var customer = await _context.Customers.FindAsync(dto.CustomerId);
         if (customer == null)
             return BadRequest(new { message = "Customer not found" });
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync() && !await _employeeAccessService.CanAccessCustomerAsync(dto.CustomerId))
+            return Forbid();
 
         var doc = new Judicial_Document
         {
@@ -140,6 +167,8 @@ public class JudicialDocumentsController : ControllerBase
 
         if (doc == null)
             return NotFound(new { message = "Document not found" });
+        if (!await CanAccessDocumentAsync(doc))
+            return Forbid();
 
         if (dto.DocType != null) doc.Doc_Type = dto.DocType;
         if (dto.DocNum.HasValue) doc.Doc_Num = dto.DocNum.Value;
@@ -158,6 +187,8 @@ public class JudicialDocumentsController : ControllerBase
         var doc = await _context.Judicial_Documents.FindAsync(id);
         if (doc == null)
             return NotFound(new { message = "Document not found" });
+        if (!await CanAccessDocumentAsync(doc))
+            return Forbid();
 
         _context.Judicial_Documents.Remove(doc);
         await _context.SaveChangesAsync();
@@ -175,4 +206,14 @@ public class JudicialDocumentsController : ControllerBase
         CustomerId = d.Customers_Id,
         CustomerName = d.Customers?.Users?.Full_Name
     };
+
+    private async Task<bool> CanAccessDocumentAsync(Judicial_Document document)
+    {
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            return await _employeeAccessService.CanAccessCustomerAsync(document.Customers_Id);
+        }
+
+        return true;
+    }
 }

@@ -122,6 +122,7 @@ const menuItems: MenuItem[] = [
   { key: 'intake', icon: <IntakeIcon />, path: '/intake' },
   { key: 'esign', icon: <ESignIcon />, path: '/esign' },
   { key: 'timetracking', icon: <TimeTrackingIcon />, path: '/timetracking' },
+  { key: 'workqueue', icon: <TaskIcon />, path: '/employee-workqueue' },
   { key: 'subscription', icon: <WorkspacePremiumIcon />, path: '/subscription' },
   { key: 'tenants', icon: <ApartmentIcon />, path: '/tenants' },
   { key: 'administration', icon: <AdminPanelSettingsIcon />, path: '/administration' },
@@ -220,6 +221,7 @@ export default function Layout({ children }: LayoutProps) {
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
+  const canUseEmployeeWorkQueue = isEmployee && !isAdmin && !isSuperAdmin
   const canUseSubscription = isAdmin && !isSuperAdmin
   const canUseNotifications = hasAnyRole('SuperAdmin', 'Admin', 'Employee', 'Customer')
   const customerMenuKeys = new Set(['cases', 'clientportal', 'customermessages', 'customerdocuments'])
@@ -233,6 +235,7 @@ export default function Layout({ children }: LayoutProps) {
     if (item.key === 'intake') return canUseIntake
     if (item.key === 'esign') return canUseESign
     if (item.key === 'timetracking') return canUseTimeTracking
+    if (item.key === 'workqueue') return canUseEmployeeWorkQueue
     if (item.key === 'subscription') return canUseSubscription
     return true
   })
@@ -247,9 +250,10 @@ export default function Layout({ children }: LayoutProps) {
     if (path === '/users' || path.startsWith('/users/')) return canUseUserManagement
     if (path === '/auditlogs' || path.startsWith('/auditlogs/')) return canUseAuditLogs
     if (path === '/subscription' || path.startsWith('/subscription/')) return canUseSubscription
+    if (path === '/employee-workqueue' || path.startsWith('/employee-workqueue/')) return canUseEmployeeWorkQueue
 
     return true
-  }, [canUseAuditLogs, canUseSubscription, canUseUserManagement, isCustomerOnly])
+  }, [canUseAuditLogs, canUseEmployeeWorkQueue, canUseSubscription, canUseUserManagement, isCustomerOnly])
   const filteredMenuItems = React.useMemo(() => {
     const query = menuSearch.trim().toLowerCase()
     if (!query) return visibleMenuItems
@@ -288,6 +292,8 @@ export default function Layout({ children }: LayoutProps) {
       targetPath = '/dashboard';
     } else if (pathname === '/timetracking' && !canUseTimeTracking) {
       targetPath = '/dashboard';
+    } else if (pathname === '/employee-workqueue' && !canUseEmployeeWorkQueue) {
+      targetPath = '/dashboard';
     } else if (pathname.startsWith('/client-portal') && !isCustomerOnly) {
       targetPath = '/dashboard';
     } else if (pathname === '/users' || pathname.startsWith('/users/')) {
@@ -313,6 +319,7 @@ export default function Layout({ children }: LayoutProps) {
     isCustomerOnly,
     isSuperAdmin,
     canUseAuditLogs,
+    canUseEmployeeWorkQueue,
     canUseIntake,
     canUseESign,
     canUseTimeTracking,

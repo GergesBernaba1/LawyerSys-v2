@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
@@ -14,11 +15,16 @@ namespace LawyerSys.Controllers;
 public class BillingController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
 
-    public BillingController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
+    public BillingController(
+        LegacyDbContext context,
+        IEmployeeAccessService employeeAccessService,
+        IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
     }
 
@@ -30,6 +36,14 @@ public class BillingController : ControllerBase
         IQueryable<Billing_Pay> query = _context.Billing_Pays
             .Include(p => p.Custmor)
                 .ThenInclude(c => c.Users);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var assignedCustomerIds = await _employeeAccessService.GetAssignedCustomerIdsAsync();
+            query = assignedCustomerIds.Length == 0
+                ? query.Where(_ => false)
+                : query.Where(p => assignedCustomerIds.Contains(p.Custmor_Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -70,6 +84,8 @@ public class BillingController : ControllerBase
 
         if (payment == null)
             return NotFound(new { message = "Payment not found" });
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync() && !await _employeeAccessService.CanAccessCustomerAsync(payment.Custmor_Id))
+            return Forbid();
 
         return Ok(MapPayToDto(payment));
     }
@@ -149,6 +165,14 @@ public class BillingController : ControllerBase
     {
         IQueryable<Billing_Receipt> query = _context.Billing_Receipts;
 
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            query = employeeId.HasValue
+                ? query.Where(r => r.Employee_Id == employeeId.Value)
+                : query.Where(_ => false);
+        }
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             var s = search.Trim();
@@ -184,6 +208,12 @@ public class BillingController : ControllerBase
         var receipt = await _context.Billing_Receipts.FindAsync(id);
         if (receipt == null)
             return NotFound(new { message = "Receipt not found" });
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue || receipt.Employee_Id != employeeId.Value)
+                return Forbid();
+        }
 
         return Ok(MapReceiptToDto(receipt));
     }
@@ -245,6 +275,18 @@ public class BillingController : ControllerBase
     {
         var paymentsQuery = _context.Billing_Pays.AsQueryable();
         var receiptsQuery = _context.Billing_Receipts.AsQueryable();
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var assignedCustomerIds = await _employeeAccessService.GetAssignedCustomerIdsAsync();
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            paymentsQuery = assignedCustomerIds.Length == 0
+                ? paymentsQuery.Where(_ => false)
+                : paymentsQuery.Where(p => assignedCustomerIds.Contains(p.Custmor_Id));
+            receiptsQuery = employeeId.HasValue
+                ? receiptsQuery.Where(r => r.Employee_Id == employeeId.Value)
+                : receiptsQuery.Where(_ => false);
+        }
 
         if (customerId.HasValue)
             paymentsQuery = paymentsQuery.Where(p => p.Custmor_Id == customerId);

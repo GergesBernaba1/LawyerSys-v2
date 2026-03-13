@@ -52,6 +52,7 @@ export default function IntakePage() {
   const isRTL = theme.direction === 'rtl'
   const { isAuthenticated, hasAnyRole, hasRole } = useAuth()
   const isAdmin = hasRole('Admin')
+  const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !hasRole('SuperAdmin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
 
   const [items, setItems] = useState<IntakeLead[]>([])
@@ -211,8 +212,8 @@ export default function IntakePage() {
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4 }}>
       <Paper elevation={0} sx={{ p: { xs: 2.5, md: 3 }, mb: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="h5" sx={{ fontWeight: 800 }}>{t('intake.title')}</Typography>
-        <Typography variant="body2" color="text.secondary">{t('intake.subtitle')}</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800 }}>{isEmployeeOnly ? t('intake.myAssignedLeads', { defaultValue: 'My Assigned Leads' }) : t('intake.title')}</Typography>
+        <Typography variant="body2" color="text.secondary">{isEmployeeOnly ? t('intake.myAssignedLeadsSubtitle', { defaultValue: 'Review and progress only the leads assigned to you.' }) : t('intake.subtitle')}</Typography>
       </Paper>
 
       <Paper elevation={0} sx={{ p: 2, mb: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
@@ -244,6 +245,14 @@ export default function IntakePage() {
       {!loading && error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       {!loading && !error && (
+        <Alert severity={isEmployeeOnly ? 'info' : 'warning'} sx={{ mb: 2 }}>
+          {isEmployeeOnly
+            ? t('intake.employeeHint', { defaultValue: 'Only leads assigned to you appear here.' })
+            : t('intake.assignmentHint', { defaultValue: 'Assign each lead to an employee so it shows up in their work queue and notifications.' })}
+        </Alert>
+      )}
+
+      {!loading && !error && (
         <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
           <Table size="small">
             <TableHead>
@@ -252,7 +261,7 @@ export default function IntakePage() {
                 <TableCell>{t('intake.table.subject')}</TableCell>
                 <TableCell>{t('intake.table.status')}</TableCell>
                 <TableCell>{t('intake.table.conflict')}</TableCell>
-                <TableCell>{t('intake.table.assignment')}</TableCell>
+                <TableCell>{isEmployeeOnly ? t('intake.table.assignedTo', { defaultValue: 'Assigned to' }) : t('intake.table.assignment')}</TableCell>
                 <TableCell align={isRTL ? 'left' : 'right'}>{t('intake.table.actions')}</TableCell>
               </TableRow>
             </TableHead>
@@ -283,40 +292,55 @@ export default function IntakePage() {
                   </TableCell>
                   <TableCell sx={{ minWidth: 280 }}>
                     <Box sx={{ display: 'grid', gap: 1 }}>
-                      <TextField
-                        select
-                        size="small"
-                        label={t('intake.assignment.employee')}
-                        value={assignmentDrafts[lead.id]?.employeeId || ''}
-                        onChange={(e) => setAssignmentDrafts((prev) => ({
-                          ...prev,
-                          [lead.id]: {
-                            employeeId: e.target.value,
-                            nextFollowUpAt: prev[lead.id]?.nextFollowUpAt || '',
-                          },
-                        }))}
-                      >
-                        <MenuItem value="">{t('intake.assignment.unassigned')}</MenuItem>
-                        {employees.map((employee) => (
-                          <MenuItem key={employee.employeeId} value={String(employee.employeeId)}>
-                            {employee.name}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                      <TextField
-                        size="small"
-                        type="datetime-local"
-                        label={t('intake.assignment.followUp')}
-                        InputLabelProps={{ shrink: true }}
-                        value={assignmentDrafts[lead.id]?.nextFollowUpAt || ''}
-                        onChange={(e) => setAssignmentDrafts((prev) => ({
-                          ...prev,
-                          [lead.id]: {
-                            employeeId: prev[lead.id]?.employeeId || '',
-                            nextFollowUpAt: e.target.value,
-                          },
-                        }))}
-                      />
+                      {isEmployeeOnly ? (
+                        <>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {lead.assignedEmployeeName || t('intake.assignment.unassigned')}
+                          </Typography>
+                          {lead.nextFollowUpAt && (
+                            <Typography variant="caption" color="text.secondary">
+                              {t('intake.assignment.followUp', { defaultValue: 'Follow-up' })}: {new Date(lead.nextFollowUpAt).toLocaleString()}
+                            </Typography>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <TextField
+                            select
+                            size="small"
+                            label={t('intake.assignment.employee')}
+                            value={assignmentDrafts[lead.id]?.employeeId || ''}
+                            onChange={(e) => setAssignmentDrafts((prev) => ({
+                              ...prev,
+                              [lead.id]: {
+                                employeeId: e.target.value,
+                                nextFollowUpAt: prev[lead.id]?.nextFollowUpAt || '',
+                              },
+                            }))}
+                          >
+                            <MenuItem value="">{t('intake.assignment.unassigned')}</MenuItem>
+                            {employees.map((employee) => (
+                              <MenuItem key={employee.employeeId} value={String(employee.employeeId)}>
+                                {employee.name}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                          <TextField
+                            size="small"
+                            type="datetime-local"
+                            label={t('intake.assignment.followUp')}
+                            InputLabelProps={{ shrink: true }}
+                            value={assignmentDrafts[lead.id]?.nextFollowUpAt || ''}
+                            onChange={(e) => setAssignmentDrafts((prev) => ({
+                              ...prev,
+                              [lead.id]: {
+                                employeeId: prev[lead.id]?.employeeId || '',
+                                nextFollowUpAt: e.target.value,
+                              },
+                            }))}
+                          />
+                        </>
+                      )}
                       {lead.assignedAt && (
                         <Typography variant="caption" color="text.secondary">
                           {t('intake.assignment.assignedAt')}: {new Date(lead.assignedAt).toLocaleString()}
@@ -326,9 +350,11 @@ export default function IntakePage() {
                   </TableCell>
                   <TableCell align={isRTL ? 'left' : 'right'}>
                     <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end', flexWrap: 'wrap' }}>
-                      <Button size="small" variant="outlined" disabled={!!busy[lead.id]} onClick={() => assignLead(lead.id)}>
-                        {t('intake.assignment.assign')}
-                      </Button>
+                      {isAdmin && (
+                        <Button size="small" variant="outlined" disabled={!!busy[lead.id]} onClick={() => assignLead(lead.id)}>
+                          {t('intake.assignment.assign')}
+                        </Button>
+                      )}
                       <Button size="small" variant="outlined" disabled={!!busy[lead.id]} onClick={() => runConflictCheck(lead.id)}>
                         {t('intake.checkConflict')}
                       </Button>

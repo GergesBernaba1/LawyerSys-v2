@@ -165,6 +165,7 @@ builder.Services.Configure<TenantSubscriptionReminderOptions>(builder.Configurat
 builder.Services.AddHostedService<TenantSubscriptionReminderBackgroundService>();
 
 builder.Services.AddScoped<LawyerSys.Services.IUserContext, LawyerSys.Services.UserContext>();
+builder.Services.AddScoped<LawyerSys.Services.IEmployeeAccessService, LawyerSys.Services.EmployeeAccessService>();
 builder.Services.AddScoped<LawyerSys.Services.ICustomerService, LawyerSys.Services.CustomerService>();
 builder.Services.AddScoped<LawyerSys.Services.IEmployeeService, LawyerSys.Services.EmployeeService>();
 builder.Services.AddScoped<LawyerSys.Services.IAccountService, LawyerSys.Services.AccountService>();

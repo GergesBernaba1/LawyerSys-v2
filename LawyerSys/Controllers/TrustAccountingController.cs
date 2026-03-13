@@ -1,6 +1,7 @@
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 using LawyerSys.Services.Reporting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,12 @@ namespace LawyerSys.Controllers;
 public class TrustAccountingController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IEmployeeAccessService _employeeAccessService;
 
-    public TrustAccountingController(LegacyDbContext context)
+    public TrustAccountingController(LegacyDbContext context, IEmployeeAccessService employeeAccessService)
     {
         _context = context;
+        _employeeAccessService = employeeAccessService;
     }
 
     [HttpGet("accounts")]
@@ -25,6 +28,14 @@ public class TrustAccountingController : ControllerBase
     {
         IQueryable<Customer> customersQuery = _context.Customers
             .Include(c => c.Users);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var assignedCustomerIds = await _employeeAccessService.GetAssignedCustomerIdsAsync();
+            customersQuery = assignedCustomerIds.Length == 0
+                ? customersQuery.Where(_ => false)
+                : customersQuery.Where(c => assignedCustomerIds.Contains(c.Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -89,6 +100,10 @@ public class TrustAccountingController : ControllerBase
         {
             return NotFound(new { message = "Customer not found" });
         }
+        if (!await CanAccessCustomerAsync(customerId))
+        {
+            return Forbid();
+        }
 
         var balance = await GetBalanceAsync(customerId, asOfDate);
         var lastMovement = await _context.TrustLedgerEntries
@@ -115,6 +130,10 @@ public class TrustAccountingController : ControllerBase
         {
             return NotFound(new { message = "Customer not found" });
         }
+        if (!await CanAccessCustomerAsync(customerId))
+        {
+            return Forbid();
+        }
 
         var result = await BuildCustomerLedgerAsync(
             customer.Id,
@@ -138,6 +157,10 @@ public class TrustAccountingController : ControllerBase
         if (customer is null)
         {
             return NotFound(new { message = "Customer not found" });
+        }
+        if (!await CanAccessCustomerAsync(customerId))
+        {
+            return Forbid();
         }
 
         var customerName = customer.Users?.Full_Name ?? $"Customer #{customer.Id}";
@@ -355,9 +378,19 @@ public class TrustAccountingController : ControllerBase
     public async Task<ActionResult<TrustSummaryDto>> GetSummary([FromQuery] DateOnly? asOfDate = null)
     {
         var asOf = asOfDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var assignedCustomerIds = await GetAccessibleCustomerIdsAsync();
 
-        var balances = await _context.TrustLedgerEntries
-            .Where(e => e.OperationDate <= asOf)
+        var balancesQuery = _context.TrustLedgerEntries
+            .Where(e => e.OperationDate <= asOf);
+
+        if (assignedCustomerIds != null)
+        {
+            balancesQuery = assignedCustomerIds.Length == 0
+                ? balancesQuery.Where(_ => false)
+                : balancesQuery.Where(e => assignedCustomerIds.Contains(e.CustomerId));
+        }
+
+        var balances = await balancesQuery
             .GroupBy(e => e.CustomerId)
             .Select(g => new
             {
@@ -370,23 +403,27 @@ public class TrustAccountingController : ControllerBase
         var activeAccounts = balances.Count(x => Math.Abs(x.Balance) > 0.000001d);
         var negativeAccounts = balances.Count(x => x.Balance < 0);
 
-        var latestReconciliation = await _context.TrustReconciliations
-            .OrderByDescending(r => r.ReconciliationDate)
-            .ThenByDescending(r => r.Id)
-            .Select(r => new TrustReconciliationDto
-            {
-                Id = r.Id,
-                ReconciliationDate = r.ReconciliationDate,
-                BankStatementBalance = r.BankStatementBalance,
-                BookBalance = r.BookBalance,
-                ClientLedgerBalance = r.ClientLedgerBalance,
-                BankToBookDifference = r.BankToBookDifference,
-                ClientToBookDifference = r.ClientToBookDifference,
-                Notes = r.Notes,
-                CreatedAt = r.CreatedAt,
-                CreatedBy = r.CreatedBy
-            })
-            .FirstOrDefaultAsync();
+        TrustReconciliationDto? latestReconciliation = null;
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            latestReconciliation = await _context.TrustReconciliations
+                .OrderByDescending(r => r.ReconciliationDate)
+                .ThenByDescending(r => r.Id)
+                .Select(r => new TrustReconciliationDto
+                {
+                    Id = r.Id,
+                    ReconciliationDate = r.ReconciliationDate,
+                    BankStatementBalance = r.BankStatementBalance,
+                    BookBalance = r.BookBalance,
+                    ClientLedgerBalance = r.ClientLedgerBalance,
+                    BankToBookDifference = r.BankToBookDifference,
+                    ClientToBookDifference = r.ClientToBookDifference,
+                    Notes = r.Notes,
+                    CreatedAt = r.CreatedAt,
+                    CreatedBy = r.CreatedBy
+                })
+                .FirstOrDefaultAsync();
+        }
 
         return Ok(new TrustSummaryDto
         {
@@ -412,6 +449,11 @@ public class TrustAccountingController : ControllerBase
         string? customerName = null;
         if (customerId.HasValue)
         {
+            if (!await CanAccessCustomerAsync(customerId.Value))
+            {
+                return Forbid();
+            }
+
             var customer = await _context.Customers
                 .Include(c => c.Users)
                 .FirstOrDefaultAsync(c => c.Id == customerId.Value);
@@ -424,10 +466,18 @@ public class TrustAccountingController : ControllerBase
             customerName = customer.Users?.Full_Name ?? $"Customer #{customer.Id}";
         }
 
+        var assignedCustomerIds = await GetAccessibleCustomerIdsAsync();
+
         var openingQuery = _context.TrustLedgerEntries.Where(e => e.OperationDate < startMonth);
         if (customerId.HasValue)
         {
             openingQuery = openingQuery.Where(e => e.CustomerId == customerId.Value);
+        }
+        else if (assignedCustomerIds != null)
+        {
+            openingQuery = assignedCustomerIds.Length == 0
+                ? openingQuery.Where(_ => false)
+                : openingQuery.Where(e => assignedCustomerIds.Contains(e.CustomerId));
         }
 
         var openingBalance = await openingQuery
@@ -438,6 +488,12 @@ public class TrustAccountingController : ControllerBase
         if (customerId.HasValue)
         {
             monthlyLedgerQuery = monthlyLedgerQuery.Where(e => e.CustomerId == customerId.Value);
+        }
+        else if (assignedCustomerIds != null)
+        {
+            monthlyLedgerQuery = assignedCustomerIds.Length == 0
+                ? monthlyLedgerQuery.Where(_ => false)
+                : monthlyLedgerQuery.Where(e => assignedCustomerIds.Contains(e.CustomerId));
         }
 
         var monthlyAggregates = await monthlyLedgerQuery
@@ -480,36 +536,39 @@ public class TrustAccountingController : ControllerBase
             });
         }
 
-        var reconciliationRows = await BuildReconciliationsQuery(startMonth, endDate)
-            .GroupBy(r => new { r.ReconciliationDate.Year, r.ReconciliationDate.Month })
-            .Select(g => new
-            {
-                g.Key.Year,
-                g.Key.Month,
-                Count = g.Count(),
-                AverageBankToBookDifference = g.Average(x => x.BankToBookDifference),
-                MaxAbsoluteBankToBookDifference = g.Max(x => Math.Abs(x.BankToBookDifference))
-            })
-            .ToListAsync();
-
-        var reconciliationMap = reconciliationRows.ToDictionary(
-            x => $"{x.Year:D4}-{x.Month:D2}",
-            x => x);
-
         var reconciliationPoints = new List<TrustReconciliationTrendPointDto>(windowMonths);
-        for (var i = 0; i < windowMonths; i++)
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
-            var cursor = startMonth.AddMonths(i);
-            var key = $"{cursor.Year:D4}-{cursor.Month:D2}";
-            var monthValue = reconciliationMap.GetValueOrDefault(key);
-            reconciliationPoints.Add(new TrustReconciliationTrendPointDto
+            var reconciliationRows = await BuildReconciliationsQuery(startMonth, endDate)
+                .GroupBy(r => new { r.ReconciliationDate.Year, r.ReconciliationDate.Month })
+                .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    Count = g.Count(),
+                    AverageBankToBookDifference = g.Average(x => x.BankToBookDifference),
+                    MaxAbsoluteBankToBookDifference = g.Max(x => Math.Abs(x.BankToBookDifference))
+                })
+                .ToListAsync();
+
+            var reconciliationMap = reconciliationRows.ToDictionary(
+                x => $"{x.Year:D4}-{x.Month:D2}",
+                x => x);
+
+            for (var i = 0; i < windowMonths; i++)
             {
-                Year = cursor.Year,
-                Month = cursor.Month,
-                Count = monthValue?.Count ?? 0,
-                AverageBankToBookDifference = monthValue?.AverageBankToBookDifference ?? 0,
-                MaxAbsoluteBankToBookDifference = monthValue?.MaxAbsoluteBankToBookDifference ?? 0
-            });
+                var cursor = startMonth.AddMonths(i);
+                var key = $"{cursor.Year:D4}-{cursor.Month:D2}";
+                var monthValue = reconciliationMap.GetValueOrDefault(key);
+                reconciliationPoints.Add(new TrustReconciliationTrendPointDto
+                {
+                    Year = cursor.Year,
+                    Month = cursor.Month,
+                    Count = monthValue?.Count ?? 0,
+                    AverageBankToBookDifference = monthValue?.AverageBankToBookDifference ?? 0,
+                    MaxAbsoluteBankToBookDifference = monthValue?.MaxAbsoluteBankToBookDifference ?? 0
+                });
+            }
         }
 
         return Ok(new TrustMonthlyTrendsReportDto
@@ -568,6 +627,11 @@ public class TrustAccountingController : ControllerBase
         [FromQuery] DateOnly? fromDate = null,
         [FromQuery] DateOnly? toDate = null)
     {
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            return Forbid();
+        }
+
         var p = Math.Max(1, page);
         var ps = Math.Clamp(pageSize, 1, 200);
 
@@ -609,6 +673,11 @@ public class TrustAccountingController : ControllerBase
         [FromQuery] DateOnly? fromDate = null,
         [FromQuery] DateOnly? toDate = null)
     {
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            return Forbid();
+        }
+
         var generatedAt = DateTime.UtcNow;
         var rows = await BuildReconciliationsQuery(fromDate, toDate)
             .OrderByDescending(r => r.ReconciliationDate)
@@ -667,6 +736,11 @@ public class TrustAccountingController : ControllerBase
     [HttpGet("reconciliations/{id:long}")]
     public async Task<ActionResult<TrustReconciliationDto>> GetReconciliation(long id)
     {
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            return Forbid();
+        }
+
         var item = await _context.TrustReconciliations
             .Where(r => r.Id == id)
             .Select(r => new TrustReconciliationDto
@@ -690,6 +764,31 @@ public class TrustAccountingController : ControllerBase
         }
 
         return Ok(item);
+    }
+
+    private async Task<bool> CanAccessCustomerAsync(int customerId)
+    {
+        if (await _employeeAccessService.IsCurrentUserAdminAsync())
+        {
+            return true;
+        }
+
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            return false;
+        }
+
+        return await _employeeAccessService.CanAccessCustomerAsync(customerId);
+    }
+
+    private async Task<int[]?> GetAccessibleCustomerIdsAsync()
+    {
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            return await _employeeAccessService.GetAssignedCustomerIdsAsync();
+        }
+
+        return null;
     }
 
     private async Task<ActionResult?> ValidateCaseLinkAsync(int customerId, int caseCode)

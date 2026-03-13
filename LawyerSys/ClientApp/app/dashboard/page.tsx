@@ -26,6 +26,7 @@ import {
   People as PeopleIcon,
   Badge as BadgeIcon,
   Folder as FolderIcon,
+  AssignmentTurnedIn as TaskIcon,
   Event as EventIcon,
   Receipt as ReceiptIcon,
   OpenInNew as OpenInNewIcon,
@@ -112,6 +113,7 @@ export default function DashboardPageClient() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const isSuperAdmin = hasRole('SuperAdmin');
+  const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !isSuperAdmin;
   const isCustomerOnly = hasRole('Customer') && !hasRole('Admin') && !hasRole('Employee') && !isSuperAdmin;
   const [stats, setStats] = useState({
     cases: 0,
@@ -126,6 +128,18 @@ export default function DashboardPageClient() {
   });
   const [loading, setLoading] = useState(true);
   const [recentCases, setRecentCases] = useState<any[]>([]);
+  const [employeeMetrics, setEmployeeMetrics] = useState({
+    assignedTasks: 0,
+    assignedLeads: 0,
+    assignedConsultations: 0,
+    overdueTasks: 0,
+    openCases: 0,
+    qualifiedLeads: 0,
+  });
+  const [employeeWorkload, setEmployeeWorkload] = useState({
+    overdueTasks: [] as any[],
+    followUps: [] as any[],
+  });
   const numberLocale = isRTL ? 'ar' : 'en-US'
 
   useEffect(() => {
@@ -143,6 +157,66 @@ export default function DashboardPageClient() {
 
     async function fetchStats() {
       const requestConfig = isSuperAdmin ? ({ skipTenantHeader: true } as any) : undefined;
+
+      if (isEmployeeOnly) {
+        try {
+          const [casesRes, tasksRes, intakeRes, consultationsRes] = await Promise.all([
+            api.get('/Cases?page=1&pageSize=50'),
+            api.get('/AdminTasks?page=1&pageSize=100'),
+            api.get('/Intake'),
+            api.get('/Consulations'),
+          ]);
+
+          const caseItems = Array.isArray(casesRes.data) ? casesRes.data : (casesRes.data?.items || []);
+          const taskItems = Array.isArray(tasksRes.data) ? tasksRes.data : (tasksRes.data?.items || []);
+          const leadItems = intakeRes.data || [];
+          const consultationItems = Array.isArray(consultationsRes.data) ? consultationsRes.data : (consultationsRes.data?.items || []);
+          const now = new Date();
+
+          setStats({
+            cases: caseItems.length || 0,
+            customers: taskItems.length || 0,
+            employees: leadItems.length || 0,
+            files: consultationItems.length || 0,
+            casesTrend: 0,
+            revenueThisMonth: 0,
+            revenueTrend: 0,
+            upcomingHearings: 0,
+            overdueTasks: taskItems.filter((item: any) => item.taskReminderDate && new Date(item.taskReminderDate) < now).length,
+          });
+
+          setEmployeeMetrics({
+            assignedTasks: taskItems.length || 0,
+            assignedLeads: leadItems.length || 0,
+            assignedConsultations: consultationItems.length || 0,
+            overdueTasks: taskItems.filter((item: any) => item.taskReminderDate && new Date(item.taskReminderDate) < now).length,
+            openCases: caseItems.filter((item: any) => {
+              const status = String(item.status ?? item.Status ?? '').toLowerCase();
+              return status !== '3' && status !== '4' && status !== '5' && status !== 'closed' && status !== 'won' && status !== 'lost';
+            }).length,
+            qualifiedLeads: leadItems.filter((item: any) => String(item.status || '').toLowerCase() === 'qualified').length,
+          });
+
+          setEmployeeWorkload({
+            overdueTasks: taskItems
+              .filter((item: any) => item.taskReminderDate && new Date(item.taskReminderDate) < now)
+              .sort((a: any, b: any) => new Date(a.taskReminderDate).getTime() - new Date(b.taskReminderDate).getTime())
+              .slice(0, 5),
+            followUps: leadItems
+              .filter((item: any) => item.nextFollowUpAt)
+              .sort((a: any, b: any) => new Date(a.nextFollowUpAt).getTime() - new Date(b.nextFollowUpAt).getTime())
+              .slice(0, 5),
+          });
+
+          setRecentCases(caseItems.slice(0, 5));
+        } catch {
+          console.error('Error fetching employee dashboard stats');
+        } finally {
+          setLoading(false);
+        }
+
+        return;
+      }
 
       try {
         const analyticsRes = await api.get('/Dashboard/analytics', requestConfig);
@@ -192,7 +266,7 @@ export default function DashboardPageClient() {
       }
     }
     fetchStats();
-  }, [isSuperAdmin, isCustomerOnly]);
+  }, [isSuperAdmin, isCustomerOnly, isEmployeeOnly]);
 
   if (isCustomerOnly) {
     return null
@@ -203,12 +277,20 @@ export default function DashboardPageClient() {
     router.push(target)
   }
 
-  const quickActions = [
-    { label: t('dashboard.newCase'), path: '/cases', icon: <GavelIcon />, color: theme.palette.primary.main },
-    { label: t('dashboard.newCustomer'), path: '/customers', icon: <PeopleIcon />, color: theme.palette.primary.light },
-    { label: t('dashboard.viewBilling'), path: '/billing', icon: <ReceiptIcon />, color: theme.palette.secondary.main },
-    { label: t('dashboard.adminTasks'), path: '/tasks', icon: <EventIcon />, color: theme.palette.success.main },
-  ];
+  const quickActions = isEmployeeOnly
+    ? [
+        { label: t('dashboard.workQueue', { defaultValue: 'My Work Queue' }), path: '/employee-workqueue', icon: <TaskIcon />, color: theme.palette.error.main },
+        { label: t('dashboard.myCases', { defaultValue: 'My Cases' }), path: '/cases', icon: <GavelIcon />, color: theme.palette.primary.main },
+        { label: t('dashboard.myTasks', { defaultValue: 'My Tasks' }), path: '/tasks', icon: <EventIcon />, color: theme.palette.success.main },
+        { label: t('dashboard.myLeads', { defaultValue: 'My Leads' }), path: '/intake', icon: <PeopleIcon />, color: theme.palette.primary.light },
+        { label: t('dashboard.myConsultations', { defaultValue: 'My Consultations' }), path: '/consultations', icon: <ReceiptIcon />, color: theme.palette.secondary.main },
+      ]
+    : [
+        { label: t('dashboard.newCase'), path: '/cases', icon: <GavelIcon />, color: theme.palette.primary.main },
+        { label: t('dashboard.newCustomer'), path: '/customers', icon: <PeopleIcon />, color: theme.palette.primary.light },
+        { label: t('dashboard.viewBilling'), path: '/billing', icon: <ReceiptIcon />, color: theme.palette.secondary.main },
+        { label: t('dashboard.adminTasks'), path: '/tasks', icon: <EventIcon />, color: theme.palette.success.main },
+      ];
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4, minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -245,7 +327,9 @@ export default function DashboardPageClient() {
               </Typography>
             </Box>
             <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 500, maxWidth: 600 }}>
-              {t('dashboard.subtitle') || 'Here is what is happening with your legal practice today.'}
+              {isEmployeeOnly
+                ? t('dashboard.employeeSubtitle', { defaultValue: 'Here is the work currently assigned to you.' })
+                : (t('dashboard.subtitle') || 'Here is what is happening with your legal practice today.')}
             </Typography>
           </Box>
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
@@ -270,9 +354,9 @@ export default function DashboardPageClient() {
                   boxShadow: '0 12px 28px -16px rgba(0,0,0,0.22)'
                 }
               }}
-              onClick={() => navigate('/cases')}
+              onClick={() => navigate(isEmployeeOnly ? '/employee-workqueue' : '/cases')}
             >
-              {t('dashboard.viewAllCases') || 'View All Cases'}
+              {isEmployeeOnly ? t('dashboard.workQueue', { defaultValue: 'My Work Queue' }) : (t('dashboard.viewAllCases') || 'View All Cases')}
             </Button>
           </Box>
         </Box>
@@ -281,29 +365,31 @@ export default function DashboardPageClient() {
       <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 0 } }}>
         {/* Stats Grid */}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-          <Box><StatCard title={t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color={theme.palette.primary.main} loading={loading} onClick={() => navigate('/cases')} trend={stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
-          <Box><StatCard title={t('dashboard.customers')} value={stats.customers} icon={<PeopleIcon />} color={theme.palette.primary.light} loading={loading} onClick={() => navigate('/customers')} /></Box>
-          <Box><StatCard title={t('dashboard.employees')} value={stats.employees} icon={<BadgeIcon />} color={theme.palette.secondary.main} loading={loading} onClick={() => navigate('/employees')} /></Box>
-          <Box><StatCard title={t('dashboard.files')} value={stats.files} icon={<FolderIcon />} color={theme.palette.warning.main} loading={loading} onClick={() => navigate('/files')} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myCases', { defaultValue: 'My Cases' }) : t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color={theme.palette.primary.main} loading={loading} onClick={() => navigate('/cases')} trend={isEmployeeOnly ? undefined : stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myTasks', { defaultValue: 'My Tasks' }) : t('dashboard.customers')} value={isEmployeeOnly ? employeeMetrics.assignedTasks : stats.customers} icon={<PeopleIcon />} color={theme.palette.primary.light} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/tasks' : '/customers')} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myLeads', { defaultValue: 'My Leads' }) : t('dashboard.employees')} value={isEmployeeOnly ? employeeMetrics.assignedLeads : stats.employees} icon={<BadgeIcon />} color={theme.palette.secondary.main} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/intake' : '/employees')} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myConsultations', { defaultValue: 'My Consultations' }) : t('dashboard.files')} value={isEmployeeOnly ? employeeMetrics.assignedConsultations : stats.files} icon={<FolderIcon />} color={theme.palette.warning.main} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/consultations' : '/files')} /></Box>
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
           <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('billing.title') || 'Billing'}</Typography>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{isEmployeeOnly ? t('dashboard.openCases', { defaultValue: 'Open Cases' }) : (t('billing.title') || 'Billing')}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
-              {stats.revenueThisMonth.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}
+              {isEmployeeOnly ? employeeMetrics.openCases.toLocaleString(numberLocale) : stats.revenueThisMonth.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}
             </Typography>
-            <Typography variant="caption" color={stats.revenueTrend >= 0 ? 'success.main' : 'error.main'} fontWeight={700}>
-              {stats.revenueTrend >= 0 ? '+' : ''}{stats.revenueTrend}% {t('dashboard.thisMonth')}
-            </Typography>
+            {!isEmployeeOnly && (
+              <Typography variant="caption" color={stats.revenueTrend >= 0 ? 'success.main' : 'error.main'} fontWeight={700}>
+                {stats.revenueTrend >= 0 ? '+' : ''}{stats.revenueTrend}% {t('dashboard.thisMonth')}
+              </Typography>
+            )}
           </Paper>
           <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('sitings.upcoming') || 'Upcoming Hearings'}</Typography>
-            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{stats.upcomingHearings}</Typography>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{isEmployeeOnly ? t('dashboard.qualifiedLeads', { defaultValue: 'Qualified Leads' }) : (t('sitings.upcoming') || 'Upcoming Hearings')}</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{isEmployeeOnly ? employeeMetrics.qualifiedLeads : stats.upcomingHearings}</Typography>
           </Paper>
           <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('tasks.overdue') || 'Overdue Tasks'}</Typography>
-            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{stats.overdueTasks}</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{isEmployeeOnly ? employeeMetrics.overdueTasks : stats.overdueTasks}</Typography>
           </Paper>
         </Box>
       {/* Quick Actions & Recent Cases */}
@@ -421,6 +507,77 @@ export default function DashboardPageClient() {
           </Paper>
         </Box>
       </Box>
+
+      {isEmployeeOnly && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3, mt: 4 }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+              <Typography variant="h6" fontWeight={800}>
+                {t('dashboard.myOverdueTasks', { defaultValue: 'My Overdue Tasks' })}
+              </Typography>
+              <Button size="small" onClick={() => navigate('/tasks')} sx={{ fontWeight: 700 }}>
+                {t('app.viewAll')}
+              </Button>
+            </Box>
+            {employeeWorkload.overdueTasks.length > 0 ? (
+              <List disablePadding>
+                {employeeWorkload.overdueTasks.map((task, index) => (
+                  <React.Fragment key={task.id ?? index}>
+                    <ListItem sx={{ px: 0, py: 1.25 }}>
+                      <ListItemAvatar>
+                        <Avatar sx={{ bgcolor: alpha(theme.palette.error.main, 0.12), color: 'error.main', borderRadius: 2 }}>
+                          <EventIcon />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={<Typography fontWeight={700}>{task.taskName || task.task_Name || t('tasks.task', { defaultValue: 'Task' })}</Typography>}
+                        secondary={task.taskReminderDate ? new Date(task.taskReminderDate).toLocaleString(numberLocale) : t('common.noData', { defaultValue: 'No data' })}
+                      />
+                    </ListItem>
+                    {index < employeeWorkload.overdueTasks.length - 1 && <Divider component="li" />}
+                  </React.Fragment>
+                ))}
+              </List>
+            ) : (
+              <Typography color="text.secondary">{t('dashboard.noOverdueTasks', { defaultValue: 'No overdue tasks assigned to you.' })}</Typography>
+            )}
+          </Paper>
+
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+              <Typography variant="h6" fontWeight={800}>
+                {t('dashboard.myFollowUps', { defaultValue: 'My Follow-ups' })}
+              </Typography>
+              <Button size="small" onClick={() => navigate('/intake')} sx={{ fontWeight: 700 }}>
+                {t('app.viewAll')}
+              </Button>
+            </Box>
+            {employeeWorkload.followUps.length > 0 ? (
+              <List disablePadding>
+                {employeeWorkload.followUps.map((lead, index) => (
+                  <React.Fragment key={lead.id ?? index}>
+                    <ListItem sx={{ px: 0, py: 1.25 }}>
+                      <ListItemAvatar>
+                        <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.12), color: 'warning.main', borderRadius: 2 }}>
+                          <PeopleIcon />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={<Typography fontWeight={700}>{lead.fullName || t('customers.customer', { defaultValue: 'Lead' })}</Typography>}
+                        secondary={lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleString(numberLocale) : t('common.noData', { defaultValue: 'No data' })}
+                      />
+                      <Chip size="small" label={lead.status || t('common.pending', { defaultValue: 'Pending' })} />
+                    </ListItem>
+                    {index < employeeWorkload.followUps.length - 1 && <Divider component="li" />}
+                  </React.Fragment>
+                ))}
+              </List>
+            ) : (
+              <Typography color="text.secondary">{t('dashboard.noFollowUps', { defaultValue: 'No follow-ups are scheduled right now.' })}</Typography>
+            )}
+          </Paper>
+        </Box>
+      )}
 
       {/* System Info */}
       <Paper 

@@ -90,9 +90,10 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export default function TrustAccountingPage() {
   const { t } = useTranslation();
-  const { hasRole } = useAuth();
+  const { hasAnyRole } = useAuth();
   const { formatCurrency } = useCurrency();
-  const isAdmin = hasRole("Admin");
+  const canManageTrust = hasAnyRole("Admin", "SuperAdmin");
+  const isEmployeeOnly = !canManageTrust;
 
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -240,8 +241,16 @@ export default function TrustAccountingPage() {
   }, [selectedCustomerId]);
 
   useEffect(() => {
-    void loadReconciliations(1);
-  }, [reconciliationFromDate, reconciliationToDate]);
+    if (canManageTrust) {
+      void loadReconciliations(1);
+    }
+  }, [reconciliationFromDate, reconciliationToDate, canManageTrust]);
+
+  useEffect(() => {
+    if (!canManageTrust && tab === 2) {
+      setTab(1);
+    }
+  }, [canManageTrust, tab]);
 
   async function submitDeposit() {
     try {
@@ -392,9 +401,16 @@ export default function TrustAccountingPage() {
       <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2} sx={{ mb: 3 }}>
         <Stack direction="row" spacing={1.5} alignItems="center">
           <TrustIcon color="primary" />
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
-            {t("trust.management")}
-          </Typography>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 800 }}>
+              {isEmployeeOnly ? t("trust.employeeTitle", { defaultValue: "Assigned Trust Ledger" }) : t("trust.management")}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isEmployeeOnly
+                ? t("trust.employeeSubtitle", { defaultValue: "Read-only balances and ledgers for customers linked to your assigned cases." })
+                : t("trust.subtitle", { defaultValue: "Manage trust balances, ledgers, and reconciliations." })}
+            </Typography>
+          </Box>
         </Stack>
         <Stack direction="row" spacing={1.5}>
           <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => void loadOverview()} disabled={loading}>
@@ -402,6 +418,12 @@ export default function TrustAccountingPage() {
           </Button>
         </Stack>
       </Stack>
+
+      {isEmployeeOnly && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t("trust.employeeHint", { defaultValue: "You can review only the customers assigned to your cases. Reconciliations and adjustments stay admin-only." })}
+        </Alert>
+      )}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 3 }}>
@@ -422,7 +444,7 @@ export default function TrustAccountingPage() {
         <Tabs value={tab} onChange={(_, v) => setTab(v)}>
           <Tab label={t("trust.accounts")} />
           <Tab label={t("trust.ledger")} />
-          <Tab label={t("trust.reconciliations")} />
+          {canManageTrust && <Tab label={t("trust.reconciliations")} />}
         </Tabs>
       </Paper>
 
@@ -497,7 +519,7 @@ export default function TrustAccountingPage() {
             <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => void exportLedger("pdf")} disabled={!selectedCustomerId}>PDF</Button>
           </Stack>
 
-          {isAdmin && (
+          {canManageTrust && (
             <Stack direction={{ xs: "column", md: "row" }} spacing={1.5} sx={{ mb: 2 }}>
               <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenDeposit(true)}>{t("trust.addDeposit")}</Button>
               <Button variant="contained" color="warning" startIcon={<AddIcon />} onClick={() => setOpenWithdrawal(true)}>{t("trust.addWithdrawal")}</Button>
@@ -541,7 +563,7 @@ export default function TrustAccountingPage() {
         </Paper>
       )}
 
-      {tab === 2 && (
+      {canManageTrust && tab === 2 && (
         <Paper sx={{ p: 2 }}>
           <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ mb: 2 }}>
             <TextField label={t("billing.fromDate")} type="date" InputLabelProps={{ shrink: true }} value={reconciliationFromDate} onChange={(e) => setReconciliationFromDate(e.target.value)} />
@@ -549,7 +571,7 @@ export default function TrustAccountingPage() {
             <Button variant="outlined" onClick={() => void loadReconciliations(1)}>{t("common.filter")}</Button>
             <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => void exportReconciliations("csv")}>CSV</Button>
             <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => void exportReconciliations("pdf")}>PDF</Button>
-            {isAdmin && (
+            {canManageTrust && (
               <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenReconciliation(true)}>
                 {t("trust.createReconciliation")}
               </Button>

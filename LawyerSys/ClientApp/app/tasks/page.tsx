@@ -24,7 +24,8 @@ export default function AdminTasksPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl';
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasRole } = useAuth();
+  const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !hasRole('SuperAdmin');
   const { confirm, confirmDialog } = useConfirmDialog();
 
   const [items, setItems] = useState<AdminTaskDto[]>([]);
@@ -46,7 +47,7 @@ export default function AdminTasksPage() {
     try {
       const [tasksRes, empRes] = await Promise.all([
         api.get(`/AdminTasks?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`),
-        api.get('/Employees')
+        isEmployeeOnly ? Promise.resolve({ data: [] }) : api.get('/Employees')
       ]);
 
       const tasksData = tasksRes.data?.items ? tasksRes.data.items : tasksRes.data;
@@ -61,7 +62,7 @@ export default function AdminTasksPage() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [isEmployeeOnly]);
 
   function openCreate() {
     setEditItem(null);
@@ -132,8 +133,8 @@ export default function AdminTasksPage() {
             <TaskIcon fontSize="medium" />
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{t('tasks.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{t('tasks.totalTasks')}: <strong>{totalCount || items.length}</strong></Typography>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{isEmployeeOnly ? t('tasks.myTasks', { defaultValue: 'My Tasks' }) : t('tasks.management')}</Typography>
+            <Typography variant="body2" color="text.secondary">{isEmployeeOnly ? t('tasks.totalAssigned', { defaultValue: 'Assigned tasks' }) : t('tasks.totalTasks')}: <strong>{totalCount || items.length}</strong></Typography>
           </Box>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -145,10 +146,16 @@ export default function AdminTasksPage() {
           </Tooltip>
           <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={openCreate}
             sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
-            {t('tasks.createNew')}
+            {isEmployeeOnly ? t('tasks.createMyTask', { defaultValue: 'Create my task' }) : t('tasks.createNew')}
           </Button>
         </Box>
       </Box>
+
+      <Alert severity={isEmployeeOnly ? 'info' : 'warning'} sx={{ mb: 2 }}>
+        {isEmployeeOnly
+          ? t('tasks.employeeHint', { defaultValue: 'Only tasks assigned to you appear here.' })
+          : t('tasks.assignmentHint', { defaultValue: 'Employee access to tasks is assignment-based. Assign the task to the right employee so it appears in their queue and notifications.' })}
+      </Alert>
 
       {/* Table */}
       <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
@@ -251,20 +258,22 @@ export default function AdminTasksPage() {
             <TextField fullWidth label={t('tasks.taskType')} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} variant="outlined" />
             <TextField fullWidth label={t('tasks.startDate')} type="date" value={form.taskDate} onChange={(e) => setForm({ ...form, taskDate: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
             <TextField fullWidth label={t('tasks.reminderDate')} type="datetime-local" value={form.taskReminderDate} onChange={(e) => setForm({ ...form, taskReminderDate: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
-            <SearchableSelect<number>
-              label={t('tasks.employee')}
-              value={form.employeeId || 0}
-              onChange={(value) => setForm({ ...form, employeeId: value ?? 0 })}
-              options={[
-                { value: 0, label: '-' },
-                ...employees.map((emp) => ({
-                  value: emp.id,
-                  label: emp.identity?.fullName || emp.identity?.email || '-',
-                  keywords: [emp.identity?.email || ''],
-                })),
-              ]}
-              disableClearable
-            />
+            {!isEmployeeOnly && (
+              <SearchableSelect<number>
+                label={t('tasks.employee')}
+                value={form.employeeId || 0}
+                onChange={(value) => setForm({ ...form, employeeId: value ?? 0 })}
+                options={[
+                  { value: 0, label: '-' },
+                  ...employees.map((emp) => ({
+                    value: emp.id,
+                    label: emp.identity?.fullName || emp.identity?.email || '-',
+                    keywords: [emp.identity?.email || ''],
+                  })),
+                ]}
+                disableClearable
+              />
+            )}
             <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField fullWidth label={t('tasks.notes')} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} variant="outlined" multiline rows={3} />
             </Box>

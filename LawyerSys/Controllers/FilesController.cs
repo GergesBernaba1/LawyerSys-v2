@@ -19,12 +19,18 @@ public class FilesController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IWebHostEnvironment _env;
     private readonly IUserContext _userContext;
+    private readonly IEmployeeAccessService _employeeAccessService;
 
-    public FilesController(LegacyDbContext context, IWebHostEnvironment env, IUserContext userContext)
+    public FilesController(
+        LegacyDbContext context,
+        IWebHostEnvironment env,
+        IUserContext userContext,
+        IEmployeeAccessService employeeAccessService)
     {
         _context = context;
         _env = env;
         _userContext = userContext;
+        _employeeAccessService = employeeAccessService;
     }
 
     // GET: api/files
@@ -45,6 +51,17 @@ public class FilesController : ControllerBase
                 .Select(cf => cf.File_Id);
 
             query = query.Where(f => fileIds.Contains(f.Id));
+        }
+        else if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var assignedCaseCodes = await _employeeAccessService.GetAssignedCaseCodesAsync();
+            var fileIds = _context.Cases_Files
+                .Where(cf => assignedCaseCodes.Contains(cf.Case_Id))
+                .Select(cf => cf.File_Id);
+
+            query = assignedCaseCodes.Length == 0
+                ? query.Where(_ => false)
+                : query.Where(f => fileIds.Contains(f.Id));
         }
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -168,6 +185,8 @@ public class FilesController : ControllerBase
         var file = await _context.Files.FindAsync(id);
         if (file == null)
             return NotFound(new { message = "File not found" });
+        if (!await CanAccessFileAsync(id))
+            return Forbid();
 
         if (dto.Path != null) file.Path = dto.Path;
         if (dto.Code != null) file.Code = dto.Code;
@@ -186,6 +205,8 @@ public class FilesController : ControllerBase
         var file = await _context.Files.FindAsync(id);
         if (file == null)
             return NotFound(new { message = "File not found" });
+        if (!await CanAccessFileAsync(id))
+            return Forbid();
 
         // Delete physical file if exists
         if (!string.IsNullOrEmpty(file.Path))
@@ -291,18 +312,31 @@ public class FilesController : ControllerBase
     private async Task<bool> CanAccessFileAsync(int fileId)
     {
         var customerId = await GetCurrentCustomerIdAsync();
-        if (!customerId.HasValue)
+        if (customerId.HasValue)
         {
-            return true;
+            if (customerId.Value <= 0)
+            {
+                return false;
+            }
+
+            return await _context.Cases_Files.AnyAsync(cf =>
+                cf.File_Id == fileId &&
+                _context.Custmors_Cases.Any(cc => cc.Case_Id == cf.Case_Id && cc.Custmors_Id == customerId.Value));
         }
 
-        if (customerId.Value <= 0)
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
-            return false;
+            var assignedCaseCodes = await _employeeAccessService.GetAssignedCaseCodesAsync();
+            if (assignedCaseCodes.Length == 0)
+            {
+                return false;
+            }
+
+            return await _context.Cases_Files.AnyAsync(cf =>
+                cf.File_Id == fileId &&
+                assignedCaseCodes.Contains(cf.Case_Id));
         }
 
-        return await _context.Cases_Files.AnyAsync(cf =>
-            cf.File_Id == fileId &&
-            _context.Custmors_Cases.Any(cc => cc.Case_Id == cf.Case_Id && cc.Custmors_Id == customerId.Value));
+        return true;
     }
 }

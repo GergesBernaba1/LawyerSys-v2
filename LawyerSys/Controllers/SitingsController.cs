@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
@@ -14,11 +15,16 @@ namespace LawyerSys.Controllers;
 public class SitingsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
 
-    public SitingsController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
+    public SitingsController(
+        LegacyDbContext context,
+        IEmployeeAccessService employeeAccessService,
+        IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
     }
 
@@ -27,6 +33,14 @@ public class SitingsController : ControllerBase
     {
         IQueryable<Siting> query = _context.Sitings
             .Include(st => st.Cases_Sitings);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var assignedCaseCodes = await _employeeAccessService.GetAssignedCaseCodesAsync();
+            query = assignedCaseCodes.Length == 0
+                ? query.Where(_ => false)
+                : query.Where(st => st.Cases_Sitings.Any(cs => assignedCaseCodes.Contains(cs.Case_Code)));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -62,6 +76,15 @@ public class SitingsController : ControllerBase
         if (siting == null)
             return NotFound(new { message = "Siting not found" });
 
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var caseCodes = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
+            if (!await CanAccessAllCasesAsync(caseCodes))
+            {
+                return Forbid();
+            }
+        }
+
         return Ok(MapToDto(siting));
     }
 
@@ -77,6 +100,19 @@ public class SitingsController : ControllerBase
             var caseExists = await _context.Cases.AnyAsync(c => c.Code == dto.CaseCode.Value);
             if (!caseExists)
                 return BadRequest(new { message = "Case not found" });
+        }
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            if (!dto.CaseCode.HasValue)
+            {
+                return BadRequest(new { message = "Employees must link a siting to an assigned case." });
+            }
+
+            if (!await _employeeAccessService.CanAccessCaseAsync(dto.CaseCode.Value))
+            {
+                return Forbid();
+            }
         }
 
         var siting = new Siting
@@ -128,6 +164,15 @@ public class SitingsController : ControllerBase
         if (siting == null)
             return NotFound(new { message = "Siting not found" });
 
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var caseCodes = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
+            if (!await CanAccessAllCasesAsync(caseCodes))
+            {
+                return Forbid();
+            }
+        }
+
         if (dto.SitingTime.HasValue) siting.Siting_Time = dto.SitingTime.Value;
         if (dto.SitingDate.HasValue) siting.Siting_Date = dto.SitingDate.Value;
         if (dto.SitingNotification.HasValue) siting.Siting_Notification = dto.SitingNotification.Value;
@@ -159,6 +204,15 @@ public class SitingsController : ControllerBase
         if (siting == null)
             return NotFound(new { message = "Siting not found" });
 
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var caseCodesToValidate = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
+            if (!await CanAccessAllCasesAsync(caseCodesToValidate))
+            {
+                return Forbid();
+            }
+        }
+
         var caseCodes = siting.Cases_Sitings
             .Select(item => item.Case_Code)
             .Distinct()
@@ -188,4 +242,23 @@ public class SitingsController : ControllerBase
         JudgeName = s.Judge_Name,
         Notes = s.Notes
     };
+
+    private async Task<bool> CanAccessAllCasesAsync(IEnumerable<int> caseCodes)
+    {
+        var distinctCaseCodes = caseCodes.Distinct().ToArray();
+        if (distinctCaseCodes.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (var caseCode in distinctCaseCodes)
+        {
+            if (!await _employeeAccessService.CanAccessCaseAsync(caseCode))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

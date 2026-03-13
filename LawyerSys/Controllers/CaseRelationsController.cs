@@ -261,6 +261,9 @@ public class CaseRelationsController : ControllerBase
     [HttpGet("{caseCode}/sitings")]
     public async Task<ActionResult> GetCaseSitings(int caseCode)
     {
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
         var relations = await _context.Cases_Sitings
             .Include(cs => cs.Siting)
             .Where(cs => cs.Case_Code == caseCode)
@@ -279,6 +282,9 @@ public class CaseRelationsController : ControllerBase
     [HttpPost("{caseCode}/sitings/{sitingId}")]
     public async Task<ActionResult> AddSitingToCase(int caseCode, int sitingId)
     {
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
         var exists = await _context.Cases_Sitings
             .AnyAsync(cs => cs.Case_Code == caseCode && cs.Siting_Id == sitingId);
 
@@ -301,6 +307,9 @@ public class CaseRelationsController : ControllerBase
     [HttpDelete("{caseCode}/sitings/{sitingId}")]
     public async Task<ActionResult> RemoveSitingFromCase(int caseCode, int sitingId)
     {
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
         var relation = await _context.Cases_Sitings
             .FirstOrDefaultAsync(cs => cs.Case_Code == caseCode && cs.Siting_Id == sitingId);
 
@@ -318,6 +327,9 @@ public class CaseRelationsController : ControllerBase
     [HttpGet("{caseCode}/files")]
     public async Task<ActionResult> GetCaseFiles(int caseCode)
     {
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
         var relations = await _context.Cases_Files
             .Include(cf => cf.File)
             .Where(cf => cf.Case_Id == caseCode)
@@ -336,6 +348,9 @@ public class CaseRelationsController : ControllerBase
     [HttpPost("{caseCode}/files/{fileId}")]
     public async Task<ActionResult> AddFileToCase(int caseCode, int fileId)
     {
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
         var exists = await _context.Cases_Files
             .AnyAsync(cf => cf.Case_Id == caseCode && cf.File_Id == fileId);
 
@@ -365,6 +380,9 @@ public class CaseRelationsController : ControllerBase
     [HttpDelete("{caseCode}/files/{fileId}")]
     public async Task<ActionResult> RemoveFileFromCase(int caseCode, int fileId)
     {
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
         var relation = await _context.Cases_Files
             .FirstOrDefaultAsync(cf => cf.Case_Id == caseCode && cf.File_Id == fileId);
 

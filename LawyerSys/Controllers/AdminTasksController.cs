@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +15,17 @@ namespace LawyerSys.Controllers;
 public class AdminTasksController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IEmployeeAccessService _employeeAccessService;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public AdminTasksController(LegacyDbContext context)
+    public AdminTasksController(
+        LegacyDbContext context,
+        IEmployeeAccessService employeeAccessService,
+        IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _employeeAccessService = employeeAccessService;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [HttpGet]
@@ -25,6 +34,15 @@ public class AdminTasksController : ControllerBase
         IQueryable<AdminstrativeTask> query = _context.AdminstrativeTasks
             .Include(t => t.employee)
                 .ThenInclude(e => e!.Users);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue)
+                return Ok(Array.Empty<AdminTaskDto>());
+
+            query = query.Where(t => t.employee_Id == employeeId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -68,6 +86,9 @@ public class AdminTasksController : ControllerBase
         if (task == null)
             return NotFound(new { message = "Task not found" });
 
+        if (!await CanAccessTaskAsync(task))
+            return Forbid();
+
         return Ok(MapToDto(task));
     }
 
@@ -75,12 +96,21 @@ public class AdminTasksController : ControllerBase
     public async Task<ActionResult<IEnumerable<AdminTaskDto>>> GetUpcomingTasks([FromQuery] int days = 7)
     {
         var futureDate = DateTime.Now.AddDays(days);
-        var tasks = await _context.AdminstrativeTasks
+        IQueryable<AdminstrativeTask> query = _context.AdminstrativeTasks
             .Include(t => t.employee)
                 .ThenInclude(e => e!.Users)
-            .Where(t => t.Task_Reminder_Date <= futureDate && t.Task_Reminder_Date >= DateTime.Now)
-            .OrderBy(t => t.Task_Reminder_Date)
-            .ToListAsync();
+            .Where(t => t.Task_Reminder_Date <= futureDate && t.Task_Reminder_Date >= DateTime.Now);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue)
+                return Ok(Array.Empty<AdminTaskDto>());
+
+            query = query.Where(t => t.employee_Id == employeeId.Value);
+        }
+
+        var tasks = await query.OrderBy(t => t.Task_Reminder_Date).ToListAsync();
 
         return Ok(tasks.Select(MapToDto));
     }
@@ -88,6 +118,13 @@ public class AdminTasksController : ControllerBase
     [HttpGet("byemployee/{employeeId}")]
     public async Task<ActionResult<IEnumerable<AdminTaskDto>>> GetTasksByEmployee(int employeeId)
     {
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var currentEmployeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!currentEmployeeId.HasValue || currentEmployeeId.Value != employeeId)
+                return Forbid();
+        }
+
         var tasks = await _context.AdminstrativeTasks
             .Include(t => t.employee)
                 .ThenInclude(e => e!.Users)
@@ -103,6 +140,15 @@ public class AdminTasksController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue)
+                return Forbid();
+
+            dto.EmployeeId = employeeId.Value;
+        }
 
         var task = new AdminstrativeTask
         {
@@ -122,6 +168,13 @@ public class AdminTasksController : ControllerBase
             await _context.Entry(task).Reference(t => t.employee).LoadAsync();
             if (task.employee != null)
                 await _context.Entry(task.employee).Reference(e => e.Users).LoadAsync();
+
+            await _inAppNotificationService.NotifyEmployeeTaskAssignedAsync(
+                task.employee_Id.Value,
+                task.Id,
+                task.Task_Name,
+                task.Task_Reminder_Date,
+                HttpContext.RequestAborted);
         }
 
         return CreatedAtAction(nameof(GetAdminTask), new { id = task.Id }, MapToDto(task));
@@ -139,14 +192,43 @@ public class AdminTasksController : ControllerBase
         if (task == null)
             return NotFound(new { message = "Task not found" });
 
+        if (!await CanAccessTaskAsync(task))
+            return Forbid();
+
         if (dto.TaskName != null) task.Task_Name = dto.TaskName;
         if (dto.Type != null) task.Type = dto.Type;
         if (dto.TaskDate.HasValue) task.Task_Date = dto.TaskDate.Value;
         if (dto.TaskReminderDate.HasValue) task.Task_Reminder_Date = dto.TaskReminderDate.Value;
         if (dto.Notes != null) task.Notes = dto.Notes;
-        if (dto.EmployeeId.HasValue) task.employee_Id = dto.EmployeeId;
+        var previousEmployeeId = task.employee_Id;
+        if (dto.EmployeeId.HasValue)
+        {
+            if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+            {
+                var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+                if (!employeeId.HasValue)
+                    return Forbid();
+
+                task.employee_Id = employeeId.Value;
+            }
+            else
+            {
+                task.employee_Id = dto.EmployeeId;
+            }
+        }
 
         await _context.SaveChangesAsync();
+
+        if (task.employee_Id.HasValue && (previousEmployeeId != task.employee_Id || dto.TaskReminderDate.HasValue || dto.TaskName != null))
+        {
+            await _inAppNotificationService.NotifyEmployeeTaskAssignedAsync(
+                task.employee_Id.Value,
+                task.Id,
+                task.Task_Name,
+                task.Task_Reminder_Date,
+                HttpContext.RequestAborted);
+        }
+
         return Ok(MapToDto(task));
     }
 
@@ -154,13 +236,31 @@ public class AdminTasksController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAdminTask(int id)
     {
-        var task = await _context.AdminstrativeTasks.FindAsync(id);
+        var task = await _context.AdminstrativeTasks
+            .Include(t => t.employee)
+                .ThenInclude(e => e!.Users)
+            .FirstOrDefaultAsync(t => t.Id == id);
         if (task == null)
             return NotFound(new { message = "Task not found" });
+
+        if (!await CanAccessTaskAsync(task))
+            return Forbid();
 
         _context.AdminstrativeTasks.Remove(task);
         await _context.SaveChangesAsync();
         return Ok(new { message = "Task deleted" });
+    }
+
+    private async Task<bool> CanAccessTaskAsync(AdminstrativeTask task)
+    {
+        if (await _employeeAccessService.IsCurrentUserAdminAsync())
+            return true;
+
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+            return false;
+
+        var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+        return employeeId.HasValue && task.employee_Id == employeeId.Value;
     }
 
     private static AdminTaskDto MapToDto(AdminstrativeTask t) => new()

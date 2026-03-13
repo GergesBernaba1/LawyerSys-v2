@@ -1,6 +1,8 @@
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
+using LawyerSys.Services.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +15,19 @@ public class IntakeController : ControllerBase
 {
     private readonly LegacyDbContext _legacy;
     private readonly ApplicationDbContext _appDb;
+    private readonly IEmployeeAccessService _employeeAccessService;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public IntakeController(LegacyDbContext legacy, ApplicationDbContext appDb)
+    public IntakeController(
+        LegacyDbContext legacy,
+        ApplicationDbContext appDb,
+        IEmployeeAccessService employeeAccessService,
+        IInAppNotificationService inAppNotificationService)
     {
         _legacy = legacy;
         _appDb = appDb;
+        _employeeAccessService = employeeAccessService;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [AllowAnonymous]
@@ -51,6 +61,15 @@ public class IntakeController : ControllerBase
     public async Task<ActionResult<IEnumerable<IntakeLeadDto>>> GetLeads([FromQuery] string? status = null, [FromQuery] string? search = null, [FromQuery] int? assignedEmployeeId = null)
     {
         IQueryable<IntakeLead> query = _legacy.IntakeLeads.OrderByDescending(x => x.CreatedAt);
+
+        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+        {
+            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+            if (!employeeId.HasValue)
+                return Ok(Array.Empty<IntakeLeadDto>());
+
+            query = query.Where(x => x.AssignedEmployeeId == employeeId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(status))
         {
@@ -103,6 +122,9 @@ public class IntakeController : ControllerBase
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
         if (lead == null) return NotFound(new { message = "Lead not found" });
 
+        if (!await CanAccessLeadAsync(lead))
+            return Forbid();
+
         return Ok(MapLead(lead));
     }
 
@@ -112,6 +134,9 @@ public class IntakeController : ControllerBase
     {
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
         if (lead == null) return NotFound(new { message = "Lead not found" });
+
+        if (!await CanAccessLeadAsync(lead))
+            return Forbid();
 
         var reasons = new List<string>();
 
@@ -158,6 +183,9 @@ public class IntakeController : ControllerBase
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
         if (lead == null) return NotFound(new { message = "Lead not found" });
 
+        if (!await CanAccessLeadAsync(lead))
+            return Forbid();
+
         lead.Status = dto.IsQualified ? "Qualified" : "Rejected";
         lead.QualificationNotes = dto.Notes;
         lead.UpdatedAt = DateTime.UtcNow;
@@ -170,6 +198,9 @@ public class IntakeController : ControllerBase
     [HttpPost("{id}/assign")]
     public async Task<ActionResult<IntakeLeadDto>> AssignLead(int id, [FromBody] AssignIntakeLeadDto dto)
     {
+        if (!await _employeeAccessService.IsCurrentUserAdminAsync())
+            return Forbid();
+
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
         if (lead == null) return NotFound(new { message = "Lead not found" });
 
@@ -182,6 +213,12 @@ public class IntakeController : ControllerBase
         lead.UpdatedAt = DateTime.UtcNow;
 
         await _legacy.SaveChangesAsync();
+        await _inAppNotificationService.NotifyEmployeeLeadAssignedAsync(
+            lead.AssignedEmployeeId.Value,
+            lead.Id,
+            lead.Subject,
+            lead.NextFollowUpAt,
+            HttpContext.RequestAborted);
 
         return Ok(MapLead(lead));
     }
@@ -262,6 +299,18 @@ public class IntakeController : ControllerBase
             userName = user.User_Name,
             temporaryPassword = user.Password
         });
+    }
+
+    private async Task<bool> CanAccessLeadAsync(IntakeLead lead)
+    {
+        if (await _employeeAccessService.IsCurrentUserAdminAsync())
+            return true;
+
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+            return false;
+
+        var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
+        return employeeId.HasValue && lead.AssignedEmployeeId == employeeId.Value;
     }
 
     private static IntakeLeadDto MapLead(IntakeLead x) => new()
