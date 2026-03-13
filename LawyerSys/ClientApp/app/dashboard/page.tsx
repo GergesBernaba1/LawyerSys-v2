@@ -34,7 +34,7 @@ import {
   TrendingUp as TrendingUpIcon,
   WavingHand as WavingHandIcon,
 } from '@mui/icons-material';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 
@@ -105,13 +105,12 @@ function StatCard({ title, value, icon, color, loading, onClick, trend, trendLab
 }
 
 export default function DashboardPageClient() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const params = useParams() as { locale?: string } | undefined;
-  const locale = params?.locale || 'ar';
   const { isAuthenticated, user, hasRole } = useAuth();
   const theme = useTheme();
-  const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
+  const currentLanguage = i18n.resolvedLanguage || i18n.language || 'ar';
+  const isRTL = theme.direction === 'rtl' || currentLanguage.startsWith('ar');
   const isSuperAdmin = hasRole('SuperAdmin');
   const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !isSuperAdmin;
   const isCustomerOnly = hasRole('Customer') && !hasRole('Admin') && !hasRole('Employee') && !isSuperAdmin;
@@ -273,8 +272,7 @@ export default function DashboardPageClient() {
   }
 
   const navigate = (path: string) => {
-    const target = `/${locale}${path}`
-    router.push(target)
+    router.push(path)
   }
 
   const quickActions = isEmployeeOnly
@@ -404,28 +402,60 @@ export default function DashboardPageClient() {
               {quickActions.map((action) => (
                 <Button 
                   key={action.label} 
-                  variant="outlined" 
-                  startIcon={!isRTL ? action.icon : undefined} 
-                  endIcon={isRTL ? action.icon : undefined} 
                   onClick={() => navigate(action.path)} 
                   sx={{ 
-                    justifyContent: isRTL ? 'flex-end' : 'flex-start', 
-                    py: 2, 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    py: 2.1, 
                     px: 2.5,
                     borderRadius: 3,
                     borderWidth: 2,
                     fontWeight: 700,
                     color: 'text.primary',
-                    borderColor: alpha(action.color, 0.2),
+                    bgcolor: alpha(action.color, 0.04),
+                    borderColor: alpha(action.color, 0.18),
+                    textTransform: 'none',
                     '&:hover': {
                       borderColor: action.color,
-                      bgcolor: alpha(action.color, 0.05),
+                      bgcolor: alpha(action.color, 0.09),
                       borderWidth: 2,
+                      transform: 'translateY(-1px)',
                     }
-                  }} 
+                  }}
+                  variant="outlined"
                   fullWidth
                 >
-                  {action.label}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                    <Avatar
+                      sx={{
+                        width: 34,
+                        height: 34,
+                        bgcolor: alpha(action.color, 0.14),
+                        color: action.color,
+                        borderRadius: 2,
+                      }}
+                    >
+                      {action.icon}
+                    </Avatar>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: '1rem',
+                        color: 'text.primary',
+                        textAlign: isRTL ? 'right' : 'left',
+                      }}
+                    >
+                      {action.label}
+                    </Typography>
+                  </Box>
+                  <ArrowForwardIcon
+                    sx={{
+                      color: action.color,
+                      opacity: 0.7,
+                      transform: isRTL ? 'rotate(180deg)' : 'none',
+                    }}
+                  />
                 </Button>
               ))}
             </Box>
