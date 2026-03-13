@@ -31,6 +31,7 @@ import {
   Avatar,
   useTheme,
   Pagination,
+  useMediaQuery,
 } from '@mui/material';
 import Grid from '@mui/material/Grid'
 import {
@@ -40,7 +41,7 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import api from '../../src/services/api';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useCurrency } from '../../src/hooks/useCurrency';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
@@ -58,16 +59,33 @@ type CaseItem = {
   status?: number; // matches backend Case.Status (enum int)
 };
 
+function normalizeCaseItem(raw: any): CaseItem {
+  return {
+    id: Number(raw?.id ?? raw?.Id ?? 0),
+    code: Number(raw?.code ?? raw?.Code ?? 0),
+    invitionsStatment: raw?.invitionsStatment ?? raw?.InvitionsStatment ?? '',
+    invitionType: raw?.invitionType ?? raw?.InvitionType ?? '',
+    invitionDate: raw?.invitionDate ?? raw?.InvitionDate ?? '',
+    totalAmount: Number(raw?.totalAmount ?? raw?.TotalAmount ?? 0),
+    notes: raw?.notes ?? raw?.Notes ?? '',
+    status: Number(raw?.status ?? raw?.Status ?? 0),
+  };
+}
+
 export default function CasesPageClient() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const params = useParams() as { locale?: string } | undefined;
-  const locale = params?.locale || 'ar';
-  const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const activeLanguage = (i18n.resolvedLanguage || i18n.language || '').toLowerCase();
+  const isRTL = activeLanguage.startsWith('ar');
   const { formatCurrency } = useCurrency();
   const router = useRouter();
-  const { isAuthenticated, hasAnyRole } = useAuth();
+  const { hasAnyRole, user } = useAuth();
   const { confirm, confirmDialog } = useConfirmDialog();
+  const isCustomerOnly = Boolean(
+    user?.roles?.includes('Customer') &&
+    !hasAnyRole('SuperAdmin', 'Admin', 'Employee')
+  );
 
   const [items, setItems] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -113,7 +131,7 @@ export default function CasesPageClient() {
 
       // support legacy array response OR new paged response
       const casesData = r.data?.items ? r.data.items : r.data;
-      setItems(casesData || []);
+      setItems((casesData || []).map(normalizeCaseItem));
       if (r.data?.totalCount) setTotalCount(r.data.totalCount);
 
       setCourts(courtsRes.data || []);
@@ -207,7 +225,28 @@ export default function CasesPageClient() {
     }
   }
 
-  const navigate = (path: string) => router.push(`/${locale}${path}`);
+  const openCaseDetails = (caseCode: number) => {
+    router.push(`/cases/${caseCode}`);
+  };
+
+  const visibleColumnCount = isCustomerOnly ? 5 : 7;
+  const actionButtonSx = {
+    minWidth: isSmallScreen ? 96 : 110,
+    borderRadius: 999,
+    px: 2,
+    fontWeight: 700,
+    boxShadow: 'none',
+    textTransform: 'none',
+  };
+  const paginationContainerSx = {
+    p: 2,
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    gap: 2,
+    flexWrap: isSmallScreen ? 'wrap' : 'nowrap',
+    flexDirection: isRTL ? 'row-reverse' : 'row',
+  } as const;
 
   return (
     <Box dir={isRTL ? 'rtl' : 'ltr'}>
@@ -291,15 +330,19 @@ export default function CasesPageClient() {
         }}
       >
         <TableContainer>
-          <Table sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: isCustomerOnly ? 520 : 650 }}>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.code')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.type')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.status')}</TableCell>
                 <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.date')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.amount')}</TableCell>
-                <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.notes')}</TableCell>
+                {!isCustomerOnly && (
+                  <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.amount')}</TableCell>
+                )}
+                {!isCustomerOnly && (
+                  <TableCell sx={{ py: 2.5, textAlign: isRTL ? 'right' : 'left' }}>{t('cases.notes')}</TableCell>
+                )}
                 <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2.5 }}>{t('cases.actions')}</TableCell>
               </TableRow>
             </TableHead>
@@ -307,7 +350,7 @@ export default function CasesPageClient() {
               {loading ? (
                 Array.from(new Array(5)).map((_, i) => (
                   <TableRow key={i}>
-                    {[...Array(7)].map((__, j) => (
+                    {[...Array(visibleColumnCount)].map((__, j) => (
                       <TableCell key={j} sx={{ textAlign: isRTL ? 'right' : 'left' }}>
                         <Skeleton variant="text" />
                       </TableCell>
@@ -316,7 +359,7 @@ export default function CasesPageClient() {
                 ))
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 10 }}>
+                  <TableCell colSpan={visibleColumnCount} align="center" sx={{ py: 10 }}>
                     <Box sx={{ opacity: 0.5, textAlign: 'center' }}>
                       <Box sx={{ mb: 2, fontSize: 48, color: 'primary.main', opacity: 0.3 }}>
                         <GavelIcon fontSize="inherit" />
@@ -358,24 +401,30 @@ export default function CasesPageClient() {
                         return <Chip label={t(`cases.statuses.${labels[s].replace(/ /g,'').toLowerCase()}`) ?? labels[s]} size="small" color={colors[s]} variant="outlined" sx={{ fontWeight: 700 }} />;
                       })()}
                     </TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>{item.invitionDate?.slice(0,10) || '-'}</TableCell>
-                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      {item.totalAmount ? (
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
-                          {formatCurrency(item.totalAmount)}
-                        </Typography>
-                      ) : '-'}
+                    <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left', whiteSpace: isSmallScreen ? 'nowrap' : 'normal' }}>
+                      {item.invitionDate?.slice(0,10) || '-'}
                     </TableCell>
-                    <TableCell sx={{ py: 2, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', textAlign: isRTL ? 'right' : 'left' }}>
-                      {item.notes || '-'}
-                    </TableCell>
+                    {!isCustomerOnly && (
+                      <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
+                        {item.totalAmount ? (
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
+                            {formatCurrency(item.totalAmount)}
+                          </Typography>
+                        ) : '-'}
+                      </TableCell>
+                    )}
+                    {!isCustomerOnly && (
+                      <TableCell sx={{ py: 2, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', textAlign: isRTL ? 'right' : 'left' }}>
+                        {item.notes || '-'}
+                      </TableCell>
+                    )}
                     <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
-                      <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: isRTL ? 'flex-start' : 'flex-end', flexWrap: 'wrap' }}>
                         <Button 
                           size="small" 
-                          variant="text"
-                          onClick={()=>navigate(`/cases/${item.code}`)}
-                          sx={{ fontWeight: 600 }}
+                          variant="contained"
+                          onClick={() => openCaseDetails(item.code)}
+                          sx={actionButtonSx}
                         >
                           {t('app.details') || 'Details'}
                         </Button>
@@ -403,7 +452,25 @@ export default function CasesPageClient() {
         </TableContainer>
 
         {/* Pagination */}
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Box sx={paginationContainerSx}>
+          <SearchableSelect<number>
+            size="small"
+            label={t('app.pageSize', { defaultValue: 'Rows per page' })}
+            value={pageSize}
+            onChange={(value) => {
+              const ps = value ?? 10;
+              setPageSize(ps);
+              setPage(1);
+              load(1);
+            }}
+            options={[
+              { value: 5, label: '5' },
+              { value: 10, label: '10' },
+              { value: 20, label: '20' },
+            ]}
+            disableClearable
+            sx={{ width: 170, flex: '0 0 auto' }}
+          />
           <Pagination
             count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
             page={page}
@@ -412,25 +479,8 @@ export default function CasesPageClient() {
             shape="rounded"
             showFirstButton
             showLastButton
+            sx={{ flex: '0 0 auto' }}
           />
-        <SearchableSelect<number>
-          size="small"
-          label="/page"
-          value={pageSize}
-          onChange={(value) => {
-            const ps = value ?? 10;
-            setPageSize(ps);
-            setPage(1);
-            load(1);
-          }}
-          options={[
-            { value: 5, label: '5' },
-            { value: 10, label: '10' },
-            { value: 20, label: '20' },
-          ]}
-          disableClearable
-          sx={{ minWidth: 90 }}
-        />
         </Box>
       </Paper>
 

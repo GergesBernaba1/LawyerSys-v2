@@ -12,6 +12,8 @@ using System.Globalization;
 using System.Security.Claims;
 using Microsoft.Extensions.Localization;
 using LawyerSys.Resources;
+using LawyerSys.DTOs;
+using LawyerSys.Data;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -21,6 +23,7 @@ public class AccountController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApplicationDbContext _applicationDbContext;
+    private readonly LegacyDbContext _legacyDbContext;
     private readonly IEmailSender _emailSender;
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IInAppNotificationService _inAppNotificationService;
@@ -31,6 +34,7 @@ public class AccountController : ControllerBase
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         ApplicationDbContext applicationDbContext,
+        LegacyDbContext legacyDbContext,
         IEmailSender emailSender,
         IStringLocalizer<SharedResource> localizer,
         IInAppNotificationService inAppNotificationService,
@@ -40,6 +44,7 @@ public class AccountController : ControllerBase
         _userManager = userManager;
         _roleManager = roleManager;
         _applicationDbContext = applicationDbContext;
+        _legacyDbContext = legacyDbContext;
         _emailSender = emailSender;
         _localizer = localizer;
         _inAppNotificationService = inAppNotificationService;
@@ -320,6 +325,8 @@ public class AccountController : ControllerBase
     {
         var user = await GetCurrentUserAsync();
         if (user == null) return Unauthorized(new { message = "User not found" });
+        var legacyUser = await FindLegacyUserAsync(user.UserName);
+        var notificationPreference = await GetOrCreateNotificationPreferenceAsync(user.Id);
 
         return Ok(new AccountProfileDto
         {
@@ -332,7 +339,11 @@ public class AccountController : ControllerBase
             TenantId = user.TenantId,
             TenantName = user.Tenant?.Name ?? string.Empty,
             TenantPhoneNumber = user.Tenant?.PhoneNumber ?? string.Empty,
-            CanManageTenant = await UserCanManageTenantAsync(user)
+            CanManageTenant = await UserCanManageTenantAsync(user),
+            Address = legacyUser?.Address ?? string.Empty,
+            JobTitle = legacyUser?.Job ?? string.Empty,
+            DateOfBirth = legacyUser?.Date_Of_Birth,
+            NotificationPreferences = MapNotificationPreference(notificationPreference)
         });
     }
 
@@ -350,6 +361,11 @@ public class AccountController : ControllerBase
         var requestedCountryId = model.CountryId;
         var requestedTenantName = (model.TenantName ?? string.Empty).Trim();
         var requestedTenantPhoneNumber = (model.TenantPhoneNumber ?? string.Empty).Trim();
+        var requestedAddress = (model.Address ?? string.Empty).Trim();
+        var requestedJobTitle = (model.JobTitle ?? string.Empty).Trim();
+        var requestedPreferredLanguage = string.IsNullOrWhiteSpace(model.NotificationPreferences?.PreferredLanguage)
+            ? "en"
+            : model.NotificationPreferences.PreferredLanguage.Trim();
 
         if (string.IsNullOrWhiteSpace(requestedUserName))
             return BadRequest(new { message = "Username is required." });
@@ -391,6 +407,21 @@ public class AccountController : ControllerBase
         user.PhoneNumber = string.IsNullOrWhiteSpace(requestedPhoneNumber) ? null : requestedPhoneNumber;
         user.CountryId = requestedCountryId;
 
+        var legacyUser = await FindLegacyUserAsync(user.UserName);
+        if (legacyUser != null)
+        {
+            legacyUser.Address = string.IsNullOrWhiteSpace(requestedAddress) ? null : requestedAddress;
+            if (!string.IsNullOrWhiteSpace(requestedJobTitle))
+            {
+                legacyUser.Job = requestedJobTitle;
+            }
+
+            if (model.DateOfBirth.HasValue)
+            {
+                legacyUser.Date_Of_Birth = model.DateOfBirth.Value;
+            }
+        }
+
         if (await UserCanManageTenantAsync(user))
         {
             if (user.Tenant == null)
@@ -420,6 +451,21 @@ public class AccountController : ControllerBase
             return BadRequest(new { message = BuildIdentityErrors(updateResult.Errors) });
         }
 
+        var notificationPreference = await GetOrCreateNotificationPreferenceAsync(user.Id);
+        if (model.NotificationPreferences != null)
+        {
+            notificationPreference.CaseUpdatesEnabled = model.NotificationPreferences.CaseUpdatesEnabled;
+            notificationPreference.BillingUpdatesEnabled = model.NotificationPreferences.BillingUpdatesEnabled;
+            notificationPreference.DocumentRequestsEnabled = model.NotificationPreferences.DocumentRequestsEnabled;
+            notificationPreference.ConversationUpdatesEnabled = model.NotificationPreferences.ConversationUpdatesEnabled;
+            notificationPreference.EmailNotificationsEnabled = model.NotificationPreferences.EmailNotificationsEnabled;
+            notificationPreference.SmsNotificationsEnabled = model.NotificationPreferences.SmsNotificationsEnabled;
+            notificationPreference.PreferredLanguage = requestedPreferredLanguage;
+            notificationPreference.UpdatedAtUtc = DateTime.UtcNow;
+        }
+
+        await _applicationDbContext.SaveChangesAsync();
+
         var (token, expires) = await _accountService.CreateTokenAsync(user);
         var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
         return Ok(new
@@ -443,7 +489,11 @@ public class AccountController : ControllerBase
                 TenantId = user.TenantId,
                 TenantName = user.Tenant?.Name ?? string.Empty,
                 TenantPhoneNumber = user.Tenant?.PhoneNumber ?? string.Empty,
-                CanManageTenant = await UserCanManageTenantAsync(user)
+                CanManageTenant = await UserCanManageTenantAsync(user),
+                Address = legacyUser?.Address ?? string.Empty,
+                JobTitle = legacyUser?.Job ?? string.Empty,
+                DateOfBirth = legacyUser?.Date_Of_Birth,
+                NotificationPreferences = MapNotificationPreference(notificationPreference)
             }
         });
     }
@@ -700,6 +750,51 @@ public class AccountController : ControllerBase
         return roles.Contains("Admin") || roles.Contains("SuperAdmin");
     }
 
+    private async Task<LawyerSys.Data.ScaffoldedModels.User?> FindLegacyUserAsync(string? userName)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            return null;
+        }
+
+        return await _legacyDbContext.Users.SingleOrDefaultAsync(item => item.User_Name == userName);
+    }
+
+    private async Task<UserNotificationPreference> GetOrCreateNotificationPreferenceAsync(string userId)
+    {
+        var preference = await _applicationDbContext.UserNotificationPreferences
+            .SingleOrDefaultAsync(item => item.UserId == userId);
+
+        if (preference != null)
+        {
+            return preference;
+        }
+
+        preference = new UserNotificationPreference
+        {
+            UserId = userId,
+            PreferredLanguage = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? "ar" : "en",
+            UpdatedAtUtc = DateTime.UtcNow
+        };
+
+        _applicationDbContext.UserNotificationPreferences.Add(preference);
+        return preference;
+    }
+
+    private static UserNotificationPreferenceDto MapNotificationPreference(UserNotificationPreference preference)
+    {
+        return new UserNotificationPreferenceDto
+        {
+            CaseUpdatesEnabled = preference.CaseUpdatesEnabled,
+            BillingUpdatesEnabled = preference.BillingUpdatesEnabled,
+            DocumentRequestsEnabled = preference.DocumentRequestsEnabled,
+            ConversationUpdatesEnabled = preference.ConversationUpdatesEnabled,
+            EmailNotificationsEnabled = preference.EmailNotificationsEnabled,
+            SmsNotificationsEnabled = preference.SmsNotificationsEnabled,
+            PreferredLanguage = preference.PreferredLanguage
+        };
+    }
+
     private static string BuildIdentityErrors(IEnumerable<IdentityError> errors)
     {
         return string.Join(", ", errors.Select(e => e.Description));
@@ -743,6 +838,10 @@ public class AccountProfileDto
     public string TenantName { get; set; } = string.Empty;
     public string TenantPhoneNumber { get; set; } = string.Empty;
     public bool CanManageTenant { get; set; }
+    public string Address { get; set; } = string.Empty;
+    public string JobTitle { get; set; } = string.Empty;
+    public DateOnly? DateOfBirth { get; set; }
+    public UserNotificationPreferenceDto NotificationPreferences { get; set; } = new();
 }
 
 public class UpdateMyProfileRequest
@@ -754,6 +853,10 @@ public class UpdateMyProfileRequest
     public int? CountryId { get; set; }
     public string TenantName { get; set; } = string.Empty;
     public string TenantPhoneNumber { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
+    public string JobTitle { get; set; } = string.Empty;
+    public DateOnly? DateOfBirth { get; set; }
+    public UserNotificationPreferenceDto? NotificationPreferences { get; set; }
 }
 
 public class ChangePasswordRequest

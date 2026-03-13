@@ -74,6 +74,14 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<Case> Cases { get; set; }
 
+    public virtual DbSet<CaseConversationMessage> CaseConversationMessages { get; set; }
+
+    public virtual DbSet<CustomerCaseNotificationSetting> CustomerCaseNotificationSettings { get; set; }
+
+    public virtual DbSet<CustomerPaymentProof> CustomerPaymentProofs { get; set; }
+
+    public virtual DbSet<CustomerRequestedDocument> CustomerRequestedDocuments { get; set; }
+
     public virtual DbSet<Cases_Contender> Cases_Contenders { get; set; }
 
     public virtual DbSet<Cases_Court> Cases_Courts { get; set; }
@@ -269,6 +277,56 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.Invitions_Statment).HasMaxLength(50);
             entity.Property(e => e.Notes).HasMaxLength(50);
             entity.Property(e => e.Status).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<CaseConversationMessage>(entity =>
+        {
+            entity.ToTable("CaseConversationMessages");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SenderUserId).HasMaxLength(256);
+            entity.Property(e => e.SenderName).HasMaxLength(256);
+            entity.Property(e => e.SenderRole).HasMaxLength(64);
+            entity.Property(e => e.Message).HasMaxLength(4000);
+            entity.Property(e => e.CreatedAtUtc).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ReadByCustomerAtUtc).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ReadByOfficeAtUtc).HasColumnType("timestamp without time zone");
+        });
+
+        modelBuilder.Entity<CustomerCaseNotificationSetting>(entity =>
+        {
+            entity.ToTable("CustomerCaseNotificationSettings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UpdatedAtUtc).HasColumnType("timestamp without time zone");
+            entity.HasIndex(e => new { e.CaseCode, e.CustomerId }).IsUnique();
+        });
+
+        modelBuilder.Entity<CustomerPaymentProof>(entity =>
+        {
+            entity.ToTable("CustomerPaymentProofs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Notes).HasMaxLength(2000);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.ReviewedByUserId).HasMaxLength(256);
+            entity.Property(e => e.ReviewedByName).HasMaxLength(256);
+            entity.Property(e => e.ReviewNotes).HasMaxLength(2000);
+            entity.Property(e => e.SubmittedAtUtc).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ReviewedAtUtc).HasColumnType("timestamp without time zone");
+        });
+
+        modelBuilder.Entity<CustomerRequestedDocument>(entity =>
+        {
+            entity.ToTable("CustomerRequestedDocuments");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Status).HasMaxLength(32);
+            entity.Property(e => e.RequestedByUserId).HasMaxLength(256);
+            entity.Property(e => e.RequestedByName).HasMaxLength(256);
+            entity.Property(e => e.CustomerNotes).HasMaxLength(2000);
+            entity.Property(e => e.ReviewNotes).HasMaxLength(2000);
+            entity.Property(e => e.RequestedAtUtc).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.SubmittedAtUtc).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ReviewedAtUtc).HasColumnType("timestamp without time zone");
         });
 
         modelBuilder.Entity<CaseStatusHistory>(entity =>
@@ -675,6 +733,7 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<Billing_Pay>(modelBuilder);
         ConfigureTenantEntity<Billing_Receipt>(modelBuilder);
         ConfigureTenantEntity<Case>(modelBuilder);
+        ConfigureTenantEntity<CaseConversationMessage>(modelBuilder);
         ConfigureTenantEntity<CaseStatusHistory>(modelBuilder);
         ConfigureTenantEntity<Cases_Contender>(modelBuilder);
         ConfigureTenantEntity<Cases_Court>(modelBuilder);
@@ -696,6 +755,9 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<CourtAutomationFilingSubmission>(modelBuilder);
         ConfigureTenantEntity<Custmors_Case>(modelBuilder);
         ConfigureTenantEntity<Customer>(modelBuilder);
+        ConfigureTenantEntity<CustomerCaseNotificationSetting>(modelBuilder);
+        ConfigureTenantEntity<CustomerPaymentProof>(modelBuilder);
+        ConfigureTenantEntity<CustomerRequestedDocument>(modelBuilder);
         ConfigureTenantEntity<ESignatureRequest>(modelBuilder);
         ConfigureTenantEntity<Employee>(modelBuilder);
         ConfigureTenantEntity<FileEntity>(modelBuilder);

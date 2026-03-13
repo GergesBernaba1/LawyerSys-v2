@@ -798,9 +798,9 @@ public static class DemoDataSeeder
             legacyDbContext,
             tenantId,
             id: baseUserId + 3,
-            fullName: $"{demoTenant.ShortName} Client One",
+            fullName: $"{demoTenant.ShortName} Customer",
             job: "Client",
-            userName: $"{demoTenant.Slug}.client1",
+            userName: demoTenant.CustomerUserName,
             password: "demo-pass",
             phoneNumber: 100000000 + tenantId * 10 + 3,
             ssn: 200000000 + tenantId * 10 + 3,
@@ -840,6 +840,7 @@ public static class DemoDataSeeder
             id: tenantId * 100 + 1,
             name: $"{demoTenant.ShortName} Gov");
 
+        NormalizePendingLegacyDateTimes(legacyDbContext);
         await legacyDbContext.SaveChangesAsync();
 
         var court = await EnsureCourtAsync(
@@ -1100,14 +1101,15 @@ public static class DemoDataSeeder
             description: "Filing expense reimbursement",
             createdBy: legacyAdmin.User_Name);
 
+        NormalizePendingLegacyDateTimes(legacyDbContext);
         await legacyDbContext.SaveChangesAsync();
 
         await EnsureCaseEmployeeLinkAsync(legacyDbContext, tenantId, caseOne.Code, employee.id);
         await EnsureCaseEmployeeLinkAsync(legacyDbContext, tenantId, caseTwo.Code, employee.id);
         await EnsureCaseEmployeeLinkAsync(legacyDbContext, tenantId, caseThree.Code, employee.id);
-        await EnsureCustomerCaseLinkAsync(legacyDbContext, tenantId, caseOne.Id, customerOne.Id);
-        await EnsureCustomerCaseLinkAsync(legacyDbContext, tenantId, caseTwo.Id, customerTwo.Id);
-        await EnsureCustomerCaseLinkAsync(legacyDbContext, tenantId, caseThree.Id, customerThree.Id);
+        await EnsureCustomerCaseLinkAsync(legacyDbContext, tenantId, caseOne.Code, customerOne.Id);
+        await EnsureCustomerCaseLinkAsync(legacyDbContext, tenantId, caseTwo.Code, customerTwo.Id);
+        await EnsureCustomerCaseLinkAsync(legacyDbContext, tenantId, caseThree.Code, customerThree.Id);
         await EnsureCaseCourtLinkAsync(legacyDbContext, tenantId, caseOne.Code, court.Id);
         await EnsureCaseCourtLinkAsync(legacyDbContext, tenantId, caseTwo.Code, court.Id);
         await EnsureCaseCourtLinkAsync(legacyDbContext, tenantId, caseThree.Code, court.Id);
@@ -1115,21 +1117,118 @@ public static class DemoDataSeeder
         await EnsureCaseSitingLinkAsync(legacyDbContext, tenantId, caseTwo.Code, sitingTwo.Id);
         await EnsureCaseSitingLinkAsync(legacyDbContext, tenantId, caseTwo.Code, sitingThree.Id);
         await EnsureCaseSitingLinkAsync(legacyDbContext, tenantId, caseThree.Code, sitingFour.Id);
-        await EnsureCaseContenderLinkAsync(legacyDbContext, tenantId, caseOne.Id, contender.Id);
-        await EnsureCaseContenderLinkAsync(legacyDbContext, tenantId, caseThree.Id, contender.Id);
-        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseOne.Id, file.Id);
-        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseOne.Id, fileTwo.Id);
-        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseTwo.Id, fileThree.Id);
-        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseThree.Id, fileFour.Id);
-        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseThree.Id, fileFive.Id);
+        await EnsureCaseContenderLinkAsync(legacyDbContext, tenantId, caseOne.Code, contender.Id);
+        await EnsureCaseContenderLinkAsync(legacyDbContext, tenantId, caseThree.Code, contender.Id);
+        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseOne.Code, file.Id);
+        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseOne.Code, fileTwo.Id);
+        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseTwo.Code, fileThree.Id);
+        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseThree.Code, fileFour.Id);
+        await EnsureCaseFileLinkAsync(legacyDbContext, tenantId, caseThree.Code, fileFive.Id);
         await EnsureConsultationCustomerLinkAsync(legacyDbContext, tenantId, consultation.Id, customerOne.Id);
         await EnsureConsultationEmployeeLinkAsync(legacyDbContext, tenantId, consultation.Id, employee.id);
         await EnsureConsultationCustomerLinkAsync(legacyDbContext, tenantId, consultationTwo.Id, customerThree.Id);
         await EnsureConsultationEmployeeLinkAsync(legacyDbContext, tenantId, consultationTwo.Id, employee.id);
-        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseOne.Id, 0, 1, legacyAdmin.User_Name);
-        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseTwo.Id, 1, 2, legacyAdmin.User_Name);
-        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseThree.Id, 0, 1, legacyAdmin.User_Name);
-        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseThree.Id, 1, 2, legacyAdmin.User_Name);
+        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseOne.Code, 0, 1, legacyAdmin.User_Name);
+        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseTwo.Code, 1, 2, legacyAdmin.User_Name);
+        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseThree.Code, 0, 1, legacyAdmin.User_Name);
+        await EnsureCaseStatusHistoryAsync(legacyDbContext, tenantId, caseThree.Code, 1, 2, legacyAdmin.User_Name);
+        await EnsureCaseConversationMessageAsync(
+            legacyDbContext,
+            tenantId,
+            caseOne.Code,
+            legacyAdmin.User_Name,
+            legacyAdmin.Full_Name,
+            "Admin",
+            "We reviewed your file and scheduled the next hearing. Please check the session details.",
+            true);
+        await EnsureCaseConversationMessageAsync(
+            legacyDbContext,
+            tenantId,
+            caseOne.Code,
+            legacyCustomerUserOne.User_Name,
+            legacyCustomerUserOne.Full_Name,
+            "Customer",
+            "Thank you. I have uploaded the requested documents and will attend the hearing.",
+            true);
+        await EnsureCaseConversationMessageAsync(
+            legacyDbContext,
+            tenantId,
+            caseTwo.Code,
+            legacyAdmin.User_Name,
+            legacyAdmin.Full_Name,
+            "Admin",
+            "Please confirm whether the latest contract annex should be included before filing.",
+            true);
+        var billingPayOne = await EnsureBillingPayAsync(
+            legacyDbContext,
+            tenantId,
+            customerOne.Id,
+            4200,
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-8)),
+            "Initial retainer payment");
+        await EnsureBillingPayAsync(
+            legacyDbContext,
+            tenantId,
+            customerTwo.Id,
+            1800,
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-3)),
+            "Document filing payment");
+        await EnsureCustomerRequestedDocumentAsync(
+            legacyDbContext,
+            tenantId,
+            caseOne.Code,
+            customerOne.Id,
+            "Signed authorization letter",
+            "Upload the signed authorization letter before the next hearing.",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)),
+            "Submitted",
+            legacyAdmin.User_Name,
+            legacyAdmin.Full_Name,
+            "Uploaded and ready for review.",
+            string.Empty,
+            fileTwo.Id);
+        await EnsureCustomerRequestedDocumentAsync(
+            legacyDbContext,
+            tenantId,
+            caseTwo.Code,
+            customerTwo.Id,
+            "Updated contract annex",
+            "Please provide the latest contract annex with signature pages.",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3)),
+            "Pending",
+            legacyAdmin.User_Name,
+            legacyAdmin.Full_Name,
+            string.Empty,
+            string.Empty,
+            null);
+        await EnsureCustomerPaymentProofAsync(
+            legacyDbContext,
+            tenantId,
+            customerOne.Id,
+            caseOne.Code,
+            4200,
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-8)),
+            "Bank transfer proof for the initial retainer.",
+            fileTwo.Id,
+            "Approved",
+            billingPayOne.Id,
+            legacyAdmin.User_Name,
+            legacyAdmin.Full_Name,
+            "Payment matched and approved.");
+        await EnsureCustomerPaymentProofAsync(
+            legacyDbContext,
+            tenantId,
+            customerTwo.Id,
+            caseTwo.Code,
+            1800,
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
+            "Transfer receipt for filing costs.",
+            fileThree.Id,
+            "Pending",
+            null,
+            string.Empty,
+            string.Empty,
+            string.Empty);
 
         await legacyDbContext.SaveChangesAsync();
     }
@@ -1166,6 +1265,155 @@ public static class DemoDataSeeder
         user.Password = password;
 
         return user;
+    }
+
+    private static async Task EnsureCaseConversationMessageAsync(
+        LegacyDbContext legacyDbContext,
+        int tenantId,
+        int caseCode,
+        string senderUserId,
+        string senderName,
+        string senderRole,
+        string message,
+        bool visibleToCustomer)
+    {
+        var item = await ForFirm<CaseConversationMessage>(legacyDbContext, tenantId)
+            .SingleOrDefaultAsync(entry =>
+                entry.CaseCode == caseCode &&
+                entry.SenderUserId == senderUserId &&
+                entry.Message == message);
+
+        if (item == null)
+        {
+            item = new CaseConversationMessage();
+            legacyDbContext.CaseConversationMessages.Add(item);
+            SetFirmId(legacyDbContext, item, tenantId);
+        }
+
+        item.CaseCode = caseCode;
+        item.SenderUserId = senderUserId;
+        item.SenderName = senderName;
+        item.SenderRole = senderRole;
+        item.Message = message;
+        item.VisibleToCustomer = visibleToCustomer;
+        if (item.CreatedAtUtc == default)
+        {
+            item.CreatedAtUtc = ToLegacyTimestamp(DateTime.UtcNow);
+        }
+    }
+
+    private static async Task<Billing_Pay> EnsureBillingPayAsync(
+        LegacyDbContext legacyDbContext,
+        int tenantId,
+        int customerId,
+        double amount,
+        DateOnly dateOfOperation,
+        string notes)
+    {
+        var item = await ForFirm<Billing_Pay>(legacyDbContext, tenantId)
+            .SingleOrDefaultAsync(entry =>
+                entry.Custmor_Id == customerId &&
+                entry.Amount == amount &&
+                entry.Date_Of_Opreation == dateOfOperation &&
+                entry.Notes == notes);
+
+        if (item == null)
+        {
+            item = new Billing_Pay();
+            legacyDbContext.Billing_Pays.Add(item);
+            SetFirmId(legacyDbContext, item, tenantId);
+        }
+
+        item.Custmor_Id = customerId;
+        item.Amount = amount;
+        item.Date_Of_Opreation = dateOfOperation;
+        item.Notes = notes;
+        return item;
+    }
+
+    private static async Task EnsureCustomerRequestedDocumentAsync(
+        LegacyDbContext legacyDbContext,
+        int tenantId,
+        int caseCode,
+        int customerId,
+        string title,
+        string description,
+        DateOnly? dueDate,
+        string status,
+        string requestedByUserId,
+        string requestedByName,
+        string customerNotes,
+        string reviewNotes,
+        int? uploadedFileId)
+    {
+        var item = await ForFirm<CustomerRequestedDocument>(legacyDbContext, tenantId)
+            .SingleOrDefaultAsync(entry => entry.CaseCode == caseCode && entry.CustomerId == customerId && entry.Title == title);
+
+        if (item == null)
+        {
+            item = new CustomerRequestedDocument();
+            legacyDbContext.CustomerRequestedDocuments.Add(item);
+            SetFirmId(legacyDbContext, item, tenantId);
+        }
+
+        item.CaseCode = caseCode;
+        item.CustomerId = customerId;
+        item.Title = title;
+        item.Description = description;
+        item.DueDate = dueDate;
+        item.Status = status;
+        item.RequestedByUserId = requestedByUserId;
+        item.RequestedByName = requestedByName;
+        item.CustomerNotes = customerNotes;
+        item.ReviewNotes = reviewNotes;
+        item.UploadedFileId = uploadedFileId;
+        item.RequestedAtUtc = item.RequestedAtUtc == default ? ToLegacyTimestamp(DateTime.UtcNow.AddDays(-2)) : ToLegacyTimestamp(item.RequestedAtUtc);
+        item.SubmittedAtUtc = status is "Submitted" or "Approved" ? ToLegacyTimestamp(DateTime.UtcNow.AddDays(-1)) : null;
+        item.ReviewedAtUtc = status is "Approved" or "Rejected" ? ToLegacyTimestamp(DateTime.UtcNow) : null;
+    }
+
+    private static async Task EnsureCustomerPaymentProofAsync(
+        LegacyDbContext legacyDbContext,
+        int tenantId,
+        int customerId,
+        int? caseCode,
+        double amount,
+        DateOnly paymentDate,
+        string notes,
+        int? proofFileId,
+        string status,
+        int? billingPaymentId,
+        string reviewedByUserId,
+        string reviewedByName,
+        string reviewNotes)
+    {
+        var item = await ForFirm<CustomerPaymentProof>(legacyDbContext, tenantId)
+            .SingleOrDefaultAsync(entry =>
+                entry.CustomerId == customerId &&
+                entry.CaseCode == caseCode &&
+                entry.Amount == amount &&
+                entry.PaymentDate == paymentDate);
+
+        if (item == null)
+        {
+            item = new CustomerPaymentProof();
+            legacyDbContext.CustomerPaymentProofs.Add(item);
+            SetFirmId(legacyDbContext, item, tenantId);
+        }
+
+        item.CustomerId = customerId;
+        item.CaseCode = caseCode;
+        item.Amount = amount;
+        item.PaymentDate = paymentDate;
+        item.Notes = notes;
+        item.ProofFileId = proofFileId;
+        item.Status = status;
+        item.BillingPaymentId = billingPaymentId;
+        item.ReviewedByUserId = reviewedByUserId;
+        item.ReviewedByName = reviewedByName;
+        item.ReviewNotes = reviewNotes;
+        item.SubmittedAtUtc = item.SubmittedAtUtc == default ? ToLegacyTimestamp(DateTime.UtcNow.AddDays(-1)) : ToLegacyTimestamp(item.SubmittedAtUtc);
+        item.ReviewedAtUtc = status is "Approved" or "Rejected" ? ToLegacyTimestamp(DateTime.UtcNow) : null;
     }
 
     private static async Task<Employee> EnsureLegacyEmployeeAsync(
@@ -1301,8 +1549,8 @@ public static class DemoDataSeeder
 
         siting.Judge_Name = judgeName;
         siting.Siting_Date = sitingDate;
-        siting.Siting_Time = sitingTime;
-        siting.Siting_Notification = notificationTime;
+        siting.Siting_Time = ToLegacyTimestamp(sitingTime);
+        siting.Siting_Notification = ToLegacyTimestamp(notificationTime);
         siting.Notes = notes;
         return siting;
     }
@@ -1380,7 +1628,7 @@ public static class DemoDataSeeder
         consultation.Descraption = description;
         consultation.Feedback = feedback;
         consultation.Notes = notes;
-        consultation.Date_time = dateTime;
+        consultation.Date_time = ToLegacyTimestamp(dateTime);
         return consultation;
     }
 
@@ -1407,7 +1655,7 @@ public static class DemoDataSeeder
         task.Task_Name = taskName;
         task.Type = type;
         task.Task_Date = taskDate;
-        task.Task_Reminder_Date = reminderDate;
+        task.Task_Reminder_Date = ToLegacyTimestamp(reminderDate);
         task.Notes = notes;
         task.employee_Id = employeeId;
     }
@@ -1449,12 +1697,12 @@ public static class DemoDataSeeder
         lead.HasConflict = false;
         lead.ConflictDetails = null;
         lead.AssignedEmployeeId = assignedEmployeeId;
-        lead.NextFollowUpAt = DateTime.UtcNow.AddDays(2);
-        lead.AssignedAt = DateTime.UtcNow.AddDays(-1);
+        lead.NextFollowUpAt = ToLegacyTimestamp(DateTime.UtcNow.AddDays(2));
+        lead.AssignedAt = ToLegacyTimestamp(DateTime.UtcNow.AddDays(-1));
         lead.ConvertedCustomerId = convertedCustomerId;
         lead.ConvertedCaseCode = convertedCaseCode;
-        lead.CreatedAt = DateTime.UtcNow.AddDays(-4);
-        lead.UpdatedAt = DateTime.UtcNow;
+        lead.CreatedAt = ToLegacyTimestamp(DateTime.UtcNow.AddDays(-4));
+        lead.UpdatedAt = ToLegacyTimestamp(DateTime.UtcNow);
     }
 
     private static async Task EnsureTimeTrackingEntryAsync(
@@ -1484,11 +1732,11 @@ public static class DemoDataSeeder
         entry.Description = description;
         entry.Status = "Completed";
         entry.StartedBy = startedBy;
-        entry.StartedAt = DateTime.UtcNow.AddHours(-5);
-        entry.EndedAt = DateTime.UtcNow.AddHours(-3.5);
+        entry.StartedAt = ToLegacyTimestamp(DateTime.UtcNow.AddHours(-5));
+        entry.EndedAt = ToLegacyTimestamp(DateTime.UtcNow.AddHours(-3.5));
         entry.DurationMinutes = durationMinutes;
         entry.SuggestedAmount = suggestedAmount;
-        entry.UpdatedAt = DateTime.UtcNow;
+        entry.UpdatedAt = ToLegacyTimestamp(DateTime.UtcNow);
     }
 
     private static async Task EnsureTrustLedgerEntryAsync(
@@ -1519,7 +1767,7 @@ public static class DemoDataSeeder
         entry.OperationDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-2));
         entry.Description = description;
         entry.Reference = reference;
-        entry.CreatedAt = DateTime.UtcNow.AddDays(-2);
+        entry.CreatedAt = ToLegacyTimestamp(DateTime.UtcNow.AddDays(-2));
         entry.CreatedBy = createdBy;
     }
 
@@ -1548,17 +1796,17 @@ public static class DemoDataSeeder
     private static async Task EnsureCustomerCaseLinkAsync(
         LegacyDbContext legacyDbContext,
         int tenantId,
-        int caseId,
+        int caseCode,
         int customerId)
     {
         var link = await ForFirm<Custmors_Case>(legacyDbContext, tenantId)
-            .SingleOrDefaultAsync(item => item.Case_Id == caseId && item.Custmors_Id == customerId);
+            .SingleOrDefaultAsync(item => item.Case_Id == caseCode && item.Custmors_Id == customerId);
 
         if (link == null)
         {
             link = new Custmors_Case
             {
-                Case_Id = caseId,
+                Case_Id = caseCode,
                 Custmors_Id = customerId,
             };
 
@@ -1614,17 +1862,17 @@ public static class DemoDataSeeder
     private static async Task EnsureCaseContenderLinkAsync(
         LegacyDbContext legacyDbContext,
         int tenantId,
-        int caseId,
+        int caseCode,
         int contenderId)
     {
         var link = await ForFirm<Cases_Contender>(legacyDbContext, tenantId)
-            .SingleOrDefaultAsync(item => item.Case_Id == caseId && item.Contender_Id == contenderId);
+            .SingleOrDefaultAsync(item => item.Case_Id == caseCode && item.Contender_Id == contenderId);
 
         if (link == null)
         {
             link = new Cases_Contender
             {
-                Case_Id = caseId,
+                Case_Id = caseCode,
                 Contender_Id = contenderId,
             };
 
@@ -1636,17 +1884,17 @@ public static class DemoDataSeeder
     private static async Task EnsureCaseFileLinkAsync(
         LegacyDbContext legacyDbContext,
         int tenantId,
-        int caseId,
+        int caseCode,
         int fileId)
     {
         var link = await ForFirm<Cases_File>(legacyDbContext, tenantId)
-            .SingleOrDefaultAsync(item => item.Case_Id == caseId && item.File_Id == fileId);
+            .SingleOrDefaultAsync(item => item.Case_Id == caseCode && item.File_Id == fileId);
 
         if (link == null)
         {
             link = new Cases_File
             {
-                Case_Id = caseId,
+                Case_Id = caseCode,
                 File_Id = fileId,
             };
 
@@ -1702,13 +1950,13 @@ public static class DemoDataSeeder
     private static async Task EnsureCaseStatusHistoryAsync(
         LegacyDbContext legacyDbContext,
         int tenantId,
-        int caseId,
+        int caseCode,
         int oldStatus,
         int newStatus,
         string changedBy)
     {
         var history = await ForFirm<CaseStatusHistory>(legacyDbContext, tenantId)
-            .SingleOrDefaultAsync(item => item.Case_Id == caseId && item.NewStatus == newStatus && item.ChangedBy == changedBy);
+            .SingleOrDefaultAsync(item => item.Case_Id == caseCode && item.NewStatus == newStatus && item.ChangedBy == changedBy);
 
         if (history == null)
         {
@@ -1717,11 +1965,39 @@ public static class DemoDataSeeder
             SetFirmId(legacyDbContext, history, tenantId);
         }
 
-        history.Case_Id = caseId;
+        history.Case_Id = caseCode;
         history.OldStatus = oldStatus;
         history.NewStatus = newStatus;
         history.ChangedBy = changedBy;
-        history.ChangedAt = DateTime.UtcNow.AddDays(-1);
+        history.ChangedAt = ToLegacyTimestamp(DateTime.UtcNow.AddDays(-1));
+    }
+
+    private static DateTime ToLegacyTimestamp(DateTime value)
+    {
+        var normalized = value.Kind == DateTimeKind.Utc
+            ? value.ToLocalTime()
+            : value;
+
+        return DateTime.SpecifyKind(normalized, DateTimeKind.Unspecified);
+    }
+
+    private static void NormalizePendingLegacyDateTimes(LegacyDbContext legacyDbContext)
+    {
+        foreach (var entry in legacyDbContext.ChangeTracker.Entries().Where(item => item.State is EntityState.Added or EntityState.Modified))
+        {
+            foreach (var property in entry.Properties)
+            {
+                if (property.CurrentValue is DateTime current)
+                {
+                    property.CurrentValue = ToLegacyTimestamp(current);
+                }
+
+                if (property.OriginalValue is DateTime original)
+                {
+                    property.OriginalValue = ToLegacyTimestamp(original);
+                }
+            }
+        }
     }
 
     private static IQueryable<TEntity> ForFirm<TEntity>(LegacyDbContext legacyDbContext, int tenantId)

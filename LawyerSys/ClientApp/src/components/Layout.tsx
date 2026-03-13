@@ -114,6 +114,8 @@ const menuItems: MenuItem[] = [
   { key: 'documentgeneration', icon: <DocGenIcon />, path: '/document-generation' },
   { key: 'courtautomation', icon: <CourtAutomationIcon />, path: '/court-automation' },
   { key: 'clientportal', icon: <PortalIcon />, path: '/client-portal' },
+  { key: 'customermessages', icon: <ChatIcon />, path: '/client-portal/messages' },
+  { key: 'customerdocuments', icon: <DescriptionIcon />, path: '/client-portal/documents' },
   { key: 'auditlogs', icon: <AuditIcon />, path: '/auditlogs' },
   { key: 'users', icon: <PersonIcon />, path: '/users' },
   { key: 'caserelations', icon: <LinkIcon />, path: '/caserelations' },
@@ -145,6 +147,7 @@ interface NotificationItem {
   id: number;
   title: string;
   message: string;
+  category?: string;
   route?: string | null;
   timestamp: string;
   isRead: boolean;
@@ -154,6 +157,15 @@ enum NotificationFilterValue {
   All = 'All',
   Unread = 'Unread',
   Read = 'Read',
+}
+
+enum NotificationCategoryValue {
+  All = 'All',
+  Case = 'Case',
+  Billing = 'Billing',
+  Document = 'Document',
+  Conversation = 'Conversation',
+  System = 'System',
 }
 
 const NOTIFICATIONS_PAGE_SIZE = 12
@@ -194,18 +206,23 @@ export default function Layout({ children }: LayoutProps) {
   const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [notificationsLoadingMore, setNotificationsLoadingMore] = useState(false)
   const [notificationFilter, setNotificationFilter] = useState<NotificationFilterValue>(NotificationFilterValue.All)
+  const [notificationCategory, setNotificationCategory] = useState<NotificationCategoryValue>(NotificationCategoryValue.All)
   const [notificationPage, setNotificationPage] = useState(1)
   const [notificationsHasMore, setNotificationsHasMore] = useState(false)
   const notificationConnectionRef = React.useRef<signalR.HubConnection | null>(null)
   const chatEndRef = React.useRef<HTMLDivElement | null>(null)
   const isAdmin = hasRole('Admin')
+  const isEmployee = hasRole('Employee')
   const isSuperAdmin = hasRole('SuperAdmin')
+  const isCustomerOnly = hasRole('Customer') && !isAdmin && !isEmployee && !isSuperAdmin
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
   const canUseSubscription = !hasRole('SuperAdmin') && hasAnyRole('Admin', 'Employee')
   const canUseNotifications = hasAnyRole('SuperAdmin', 'Admin', 'Employee', 'Customer')
+  const customerMenuKeys = new Set(['cases', 'clientportal', 'customermessages', 'customerdocuments'])
   const visibleMenuItems = menuItems.filter((item) => {
+    if (isCustomerOnly) return customerMenuKeys.has(item.key)
     if (item.key === 'administration') return isAdmin
     if (item.key === 'tenants') return isSuperAdmin
     if (item.key === 'intake') return canUseIntake
@@ -214,6 +231,12 @@ export default function Layout({ children }: LayoutProps) {
     if (item.key === 'subscription') return canUseSubscription
     return true
   })
+  const canAccessPath = React.useCallback((path: string) => {
+    if (!isCustomerOnly) return true
+    if (path === '/client-portal' || path.startsWith('/client-portal/') || path === '/profile') return true
+    if (path.startsWith('/cases')) return true
+    return false
+  }, [isCustomerOnly])
   const filteredMenuItems = React.useMemo(() => {
     const query = menuSearch.trim().toLowerCase()
     if (!query) return visibleMenuItems
@@ -254,6 +277,8 @@ export default function Layout({ children }: LayoutProps) {
       targetPath = '/dashboard';
     } else if (pathname === '/subscription' && !canUseSubscription) {
       targetPath = '/dashboard';
+    } else if (!canAccessPath(pathname)) {
+      targetPath = '/client-portal';
     }
 
     if (targetPath && pathname !== targetPath) {
@@ -271,6 +296,7 @@ export default function Layout({ children }: LayoutProps) {
     canUseESign,
     canUseTimeTracking,
     canUseSubscription,
+    canAccessPath,
     router,
   ]);
 
@@ -317,11 +343,13 @@ export default function Layout({ children }: LayoutProps) {
 
   const loadNotifications = React.useCallback(async ({
     filter = notificationFilter,
+    category = notificationCategory,
     page = 1,
     append = false,
     pageSize = NOTIFICATIONS_PAGE_SIZE,
   }: {
     filter?: NotificationFilterValue
+    category?: NotificationCategoryValue
     page?: number
     append?: boolean
     pageSize?: number
@@ -346,6 +374,7 @@ export default function Layout({ children }: LayoutProps) {
           page,
           pageSize,
           filter,
+          category,
         },
       })
       const items = Array.isArray(response.data?.items) ? response.data.items : []
@@ -374,7 +403,7 @@ export default function Layout({ children }: LayoutProps) {
         setNotificationsLoading(false)
       }
     }
-  }, [isAuthenticated, canUseNotifications, notificationFilter])
+  }, [isAuthenticated, canUseNotifications, notificationFilter, notificationCategory])
 
   const refreshNotifications = React.useCallback(() => {
     const loadedCount = Math.max(
@@ -385,15 +414,16 @@ export default function Layout({ children }: LayoutProps) {
 
     return loadNotifications({
       filter: notificationFilter,
+      category: notificationCategory,
       page: 1,
       append: false,
       pageSize: Math.min(loadedCount, 50),
     })
-  }, [loadNotifications, notificationFilter, notificationPage, notifications.length])
+  }, [loadNotifications, notificationFilter, notificationCategory, notificationPage, notifications.length])
 
   const handleNotificationsOpen = (event: React.MouseEvent<HTMLElement>) => {
     setNotificationsAnchor(event.currentTarget)
-    void loadNotifications({ filter: notificationFilter, page: 1 })
+    void loadNotifications({ filter: notificationFilter, category: notificationCategory, page: 1 })
   }
 
   const handleNotificationsClose = () => {
@@ -579,7 +609,7 @@ export default function Layout({ children }: LayoutProps) {
     }
 
     void loadNotifications({ filter: notificationFilter, page: 1 })
-  }, [notificationFilter, notificationsAnchor, canUseNotifications, isAuthenticated, loadNotifications])
+  }, [notificationFilter, notificationCategory, notificationsAnchor, canUseNotifications, isAuthenticated, loadNotifications])
 
   React.useEffect(() => {
     let mounted = true
@@ -632,6 +662,10 @@ export default function Layout({ children }: LayoutProps) {
       ? 'profile'
       : pathname === '/ai-assistant'
       ? 'aiassistant'
+      : pathname.startsWith('/client-portal/messages')
+      ? 'customermessages'
+      : pathname.startsWith('/client-portal/documents')
+      ? 'customerdocuments'
       : (visibleMenuItems.find((item) => item.path === pathname)?.key || 'dashboard');
 
   const formatNotificationTime = (value: string) => {
@@ -676,6 +710,7 @@ export default function Layout({ children }: LayoutProps) {
 
     void loadNotifications({
       filter: notificationFilter,
+      category: notificationCategory,
       page: notificationPage + 1,
       append: true,
     })
@@ -1160,7 +1195,7 @@ export default function Layout({ children }: LayoutProps) {
                     <Typography sx={{ fontWeight: 900, mb: 1.25 }}>
                       {t('app.notifications', 'Notifications')}
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
                       {([
                         { value: NotificationFilterValue.All, label: t('notifications.filter.all') },
                         { value: NotificationFilterValue.Unread, label: t('notifications.filter.unread') },
@@ -1171,6 +1206,33 @@ export default function Layout({ children }: LayoutProps) {
                           size="small"
                           variant={notificationFilter === filterOption.value ? 'contained' : 'outlined'}
                           onClick={() => setNotificationFilter(filterOption.value)}
+                          sx={{
+                            minWidth: 0,
+                            borderRadius: 999,
+                            px: 1.5,
+                            py: 0.5,
+                            textTransform: 'none',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {filterOption.label}
+                        </Button>
+                      ))}
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {([
+                        { value: NotificationCategoryValue.All, label: t('notifications.category.all') },
+                        { value: NotificationCategoryValue.Case, label: t('notifications.category.case') },
+                        { value: NotificationCategoryValue.Billing, label: t('notifications.category.billing') },
+                        { value: NotificationCategoryValue.Document, label: t('notifications.category.document') },
+                        { value: NotificationCategoryValue.Conversation, label: t('notifications.category.conversation') },
+                        { value: NotificationCategoryValue.System, label: t('notifications.category.system') },
+                      ] as { value: NotificationCategoryValue; label: string }[]).map((filterOption) => (
+                        <Button
+                          key={filterOption.value}
+                          size="small"
+                          variant={notificationCategory === filterOption.value ? 'contained' : 'outlined'}
+                          onClick={() => setNotificationCategory(filterOption.value)}
                           sx={{
                             minWidth: 0,
                             borderRadius: 999,
@@ -1229,6 +1291,11 @@ export default function Layout({ children }: LayoutProps) {
                           <Typography sx={{ color: 'text.secondary', fontSize: '0.84rem', mb: 0.75 }}>
                             {notification.message}
                           </Typography>
+                          {notification.category && (
+                            <Typography sx={{ color: 'primary.main', fontSize: '0.72rem', fontWeight: 700, mb: 0.5 }}>
+                              {t(`notifications.category.${notification.category.toLowerCase()}`, notification.category)}
+                            </Typography>
+                          )}
                           <Typography sx={{ color: 'text.disabled', fontSize: '0.74rem', fontWeight: 600 }}>
                             {formatNotificationTime(notification.timestamp)}
                           </Typography>
@@ -1449,7 +1516,7 @@ export default function Layout({ children }: LayoutProps) {
             >
               <Link
                 component="button"
-                onClick={() => handleNavigation('/dashboard')}
+                onClick={() => handleNavigation(isCustomerOnly ? '/client-portal' : '/dashboard')}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -1463,7 +1530,7 @@ export default function Layout({ children }: LayoutProps) {
                 }}
               >
                 <HomeIcon sx={{ fontSize: 20 }} />
-                {t('app.dashboard')}
+                {isCustomerOnly ? t('app.clientportal', 'Client Portal') : t('app.dashboard')}
               </Link>
               {pathname !== '/dashboard' && (
                 <Typography 
@@ -1491,18 +1558,20 @@ export default function Layout({ children }: LayoutProps) {
           
           {/* Quick Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              variant="outlined"
-              startIcon={<PeopleIcon />}
-              onClick={() => handleNavigation('/customers')}
-              sx={{ display: { xs: 'none', sm: 'inline-flex' }, borderRadius: 3, px: 3, py: 1, fontWeight: 800, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
-            >
-              {t('app.customers', 'Customers')}
-            </Button>
+            {!isCustomerOnly && (
+              <Button
+                variant="outlined"
+                startIcon={<PeopleIcon />}
+                onClick={() => handleNavigation('/customers')}
+                sx={{ display: { xs: 'none', sm: 'inline-flex' }, borderRadius: 3, px: 3, py: 1, fontWeight: 800, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
+              >
+                {t('app.customers', 'Customers')}
+              </Button>
+            )}
             <Button
               variant="contained"
               startIcon={<GavelIcon />}
-              onClick={() => handleNavigation('/cases')}
+              onClick={() => handleNavigation(isCustomerOnly ? '/client-portal' : '/cases')}
               sx={{ 
                 display: { xs: 'none', sm: 'inline-flex' },
                 borderRadius: 3, 
@@ -1517,7 +1586,7 @@ export default function Layout({ children }: LayoutProps) {
                 }
               }}
             >
-              {t('app.newCase') || 'New Case'}
+              {isCustomerOnly ? t('app.clientportal', 'Client Portal') : (t('app.newCase') || 'New Case')}
             </Button>
           </Box>
         </Box>

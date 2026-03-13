@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using FileEntity = LawyerSys.Data.ScaffoldedModels.File;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
 
@@ -17,11 +18,13 @@ public class FilesController : ControllerBase
 
     private readonly LegacyDbContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly IUserContext _userContext;
 
-    public FilesController(LegacyDbContext context, IWebHostEnvironment env)
+    public FilesController(LegacyDbContext context, IWebHostEnvironment env, IUserContext userContext)
     {
         _context = context;
         _env = env;
+        _userContext = userContext;
     }
 
     // GET: api/files
@@ -29,6 +32,20 @@ public class FilesController : ControllerBase
     public async Task<ActionResult<IEnumerable<FileDto>>> GetFiles([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
         IQueryable<FileEntity> query = _context.Files;
+        var customerId = await GetCurrentCustomerIdAsync();
+
+        if (customerId.HasValue)
+        {
+            var caseIds = _context.Custmors_Cases
+                .Where(cc => cc.Custmors_Id == customerId.Value)
+                .Select(cc => cc.Case_Id);
+
+            var fileIds = _context.Cases_Files
+                .Where(cf => caseIds.Contains(cf.Case_Id))
+                .Select(cf => cf.File_Id);
+
+            query = query.Where(f => fileIds.Contains(f.Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -62,6 +79,8 @@ public class FilesController : ControllerBase
         var file = await _context.Files.FindAsync(id);
         if (file == null)
             return NotFound(new { message = "File not found" });
+        if (!await CanAccessFileAsync(id))
+            return Forbid();
 
         return Ok(MapToDto(file));
     }
@@ -189,6 +208,8 @@ public class FilesController : ControllerBase
         var file = await _context.Files.FindAsync(id);
         if (file == null || string.IsNullOrEmpty(file.Path))
             return NotFound(new { message = "File not found" });
+        if (!await CanAccessFileAsync(id))
+            return Forbid();
 
         var fullPath = Path.Combine(_env.ContentRootPath, file.Path.TrimStart('/'));
         if (!System.IO.File.Exists(fullPath))
@@ -207,6 +228,8 @@ public class FilesController : ControllerBase
         var file = await _context.Files.FindAsync(id);
         if (file == null || string.IsNullOrEmpty(file.Path))
             return NotFound(new { message = "File not found" });
+        if (!await CanAccessFileAsync(id))
+            return Forbid();
 
         var fullPath = Path.Combine(_env.ContentRootPath, file.Path.TrimStart('/'));
         if (!System.IO.File.Exists(fullPath))
@@ -241,5 +264,45 @@ public class FilesController : ControllerBase
             ".gif" => "image/gif",
             _ => "application/octet-stream"
         };
+    }
+
+    private async Task<int?> GetCurrentCustomerIdAsync()
+    {
+        var roles = await _userContext.GetUserRolesAsync();
+        var isCustomerOnly = roles.Contains("Customer") && !roles.Contains("SuperAdmin") && !roles.Contains("Admin") && !roles.Contains("Employee");
+        if (!isCustomerOnly)
+        {
+            return null;
+        }
+
+        var userName = _userContext.GetUserName();
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            return -1;
+        }
+
+        return await _context.Customers
+            .Include(c => c.Users)
+            .Where(c => c.Users != null && c.Users.User_Name == userName)
+            .Select(c => (int?)c.Id)
+            .FirstOrDefaultAsync() ?? -1;
+    }
+
+    private async Task<bool> CanAccessFileAsync(int fileId)
+    {
+        var customerId = await GetCurrentCustomerIdAsync();
+        if (!customerId.HasValue)
+        {
+            return true;
+        }
+
+        if (customerId.Value <= 0)
+        {
+            return false;
+        }
+
+        return await _context.Cases_Files.AnyAsync(cf =>
+            cf.File_Id == fileId &&
+            _context.Custmors_Cases.Any(cc => cc.Case_Id == cf.Case_Id && cc.Custmors_Id == customerId.Value));
     }
 }

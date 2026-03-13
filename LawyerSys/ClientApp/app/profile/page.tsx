@@ -10,7 +10,9 @@ import {
   Paper,
   Snackbar,
   Stack,
+  Switch,
   TextField,
+  FormControlLabel,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -28,6 +30,18 @@ type MyProfile = {
   tenantName: string;
   tenantPhoneNumber: string;
   canManageTenant: boolean;
+  address: string;
+  jobTitle: string;
+  dateOfBirth: string;
+  notificationPreferences: {
+    caseUpdatesEnabled: boolean;
+    billingUpdatesEnabled: boolean;
+    documentRequestsEnabled: boolean;
+    conversationUpdatesEnabled: boolean;
+    emailNotificationsEnabled: boolean;
+    smsNotificationsEnabled: boolean;
+    preferredLanguage: string;
+  };
 };
 
 type SnackbarState = {
@@ -50,6 +64,18 @@ const emptyProfile: MyProfile = {
   tenantName: "",
   tenantPhoneNumber: "",
   canManageTenant: false,
+  address: "",
+  jobTitle: "",
+  dateOfBirth: "",
+  notificationPreferences: {
+    caseUpdatesEnabled: true,
+    billingUpdatesEnabled: true,
+    documentRequestsEnabled: true,
+    conversationUpdatesEnabled: true,
+    emailNotificationsEnabled: false,
+    smsNotificationsEnabled: false,
+    preferredLanguage: "en",
+  },
 };
 
 export default function ProfilePage() {
@@ -107,6 +133,18 @@ export default function ProfilePage() {
           tenantName: profileRes.data?.tenantName ?? "",
           tenantPhoneNumber: profileRes.data?.tenantPhoneNumber ?? "",
           canManageTenant: !!profileRes.data?.canManageTenant,
+          address: profileRes.data?.address ?? "",
+          jobTitle: profileRes.data?.jobTitle ?? "",
+          dateOfBirth: profileRes.data?.dateOfBirth ?? "",
+          notificationPreferences: {
+            caseUpdatesEnabled: profileRes.data?.notificationPreferences?.caseUpdatesEnabled ?? true,
+            billingUpdatesEnabled: profileRes.data?.notificationPreferences?.billingUpdatesEnabled ?? true,
+            documentRequestsEnabled: profileRes.data?.notificationPreferences?.documentRequestsEnabled ?? true,
+            conversationUpdatesEnabled: profileRes.data?.notificationPreferences?.conversationUpdatesEnabled ?? true,
+            emailNotificationsEnabled: profileRes.data?.notificationPreferences?.emailNotificationsEnabled ?? false,
+            smsNotificationsEnabled: profileRes.data?.notificationPreferences?.smsNotificationsEnabled ?? false,
+            preferredLanguage: profileRes.data?.notificationPreferences?.preferredLanguage ?? (i18n.resolvedLanguage?.startsWith("ar") ? "ar" : "en"),
+          },
         };
         setProfile(incoming);
         setInitialProfile(incoming);
@@ -137,6 +175,10 @@ export default function ProfilePage() {
       const res = await api.put("/Account/me", {
         ...profile,
         countryId: profile.countryId,
+        address: profile.address,
+        jobTitle: profile.jobTitle,
+        dateOfBirth: profile.dateOfBirth || null,
+        notificationPreferences: profile.notificationPreferences,
       });
       const updatedProfile: MyProfile = {
         userName: res.data?.profile?.userName ?? profile.userName,
@@ -147,6 +189,18 @@ export default function ProfilePage() {
         tenantName: res.data?.profile?.tenantName ?? profile.tenantName,
         tenantPhoneNumber: res.data?.profile?.tenantPhoneNumber ?? profile.tenantPhoneNumber,
         canManageTenant: !!res.data?.profile?.canManageTenant,
+        address: res.data?.profile?.address ?? profile.address,
+        jobTitle: res.data?.profile?.jobTitle ?? profile.jobTitle,
+        dateOfBirth: res.data?.profile?.dateOfBirth ?? profile.dateOfBirth,
+        notificationPreferences: {
+          caseUpdatesEnabled: res.data?.profile?.notificationPreferences?.caseUpdatesEnabled ?? profile.notificationPreferences.caseUpdatesEnabled,
+          billingUpdatesEnabled: res.data?.profile?.notificationPreferences?.billingUpdatesEnabled ?? profile.notificationPreferences.billingUpdatesEnabled,
+          documentRequestsEnabled: res.data?.profile?.notificationPreferences?.documentRequestsEnabled ?? profile.notificationPreferences.documentRequestsEnabled,
+          conversationUpdatesEnabled: res.data?.profile?.notificationPreferences?.conversationUpdatesEnabled ?? profile.notificationPreferences.conversationUpdatesEnabled,
+          emailNotificationsEnabled: res.data?.profile?.notificationPreferences?.emailNotificationsEnabled ?? profile.notificationPreferences.emailNotificationsEnabled,
+          smsNotificationsEnabled: res.data?.profile?.notificationPreferences?.smsNotificationsEnabled ?? profile.notificationPreferences.smsNotificationsEnabled,
+          preferredLanguage: res.data?.profile?.notificationPreferences?.preferredLanguage ?? profile.notificationPreferences.preferredLanguage,
+        },
       };
 
       if (typeof res.data?.token === "string" && res.data.token.length > 0) {
@@ -257,6 +311,26 @@ export default function ProfilePage() {
                 onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
                 fullWidth
               />
+              <TextField
+                label={t("profile.address", { defaultValue: "Address" })}
+                value={profile.address}
+                onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                fullWidth
+              />
+              <TextField
+                label={t("profile.jobTitle", { defaultValue: "Job title" })}
+                value={profile.jobTitle}
+                onChange={(e) => setProfile({ ...profile, jobTitle: e.target.value })}
+                fullWidth
+              />
+              <TextField
+                type="date"
+                label={t("profile.dateOfBirth", { defaultValue: "Date of birth" })}
+                value={profile.dateOfBirth}
+                onChange={(e) => setProfile({ ...profile, dateOfBirth: e.target.value })}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
               <SearchableSelect
                 label={t("profile.country", { defaultValue: "Country" })}
                 value={profile.countryId ?? ""}
@@ -271,6 +345,131 @@ export default function ProfilePage() {
                   ...countries.map((country) => ({ value: country.id, label: country.name })),
                 ]}
               />
+              <TextField
+                select
+                label={t("profile.preferredLanguage", { defaultValue: "Preferred language" })}
+                value={profile.notificationPreferences.preferredLanguage}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    notificationPreferences: {
+                      ...profile.notificationPreferences,
+                      preferredLanguage: e.target.value,
+                    },
+                  })
+                }
+                fullWidth
+              >
+                <MenuItem value="en">{t("profile.languageEnglish", { defaultValue: "English" })}</MenuItem>
+                <MenuItem value="ar">{t("profile.languageArabic", { defaultValue: "Arabic" })}</MenuItem>
+              </TextField>
+              <Stack spacing={0.5}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  {t("profile.notificationsTitle", { defaultValue: "Notification preferences" })}
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={profile.notificationPreferences.caseUpdatesEnabled}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          notificationPreferences: {
+                            ...profile.notificationPreferences,
+                            caseUpdatesEnabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                  }
+                  label={t("profile.caseUpdatesEnabled", { defaultValue: "Case updates" })}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={profile.notificationPreferences.billingUpdatesEnabled}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          notificationPreferences: {
+                            ...profile.notificationPreferences,
+                            billingUpdatesEnabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                  }
+                  label={t("profile.billingUpdatesEnabled", { defaultValue: "Billing updates" })}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={profile.notificationPreferences.documentRequestsEnabled}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          notificationPreferences: {
+                            ...profile.notificationPreferences,
+                            documentRequestsEnabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                  }
+                  label={t("profile.documentRequestsEnabled", { defaultValue: "Document requests" })}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={profile.notificationPreferences.conversationUpdatesEnabled}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          notificationPreferences: {
+                            ...profile.notificationPreferences,
+                            conversationUpdatesEnabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                  }
+                  label={t("profile.conversationUpdatesEnabled", { defaultValue: "Conversation updates" })}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={profile.notificationPreferences.emailNotificationsEnabled}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          notificationPreferences: {
+                            ...profile.notificationPreferences,
+                            emailNotificationsEnabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                  }
+                  label={t("profile.emailNotificationsEnabled", { defaultValue: "Email alerts" })}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={profile.notificationPreferences.smsNotificationsEnabled}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          notificationPreferences: {
+                            ...profile.notificationPreferences,
+                            smsNotificationsEnabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                  }
+                  label={t("profile.smsNotificationsEnabled", { defaultValue: "SMS alerts" })}
+                />
+              </Stack>
               {canEditTenant && profile.canManageTenant && (
                 <>
                   <TextField

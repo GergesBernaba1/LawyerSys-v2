@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +14,12 @@ namespace LawyerSys.Controllers;
 public class JudicialDocumentsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public JudicialDocumentsController(LegacyDbContext context)
+    public JudicialDocumentsController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [HttpGet]
@@ -107,6 +110,21 @@ public class JudicialDocumentsController : ControllerBase
 
         await _context.Entry(doc).Reference(d => d.Customers).LoadAsync();
         await _context.Entry(doc.Customers).Reference(c => c.Users).LoadAsync();
+
+        var caseCodes = await _context.Custmors_Cases
+            .Where(item => item.Custmors_Id == dto.CustomerId)
+            .Select(item => item.Case_Id)
+            .Distinct()
+            .ToListAsync();
+
+        foreach (var caseCode in caseCodes)
+        {
+            await _inAppNotificationService.NotifyCaseDocumentAddedAsync(
+                caseCode,
+                doc.Id,
+                doc.Doc_Type,
+                HttpContext.RequestAborted);
+        }
 
         return CreatedAtAction(nameof(GetDocument), new { id = doc.Id }, MapToDto(doc));
     }

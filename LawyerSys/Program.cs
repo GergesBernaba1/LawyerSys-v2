@@ -7,6 +7,8 @@ using LawyerSys.Services.Reminders;
 using LawyerSys.Services.TimeTracking;
 using LawyerSys.Services.Intake;
 using LawyerSys.Services.AIAssistant;
+using LawyerSys.Services.CaseConversation;
+using LawyerSys.Services.CustomerExperience;
 using LawyerSys.Services.Subscriptions;
 using LawyerSys.Services.TrustAccounting;
 using LawyerSys.Realtime;
@@ -151,6 +153,7 @@ builder.Services.AddScoped<LawyerSys.Services.Email.IEmailSender, LawyerSys.Serv
 builder.Services.Configure<NotificationChannelsOptions>(builder.Configuration.GetSection("Notifications"));
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IExternalMessageSender, TwilioExternalMessageSender>();
+builder.Services.AddScoped<INotificationChannelDispatcher, NotificationChannelDispatcher>();
 builder.Services.AddSingleton<ReminderDispatchStore>();
 builder.Services.Configure<AiAssistantOptions>(builder.Configuration.GetSection("AiAssistant"));
 builder.Services.AddScoped<IAiAssistantTextService, AiAssistantTextService>();
@@ -350,6 +353,37 @@ try
     catch (Exception ex)
     {
         Log.Error(ex, "Error during time tracking schema initialization");
+    }
+
+    try
+    {
+        var caseConversationInitializer = new CaseConversationSchemaInitializer(scopedLegacy);
+        await caseConversationInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during case conversation schema initialization");
+    }
+
+    try
+    {
+        var customerExperienceInitializer = new CustomerExperienceSchemaInitializer(scopedLegacy);
+        await customerExperienceInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during customer experience schema initialization");
+    }
+
+    try
+    {
+        var scopedApplication = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var notificationPreferencesInitializer = new NotificationPreferencesSchemaInitializer(scopedApplication);
+        await notificationPreferencesInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during notification preference schema initialization");
     }
 
     try

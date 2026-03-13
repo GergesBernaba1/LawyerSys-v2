@@ -17,6 +17,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TenantSubscription> TenantSubscriptions => Set<TenantSubscription>();
     public DbSet<TenantBillingTransaction> TenantBillingTransactions => Set<TenantBillingTransaction>();
     public DbSet<DemoRequest> DemoRequests => Set<DemoRequest>();
+    public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -159,6 +160,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany()
                 .HasForeignKey(request => request.ReviewedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<UserNotificationPreference>(entity =>
+        {
+            entity.ToTable("UserNotificationPreferences");
+            entity.Property(preference => preference.UserId).HasMaxLength(450);
+            entity.Property(preference => preference.PreferredLanguage).HasMaxLength(12);
+            entity.HasIndex(preference => preference.UserId).IsUnique();
         });
 
         modelBuilder.Entity<LandingPageSettings>(entity =>

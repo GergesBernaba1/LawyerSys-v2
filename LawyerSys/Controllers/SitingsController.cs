@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +14,12 @@ namespace LawyerSys.Controllers;
 public class SitingsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public SitingsController(LegacyDbContext context)
+    public SitingsController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     [HttpGet]
@@ -102,6 +105,13 @@ public class SitingsController : ControllerBase
                 });
                 await _context.SaveChangesAsync();
             }
+
+            await _inAppNotificationService.NotifyCaseSitingScheduledAsync(
+                dto.CaseCode.Value,
+                siting.Id,
+                siting.Siting_Time,
+                siting.Judge_Name,
+                HttpContext.RequestAborted);
         }
 
         await _context.Entry(siting).Collection(st => st.Cases_Sitings).LoadAsync();
@@ -112,7 +122,9 @@ public class SitingsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSiting(int id, [FromBody] UpdateSitingDto dto)
     {
-        var siting = await _context.Sitings.FindAsync(id);
+        var siting = await _context.Sitings
+            .Include(item => item.Cases_Sitings)
+            .FirstOrDefaultAsync(item => item.Id == id);
         if (siting == null)
             return NotFound(new { message = "Siting not found" });
 
@@ -123,6 +135,17 @@ public class SitingsController : ControllerBase
         if (dto.Notes != null) siting.Notes = dto.Notes;
 
         await _context.SaveChangesAsync();
+
+        foreach (var caseCode in siting.Cases_Sitings.Select(item => item.Case_Code).Distinct())
+        {
+            await _inAppNotificationService.NotifyCaseSitingUpdatedAsync(
+                caseCode,
+                siting.Id,
+                siting.Siting_Time,
+                siting.Judge_Name,
+                HttpContext.RequestAborted);
+        }
+
         return Ok(MapToDto(siting));
     }
 
@@ -130,12 +153,25 @@ public class SitingsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSiting(int id)
     {
-        var siting = await _context.Sitings.FindAsync(id);
+        var siting = await _context.Sitings
+            .Include(item => item.Cases_Sitings)
+            .FirstOrDefaultAsync(item => item.Id == id);
         if (siting == null)
             return NotFound(new { message = "Siting not found" });
 
+        var caseCodes = siting.Cases_Sitings
+            .Select(item => item.Case_Code)
+            .Distinct()
+            .ToList();
+
         _context.Sitings.Remove(siting);
         await _context.SaveChangesAsync();
+
+        foreach (var caseCode in caseCodes)
+        {
+            await _inAppNotificationService.NotifyCaseSitingCancelledAsync(caseCode, id, HttpContext.RequestAborted);
+        }
+
         return Ok(new { message = "Siting deleted" });
     }
 

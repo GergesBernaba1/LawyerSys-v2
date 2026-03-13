@@ -112,6 +112,7 @@ export default function DashboardPageClient() {
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
   const isSuperAdmin = hasRole('SuperAdmin');
+  const isCustomerOnly = hasRole('Customer') && !hasRole('Admin') && !hasRole('Employee') && !isSuperAdmin;
   const [stats, setStats] = useState({
     cases: 0,
     customers: 0,
@@ -128,6 +129,18 @@ export default function DashboardPageClient() {
   const numberLocale = isRTL ? 'ar' : 'en-US'
 
   useEffect(() => {
+    if (!isAuthenticated || !user) return
+    if (isCustomerOnly) {
+      router.replace('/client-portal')
+    }
+  }, [isAuthenticated, user, isCustomerOnly, router])
+
+  useEffect(() => {
+    if (isCustomerOnly) {
+      setLoading(false)
+      return
+    }
+
     async function fetchStats() {
       const requestConfig = isSuperAdmin ? ({ skipTenantHeader: true } as any) : undefined;
 
@@ -179,7 +192,11 @@ export default function DashboardPageClient() {
       }
     }
     fetchStats();
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, isCustomerOnly]);
+
+  if (isCustomerOnly) {
+    return null
+  }
 
   const navigate = (path: string) => {
     const target = `/${locale}${path}`

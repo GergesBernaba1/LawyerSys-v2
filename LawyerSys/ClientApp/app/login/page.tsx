@@ -32,7 +32,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated, isAuthInitialized } = useAuth();
+  const { login, isAuthenticated, isAuthInitialized, user, hasRole } = useAuth();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -42,10 +42,21 @@ export default function LoginPage() {
   // Redirect authenticated users away from login page
   useEffect(() => {
     if (!isAuthInitialized) return;
-    if (isAuthenticated) {
+    if (!isAuthenticated) return;
+    if (!user) return;
+
+    const isCustomerOnly =
+      hasRole('Customer') &&
+      !hasRole('Admin') &&
+      !hasRole('Employee') &&
+      !hasRole('SuperAdmin');
+
+    if (isCustomerOnly) {
+      router.replace('/client-portal');
+    } else {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, isAuthInitialized, router]);
+  }, [isAuthenticated, isAuthInitialized, user, hasRole, router]);
 
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -55,7 +66,7 @@ export default function LoginPage() {
 
     const result = await login(userName, password);
     if (result.success) {
-      router.replace('/dashboard');
+      return;
     } else {
       setError(result.message || t('login.invalidCredentials') || 'Invalid credentials');
     }

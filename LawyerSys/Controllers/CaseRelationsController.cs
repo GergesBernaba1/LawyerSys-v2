@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
+using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
@@ -14,11 +15,16 @@ public class CaseRelationsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IUserContext _userContext;
 
-    public CaseRelationsController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
+    public CaseRelationsController(
+        LegacyDbContext context,
+        IInAppNotificationService inAppNotificationService,
+        IUserContext userContext)
     {
         _context = context;
         _inAppNotificationService = inAppNotificationService;
+        _userContext = userContext;
     }
 
     // ========== CASE - CUSTOMER RELATIONS ==========
@@ -345,6 +351,13 @@ public class CaseRelationsController : ControllerBase
         _context.Cases_Files.Add(relation);
         await _context.SaveChangesAsync();
 
+        var file = await _context.Files.FindAsync(fileId);
+        await _inAppNotificationService.NotifyCaseFileAddedAsync(
+            caseCode,
+            fileId,
+            file?.Code ?? string.Empty,
+            HttpContext.RequestAborted);
+
         return Ok(new { message = "File added to case", id = relation.Id });
     }
 
@@ -373,9 +386,33 @@ public class CaseRelationsController : ControllerBase
         if (caseEntity == null)
             return NotFound(new { message = "Case not found" });
 
+        if (!await CanAccessCase(caseCode))
+            return Forbid();
+
+        var roles = await _userContext.GetUserRolesAsync();
+        var isAdmin = roles.Contains("Admin");
+        var isEmployee = roles.Contains("Employee");
+        var isCustomerOnly = roles.Contains("Customer") && !isAdmin && !isEmployee;
+        var currentCustomerId = isCustomerOnly
+            ? await _context.Customers
+                .Include(customer => customer.Users)
+                .Where(customer => customer.Users != null && customer.Users.User_Name == _userContext.GetUserName())
+                .Select(customer => (int?)customer.Id)
+                .FirstOrDefaultAsync()
+            : null;
+
+        var accessibleCustomerIds = currentCustomerId.HasValue
+            ? new[] { currentCustomerId.Value }
+            : await _context.Custmors_Cases
+                .Where(cc => cc.Case_Id == caseCode)
+                .Select(cc => cc.Custmors_Id)
+                .Distinct()
+                .ToArrayAsync();
+
         var customers = await _context.Custmors_Cases
             .Include(cc => cc.Custmors).ThenInclude(c => c.Users)
             .Where(cc => cc.Case_Id == caseCode)
+            .Where(cc => accessibleCustomerIds.Contains(cc.Custmors_Id))
             .Select(cc => new { cc.Custmors.Id, cc.Custmors.Users.Full_Name })
             .ToListAsync();
 
@@ -415,6 +452,87 @@ public class CaseRelationsController : ControllerBase
             .Select(h => new { h.Id, h.OldStatus, h.NewStatus, h.ChangedBy, h.ChangedAt })
             .ToListAsync();
 
+        var documents = await _context.Judicial_Documents
+            .Where(item => accessibleCustomerIds.Contains(item.Customers_Id))
+            .OrderByDescending(item => item.Id)
+            .Select(item => new
+            {
+                item.Id,
+                DocType = item.Doc_Type,
+                DocNum = item.Doc_Num,
+                DocDetails = item.Doc_Details,
+                item.Notes
+            })
+            .ToListAsync();
+
+        var billingPayments = await _context.Billing_Pays
+            .Where(item => accessibleCustomerIds.Contains(item.Custmor_Id))
+            .OrderByDescending(item => item.Date_Of_Opreation)
+            .Select(item => new
+            {
+                item.Id,
+                Amount = item.Amount,
+                DateOfOperation = item.Date_Of_Opreation,
+                item.Notes,
+                CustomerId = item.Custmor_Id
+            })
+            .ToListAsync();
+
+        var requestedDocuments = await _context.CustomerRequestedDocuments
+            .Where(item => item.CaseCode == caseCode && accessibleCustomerIds.Contains(item.CustomerId))
+            .OrderByDescending(item => item.RequestedAtUtc)
+            .Select(item => new
+            {
+                item.Id,
+                item.CaseCode,
+                CustomerId = item.CustomerId,
+                CustomerName = _context.Customers.Where(customer => customer.Id == item.CustomerId).Select(customer => customer.Users.Full_Name ?? customer.Users.User_Name).FirstOrDefault(),
+                item.Title,
+                item.Description,
+                item.DueDate,
+                item.Status,
+                item.RequestedByName,
+                item.CustomerNotes,
+                item.ReviewNotes,
+                item.UploadedFileId,
+                UploadedFileCode = item.UploadedFileId.HasValue
+                    ? _context.Files.Where(file => file.Id == item.UploadedFileId.Value).Select(file => file.Code).FirstOrDefault()
+                    : string.Empty,
+                UploadedFilePath = item.UploadedFileId.HasValue
+                    ? _context.Files.Where(file => file.Id == item.UploadedFileId.Value).Select(file => file.Path).FirstOrDefault()
+                    : string.Empty,
+                item.RequestedAtUtc,
+                item.SubmittedAtUtc,
+                item.ReviewedAtUtc
+            })
+            .ToListAsync();
+
+        var paymentProofs = await _context.CustomerPaymentProofs
+            .Where(item => item.CaseCode == caseCode && accessibleCustomerIds.Contains(item.CustomerId))
+            .OrderByDescending(item => item.SubmittedAtUtc)
+            .Select(item => new
+            {
+                item.Id,
+                item.CustomerId,
+                CustomerName = _context.Customers.Where(customer => customer.Id == item.CustomerId).Select(customer => customer.Users.Full_Name ?? customer.Users.User_Name).FirstOrDefault(),
+                item.Amount,
+                item.PaymentDate,
+                item.Notes,
+                item.ProofFileId,
+                ProofFileCode = item.ProofFileId.HasValue
+                    ? _context.Files.Where(file => file.Id == item.ProofFileId.Value).Select(file => file.Code).FirstOrDefault()
+                    : string.Empty,
+                ProofFilePath = item.ProofFileId.HasValue
+                    ? _context.Files.Where(file => file.Id == item.ProofFileId.Value).Select(file => file.Path).FirstOrDefault()
+                    : string.Empty,
+                item.Status,
+                item.BillingPaymentId,
+                item.ReviewNotes,
+                item.SubmittedAtUtc,
+                item.ReviewedAtUtc
+            })
+            .ToListAsync();
+
         return Ok(new
         {
             Case = new
@@ -434,7 +552,48 @@ public class CaseRelationsController : ControllerBase
             Employees = employees,
             Sitings = sitings,
             Files = files,
-            StatusHistory = statusHistory
+            StatusHistory = statusHistory,
+            Documents = documents,
+            BillingPayments = billingPayments,
+            RequestedDocuments = requestedDocuments,
+            PaymentProofs = paymentProofs
         });
+    }
+
+    private async Task<bool> CanAccessCase(int caseCode)
+    {
+        var roles = await _userContext.GetUserRolesAsync();
+        if (roles.Contains("Admin"))
+            return true;
+
+        var userName = _userContext.GetUserName();
+
+        if (roles.Contains("Employee"))
+        {
+            var employee = await _context.Employees
+                .Include(item => item.Users)
+                .FirstOrDefaultAsync(item => item.Users != null && item.Users.User_Name == userName);
+
+            if (employee == null)
+                return false;
+
+            return await _context.Cases_Employees
+                .AnyAsync(item => item.Case_Code == caseCode && item.Employee_Id == employee.id);
+        }
+
+        if (roles.Contains("Customer"))
+        {
+            var customer = await _context.Customers
+                .Include(item => item.Users)
+                .FirstOrDefaultAsync(item => item.Users != null && item.Users.User_Name == userName);
+
+            if (customer == null)
+                return false;
+
+            return await _context.Custmors_Cases
+                .AnyAsync(item => item.Case_Id == caseCode && item.Custmors_Id == customer.Id);
+        }
+
+        return false;
     }
 }

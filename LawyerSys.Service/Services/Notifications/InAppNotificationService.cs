@@ -12,19 +12,22 @@ public class InAppNotificationService : IInAppNotificationService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserContext _userContext;
     private readonly INotificationRealtimePublisher _realtimePublisher;
+    private readonly INotificationChannelDispatcher _notificationChannelDispatcher;
 
     public InAppNotificationService(
         ApplicationDbContext applicationDbContext,
         LegacyDbContext legacyDbContext,
         UserManager<ApplicationUser> userManager,
         IUserContext userContext,
-        INotificationRealtimePublisher realtimePublisher)
+        INotificationRealtimePublisher realtimePublisher,
+        INotificationChannelDispatcher notificationChannelDispatcher)
     {
         _applicationDbContext = applicationDbContext;
         _legacyDbContext = legacyDbContext;
         _userManager = userManager;
         _userContext = userContext;
         _realtimePublisher = realtimePublisher;
+        _notificationChannelDispatcher = notificationChannelDispatcher;
     }
 
     public async Task NotifySuperAdminsOfTenantRegistrationAsync(Tenant tenant, ApplicationUser adminUser, CancellationToken cancellationToken = default)
@@ -200,7 +203,7 @@ public class InAppNotificationService : IInAppNotificationService
                     TitleAr = "تمت إضافتك إلى قضية",
                     Message = $"{actor.DisplayName} linked you to {caseContext.Label}.",
                     MessageAr = $"قام {actor.DisplayName} بربطك بـ {caseContext.LabelAr}.",
-                    Route = caseContext.Route,
+                    Route = $"{caseContext.Route}/timeline",
                     RelatedEntityType = "Case",
                     RelatedEntityId = caseCode.ToString()
                 },
@@ -338,7 +341,7 @@ public class InAppNotificationService : IInAppNotificationService
                     TitleAr = "تم تحديث حالة القضية",
                     Message = $"{actor.DisplayName} updated {caseContext.Label} to {MapStatusLabel(oldStatus: null, newStatus)}.",
                     MessageAr = $"قام {actor.DisplayName} بتحديث {caseContext.LabelAr} إلى {MapStatusLabelAr(oldStatus: null, newStatus)}.",
-                    Route = caseContext.Route,
+                    Route = $"{caseContext.Route}/timeline",
                     RelatedEntityType = "Case",
                     RelatedEntityId = caseCode.ToString()
                 },
@@ -379,6 +382,320 @@ public class InAppNotificationService : IInAppNotificationService
             cancellationToken);
     }
 
+    public Task NotifyCaseSitingScheduledAsync(int caseCode, int sitingId, DateTime sitingTime, string judgeName, CancellationToken cancellationToken = default)
+    {
+        var judgeSegment = string.IsNullOrWhiteSpace(judgeName) ? string.Empty : $" with Judge {judgeName}";
+        var judgeSegmentAr = string.IsNullOrWhiteSpace(judgeName) ? string.Empty : $" مع القاضي {judgeName}";
+
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "CaseSitingScheduled",
+            "New case session scheduled",
+            "تمت إضافة جلسة جديدة للقضية",
+            caseContext => $"A new session was scheduled for {caseContext.Label} on {sitingTime:yyyy-MM-dd HH:mm}{judgeSegment}.",
+            caseContext => $"تمت إضافة جلسة جديدة إلى {caseContext.LabelAr} بتاريخ {sitingTime:yyyy-MM-dd HH:mm}{judgeSegmentAr}.",
+            sitingId.ToString(),
+            cancellationToken);
+    }
+
+    public Task NotifyCaseSitingUpdatedAsync(int caseCode, int sitingId, DateTime sitingTime, string judgeName, CancellationToken cancellationToken = default)
+    {
+        var judgeSegment = string.IsNullOrWhiteSpace(judgeName) ? string.Empty : $" with Judge {judgeName}";
+        var judgeSegmentAr = string.IsNullOrWhiteSpace(judgeName) ? string.Empty : $" مع القاضي {judgeName}";
+
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "CaseSitingUpdated",
+            "Case session updated",
+            "تم تحديث جلسة القضية",
+            caseContext => $"A session for {caseContext.Label} was updated to {sitingTime:yyyy-MM-dd HH:mm}{judgeSegment}.",
+            caseContext => $"تم تحديث جلسة {caseContext.LabelAr} إلى {sitingTime:yyyy-MM-dd HH:mm}{judgeSegmentAr}.",
+            sitingId.ToString(),
+            cancellationToken);
+    }
+
+    public Task NotifyCaseSitingCancelledAsync(int caseCode, int sitingId, CancellationToken cancellationToken = default)
+    {
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "CaseSitingCancelled",
+            "Case session cancelled",
+            "تم إلغاء جلسة القضية",
+            caseContext => $"A scheduled session for {caseContext.Label} was cancelled.",
+            caseContext => $"تم إلغاء جلسة مجدولة لـ {caseContext.LabelAr}.",
+            sitingId.ToString(),
+            cancellationToken);
+    }
+
+    public Task NotifyCaseDocumentAddedAsync(int caseCode, int documentId, string documentType, CancellationToken cancellationToken = default)
+    {
+        var safeType = string.IsNullOrWhiteSpace(documentType) ? "document" : documentType.Trim();
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "CaseDocumentAdded",
+            "New document added to your case",
+            "تمت إضافة مستند جديد إلى قضيتك",
+            caseContext => $"{safeType} was added to {caseContext.Label}.",
+            caseContext => $"تمت إضافة مستند من نوع {safeType} إلى {caseContext.LabelAr}.",
+            documentId.ToString(),
+            cancellationToken);
+    }
+
+    public Task NotifyCaseFileAddedAsync(int caseCode, int fileId, string fileCode, CancellationToken cancellationToken = default)
+    {
+        var safeFileCode = string.IsNullOrWhiteSpace(fileCode) ? $"file #{fileId}" : fileCode.Trim();
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "CaseFileAdded",
+            "New file uploaded to your case",
+            "تم رفع ملف جديد إلى قضيتك",
+            caseContext => $"{safeFileCode} was uploaded to {caseContext.Label}.",
+            caseContext => $"تم رفع الملف {safeFileCode} إلى {caseContext.LabelAr}.",
+            fileId.ToString(),
+            cancellationToken);
+    }
+
+    public async Task NotifyCustomerPaymentRecordedAsync(int customerId, int paymentId, double amount, DateOnly paymentDate, CancellationToken cancellationToken = default)
+    {
+        var customer = await GetCustomerContextAsync(customerId, cancellationToken);
+        if (customer == null || string.IsNullOrWhiteSpace(customer.UserId))
+        {
+            return;
+        }
+
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        if (string.Equals(customer.UserId, actor.UserId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            new[] { customer.UserId! },
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = _userContext.GetTenantId(),
+                Type = "CustomerPaymentRecorded",
+                Title = "Payment recorded on your account",
+                TitleAr = "تم تسجيل دفعة على حسابك",
+                Message = $"{actor.DisplayName} recorded a payment of {amount:F2} on {paymentDate:yyyy-MM-dd}.",
+                MessageAr = $"قام {actor.DisplayName} بتسجيل دفعة بقيمة {amount:F2} بتاريخ {paymentDate:yyyy-MM-dd}.",
+                Route = "/client-portal",
+                RelatedEntityType = "BillingPayment",
+                RelatedEntityId = paymentId.ToString()
+            },
+            cancellationToken);
+    }
+
+    public async Task NotifyCaseConversationMessageAsync(int caseCode, string messagePreview, bool fromCustomer, bool visibleToCustomer, CancellationToken cancellationToken = default)
+    {
+        var caseContext = await GetCaseContextAsync(caseCode, cancellationToken);
+        if (caseContext == null)
+        {
+            return;
+        }
+
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var preview = Truncate(messagePreview, 180);
+
+        if (fromCustomer)
+        {
+            if (!caseContext.TenantId.HasValue)
+            {
+                return;
+            }
+
+            var staffRecipientIds = await GetUserIdsInRolesAsync(new[] { "ADMIN", "EMPLOYEE" }, caseContext.TenantId.Value, cancellationToken);
+            staffRecipientIds = staffRecipientIds
+                .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (staffRecipientIds.Count == 0)
+            {
+                return;
+            }
+
+            await CreateNotificationsAsync(
+                staffRecipientIds,
+                new NotificationContent
+                {
+                    SenderUserId = actor.UserId,
+                    TenantId = caseContext.TenantId,
+                    Type = "CaseConversationMessage",
+                    Title = "New client message",
+                    TitleAr = "رسالة جديدة من العميل",
+                    Message = $"{actor.DisplayName} sent a new message on {caseContext.Label}: {preview}",
+                    MessageAr = $"أرسل {actor.DisplayName} رسالة جديدة على {caseContext.LabelAr}: {preview}",
+                    Route = caseContext.Route,
+                    RelatedEntityType = "Case",
+                    RelatedEntityId = caseCode.ToString()
+                },
+                cancellationToken);
+
+            return;
+        }
+
+        if (!visibleToCustomer)
+        {
+            return;
+        }
+
+        var customerRecipientIds = await GetCustomerUserIdsForCaseAsync(caseCode, cancellationToken);
+        customerRecipientIds = customerRecipientIds
+            .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (customerRecipientIds.Count == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            customerRecipientIds,
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = caseContext.TenantId,
+                Type = "CaseConversationMessage",
+                Title = "New office message",
+                TitleAr = "رسالة جديدة من المكتب",
+                Message = $"{actor.DisplayName} sent a new update on {caseContext.Label}: {preview}",
+                MessageAr = $"أرسل {actor.DisplayName} تحديثاً جديداً على {caseContext.LabelAr}: {preview}",
+                Route = caseContext.Route,
+                RelatedEntityType = "Case",
+                RelatedEntityId = caseCode.ToString()
+            },
+            cancellationToken);
+    }
+
+    public Task NotifyRequestedDocumentCreatedAsync(int caseCode, long requestId, string title, CancellationToken cancellationToken = default)
+    {
+        var safeTitle = string.IsNullOrWhiteSpace(title) ? "requested document" : title.Trim();
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "RequestedDocumentCreated",
+            "Document requested from you",
+            "تم طلب مستند منك",
+            caseContext => $"The office requested \"{safeTitle}\" for {caseContext.Label}.",
+            caseContext => $"طلب المكتب المستند \"{safeTitle}\" للقضية {caseContext.LabelAr}.",
+            requestId.ToString(),
+            cancellationToken);
+    }
+
+    public async Task NotifyRequestedDocumentSubmittedAsync(int caseCode, long requestId, string title, CancellationToken cancellationToken = default)
+    {
+        var caseContext = await GetCaseContextAsync(caseCode, cancellationToken);
+        if (caseContext == null || !caseContext.TenantId.HasValue)
+        {
+            return;
+        }
+
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientIds = await GetUserIdsInRolesAsync(new[] { "ADMIN", "EMPLOYEE" }, caseContext.TenantId.Value, cancellationToken);
+        recipientIds = recipientIds
+            .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (recipientIds.Count == 0)
+        {
+            return;
+        }
+
+        var safeTitle = string.IsNullOrWhiteSpace(title) ? "requested document" : title.Trim();
+        await CreateNotificationsAsync(
+            recipientIds,
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = caseContext.TenantId,
+                Type = "RequestedDocumentSubmitted",
+                Title = "Client uploaded a requested document",
+                TitleAr = "قام العميل برفع المستند المطلوب",
+                Message = $"{actor.DisplayName} uploaded \"{safeTitle}\" for {caseContext.Label}.",
+                MessageAr = $"قام {actor.DisplayName} برفع المستند \"{safeTitle}\" إلى {caseContext.LabelAr}.",
+                Route = caseContext.Route,
+                RelatedEntityType = "Case",
+                RelatedEntityId = caseCode.ToString()
+            },
+            cancellationToken);
+    }
+
+    public Task NotifyRequestedDocumentReviewedAsync(int caseCode, long requestId, string title, bool approved, CancellationToken cancellationToken = default)
+    {
+        var safeTitle = string.IsNullOrWhiteSpace(title) ? "requested document" : title.Trim();
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "RequestedDocumentReviewed",
+            approved ? "Requested document approved" : "Requested document needs changes",
+            approved ? "تم اعتماد المستند المطلوب" : "المستند المطلوب يحتاج تعديلات",
+            caseContext => approved
+                ? $"The office approved \"{safeTitle}\" for {caseContext.Label}."
+                : $"The office asked for updates to \"{safeTitle}\" for {caseContext.Label}.",
+            caseContext => approved
+                ? $"اعتمد المكتب المستند \"{safeTitle}\" الخاص بـ {caseContext.LabelAr}."
+                : $"طلب المكتب تحديثات على المستند \"{safeTitle}\" الخاص بـ {caseContext.LabelAr}.",
+            requestId.ToString(),
+            cancellationToken);
+    }
+
+    public async Task NotifyPaymentProofSubmittedAsync(int caseCode, long proofId, double amount, CancellationToken cancellationToken = default)
+    {
+        var caseContext = await GetCaseContextAsync(caseCode, cancellationToken);
+        if (caseContext == null || !caseContext.TenantId.HasValue)
+        {
+            return;
+        }
+
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientIds = await GetUserIdsInRolesAsync(new[] { "ADMIN", "EMPLOYEE" }, caseContext.TenantId.Value, cancellationToken);
+        recipientIds = recipientIds
+            .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (recipientIds.Count == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            recipientIds,
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = caseContext.TenantId,
+                Type = "PaymentProofSubmitted",
+                Title = "Client submitted a payment proof",
+                TitleAr = "قام العميل بإرسال إثبات دفع",
+                Message = $"{actor.DisplayName} submitted a payment proof for {caseContext.Label} worth {amount:F2}.",
+                MessageAr = $"قام {actor.DisplayName} بإرسال إثبات دفع للقضية {caseContext.LabelAr} بقيمة {amount:F2}.",
+                Route = caseContext.Route,
+                RelatedEntityType = "Case",
+                RelatedEntityId = caseCode.ToString()
+            },
+            cancellationToken);
+    }
+
+    public Task NotifyPaymentProofReviewedAsync(int caseCode, long proofId, double amount, bool approved, CancellationToken cancellationToken = default)
+    {
+        return NotifyCustomersOfCaseUpdateAsync(
+            caseCode,
+            "PaymentProofReviewed",
+            approved ? "Payment proof approved" : "Payment proof rejected",
+            approved ? "تم اعتماد إثبات الدفع" : "تم رفض إثبات الدفع",
+            caseContext => approved
+                ? $"Your payment proof for {caseContext.Label} was approved for {amount:F2}."
+                : $"Your payment proof for {caseContext.Label} was rejected. Please review the office note.",
+            caseContext => approved
+                ? $"تم اعتماد إثبات الدفع الخاص بـ {caseContext.LabelAr} بقيمة {amount:F2}."
+                : $"تم رفض إثبات الدفع الخاص بـ {caseContext.LabelAr}. يرجى مراجعة ملاحظة المكتب.",
+            proofId.ToString(),
+            cancellationToken);
+    }
+
     private async Task CreateNotificationsAsync(IEnumerable<string> recipientUserIds, NotificationContent content, CancellationToken cancellationToken)
     {
         var ids = recipientUserIds
@@ -386,6 +703,12 @@ public class InAppNotificationService : IInAppNotificationService
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
+        if (ids.Length == 0)
+        {
+            return;
+        }
+
+        ids = await FilterRecipientIdsAsync(ids, content, cancellationToken);
         if (ids.Length == 0)
         {
             return;
@@ -411,6 +734,115 @@ public class InAppNotificationService : IInAppNotificationService
         _applicationDbContext.Notifications.AddRange(notifications);
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
         await _realtimePublisher.PublishChangedAsync(ids, cancellationToken);
+        await _notificationChannelDispatcher.DispatchAsync(
+            ids,
+            content.Type,
+            content.Title,
+            content.TitleAr,
+            content.Message,
+            content.MessageAr,
+            content.Route,
+            cancellationToken);
+    }
+
+    private async Task<string[]> FilterRecipientIdsAsync(string[] recipientUserIds, NotificationContent content, CancellationToken cancellationToken)
+    {
+        var allowed = await FilterByGlobalPreferencesAsync(recipientUserIds, content.Type, cancellationToken);
+        if (allowed.Length == 0)
+        {
+            return allowed;
+        }
+
+        if (!string.Equals(content.RelatedEntityType, "Case", StringComparison.OrdinalIgnoreCase)
+            || !int.TryParse(content.RelatedEntityId, out var caseCode))
+        {
+            return allowed;
+        }
+
+        return await FilterByCaseNotificationSettingsAsync(allowed, caseCode, cancellationToken);
+    }
+
+    private async Task<string[]> FilterByGlobalPreferencesAsync(string[] recipientUserIds, string notificationType, CancellationToken cancellationToken)
+    {
+        var preferences = await _applicationDbContext.UserNotificationPreferences
+            .AsNoTracking()
+            .Where(item => recipientUserIds.Contains(item.UserId))
+            .ToListAsync(cancellationToken);
+
+        if (preferences.Count == 0)
+        {
+            return recipientUserIds;
+        }
+
+        return recipientUserIds
+            .Where(id =>
+            {
+                var preference = preferences.FirstOrDefault(item => item.UserId == id);
+                return preference == null || IsAllowedByPreference(preference, notificationType);
+            })
+            .ToArray();
+    }
+
+    private async Task<string[]> FilterByCaseNotificationSettingsAsync(string[] recipientUserIds, int caseCode, CancellationToken cancellationToken)
+    {
+        var users = await _applicationDbContext.Users
+            .AsNoTracking()
+            .Where(user => recipientUserIds.Contains(user.Id))
+            .Select(user => new { user.Id, user.NormalizedUserName })
+            .ToListAsync(cancellationToken);
+
+        if (users.Count == 0)
+        {
+            return recipientUserIds;
+        }
+
+        var normalizedNames = users
+            .Select(user => user.NormalizedUserName)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (normalizedNames.Count == 0)
+        {
+            return recipientUserIds;
+        }
+
+        var customers = await _legacyDbContext.Customers
+            .AsNoTracking()
+            .Where(customer => normalizedNames.Contains(customer.Users.User_Name.ToUpper()))
+            .Select(customer => new
+            {
+                customer.Id,
+                NormalizedUserName = customer.Users.User_Name.ToUpper()
+            })
+            .ToListAsync(cancellationToken);
+
+        if (customers.Count == 0)
+        {
+            return recipientUserIds;
+        }
+
+        var customerIds = customers.Select(item => item.Id).Distinct().ToList();
+        var mutedCustomers = await _legacyDbContext.CustomerCaseNotificationSettings
+            .AsNoTracking()
+            .Where(item => item.CaseCode == caseCode && customerIds.Contains(item.CustomerId) && !item.NotificationsEnabled)
+            .Select(item => item.CustomerId)
+            .ToListAsync(cancellationToken);
+
+        if (mutedCustomers.Count == 0)
+        {
+            return recipientUserIds;
+        }
+
+        var mutedNames = customers
+            .Where(item => mutedCustomers.Contains(item.Id))
+            .Select(item => item.NormalizedUserName)
+            .ToHashSet(StringComparer.Ordinal);
+
+        return users
+            .Where(user => string.IsNullOrWhiteSpace(user.NormalizedUserName) || !mutedNames.Contains(user.NormalizedUserName))
+            .Select(user => user.Id)
+            .ToArray();
     }
 
     private async Task<List<string>> GetUserIdsInRolesAsync(IEnumerable<string> normalizedRoleNames, int? tenantId, CancellationToken cancellationToken)
@@ -568,6 +1000,52 @@ public class InAppNotificationService : IInAppNotificationService
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    private async Task NotifyCustomersOfCaseUpdateAsync(
+        int caseCode,
+        string type,
+        string title,
+        string titleAr,
+        Func<CaseContext, string> buildMessage,
+        Func<CaseContext, string> buildMessageAr,
+        string relatedEntityId,
+        CancellationToken cancellationToken)
+    {
+        var caseContext = await GetCaseContextAsync(caseCode, cancellationToken);
+        if (caseContext == null)
+        {
+            return;
+        }
+
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientIds = await GetCustomerUserIdsForCaseAsync(caseCode, cancellationToken);
+        recipientIds = recipientIds
+            .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (recipientIds.Count == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            recipientIds,
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = caseContext.TenantId,
+                Type = type,
+                Title = title,
+                TitleAr = titleAr,
+                Message = buildMessage(caseContext),
+                MessageAr = buildMessageAr(caseContext),
+                Route = $"{caseContext.Route}/timeline",
+                RelatedEntityType = "Case",
+                RelatedEntityId = relatedEntityId
+            },
+            cancellationToken);
+    }
+
     private static string GetDisplayName(string? fullName, string? userName)
     {
         if (!string.IsNullOrWhiteSpace(fullName))
@@ -581,6 +1059,22 @@ public class InAppNotificationService : IInAppNotificationService
         }
 
         return "System";
+    }
+
+    private static string Truncate(string? value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var trimmed = value.Trim();
+        if (trimmed.Length <= maxLength)
+        {
+            return trimmed;
+        }
+
+        return $"{trimmed[..maxLength]}...";
     }
 
     private static string MapStatusLabel(CaseStatus? oldStatus, CaseStatus? newStatus)
@@ -621,6 +1115,18 @@ public class InAppNotificationService : IInAppNotificationService
     private static string MapCycleLabelAr(SubscriptionBillingCycle billingCycle)
     {
         return billingCycle == SubscriptionBillingCycle.Annual ? "سنوي" : "شهري";
+    }
+
+    private static bool IsAllowedByPreference(UserNotificationPreference preference, string notificationType)
+    {
+        return notificationType switch
+        {
+            "CustomerPaymentRecorded" or "PaymentProofReviewed" => preference.BillingUpdatesEnabled,
+            "RequestedDocumentCreated" or "RequestedDocumentReviewed" => preference.DocumentRequestsEnabled,
+            "CaseConversationMessage" => preference.ConversationUpdatesEnabled,
+            "CaseStatusChanged" or "CaseSitingScheduled" or "CaseSitingUpdated" or "CaseSitingCancelled" or "CaseDocumentAdded" or "CaseFileAdded" => preference.CaseUpdatesEnabled,
+            _ => true
+        };
     }
 
     private sealed record NotificationContent

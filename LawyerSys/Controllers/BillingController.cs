@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +14,12 @@ namespace LawyerSys.Controllers;
 public class BillingController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IInAppNotificationService _inAppNotificationService;
 
-    public BillingController(LegacyDbContext context)
+    public BillingController(LegacyDbContext context, IInAppNotificationService inAppNotificationService)
     {
         _context = context;
+        _inAppNotificationService = inAppNotificationService;
     }
 
     // ========== PAYMENTS ==========
@@ -95,6 +98,13 @@ public class BillingController : ControllerBase
 
         await _context.Entry(payment).Reference(p => p.Custmor).LoadAsync();
         await _context.Entry(payment.Custmor).Reference(c => c.Users).LoadAsync();
+
+        await _inAppNotificationService.NotifyCustomerPaymentRecordedAsync(
+            payment.Custmor_Id,
+            payment.Id,
+            payment.Amount,
+            payment.Date_Of_Opreation,
+            HttpContext.RequestAborted);
 
         return CreatedAtAction(nameof(GetPayment), new { id = payment.Id }, MapPayToDto(payment));
     }
