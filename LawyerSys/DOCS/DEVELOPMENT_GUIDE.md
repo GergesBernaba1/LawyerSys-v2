@@ -1,6 +1,6 @@
 # LawyerSys-v2 — Development Guide
 
-This document is a concise reference for developers working on the LawyerSys migration (ASP.NET Core + React). It explains the project layout, conventions, development tasks, commands you will need, and recommended practices (DDD + migrations + Identity migration). Use this as the single place to get started quickly and to follow the team's guidelines.
+This document is a concise reference for developers working on the LawyerSys migration (ASP.NET Core + React). It explains the project layout, conventions, development tasks, commands you will need, and recommended practices (DDD + migrations + Identity migration). Start here for workflow details, but treat `.specify/memory/constitution.md` as the governing source for tenant isolation, security, parity, testing, and localization rules.
 
 ---
 
@@ -141,11 +141,13 @@ Phase 4: Clean up persistence model
 
 ## Development rules & best practices
 
+- Check the constitution before planning or implementing any feature that touches tenant data,
+  authorization, reports, or user-facing UI.
 - Always run the full test suite locally before pushing changes.
 - Add migration files to source control and ensure they are reviewed before applying to shared environments.
 - Keep controllers thin; place business rules in domain/application layers.
 - Add unit tests for domain logic and integration tests for API endpoints and migrations.
-- Avoid committing files under `.vs` or other workspace-private files (the repo currently contains some `.vs` changes — keep these excluded from PRs).
+- Avoid committing files under `.vs` or other workspace-private files (the repo currently contains some `.vs` changes - keep these excluded from PRs).
 
 ---
 
