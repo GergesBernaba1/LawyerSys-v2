@@ -215,16 +215,21 @@ export default function Layout({ children }: LayoutProps) {
   const isEmployee = hasRole('Employee')
   const isSuperAdmin = hasRole('SuperAdmin')
   const isCustomerOnly = hasRole('Customer') && !isAdmin && !isEmployee && !isSuperAdmin
+  const canUseUserManagement = hasAnyRole('Admin', 'SuperAdmin')
+  const canUseAuditLogs = hasAnyRole('Admin', 'SuperAdmin')
   const canUseIntake = hasAnyRole('Admin', 'Employee')
   const canUseESign = hasAnyRole('Admin', 'Employee')
   const canUseTimeTracking = hasAnyRole('Admin', 'Employee')
-  const canUseSubscription = !hasRole('SuperAdmin') && hasAnyRole('Admin', 'Employee')
+  const canUseSubscription = isAdmin && !isSuperAdmin
   const canUseNotifications = hasAnyRole('SuperAdmin', 'Admin', 'Employee', 'Customer')
   const customerMenuKeys = new Set(['cases', 'clientportal', 'customermessages', 'customerdocuments'])
   const visibleMenuItems = menuItems.filter((item) => {
     if (isCustomerOnly) return customerMenuKeys.has(item.key)
+    if (item.key === 'clientportal' || item.key === 'customermessages' || item.key === 'customerdocuments') return false
     if (item.key === 'administration') return isAdmin
     if (item.key === 'tenants') return isSuperAdmin
+    if (item.key === 'users') return canUseUserManagement
+    if (item.key === 'auditlogs') return canUseAuditLogs
     if (item.key === 'intake') return canUseIntake
     if (item.key === 'esign') return canUseESign
     if (item.key === 'timetracking') return canUseTimeTracking
@@ -232,11 +237,19 @@ export default function Layout({ children }: LayoutProps) {
     return true
   })
   const canAccessPath = React.useCallback((path: string) => {
-    if (!isCustomerOnly) return true
-    if (path === '/client-portal' || path.startsWith('/client-portal/') || path === '/profile') return true
-    if (path.startsWith('/cases')) return true
-    return false
-  }, [isCustomerOnly])
+    if (isCustomerOnly) {
+      if (path === '/client-portal' || path.startsWith('/client-portal/') || path === '/profile') return true
+      if (path.startsWith('/cases')) return true
+      return false
+    }
+
+    if (path === '/client-portal' || path.startsWith('/client-portal/')) return false
+    if (path === '/users' || path.startsWith('/users/')) return canUseUserManagement
+    if (path === '/auditlogs' || path.startsWith('/auditlogs/')) return canUseAuditLogs
+    if (path === '/subscription' || path.startsWith('/subscription/')) return canUseSubscription
+
+    return true
+  }, [canUseAuditLogs, canUseSubscription, canUseUserManagement, isCustomerOnly])
   const filteredMenuItems = React.useMemo(() => {
     const query = menuSearch.trim().toLowerCase()
     if (!query) return visibleMenuItems
@@ -275,10 +288,16 @@ export default function Layout({ children }: LayoutProps) {
       targetPath = '/dashboard';
     } else if (pathname === '/timetracking' && !canUseTimeTracking) {
       targetPath = '/dashboard';
-    } else if (pathname === '/subscription' && !canUseSubscription) {
+    } else if (pathname.startsWith('/client-portal') && !isCustomerOnly) {
       targetPath = '/dashboard';
+    } else if (pathname === '/users' || pathname.startsWith('/users/')) {
+      if (!canUseUserManagement) targetPath = '/dashboard';
+    } else if (pathname === '/auditlogs' || pathname.startsWith('/auditlogs/')) {
+      if (!canUseAuditLogs) targetPath = '/dashboard';
+    } else if (pathname === '/subscription' || pathname.startsWith('/subscription/')) {
+      if (!canUseSubscription) targetPath = '/dashboard';
     } else if (!canAccessPath(pathname)) {
-      targetPath = '/client-portal';
+      targetPath = isCustomerOnly ? '/client-portal' : '/dashboard';
     }
 
     if (targetPath && pathname !== targetPath) {
@@ -291,11 +310,14 @@ export default function Layout({ children }: LayoutProps) {
     user,
     pathname,
     isAdmin,
+    isCustomerOnly,
     isSuperAdmin,
+    canUseAuditLogs,
     canUseIntake,
     canUseESign,
     canUseTimeTracking,
     canUseSubscription,
+    canUseUserManagement,
     canAccessPath,
     router,
   ]);
