@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -24,19 +24,215 @@ import {
   Chip,
   Switch,
   FormControlLabel,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { ArrowBack, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import api from '../../../src/services/api';
 import { useAuth } from '../../../src/services/auth';
 import SearchableSelect from '../../../src/components/SearchableSelect';
 
+function pickValue<T = any>(source: any, keys: string[], fallback?: T): T | undefined {
+  for (const key of keys) {
+    const value = source?.[key];
+    if (value !== undefined && value !== null) {
+      return value as T;
+    }
+  }
+
+  return fallback;
+}
+
+function normalizeStatusValue(raw: any): number {
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    return raw;
+  }
+
+  const normalized = String(raw ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, '');
+
+  const mapping: Record<string, number> = {
+    new: 0,
+    inprogress: 1,
+    awaitinghearing: 2,
+    closed: 3,
+    won: 4,
+    lost: 5,
+  };
+
+  return mapping[normalized] ?? 0;
+}
+
+function normalizeCaseInfo(raw: any) {
+  if (!raw) return null;
+
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    Code: Number(pickValue(raw, ['Code', 'code'], 0)),
+    InvitionsStatment: pickValue(raw, ['InvitionsStatment', 'invitionsStatment'], ''),
+    InvitionType: pickValue(raw, ['InvitionType', 'invitionType'], ''),
+    InvitionDate: pickValue(raw, ['InvitionDate', 'invitionDate'], ''),
+    TotalAmount: Number(pickValue(raw, ['TotalAmount', 'totalAmount'], 0)),
+    Notes: pickValue(raw, ['Notes', 'notes'], ''),
+    Status: normalizeStatusValue(pickValue(raw, ['Status', 'status'], 0)),
+  };
+}
+
+function normalizeCustomer(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    CustomerId: Number(pickValue(raw, ['CustomerId', 'customerId', 'Id', 'id'], 0)),
+    CustomerName: pickValue(raw, ['CustomerName', 'customerName', 'Full_Name', 'full_Name', 'fullName', 'name'], '-'),
+  };
+}
+
+function normalizeContender(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    ContenderId: Number(pickValue(raw, ['ContenderId', 'contenderId', 'Id', 'id'], 0)),
+    ContenderName: pickValue(raw, ['ContenderName', 'contenderName', 'Full_Name', 'full_Name', 'fullName', 'name'], '-'),
+    FullName: pickValue(raw, ['FullName', 'fullName', 'Full_Name', 'full_Name'], ''),
+    SSN: pickValue(raw, ['SSN', 'ssn'], ''),
+    BirthDate: pickValue(raw, ['BirthDate', 'birthDate'], ''),
+  };
+}
+
+function normalizeCourt(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    CourtId: Number(pickValue(raw, ['CourtId', 'courtId', 'Id', 'id'], 0)),
+    CourtName: pickValue(raw, ['CourtName', 'courtName', 'Name', 'name'], '-'),
+    Name: pickValue(raw, ['Name', 'name', 'CourtName', 'courtName'], '-'),
+  };
+}
+
+function normalizeEmployee(raw: any) {
+  const name = pickValue(raw, ['Full_Name', 'full_Name', 'fullName', 'name'], '-');
+  return {
+    id: Number(pickValue(raw, ['id', 'Id'], 0)),
+    Full_Name: name,
+    fullName: name,
+  };
+}
+
+function normalizeSiting(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    SitingId: Number(pickValue(raw, ['SitingId', 'sitingId', 'Id', 'id'], 0)),
+    SitingDate: pickValue(raw, ['SitingDate', 'sitingDate', 'Siting_Date', 'siting_Date'], ''),
+    JudgeName: pickValue(raw, ['JudgeName', 'judgeName', 'Judge_Name', 'judge_Name'], ''),
+    Notes: pickValue(raw, ['Notes', 'notes'], ''),
+  };
+}
+
+function normalizeFile(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    FileId: Number(pickValue(raw, ['FileId', 'fileId', 'Id', 'id'], 0)),
+    FileCode: pickValue(raw, ['FileCode', 'fileCode', 'Code', 'code'], ''),
+    FilePath: pickValue(raw, ['FilePath', 'filePath', 'Path', 'path'], ''),
+  };
+}
+
+function normalizeDocument(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    DocType: pickValue(raw, ['DocType', 'docType'], ''),
+    DocNum: pickValue(raw, ['DocNum', 'docNum'], ''),
+    DocDetails: pickValue(raw, ['DocDetails', 'docDetails'], ''),
+    Notes: pickValue(raw, ['Notes', 'notes'], ''),
+  };
+}
+
+function normalizeBillingPayment(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    Amount: Number(pickValue(raw, ['Amount', 'amount'], 0)),
+    DateOfOperation: pickValue(raw, ['DateOfOperation', 'dateOfOperation'], ''),
+    Notes: pickValue(raw, ['Notes', 'notes'], ''),
+    CustomerId: Number(pickValue(raw, ['CustomerId', 'customerId'], 0)),
+  };
+}
+
+function normalizeStatusHistoryItem(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    OldStatus: normalizeStatusValue(pickValue(raw, ['OldStatus', 'oldStatus'], 0)),
+    NewStatus: normalizeStatusValue(pickValue(raw, ['NewStatus', 'newStatus'], 0)),
+    ChangedBy: pickValue(raw, ['ChangedBy', 'changedBy'], ''),
+    ChangedAt: pickValue(raw, ['ChangedAt', 'changedAt'], ''),
+  };
+}
+
+function normalizeRequestedDocument(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    CaseCode: Number(pickValue(raw, ['CaseCode', 'caseCode'], 0)),
+    CustomerId: Number(pickValue(raw, ['CustomerId', 'customerId'], 0)),
+    CustomerName: pickValue(raw, ['CustomerName', 'customerName'], '-'),
+    Title: pickValue(raw, ['Title', 'title'], ''),
+    Description: pickValue(raw, ['Description', 'description'], ''),
+    DueDate: pickValue(raw, ['DueDate', 'dueDate'], ''),
+    Status: pickValue(raw, ['Status', 'status'], ''),
+    RequestedByName: pickValue(raw, ['RequestedByName', 'requestedByName'], ''),
+    CustomerNotes: pickValue(raw, ['CustomerNotes', 'customerNotes'], ''),
+    ReviewNotes: pickValue(raw, ['ReviewNotes', 'reviewNotes'], ''),
+    UploadedFileId: pickValue(raw, ['UploadedFileId', 'uploadedFileId'], null),
+    UploadedFileCode: pickValue(raw, ['UploadedFileCode', 'uploadedFileCode'], ''),
+    UploadedFilePath: pickValue(raw, ['UploadedFilePath', 'uploadedFilePath'], ''),
+    RequestedAtUtc: pickValue(raw, ['RequestedAtUtc', 'requestedAtUtc'], ''),
+    SubmittedAtUtc: pickValue(raw, ['SubmittedAtUtc', 'submittedAtUtc'], ''),
+    ReviewedAtUtc: pickValue(raw, ['ReviewedAtUtc', 'reviewedAtUtc'], ''),
+  };
+}
+
+function normalizePaymentProof(raw: any) {
+  return {
+    Id: Number(pickValue(raw, ['Id', 'id'], 0)),
+    CustomerId: Number(pickValue(raw, ['CustomerId', 'customerId'], 0)),
+    CustomerName: pickValue(raw, ['CustomerName', 'customerName'], '-'),
+    Amount: Number(pickValue(raw, ['Amount', 'amount'], 0)),
+    PaymentDate: pickValue(raw, ['PaymentDate', 'paymentDate'], ''),
+    Notes: pickValue(raw, ['Notes', 'notes'], ''),
+    ProofFileId: pickValue(raw, ['ProofFileId', 'proofFileId'], null),
+    ProofFileCode: pickValue(raw, ['ProofFileCode', 'proofFileCode'], ''),
+    ProofFilePath: pickValue(raw, ['ProofFilePath', 'proofFilePath'], ''),
+    Status: pickValue(raw, ['Status', 'status'], ''),
+    BillingPaymentId: pickValue(raw, ['BillingPaymentId', 'billingPaymentId'], null),
+    ReviewNotes: pickValue(raw, ['ReviewNotes', 'reviewNotes'], ''),
+    SubmittedAtUtc: pickValue(raw, ['SubmittedAtUtc', 'submittedAtUtc'], ''),
+    ReviewedAtUtc: pickValue(raw, ['ReviewedAtUtc', 'reviewedAtUtc'], ''),
+  };
+}
+
+type CaseTabKey =
+  | 'overview'
+  | 'parties'
+  | 'sitings'
+  | 'files'
+  | 'documents'
+  | 'payments'
+  | 'requestedDocuments'
+  | 'paymentProofs'
+  | 'conversation'
+  | 'history'
+  | 'courts'
+  | 'employees';
+
 export default function CaseDetailsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const params = useParams() as { code?: string } | undefined;
   const code = Number(params?.code);
   const router = useRouter();
+  const locale = (i18n.resolvedLanguage || i18n.language || 'en').toLowerCase().startsWith('ar') ? 'ar-EG' : 'en-US';
 
   const { hasAnyRole, user } = useAuth();
+  const translateText = (key: string, defaultValue: string) => {
+    const translated = t(key, { defaultValue });
+    return translated === key ? defaultValue : translated;
+  };
   const canManageCase = hasAnyRole('Admin', 'Employee');
   const isCustomerOnly = Boolean(user?.roles?.includes('Customer') && !hasAnyRole('SuperAdmin', 'Admin', 'Employee'));
   const [data, setData] = useState<any | null>(null);
@@ -89,7 +285,20 @@ export default function CaseDetailsPage() {
   const [editingSiting, setEditingSiting] = useState<any | null>(null);
   const [editFileOpen, setEditFileOpen] = useState(false);
   const [editingFile, setEditingFile] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState<CaseTabKey>('overview');
   const [statusOptions, setStatusOptions] = useState<Array<{ value: number; key: string; label: string; next: Array<{ value: number; key: string; label: string }> }>>([]);
+  const caseInfo = normalizeCaseInfo(data?.Case ?? data?.case);
+  const caseCourts = (data?.Courts ?? data?.courts ?? []).map(normalizeCourt);
+  const caseSitings = (data?.Sitings ?? data?.sitings ?? []).map(normalizeSiting);
+  const caseEmployees = (data?.Employees ?? data?.employees ?? []).map(normalizeEmployee);
+  const caseBillingPayments = (data?.BillingPayments ?? data?.billingPayments ?? []).map(normalizeBillingPayment);
+  const caseStatusHistory = (data?.StatusHistory ?? data?.statusHistory ?? []).map(normalizeStatusHistoryItem);
+  const caseCustomers = (data?.Customers ?? data?.customers ?? []).map(normalizeCustomer);
+  const caseContenders = (data?.Contenders ?? data?.contenders ?? []).map(normalizeContender);
+  const caseFiles = (data?.Files ?? data?.files ?? []).map(normalizeFile);
+  const caseDocuments = (data?.Documents ?? data?.documents ?? []).map(normalizeDocument);
+  const caseRequestedDocuments = (data?.RequestedDocuments ?? data?.requestedDocuments ?? []).map(normalizeRequestedDocument);
+  const casePaymentProofs = (data?.PaymentProofs ?? data?.paymentProofs ?? []).map(normalizePaymentProof);
 
   async function load() {
     setLoading(true);
@@ -129,11 +338,11 @@ export default function CaseDetailsPage() {
 
   // initialize edit fields when data loads
   useEffect(() => {
-    if (!data?.Case) return;
-    setEditFields({ invitionType: data.Case.InvitionType ?? '', invitionDate: data.Case.InvitionDate ?? '', totalAmount: data.Case.TotalAmount ?? 0, notes: data.Case.Notes ?? '' });
+    if (!caseInfo) return;
+    setEditFields({ invitionType: caseInfo.InvitionType ?? '', invitionDate: caseInfo.InvitionDate ?? '', totalAmount: caseInfo.TotalAmount ?? 0, notes: caseInfo.Notes ?? '' });
     // set selected court if present
-    if (data.Courts && data.Courts.length > 0) setSelectedCourtToSet(data.Courts[0].CourtId || data.Courts[0].Id);
-  }, [data]);
+    if (caseCourts.length > 0) setSelectedCourtToSet(caseCourts[0].CourtId || caseCourts[0].Id);
+  }, [caseInfo, caseCourts]);
 
   async function removeCustomer(customerId:number){
     try{ await api.delete(`/cases/${code}/customers/${customerId}`); setSnackbar({ open: true, message: t('customers.customerDeleted'), severity: 'success' }); await load(); }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? 'Failed', severity: 'error' }); }
@@ -151,7 +360,7 @@ export default function CaseDetailsPage() {
 
   // Edit case general info
   function startEditing(){ setEditing(true); }
-  function cancelEditing(){ setEditing(false); setEditFields({ invitionType: data?.Case?.InvitionType ?? '', invitionDate: data?.Case?.InvitionDate ?? '', totalAmount: data?.Case?.TotalAmount ?? 0, notes: data?.Case?.Notes ?? '' }); setSelectedCourtToSet(data?.Courts?.[0]?.CourtId || data?.Courts?.[0]?.Id || ''); }
+  function cancelEditing(){ setEditing(false); setEditFields({ invitionType: caseInfo?.InvitionType ?? '', invitionDate: caseInfo?.InvitionDate ?? '', totalAmount: caseInfo?.TotalAmount ?? 0, notes: caseInfo?.Notes ?? '' }); setSelectedCourtToSet(caseCourts?.[0]?.CourtId || caseCourts?.[0]?.Id || ''); }
 
   async function saveCaseEdits(){
     try{
@@ -166,7 +375,7 @@ export default function CaseDetailsPage() {
       // Update court: remove existing courts and add selected if provided
       if (selectedCourtToSet !== ''){
         // remove all current
-        for (const c of data.Courts || []){
+        for (const c of caseCourts || []){
           try{ await api.delete(`/cases/${code}/courts/${c.CourtId || c.Id}`); }catch(e){}
         }
         try{ await api.post(`/cases/${code}/courts/${selectedCourtToSet}`); }catch(e){}
@@ -370,19 +579,71 @@ export default function CaseDetailsPage() {
     }
   }
 
-  const currentStatus = Number(data?.Case?.Status ?? 0);
+  const currentStatus = normalizeStatusValue(caseInfo?.Status ?? 0);
   const currentStatusOption = statusOptions.find(s => s.value === currentStatus);
   const allowedNextValues = new Set<number>([currentStatus, ...(currentStatusOption?.next?.map(n => n.value) ?? [])]);
   const statusKeys = ['new', 'inprogress', 'awaitinghearing', 'closed', 'won', 'lost'];
-  const nextSiting = [...(data?.Sitings || [])]
+  const statusFallbackLabels = ['New', 'In Progress', 'Awaiting Hearing', 'Closed', 'Won', 'Lost'];
+  const getStatusLabel = (status: number) => {
+    const normalizedStatus = normalizeStatusValue(status);
+    const key = statusKeys[normalizedStatus];
+    if (!key) return '-';
+    return translateText(`cases.statuses.${key}`, statusFallbackLabels[normalizedStatus] ?? '-');
+  };
+  const nextSiting = [...caseSitings]
     .sort((a:any, b:any) => String(a.SitingDate || '').localeCompare(String(b.SitingDate || '')))
     .find((item:any) => {
       if (!item?.SitingDate) return false;
       const parsed = new Date(item.SitingDate);
       return Number.isNaN(parsed.getTime()) ? true : parsed >= new Date(new Date().toDateString());
     });
-  const latestStatusHistory = data?.StatusHistory?.[0] ?? null;
-  const totalPaid = (data?.BillingPayments || []).reduce((sum:number, item:any) => sum + Number(item.Amount || 0), 0);
+  const latestStatusHistory = caseStatusHistory[0] ?? null;
+  const totalPaid = caseBillingPayments.reduce((sum:number, item:any) => sum + Number(item.Amount || 0), 0);
+  const formatDate = (value?: string | null) => {
+    if (!value) return '-';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString(locale);
+  };
+  const formatDateTime = (value?: string | null) => {
+    if (!value) return '-';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleString(locale);
+  };
+  const formatNumber = (value?: number | string | null) => {
+    const numeric = Number(value ?? 0);
+    return Number.isFinite(numeric) ? numeric.toLocaleString(locale) : '-';
+  };
+  const tabs: Array<{ value: CaseTabKey; label: string }> = isCustomerOnly
+    ? [
+        { value: 'overview', label: translateText('cases.general', 'General') },
+        { value: 'sitings', label: translateText('cases.sitings', 'Hearings') },
+        { value: 'files', label: translateText('files.title', 'Files') },
+        { value: 'documents', label: translateText('clientPortal.myDocuments', 'My Documents') },
+        { value: 'payments', label: translateText('clientPortal.myPayments', 'My Payments') },
+        { value: 'requestedDocuments', label: translateText('cases.requestedDocuments.title', 'Requested Documents') },
+        { value: 'paymentProofs', label: translateText('cases.paymentProofs.title', 'Payment Proofs') },
+        { value: 'conversation', label: translateText('cases.conversation.title', 'Case Conversation') },
+        { value: 'history', label: translateText('cases.history', 'History') },
+      ]
+    : [
+        { value: 'overview', label: translateText('cases.general', 'General') },
+        { value: 'parties', label: translateText('cases.relatedCustomers', 'Related Parties') },
+        { value: 'sitings', label: translateText('cases.sitings', 'Hearings') },
+        { value: 'files', label: translateText('files.title', 'Files') },
+        { value: 'requestedDocuments', label: translateText('cases.requestedDocuments.title', 'Requested Documents') },
+        { value: 'paymentProofs', label: translateText('cases.paymentProofs.title', 'Payment Proofs') },
+        { value: 'conversation', label: translateText('cases.conversation.title', 'Case Conversation') },
+        { value: 'history', label: translateText('cases.history', 'History') },
+        { value: 'courts', label: translateText('cases.courts', 'Courts') },
+        { value: 'employees', label: translateText('cases.employees', 'Employees') },
+      ];
+  const isTabActive = (tab: CaseTabKey) => activeTab === tab;
+
+  useEffect(() => {
+    if (!tabs.some((tab) => tab.value === activeTab)) {
+      setActiveTab('overview');
+    }
+  }, [activeTab, tabs]);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -390,28 +651,46 @@ export default function CaseDetailsPage() {
         <Tooltip title={t('app.back') || 'Back'}>
           <IconButton onClick={()=>router.push(isCustomerOnly ? '/client-portal' : '/cases')}><ArrowBack/></IconButton>
         </Tooltip>
-        <Typography variant="h5">{t('cases.details') || 'Case Details'} - {data?.Case?.Code ?? code}</Typography>
-        <Button size="small" variant="outlined" onClick={() => router.push(`/cases/${code}/timeline`)}>Timeline</Button>
+        <Typography variant="h5">{t('cases.details', { defaultValue: 'Case Details' })} - {caseInfo?.Code ?? code}</Typography>
+        <Button size="small" variant="outlined" onClick={() => router.push(`/cases/${code}/timeline`)}>{t('cases.timeline', { defaultValue: 'Timeline' })}</Button>
       </Box>
 
-      {data ? (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+      {caseInfo ? (
+        <Card sx={{ mb: 2 }}>
+          <CardContent sx={{ pb: '16px !important' }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_, value) => setActiveTab(value)}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+            >
+              {tabs.map((tab) => (
+                <Tab key={tab.value} value={tab.value} label={tab.label} />
+              ))}
+            </Tabs>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {caseInfo ? (
+        <Box sx={{ display: 'grid', gridTemplateColumns: isCustomerOnly ? '1fr' : { xs: '1fr', md: '1fr 1fr' }, gap: 2, alignItems: 'start' }}>
           <Box>
-            <Card><CardContent>
+            {isTabActive('overview') && <Card><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{t('cases.general') || 'General'}</Typography>
                 {canManageCase && (!editing ? <Button size="small" onClick={startEditing}>{t('app.edit') || 'Edit'}</Button> : <Box><Button size="small" onClick={cancelEditing}>{t('app.cancel')}</Button> <Button size="small" variant="contained" onClick={saveCaseEdits}>{t('app.save') || 'Save'}</Button></Box>)}
               </Box>
 
-              <Typography>{t('cases.code')}: <strong>{data.Case.Code}</strong></Typography>
+              <Typography>{t('cases.code')}: <strong>{caseInfo.Code}</strong></Typography>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>{t('cases.status')}: </Typography>
-                <Chip label={t(`cases.statuses.${statusKeys[data.Case.Status]}`) || ['New','In Progress','Awaiting Hearing','Closed','Won','Lost'][data.Case.Status]} size="small" color="default" variant="outlined" />
+                <Chip label={getStatusLabel(caseInfo.Status)} size="small" color="default" variant="outlined" />
                 {canManageCase && (
                   <SearchableSelect<number>
                     size="small"
                     label={t('cases.status')}
-                    value={data.Case.Status ?? 0}
+                    value={caseInfo.Status ?? 0}
                     onChange={async (value) => {
                         const newStatus = Number(value ?? 0);
                         try {
@@ -421,12 +700,12 @@ export default function CaseDetailsPage() {
                         } catch (err:any) { setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update status', severity:'error' }); }
                     }}
                     options={[
-                      { value: 0, label: t('cases.statuses.new'), disabled: !allowedNextValues.has(0) },
-                      { value: 1, label: t('cases.statuses.inprogress'), disabled: !allowedNextValues.has(1) },
-                      { value: 2, label: t('cases.statuses.awaitinghearing'), disabled: !allowedNextValues.has(2) },
-                      { value: 3, label: t('cases.statuses.closed'), disabled: !allowedNextValues.has(3) },
-                      { value: 4, label: t('cases.statuses.won'), disabled: !allowedNextValues.has(4) },
-                      { value: 5, label: t('cases.statuses.lost'), disabled: !allowedNextValues.has(5) },
+                      { value: 0, label: translateText('cases.statuses.new', 'New'), disabled: !allowedNextValues.has(0) },
+                      { value: 1, label: translateText('cases.statuses.inprogress', 'In Progress'), disabled: !allowedNextValues.has(1) },
+                      { value: 2, label: translateText('cases.statuses.awaitinghearing', 'Awaiting Hearing'), disabled: !allowedNextValues.has(2) },
+                      { value: 3, label: translateText('cases.statuses.closed', 'Closed'), disabled: !allowedNextValues.has(3) },
+                      { value: 4, label: translateText('cases.statuses.won', 'Won'), disabled: !allowedNextValues.has(4) },
+                      { value: 5, label: translateText('cases.statuses.lost', 'Lost'), disabled: !allowedNextValues.has(5) },
                     ]}
                     disableClearable
                     sx={{ ml: 1, minWidth: 160 }}
@@ -436,10 +715,10 @@ export default function CaseDetailsPage() {
 
               {isCustomerOnly && (
                 <Box sx={{ mt: 1.5, display:'grid', gridTemplateColumns:{ xs:'1fr', sm:'1fr 1fr' }, gap:1 }}>
-                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('cases.status')}</Typography><Typography variant="subtitle1">{t(`cases.statuses.${statusKeys[data.Case.Status]}`) || '-'}</Typography></CardContent></Card>
-                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.caseSessions', { defaultValue: 'Case Sessions' })}</Typography><Typography variant="subtitle1">{nextSiting ? `${nextSiting.SitingDate} - ${nextSiting.JudgeName}` : '-'}</Typography></CardContent></Card>
-                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('cases.employees') || 'Employees'}</Typography><Typography variant="subtitle1">{data.Employees?.map((e:any)=>e.Full_Name || e.fullName).filter(Boolean).join(', ') || '-'}</Typography></CardContent></Card>
-                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.totalPaid', { defaultValue: 'Total Paid' })}</Typography><Typography variant="subtitle1">{totalPaid}</Typography></CardContent></Card>
+                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('cases.status')}</Typography><Typography variant="subtitle1">{getStatusLabel(caseInfo.Status)}</Typography></CardContent></Card>
+                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.caseSessions', { defaultValue: 'Case Sessions' })}</Typography><Typography variant="subtitle1">{nextSiting ? `${formatDate(nextSiting.SitingDate)} - ${nextSiting.JudgeName}` : '-'}</Typography></CardContent></Card>
+                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{translateText('cases.employees', 'Employees')}</Typography><Typography variant="subtitle1">{caseEmployees?.map((e:any)=>e.Full_Name || e.fullName).filter(Boolean).join(', ') || '-'}</Typography></CardContent></Card>
+                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.totalPaid', { defaultValue: 'Total Paid' })}</Typography><Typography variant="subtitle1">{formatNumber(totalPaid)}</Typography></CardContent></Card>
                 </Box>
               )}
               {isCustomerOnly && (
@@ -452,14 +731,14 @@ export default function CaseDetailsPage() {
 
               {!editing || !canManageCase ? (
                 <>
-                  <Typography>{t('cases.type')}: {data.Case.InvitionType}</Typography>
-                  <Typography>{t('cases.date')}: {String(data.Case.InvitionDate)}</Typography>
-                  <Typography>{t('cases.amount')}: {data.Case.TotalAmount}</Typography>
-                  <Typography>{t('cases.notes')}: {data.Case.Notes}</Typography>
+                  <Typography>{t('cases.type')}: {caseInfo.InvitionType}</Typography>
+                  <Typography>{t('cases.date')}: {formatDate(caseInfo.InvitionDate)}</Typography>
+                  <Typography>{t('cases.amount')}: {formatNumber(caseInfo.TotalAmount)}</Typography>
+                  <Typography>{t('cases.notes')}: {caseInfo.Notes}</Typography>
                   {isCustomerOnly && (
                     <>
-                      <Typography>{t('cases.courts') || 'Courts'}: {data.Courts?.map((c:any)=>c.CourtName).filter(Boolean).join(', ') || '-'}</Typography>
-                      <Typography>{t('clientPortal.latestUpdate', { defaultValue: 'Latest Update' })}: {latestStatusHistory?.ChangedAt ? new Date(latestStatusHistory.ChangedAt).toLocaleString() : '-'}</Typography>
+                      <Typography>{translateText('cases.courts', 'Courts')}: {caseCourts?.map((c:any)=>c.CourtName || c.Name).filter(Boolean).join(', ') || '-'}</Typography>
+                      <Typography>{t('clientPortal.latestUpdate', { defaultValue: 'Latest Update' })}: {formatDateTime(latestStatusHistory?.ChangedAt)}</Typography>
                     </>
                   )}
                 </>
@@ -479,15 +758,15 @@ export default function CaseDetailsPage() {
                   />
                 </Box>
               )}
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            {!isCustomerOnly && <Card sx={{ mt:2 }}><CardContent>
+            {!isCustomerOnly && isTabActive('parties') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{t('customers.title') || 'Customers'}</Typography>
                 <Button size="small" startIcon={<AddIcon/>} onClick={openAddCustomer}>{t('customers.add') || 'Add'}</Button>
               </Box>
               <List>
-                {data.Customers.map((c:any)=> (
+                {caseCustomers.map((c:any)=> (
                   <ListItem key={c.Id} secondaryAction={<Button color="error" size="small" onClick={()=>removeCustomer(c.CustomerId)}>{t('app.delete')}</Button>}>
                     <ListItemText primary={c.CustomerName} />
                   </ListItem>
@@ -495,12 +774,12 @@ export default function CaseDetailsPage() {
               </List>
             </CardContent></Card>}
 
-            {!isCustomerOnly && <Card sx={{ mt:2 }}><CardContent>
+            {!isCustomerOnly && isTabActive('parties') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{t('contenders.title') || 'Contenders'}</Typography>
               </Box>
               <List>
-                {data.Contenders.map((c:any)=> (
+                {caseContenders.map((c:any)=> (
                   <ListItem key={c.Id} secondaryAction={<Box>
                     <Button size="small" onClick={()=>openEditContender(c)}>{t('app.edit') || 'Edit'}</Button>
                     <Button color="error" size="small" onClick={()=>removeContender(c.ContenderId)}>{t('app.delete')}</Button>
@@ -514,23 +793,23 @@ export default function CaseDetailsPage() {
           </Box>
 
           <Box>
-            <Card><CardContent>
+            {isTabActive('sitings') && <Card><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <Typography variant="h6">{t('sitings.title') || 'Sitings'}</Typography>
+                <Typography variant="h6">{translateText('sitings.title', 'Sitings')}</Typography>
                 <Box>
                   {canManageCase && <Button size="small" onClick={()=>setCreateSitingOpen(true)} startIcon={<AddIcon/>}>{t('cases.createNewSiting') || 'Add'}</Button>}
                 </Box>
               </Box>
               <List>
-                {data.Sitings.map((s:any)=> (
+                {caseSitings.map((s:any)=> (
                   <ListItem key={s.Id} secondaryAction={canManageCase ? <Box sx={{ display:'flex', gap:1 }}><Button size="small" onClick={()=>openEditSiting(s.SitingId)}>{t('app.edit') || 'Edit'}</Button><Button color="error" size="small" onClick={()=>removeSiting(s.SitingId)}>{t('app.delete')}</Button></Box> : undefined}>
-                    <ListItemText primary={`${s.SitingDate} - ${s.JudgeName}`} secondary={s.Notes || ''} />
+                    <ListItemText primary={`${formatDate(s.SitingDate)} - ${s.JudgeName}`} secondary={s.Notes || ''} />
                   </ListItem>
                 ))}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
+            {isTabActive('files') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{t('files.title') || 'Files'}</Typography>
                 <Box>
@@ -568,7 +847,7 @@ export default function CaseDetailsPage() {
                 />
               </Box>
               <List>
-                {data.Files.map((f:any)=> (
+                {caseFiles.map((f:any)=> (
                   <ListItem key={f.Id} secondaryAction={<Box sx={{ display:'flex', gap:1 }}>
                     {canManageCase && <Button size="small" onClick={()=>{ setEditingFile({ id: f.FileId, code: f.FileCode ?? '' }); setEditFileOpen(true); }}>{t('app.edit') || 'Edit'}</Button>}
                     <IconButton href={`/api/files/${f.FileId}/download`} target="_blank"><DownloadIcon/></IconButton>
@@ -578,39 +857,39 @@ export default function CaseDetailsPage() {
                   </ListItem>
                 ))}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
-              <Typography variant="h6">{t('clientPortal.myDocuments', { defaultValue: 'My Documents' })}</Typography>
+            {isTabActive('documents') && <Card sx={{ mt:2 }}><CardContent>
+              <Typography variant="h6">{translateText('clientPortal.myDocuments', 'My Documents')}</Typography>
               <List>
-                {(data.Documents || []).map((item:any) => (
+                {caseDocuments.map((item:any) => (
                   <ListItem key={item.Id}>
                     <ListItemText primary={`${item.DocType}${item.DocNum ? ` #${item.DocNum}` : ''}`} secondary={item.DocDetails || item.Notes || ''} />
                   </ListItem>
                 ))}
-                {(!data.Documents || data.Documents.length === 0) && <ListItem><ListItemText primary={t('clientPortal.noData', { defaultValue: 'No data available' })} /></ListItem>}
+                {caseDocuments.length === 0 && <ListItem><ListItemText primary={t('clientPortal.noData', { defaultValue: 'No data available' })} /></ListItem>}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
-              <Typography variant="h6">{t('clientPortal.myPayments', { defaultValue: 'My Payments' })}</Typography>
+            {isTabActive('payments') && <Card sx={{ mt:2 }}><CardContent>
+              <Typography variant="h6">{translateText('clientPortal.myPayments', 'My Payments')}</Typography>
               <List>
-                {(data.BillingPayments || []).map((item:any) => (
+                {caseBillingPayments.map((item:any) => (
                   <ListItem key={item.Id}>
-                    <ListItemText primary={`${item.Amount} - ${item.DateOfOperation}`} secondary={item.Notes || ''} />
+                    <ListItemText primary={`${formatNumber(item.Amount)} - ${formatDate(item.DateOfOperation)}`} secondary={item.Notes || ''} />
                   </ListItem>
                 ))}
-                {(!data.BillingPayments || data.BillingPayments.length === 0) && <ListItem><ListItemText primary={t('clientPortal.noData', { defaultValue: 'No data available' })} /></ListItem>}
+                {caseBillingPayments.length === 0 && <ListItem><ListItemText primary={t('clientPortal.noData', { defaultValue: 'No data available' })} /></ListItem>}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
+            {isTabActive('requestedDocuments') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center', mb: 1 }}>
-                <Typography variant="h6">{t('cases.requestedDocuments.title', { defaultValue: 'Requested Documents' })}</Typography>
+                <Typography variant="h6">{translateText('cases.requestedDocuments.title', 'Requested Documents')}</Typography>
                 {canManageCase && <Button size="small" startIcon={<AddIcon/>} onClick={async ()=>{ if(customersList.length===0){ try{ const r = await api.get('/Customers'); setCustomersList(r.data || []); }catch{} } setRequestDocumentOpen(true); }}>{t('cases.requestedDocuments.request', { defaultValue: 'Request document' })}</Button>}
               </Box>
               <List>
-                {(data.RequestedDocuments || []).map((item:any) => (
+                {caseRequestedDocuments.map((item:any) => (
                   <ListItem key={item.Id} alignItems="flex-start">
                     <ListItemText
                       primary={`${item.Title} (${item.Status})`}
@@ -618,7 +897,7 @@ export default function CaseDetailsPage() {
                         <Box sx={{ display:'grid', gap: 1, mt: 0.5 }}>
                           <Typography variant="body2">{item.Description || '-'}</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {t('cases.requestedDocuments.dueDate', { defaultValue: 'Due date' })}: {item.DueDate || '-'}
+                            {t('cases.requestedDocuments.dueDate', { defaultValue: 'Due date' })}: {formatDate(item.DueDate)}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
                             {t('cases.requestedDocuments.customer', { defaultValue: 'Customer' })}: {item.CustomerName || item.CustomerId}
@@ -658,22 +937,22 @@ export default function CaseDetailsPage() {
                     />
                   </ListItem>
                 ))}
-                {(!data.RequestedDocuments || data.RequestedDocuments.length === 0) && <ListItem><ListItemText primary={t('cases.requestedDocuments.empty', { defaultValue: 'No requested documents for this case yet.' })} /></ListItem>}
+                {caseRequestedDocuments.length === 0 && <ListItem><ListItemText primary={t('cases.requestedDocuments.empty', { defaultValue: 'No requested documents for this case yet.' })} /></ListItem>}
               </List>
               <input ref={requestedDocumentInputRef} type="file" hidden onChange={(e)=>void handleRequestedDocumentUpload(e)} />
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
-              <Typography variant="h6">{t('cases.paymentProofs.title', { defaultValue: 'Payment Proofs' })}</Typography>
+            {isTabActive('paymentProofs') && <Card sx={{ mt:2 }}><CardContent>
+              <Typography variant="h6">{translateText('cases.paymentProofs.title', 'Payment Proofs')}</Typography>
               <List>
-                {(data.PaymentProofs || []).map((item:any) => (
+                {casePaymentProofs.map((item:any) => (
                   <ListItem key={item.Id} alignItems="flex-start">
                     <ListItemText
-                      primary={`${item.Amount} - ${item.Status}`}
+                      primary={`${formatNumber(item.Amount)} - ${item.Status}`}
                       secondary={
                         <Box sx={{ display:'grid', gap:1, mt:0.5 }}>
                           <Typography variant="caption" color="text.secondary">
-                            {t('clientPortal.paymentDate', { defaultValue: 'Payment date' })}: {item.PaymentDate}
+                            {t('clientPortal.paymentDate', { defaultValue: 'Payment date' })}: {formatDate(item.PaymentDate)}
                           </Typography>
                           <Typography variant="body2">{item.Notes || '-'}</Typography>
                           {item.ProofFileId ? (
@@ -699,12 +978,12 @@ export default function CaseDetailsPage() {
                     />
                   </ListItem>
                 ))}
-                {(!data.PaymentProofs || data.PaymentProofs.length === 0) && <ListItem><ListItemText primary={t('cases.paymentProofs.empty', { defaultValue: 'No payment proofs for this case yet.' })} /></ListItem>}
+                {casePaymentProofs.length === 0 && <ListItem><ListItemText primary={t('cases.paymentProofs.empty', { defaultValue: 'No payment proofs for this case yet.' })} /></ListItem>}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
-              <Typography variant="h6">{t('cases.conversation.title', { defaultValue: 'Case Conversation' })}</Typography>
+            {isTabActive('conversation') && <Card sx={{ mt:2 }}><CardContent>
+              <Typography variant="h6">{translateText('cases.conversation.title', 'Case Conversation')}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                 {t('cases.conversation.subtitle', { defaultValue: 'Use this thread to communicate with the office about this case.' })}
               </Typography>
@@ -713,7 +992,7 @@ export default function CaseDetailsPage() {
                   <ListItem key={item.id} sx={{ justifyContent: item.isMine ? 'flex-end' : 'flex-start' }}>
                     <Box sx={{ maxWidth: '85%', px: 1.5, py: 1, borderRadius: 2, bgcolor: item.isMine ? 'primary.main' : 'action.hover', color: item.isMine ? 'primary.contrastText' : 'text.primary' }}>
                       <Typography variant="caption" sx={{ display:'block', opacity: item.isMine ? 0.9 : 0.75 }}>
-                        {item.senderName} • {item.senderRole} • {new Date(item.createdAtUtc).toLocaleString()}
+                        {item.senderName} - {item.senderRole} - {formatDateTime(item.createdAtUtc)}
                       </Typography>
                       <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{item.message}</Typography>
                       {item.attachmentFileId ? (
@@ -752,37 +1031,41 @@ export default function CaseDetailsPage() {
                   {t('cases.conversation.send', { defaultValue: 'Send message' })}
                 </Button>
               </Box>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            {/* Status history */}
-            <Card sx={{ mt:2 }}><CardContent>
-              <Typography variant="h6">{t('cases.status')} {t('history') || 'History'}</Typography>
+            {isTabActive('history') && <Card sx={{ mt:2 }}><CardContent>
+              <Typography variant="h6">{`${translateText('cases.status', 'Status')} ${translateText('cases.history', 'History')}`}</Typography>
               <List>
-                {(data.StatusHistory || []).map((h:any) => (
-                  <ListItem key={h.Id}><ListItemText primary={`${h.ChangedAt ? new Date(h.ChangedAt).toLocaleString() : ''} — ${t(`cases.statuses.${['new','inprogress','awaitinghearing','closed','won','lost'][h.OldStatus]}`) || h.OldStatus} → ${t(`cases.statuses.${['new','inprogress','awaitinghearing','closed','won','lost'][h.NewStatus]}`) || h.NewStatus}`} secondary={h.ChangedBy || ''} /></ListItem>
+                {caseStatusHistory.map((h:any) => (
+                  <ListItem key={h.Id}>
+                    <ListItemText
+                      primary={`${formatDateTime(h.ChangedAt)} - ${getStatusLabel(h.OldStatus)} -> ${getStatusLabel(h.NewStatus)}`}
+                      secondary={h.ChangedBy || ''}
+                    />
+                  </ListItem>
                 ))}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
+            {!isCustomerOnly && isTabActive('courts') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <Typography variant="h6">{t('cases.courts') || 'Courts'}</Typography>
-                {canManageCase && <Button size="small" onClick={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []);} setSelectedCourtToSet(data.Courts?.[0]?.CourtId || data.Courts?.[0]?.Id || ''); setEditing(true); }}>{t('app.edit') || 'Edit'}</Button>}
+                <Typography variant="h6">{translateText('cases.courts', 'Courts')}</Typography>
+                {canManageCase && <Button size="small" onClick={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []);} setSelectedCourtToSet(caseCourts?.[0]?.CourtId || caseCourts?.[0]?.Id || ''); setEditing(true); }}>{t('app.edit') || 'Edit'}</Button>}
               </Box>
               <List>
-                {data.Courts.map((c:any)=> (<ListItem key={c.Id}><ListItemText primary={c.CourtName} /></ListItem>))}
+                {caseCourts.map((c:any)=> (<ListItem key={c.Id}><ListItemText primary={c.CourtName || c.Name} /></ListItem>))}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
-            <Card sx={{ mt:2 }}><CardContent>
+            {!isCustomerOnly && isTabActive('employees') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <Typography variant="h6">{t('cases.employees') || 'Employees'}</Typography>
+                <Typography variant="h6">{translateText('cases.employees', 'Employees')}</Typography>
                 {canManageCase && <Button size="small" onClick={openAssignEmployee} startIcon={<AddIcon/>}>{t('employees.add') || 'Assign'}</Button>}
               </Box>
               <List>
-                {data.Employees.map((e:any)=> (<ListItem key={e.id}><ListItemText primary={e.Full_Name || e.fullName} />{canManageCase && <Button size="small" color="error" onClick={async ()=>{ try{ await api.delete(`/cases/${code}/employees/${e.id}`); await load(); setSnackbar({ open:true, message: 'Employee removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove', severity:'error' }); } }}>Remove</Button>}</ListItem>))}
+                {caseEmployees.map((e:any)=> (<ListItem key={e.id}><ListItemText primary={e.Full_Name || e.fullName} />{canManageCase && <Button size="small" color="error" onClick={async ()=>{ try{ await api.delete(`/cases/${code}/employees/${e.id}`); await load(); setSnackbar({ open:true, message: 'Employee removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove', severity:'error' }); } }}>Remove</Button>}</ListItem>))}
               </List>
-            </CardContent></Card>
+            </CardContent></Card>}
 
           </Box>
         </Box>
@@ -915,7 +1198,7 @@ export default function CaseDetailsPage() {
               label={t('cases.requestedDocuments.customer', { defaultValue: 'Customer' })}
               value={newRequestedDocument.customerId ? Number(newRequestedDocument.customerId) : null}
               onChange={(value)=>setNewRequestedDocument((current)=>({ ...current, customerId: value ? String(value) : '' }))}
-              options={(data?.Customers || []).map((customer:any) => ({
+              options={caseCustomers.map((customer:any) => ({
                 value: customer.CustomerId,
                 label: customer.CustomerName,
               }))}
@@ -953,3 +1236,4 @@ export default function CaseDetailsPage() {
     </Box>
   );
 }
+

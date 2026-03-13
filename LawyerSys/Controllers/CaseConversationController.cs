@@ -71,7 +71,7 @@ public class CaseConversationController : ControllerBase
                 .Where(item => attachmentIds.Contains(item.Id))
                 .ToDictionaryAsync(item => item.Id);
 
-        var now = DateTime.UtcNow;
+        var now = NormalizeLegacyTimestamp(DateTime.UtcNow);
         var changed = false;
         foreach (var item in items)
         {
@@ -187,7 +187,7 @@ public class CaseConversationController : ControllerBase
             Message = message,
             VisibleToCustomer = isCustomerOnly || visibleToCustomer,
             AttachmentFileId = attachmentFileId,
-            CreatedAtUtc = DateTime.UtcNow,
+            CreatedAtUtc = NormalizeLegacyTimestamp(DateTime.UtcNow),
             FirmId = _userContext.GetTenantId() ?? 1
         };
 
@@ -225,6 +225,13 @@ public class CaseConversationController : ControllerBase
         return User.FindFirst("fullName")?.Value
             ?? _userContext.GetUserName()
             ?? "System";
+    }
+
+    private static DateTime NormalizeLegacyTimestamp(DateTime value)
+    {
+        return value.Kind == DateTimeKind.Utc
+            ? DateTime.SpecifyKind(value, DateTimeKind.Unspecified)
+            : value;
     }
 
     private async Task<FileEntity> SaveUploadedFileAsync(IFormFile file, string? title, CancellationToken cancellationToken)
