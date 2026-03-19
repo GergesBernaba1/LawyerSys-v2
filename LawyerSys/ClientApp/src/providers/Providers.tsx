@@ -39,6 +39,7 @@ export default function Providers({ locale: initialLocale = 'ar', children }: Pr
     try {
       document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr')
       document.documentElement.setAttribute('lang', locale.startsWith('ar') ? 'ar' : 'en')
+      document.body.dataset.locale = locale
     } catch {}
   }, [isRTL, locale])
 

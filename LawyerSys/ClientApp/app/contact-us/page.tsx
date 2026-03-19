@@ -136,7 +136,7 @@ export default function ContactUsPage() {
       isAuthenticated={isAuthenticated}
       isAuthInitialized={isAuthInitialized}
     >
-      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 }, animation: "fade-in-up 0.45s ease-out" }}>
         {error && (
           <Alert severity="warning" sx={{ mb: 3 }}>
             {error}
@@ -154,7 +154,7 @@ export default function ContactUsPage() {
               sx={{
                 p: { xs: 3, md: 5 },
                 mb: 3,
-                borderRadius: 6,
+                borderRadius: 7,
                 border: "1px solid",
                 borderColor: alpha(theme.palette.primary.main, 0.12),
                 background: "linear-gradient(135deg, rgba(18,58,99,1) 0%, rgba(25,113,123,0.96) 100%)",
@@ -188,7 +188,7 @@ export default function ContactUsPage() {
                   key={card.key}
                   elevation={0}
                   sx={{
-                    borderRadius: 5,
+                    borderRadius: 6,
                     border: "1px solid",
                     borderColor: alpha(theme.palette.primary.main, 0.12),
                     background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,251,0.98) 100%)",
@@ -218,7 +218,7 @@ export default function ContactUsPage() {
               elevation={0}
               sx={{
                 p: { xs: 3, md: 4 },
-                borderRadius: 5,
+                borderRadius: 6,
                 border: "1px solid",
                 borderColor: alpha(theme.palette.primary.main, 0.12),
               }}

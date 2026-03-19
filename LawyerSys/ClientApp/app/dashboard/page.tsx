@@ -291,7 +291,7 @@ export default function DashboardPageClient() {
       ];
 
   return (
-    <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4, minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4, minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'fade-in-up 0.45s ease-out' }}>
       {/* Welcome Section */}
       <Paper 
         elevation={0}
@@ -300,7 +300,7 @@ export default function DashboardPageClient() {
           mb: 4, 
           background: `linear-gradient(125deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 58%, ${theme.palette.secondary.main} 100%)`,
           color: 'white', 
-          borderRadius: 5,
+          borderRadius: 6,
           position: 'relative',
           overflow: 'hidden',
           boxShadow: `0 20px 40px -12px ${alpha(theme.palette.primary.main, 0.35)}`,
@@ -316,7 +316,7 @@ export default function DashboardPageClient() {
           }
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <WavingHandIcon sx={{ color: theme.palette.secondary.light }} />
@@ -370,7 +370,7 @@ export default function DashboardPageClient() {
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{isEmployeeOnly ? t('dashboard.openCases', { defaultValue: 'Open Cases' }) : (t('billing.title') || 'Billing')}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
               {isEmployeeOnly ? employeeMetrics.openCases.toLocaleString(numberLocale) : stats.revenueThisMonth.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}
@@ -381,11 +381,11 @@ export default function DashboardPageClient() {
               </Typography>
             )}
           </Paper>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{isEmployeeOnly ? t('dashboard.qualifiedLeads', { defaultValue: 'Qualified Leads' }) : (t('sitings.upcoming') || 'Upcoming Hearings')}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{isEmployeeOnly ? employeeMetrics.qualifiedLeads : stats.upcomingHearings}</Typography>
           </Paper>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{t('tasks.overdue') || 'Overdue Tasks'}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{isEmployeeOnly ? employeeMetrics.overdueTasks : stats.overdueTasks}</Typography>
           </Paper>
@@ -393,7 +393,7 @@ export default function DashboardPageClient() {
       {/* Quick Actions & Recent Cases */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
         <Box>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider', height: '100%' }}>
             <Typography variant="h6" fontWeight={800} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
               <OpenInNewIcon sx={{ color: 'primary.main' }} />
               {t('dashboard.quickActions')}
@@ -462,7 +462,7 @@ export default function DashboardPageClient() {
           </Paper>
         </Box>
         <Box>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%', maxHeight: 520, overflowY: 'auto' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider', height: '100%', maxHeight: 520, overflowY: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <GavelIcon sx={{ color: 'primary.main' }} />
@@ -540,7 +540,7 @@ export default function DashboardPageClient() {
 
       {isEmployeeOnly && (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3, mt: 4 }}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
               <Typography variant="h6" fontWeight={800}>
                 {t('dashboard.myOverdueTasks', { defaultValue: 'My Overdue Tasks' })}
@@ -573,7 +573,7 @@ export default function DashboardPageClient() {
             )}
           </Paper>
 
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
               <Typography variant="h6" fontWeight={800}>
                 {t('dashboard.myFollowUps', { defaultValue: 'My Follow-ups' })}

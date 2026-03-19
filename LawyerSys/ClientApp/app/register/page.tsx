@@ -1,20 +1,17 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Box,
-  Paper,
-  TextField,
-  Button,
-  Typography,
   Alert,
-  Link as MuiLink,
-  Container,
-  Avatar,
+  Box,
+  Button,
   Chip,
   IconButton,
   InputAdornment,
+  Paper,
   Stack,
+  TextField,
+  Typography,
   useTheme,
 } from '@mui/material';
 import {
@@ -24,13 +21,13 @@ import {
   AccountBalanceOutlined,
   GavelOutlined,
   ShieldOutlined,
-  DescriptionOutlined,
   GroupsOutlined,
 } from '@mui/icons-material';
 import { useAuth } from '../../src/services/auth';
 import { useTranslation } from 'react-i18next';
 import api from '../../src/services/api';
 import SearchableSelect from '../../src/components/SearchableSelect';
+import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout';
 
 type CountryOption = {
   id: number;
@@ -79,7 +76,6 @@ export default function RegisterPage() {
   const isRTL = theme.direction === 'rtl' || (i18n.resolvedLanguage || i18n.language || '').startsWith('ar');
   const fieldSx = isRTL ? { '& .MuiInputBase-input': { textAlign: 'right' } } : {};
 
-  // Redirect authenticated users away from register page
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/dashboard');
@@ -93,9 +89,7 @@ export default function RegisterPage() {
       try {
         const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
         const res = await api.get('/Account/countries', { headers: { 'Accept-Language': language } });
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         const nextCountries = Array.isArray(res.data) ? res.data : [];
         setCountries(nextCountries);
@@ -125,9 +119,7 @@ export default function RegisterPage() {
           headers: { 'Accept-Language': language },
           skipTenantHeader: true,
         } as any);
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         const nextPackages = Array.isArray(res.data) ? res.data : [];
         setPackages(nextPackages);
@@ -148,12 +140,16 @@ export default function RegisterPage() {
     };
   }, [i18n.language, i18n.resolvedLanguage, t]);
 
+  const selectedGroup = useMemo(
+    () => packages.find((pkg) => pkg.officeSize === selectedOfficeSize) || null,
+    [packages, selectedOfficeSize]
+  );
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
     setSuccessMessage('');
 
-    const selectedGroup = packages.find((pkg) => pkg.officeSize === selectedOfficeSize) || null;
     const selectedPackageId =
       selectedBillingCycle === "Annual"
         ? selectedGroup?.annualOption?.subscriptionPackageId ?? null
@@ -208,533 +204,188 @@ export default function RegisterPage() {
   };
 
   return (
-    <Box
-      sx={{
-        height: '100dvh',
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        px: { xs: 2, md: 4 },
-        py: { xs: 1.5, md: 2 },
-        '@media (max-height: 820px)': {
-          py: { xs: 1, md: 1.25 },
+    <AuthSplitLayout
+      badge={isRTL ? 'بدء مكتب جديد' : 'NEW FIRM ONBOARDING'}
+      title={t('register.workspaceTitle')}
+      subtitle={t('register.workspaceSubtitle')}
+      formTitle={t('register.title') || 'Sign Up'}
+      formSubtitle={isRTL ? 'أكمل بيانات المكتب والحساب لاختيار الباقة المناسبة' : 'Complete office and account details, then choose the right package'}
+      heroIcon={<AccountBalanceOutlined />}
+      formIcon={<PersonAddOutlinedIcon />}
+      footerLinkHref="/login"
+      footerLinkLabel={t('register.haveAccount') || 'Already have an account? Sign in'}
+      features={[
+        {
+          icon: <GavelOutlined fontSize="small" />,
+          text: isRTL ? 'يوضح الفرق بين الباقات وخيارات الفوترة من أول خطوة' : 'Clarifies package and billing choices from the start',
         },
-        background: 'linear-gradient(120deg, #081222 0%, #102a43 48%, #4c361b 100%)',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          inset: '-20%',
-          background:
-            'radial-gradient(circle at 20% 20%, rgba(255, 210, 138, 0.2), transparent 40%), radial-gradient(circle at 80% 35%, rgba(255, 255, 255, 0.12), transparent 38%)',
-          transform: 'rotate(-6deg)',
+        {
+          icon: <GroupsOutlined fontSize="small" />,
+          text: isRTL ? 'يرتب بيانات المكتب والحساب في مسار واحد سهل المراجعة' : 'Keeps office and account information in one reviewable flow',
         },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          background:
-            'repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 30px)',
+        {
+          icon: <ShieldOutlined fontSize="small" />,
+          text: isRTL ? 'يحافظ على نفس منطق التسجيل الحالي والتنشيط اللاحق' : 'Preserves the same registration and later-activation behavior',
         },
-      }}
+      ]}
     >
-      <Container component="main" maxWidth="lg" disableGutters dir={isRTL ? 'rtl' : 'ltr'} sx={{ position: 'relative', zIndex: 1 }}>
-        <Paper
-          elevation={0}
-          sx={{
-            width: '100%',
-            maxHeight: '96dvh',
-            borderRadius: 4,
-            overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 30px 70px rgba(4, 10, 19, 0.45)',
-            backdropFilter: 'blur(5px)',
-            background: 'rgba(18, 29, 46, 0.3)',
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1.1fr 0.9fr' },
-            '@media (max-height: 820px)': {
-              maxHeight: '98dvh',
-            },
-          }}
-        >
-          <Box
-            sx={{
-              p: { xs: 3, sm: 4, md: 5 },
-              color: '#f8fafc',
-              background: 'linear-gradient(145deg, rgba(9, 20, 36, 0.92) 0%, rgba(23, 43, 73, 0.85) 56%, rgba(90, 63, 29, 0.78) 100%)',
-              borderInlineEnd: { md: '1px solid rgba(255, 255, 255, 0.18)' },
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: 3,
-              '@media (max-height: 820px)': {
-                p: { xs: 2.2, sm: 2.6, md: 3.2 },
-                gap: 2,
-              },
-            }}
-          >
-            <Box>
-              <Avatar sx={{ mb: 2, width: 52, height: 52, bgcolor: 'rgba(255, 255, 255, 0.14)', border: '1px solid rgba(255, 255, 255, 0.3)', '@media (max-height: 820px)': { mb: 1.2, width: 42, height: 42 } }}>
-                <AccountBalanceOutlined />
-              </Avatar>
-              <Typography variant="overline" sx={{ letterSpacing: '0.14em', opacity: 0.86, '@media (max-height: 820px)': { fontSize: '0.62rem' } }}>
-                {isRTL ? 'نظام مكتب المحاماة' : 'LAW OFFICE PLATFORM'}
-              </Typography>
-              <Typography variant="h4" component="h2" sx={{ mt: 1, fontWeight: 700, lineHeight: 1.2, '@media (max-height: 820px)': { mt: 0.5, fontSize: '1.6rem' } }}>
-                {isRTL ? 'إنشاء حساب جديد لفريق المكتب القانوني' : 'Create A New Account For Your Legal Team'}
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 2, opacity: 0.84, maxWidth: 520, '@media (max-height: 820px)': { mt: 1, fontSize: '0.9rem' } }}>
-                {isRTL
-                  ? 'ابدأ بيئة عمل قانونية منظمة تتيح إدارة القضايا والملفات والصلاحيات من مكان واحد.'
-                  : 'Set up a structured legal workspace to manage cases, files, and permissions from one place.'}
-              </Typography>
-            </Box>
-
+      <Box component="form" onSubmit={handleSubmit}>
+        <Stack spacing={2}>
+          <Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+              {t('register.package', { defaultValue: 'Subscription Package' })}
+            </Typography>
             <Box
-              aria-hidden
               sx={{
-                position: 'relative',
-                height: { xs: 120, md: 152 },
-                borderRadius: 3,
-                border: '1px solid rgba(255,255,255,0.18)',
-                background:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2), transparent 42%), linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)',
-                overflow: 'hidden',
-                '@keyframes legalPulse': {
-                  '0%, 100%': { transform: 'scale(1)', opacity: 0.45 },
-                  '50%': { transform: 'scale(1.12)', opacity: 0.9 },
-                },
-                '@keyframes legalFloat': {
-                  '0%': { transform: 'translateY(0px)' },
-                  '50%': { transform: 'translateY(-8px)' },
-                  '100%': { transform: 'translateY(0px)' },
-                },
-                '@keyframes legalOrbit': {
-                  '0%': { transform: 'rotate(0deg)' },
-                  '100%': { transform: 'rotate(360deg)' },
-                },
-                '@media (max-height: 820px)': {
-                  height: { xs: 96, md: 110 },
-                },
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', xl: 'repeat(2, minmax(0, 1fr))' },
+                gap: 1.5,
               }}
             >
-              <Box
-                sx={{
-                  position: 'absolute',
-                  inset: '50% auto auto 50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: 56,
-                  height: 56,
-                  borderRadius: '50%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'rgba(255,255,255,0.14)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  animation: 'legalFloat 3.4s ease-in-out infinite',
-                  '@media (max-height: 820px)': {
-                    width: 46,
-                    height: 46,
-                  },
-                }}
-              >
-                <AccountBalanceOutlined />
-              </Box>
-
-              <Box
-                sx={{
-                  position: 'absolute',
-                  inset: '50% auto auto 50%',
-                  width: 110,
-                  height: 110,
-                  marginTop: '-55px',
-                  marginLeft: '-55px',
-                  borderRadius: '50%',
-                  border: '1px dashed rgba(255,255,255,0.4)',
-                  animation: 'legalOrbit 10s linear infinite',
-                  '@media (max-height: 820px)': {
-                    width: 84,
-                    height: 84,
-                    marginTop: '-42px',
-                    marginLeft: '-42px',
-                    animationDuration: '8s',
-                  },
-                }}
-              >
-                <Box sx={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', color: '#fff', opacity: 0.9 }}>
-                  <GavelOutlined fontSize="small" />
-                </Box>
-                <Box sx={{ position: 'absolute', right: -9, top: '50%', transform: 'translateY(-50%)', color: '#fff', opacity: 0.9 }}>
-                  <DescriptionOutlined fontSize="small" />
-                </Box>
-                <Box sx={{ position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)', color: '#fff', opacity: 0.9 }}>
-                  <GroupsOutlined fontSize="small" />
-                </Box>
-              </Box>
-
-              <Box
-                sx={{
-                  position: 'absolute',
-                  inset: '50% auto auto 50%',
-                  width: 76,
-                  height: 76,
-                  marginTop: '-38px',
-                  marginLeft: '-38px',
-                  borderRadius: '50%',
-                  border: '1px solid rgba(255,255,255,0.35)',
-                  animation: 'legalPulse 2.2s ease-in-out infinite',
-                  '@media (max-height: 820px)': {
-                    width: 62,
-                    height: 62,
-                    marginTop: '-31px',
-                    marginLeft: '-31px',
-                  },
-                }}
-              />
-            </Box>
-
-            <Box sx={{ display: 'grid', gap: 1.4, '@media (max-height: 820px)': { gap: 0.8 } }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                <GavelOutlined fontSize="small" />
-                <Typography variant="body2" sx={{ '@media (max-height: 820px)': { fontSize: '0.8rem' } }}>
-                  {isRTL ? 'إعداد سريع للحسابات القانونية الجديدة' : 'Fast onboarding for new legal accounts'}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                <ShieldOutlined fontSize="small" />
-                <Typography variant="body2" sx={{ '@media (max-height: 820px)': { fontSize: '0.8rem' } }}>
-                  {isRTL ? 'حماية بيانات المكتب بمعايير أمان قوية' : 'Strong security for office data and access'}
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              p: { xs: 3, sm: 4, md: 5 },
-              background: 'rgba(251, 252, 255, 0.96)',
-              textAlign: isRTL ? 'right' : 'left',
-              overflow: 'hidden',
-              '@media (max-height: 820px)': {
-                p: { xs: 2.1, sm: 2.5, md: 3 },
-              },
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Avatar sx={{ width: 48, height: 48, bgcolor: '#1e3a5f', color: '#fff', mb: 1.5, '@media (max-height: 820px)': { width: 40, height: 40, mb: 0.9 } }}>
-                <PersonAddOutlinedIcon />
-              </Avatar>
-              <Typography component="h1" variant="h5" sx={{ fontWeight: 700, '@media (max-height: 820px)': { fontSize: '1.25rem' } }}>
-                {t('register.title') || 'Sign Up'}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 0.8, mb: 1, color: '#4b5563', textAlign: 'center', '@media (max-height: 820px)': { mt: 0.5, mb: 0.7, fontSize: '0.82rem' } }}>
-                {isRTL ? 'أنشئ حسابك للوصول إلى نظام المكتب القانوني' : 'Create your account to access the law office system'}
-              </Typography>
-            </Box>
-
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, '@media (max-height: 820px)': { mt: 0.5 } }}>
-              <Box sx={{ mb: 1.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-                  {t('register.package', { defaultValue: 'Subscription Package' })}
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
-                    gap: 1.2,
-                  }}
-                >
-                  {packages.map((pkg) => {
-                    const selected = selectedOfficeSize === pkg.officeSize;
-                    const selectedOption = selectedBillingCycle === "Annual" ? pkg.annualOption : pkg.monthlyOption;
-                    return (
-                      <Paper
-                        key={pkg.officeSize}
-                        elevation={0}
-                        onClick={() => setSelectedOfficeSize(pkg.officeSize)}
-                        sx={{
-                          p: 1.5,
-                          borderRadius: 2,
-                          border: '1px solid',
-                          borderColor: selected ? 'primary.main' : 'divider',
-                          bgcolor: selected ? 'primary.50' : '#ffffff',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.8 }}>
-                          {pkg.description}
+              {packages.map((pkg) => {
+                const selected = selectedOfficeSize === pkg.officeSize;
+                return (
+                  <Paper
+                    key={pkg.officeSize}
+                    elevation={0}
+                    onClick={() => setSelectedOfficeSize(pkg.officeSize)}
+                    sx={{
+                      p: 2,
+                      borderRadius: 3,
+                      border: '1px solid',
+                      borderColor: selected ? 'primary.main' : 'divider',
+                      bgcolor: selected ? 'rgba(20, 52, 90, 0.04)' : '#ffffff',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                        {pkg.name}
+                      </Typography>
+                      <Chip size="small" label={pkg.officeSize} color={selected ? 'primary' : 'default'} />
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1.25, lineHeight: 1.7 }}>
+                      {pkg.description}
+                    </Typography>
+                    <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+                      {(pkg.features || []).slice(0, 3).map((feature) => (
+                        <Typography key={feature} variant="caption" color="text.secondary">
+                          • {feature}
                         </Typography>
-                        <Box sx={{ mt: 1, mb: 1.25 }}>
-                          {(pkg.features || []).map((feature) => (
-                            <Typography key={feature} variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
-                              • {feature}
-                            </Typography>
-                          ))}
-                        </Box>
-                        <Stack direction="row" spacing={1} sx={{ mb: 0.8, flexWrap: 'wrap' }}>
-                          {pkg.monthlyOption && (
-                            <Chip
-                              size="small"
-                              variant={selected && selectedBillingCycle === "Monthly" ? "filled" : "outlined"}
-                              color={selected && selectedBillingCycle === "Monthly" ? "primary" : "default"}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setSelectedOfficeSize(pkg.officeSize);
-                                setSelectedBillingCycle("Monthly");
-                              }}
-                              label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${pkg.monthlyOption.price.toFixed(0)} ${pkg.monthlyOption.currency}`}
-                            />
-                          )}
-                          {pkg.annualOption && (
-                            <Chip
-                              size="small"
-                              variant={selected && selectedBillingCycle === "Annual" ? "filled" : "outlined"}
-                              color={selected && selectedBillingCycle === "Annual" ? "primary" : "default"}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setSelectedOfficeSize(pkg.officeSize);
-                                setSelectedBillingCycle("Annual");
-                              }}
-                              label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${pkg.annualOption.price.toFixed(0)} ${pkg.annualOption.currency}`}
-                            />
-                          )}
-                        </Stack>
-                        {selectedOption && (
-                          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700 }}>
-                            {t('register.selectedPackage', { defaultValue: 'Selected plan' })}: {selectedBillingCycle === "Annual"
-                              ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
-                              : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}
-                          </Typography>
-                        )}
-                      </Paper>
-                    );
-                  })}
-                </Box>
-              </Box>
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                id="userName"
-                label={t('register.username') || 'Username'}
-                name="userName"
-                autoComplete="username"
-                autoFocus
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-              />
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                id="lawyerOfficeName"
-                label={t('register.lawyerOfficeName', { defaultValue: 'Lawyer Office Name' })}
-                name="lawyerOfficeName"
-                value={lawyerOfficeName}
-                onChange={(e) => setLawyerOfficeName(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-              />
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                id="lawyerOfficePhoneNumber"
-                label={t('register.lawyerOfficePhoneNumber', { defaultValue: 'Lawyer Office Phone Number' })}
-                name="lawyerOfficePhoneNumber"
-                value={lawyerOfficePhoneNumber}
-                onChange={(e) => setLawyerOfficePhoneNumber(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-              />
-              <SearchableSelect
-                label={t('register.country', { defaultValue: 'Country' })}
-                value={countryId}
-                onChange={(value) => setCountryId(value === null || value === '' ? '' : Number(value))}
-                options={[
-                  { value: '', label: t('register.selectCountry', { defaultValue: 'Select country' }) },
-                  ...countries.map((country) => ({ value: country.id, label: country.name })),
-                ]}
-                size="small"
-                required
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-              />
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                id="fullName"
-                label={t('register.fullName') || 'Full Name'}
-                name="fullName"
-                autoComplete="name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-              />
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                id="email"
-                label={t('register.email') || 'Email'}
-                name="email"
-                autoComplete="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-              />
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                name="password"
-                label={t('register.password') || 'Password'}
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="dense"
-                size="small"
-                required
-                fullWidth
-                name="confirmPassword"
-                label={t('register.confirmPassword') || 'Confirm Password'}
-                type={showConfirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.6,
-                    backgroundColor: '#ffffff',
-                  },
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle confirm password visibility"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        edge="end"
-                      >
-                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              {error && (
-                <Alert severity="error" sx={{ mt: 2, borderRadius: 1.5 }}>
-                  {error}
-                </Alert>
-              )}
-              {successMessage && (
-                <Alert severity="success" sx={{ mt: 2, borderRadius: 1.5 }}>
-                  {successMessage}
-                </Alert>
-              )}
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 2.2,
-                  mb: 1.6,
-                  py: 1.1,
-                  borderRadius: 1.8,
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
-                  boxShadow: '0 10px 25px rgba(20, 52, 90, 0.34)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
-                  },
-                  '@media (max-height: 820px)': {
-                    mt: 1.5,
-                    mb: 1,
-                    py: 0.8,
-                  },
-                }}
-                disabled={loading}
-              >
-                {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
-              </Button>
-              <Box sx={{ display: 'flex', justifyContent: isRTL ? 'flex-start' : 'flex-end', mt: 1.2, '@media (max-height: 820px)': { mt: 0.6 } }}>
-                <MuiLink href="/login" variant="body2" sx={{ color: '#1f4c74', fontWeight: 600 }}>
-                  {t('register.haveAccount') || 'Already have an account? Sign in'}
-                </MuiLink>
-              </Box>
+                      ))}
+                    </Stack>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      {pkg.monthlyOption ? (
+                        <Chip
+                          size="small"
+                          variant={selected && selectedBillingCycle === "Monthly" ? "filled" : "outlined"}
+                          color={selected && selectedBillingCycle === "Monthly" ? "primary" : "default"}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedOfficeSize(pkg.officeSize);
+                            setSelectedBillingCycle("Monthly");
+                          }}
+                          label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${pkg.monthlyOption.price.toFixed(0)} ${pkg.monthlyOption.currency}`}
+                        />
+                      ) : null}
+                      {pkg.annualOption ? (
+                        <Chip
+                          size="small"
+                          variant={selected && selectedBillingCycle === "Annual" ? "filled" : "outlined"}
+                          color={selected && selectedBillingCycle === "Annual" ? "primary" : "default"}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedOfficeSize(pkg.officeSize);
+                            setSelectedBillingCycle("Annual");
+                          }}
+                          label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${pkg.annualOption.price.toFixed(0)} ${pkg.annualOption.currency}`}
+                        />
+                      ) : null}
+                    </Stack>
+                  </Paper>
+                );
+              })}
             </Box>
           </Box>
-        </Paper>
-      </Container>
-    </Box>
+
+          {error ? <Alert severity="error" sx={{ borderRadius: 3 }}>{error}</Alert> : null}
+          {successMessage ? <Alert severity="success" sx={{ borderRadius: 3 }}>{successMessage}</Alert> : null}
+
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
+            <TextField required fullWidth id="userName" label={t('register.username') || 'Username'} value={userName} onChange={(e) => setUserName(e.target.value)} sx={fieldSx} />
+            <TextField required fullWidth id="fullName" label={t('register.fullName') || 'Full Name'} value={fullName} onChange={(e) => setFullName(e.target.value)} sx={fieldSx} />
+            <TextField required fullWidth id="lawyerOfficeName" label={t('register.lawyerOfficeName', { defaultValue: 'Lawyer Office Name' })} value={lawyerOfficeName} onChange={(e) => setLawyerOfficeName(e.target.value)} sx={fieldSx} />
+            <TextField required fullWidth id="lawyerOfficePhoneNumber" label={t('register.lawyerOfficePhoneNumber', { defaultValue: 'Lawyer Office Phone Number' })} value={lawyerOfficePhoneNumber} onChange={(e) => setLawyerOfficePhoneNumber(e.target.value)} sx={fieldSx} />
+            <SearchableSelect
+              label={t('register.country', { defaultValue: 'Country' })}
+              value={countryId}
+              onChange={(value) => setCountryId(value === null || value === '' ? '' : Number(value))}
+              options={[
+                { value: '', label: t('register.selectCountry', { defaultValue: 'Select country' }) },
+                ...countries.map((country) => ({ value: country.id, label: country.name })),
+              ]}
+              required
+              sx={fieldSx}
+            />
+            <TextField required fullWidth id="email" label={t('register.email') || 'Email'} type="email" value={email} onChange={(e) => setEmail(e.target.value)} sx={fieldSx} />
+            <TextField
+              required
+              fullWidth
+              name="password"
+              label={t('register.password') || 'Password'}
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              sx={fieldSx}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              required
+              fullWidth
+              name="confirmPassword"
+              label={t('register.confirmPassword') || 'Confirm Password'}
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={fieldSx}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton aria-label="toggle confirm password visibility" onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+
+          {selectedGroup ? (
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'rgba(20, 52, 90, 0.04)', border: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                {t('register.selectedPackage', { defaultValue: 'Selected plan' })}: {selectedGroup.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                {selectedBillingCycle === 'Annual'
+                  ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
+                  : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}
+              </Typography>
+            </Paper>
+          ) : null}
+
+          <Button type="submit" fullWidth variant="contained" size="large" disabled={loading} sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }}>
+            {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
+          </Button>
+        </Stack>
+      </Box>
+    </AuthSplitLayout>
   );
 }

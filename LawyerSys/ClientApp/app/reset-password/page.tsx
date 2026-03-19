@@ -1,33 +1,32 @@
 'use client'
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  TextField, 
-  Button, 
-  Typography, 
-  Alert, 
-  Container, 
-  InputAdornment,
+import {
+  Alert,
+  Box,
+  Button,
   CircularProgress,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
   useTheme,
-  Grid,
-  IconButton
 } from '@mui/material'
-import { 
+import {
   Key as KeyIcon,
   Person as PersonIcon,
   VpnKey as TokenIcon,
   Lock as LockIcon,
   Visibility,
   VisibilityOff,
-  CheckCircle as CheckCircleIcon
+  CheckCircle as CheckCircleIcon,
+  ShieldOutlined,
+  TaskAltOutlined,
 } from '@mui/icons-material'
 import api from '../../src/services/api'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from '../../src/services/auth'
+import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout'
 
 function ResetPasswordForm() {
   const search = useSearchParams()
@@ -44,9 +43,10 @@ function ResetPasswordForm() {
   const [success, setSuccess] = useState(false)
 
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const theme = useTheme()
-  const isRTL = theme.direction === 'rtl'
+  const isRTL = theme.direction === 'rtl' || (i18n.resolvedLanguage || i18n.language || '').startsWith('ar')
+  const fieldSx = isRTL ? { '& .MuiInputBase-input': { textAlign: 'right' } } : {}
 
   useEffect(()=>{
     if (initialToken) setToken(initialToken)
@@ -56,263 +56,120 @@ function ResetPasswordForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (password !== confirm) { setError(t('register.passwordMismatch') || 'Passwords do not match'); return }
+    if (password !== confirm) {
+      setError(t('register.passwordMismatch') || 'Passwords do not match')
+      return
+    }
     setLoading(true)
-    
+
     try{
       await api.post('/Account/reset-password', { userName, token, newPassword: password })
       setSuccess(true)
     }catch(e:any){
-      const errorMsg = e?.response?.data?.message 
+      const errorMsg = e?.response?.data?.message
         || (e?.response?.data?.errors ? JSON.stringify(e.response.data.errors) : '')
-        || e?.message 
-        || t('login.errorOccurred') 
+        || e?.message
+        || t('login.errorOccurred')
         || 'Error'
       setError(errorMsg)
     }finally{ setLoading(false) }
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-        p: 2,
-        position: 'relative',
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          width: '140%',
-          height: '140%',
-          top: '-20%',
-          left: '-20%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)',
-          animation: 'pulse 15s infinite alternate',
+    <AuthSplitLayout
+      badge={isRTL ? 'تحديث كلمة المرور' : 'PASSWORD UPDATE'}
+      title={isRTL ? 'تعيين كلمة مرور جديدة مع نفس الضوابط الحالية' : 'Set a new password through the existing secure reset flow'}
+      subtitle={
+        isRTL
+          ? 'تحافظ الشاشة على نفس المدخلات المطلوبة وتعرض النجاح أو الخطأ بشكل أوضح، دون تغيير في عقد الاسترداد.'
+          : 'This screen keeps the same required inputs and reset contract while making success and error states easier to understand.'
+      }
+      formTitle={t('login.resetPassword') || 'Reset Password'}
+      formSubtitle={isRTL ? 'أدخل اسم المستخدم والرمز وكلمة المرور الجديدة' : 'Enter your username, reset token, and new password'}
+      heroIcon={<KeyIcon />}
+      formIcon={success ? <CheckCircleIcon /> : <LockIcon />}
+      footerLinkHref="/login"
+      footerLinkLabel={t('login.signIn') || 'Sign In'}
+      features={[
+        {
+          icon: <ShieldOutlined fontSize="small" />,
+          text: isRTL ? 'يعرض الأخطاء القابلة للتصحيح بوضوح ويُبقي التدفق كما هو' : 'Shows recoverable errors clearly while preserving the same flow',
         },
-        '@keyframes pulse': {
-          '0%': { transform: 'scale(1) translate(0, 0)' },
-          '100%': { transform: 'scale(1.1) translate(2%, 2%)' },
-        }
-      }}
+        {
+          icon: <TaskAltOutlined fontSize="small" />,
+          text: isRTL ? 'يوجه المستخدم بوضوح إلى الخطوة التالية بعد النجاح' : 'Makes the post-success next step obvious',
+        },
+      ]}
     >
-      <Card 
-        elevation={0}
-        sx={{ 
-          maxWidth: 500, 
-          width: '100%', 
-          borderRadius: 6,
-          bgcolor: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          overflow: 'visible',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: -40,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 80,
-            height: 80,
-            borderRadius: 4,
-            bgcolor: 'primary.main',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.5)',
-            background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
-            zIndex: 2,
-          }}
-        >
-          {success ? <CheckCircleIcon sx={{ fontSize: 40, color: 'white' }} /> : <KeyIcon sx={{ fontSize: 40, color: 'white' }} />}
+      {success ? (
+        <Stack spacing={2}>
+          <Alert severity="success" sx={{ borderRadius: 3 }}>
+            {t('login.passwordResetSuccess') || 'Password updated successfully'}
+          </Alert>
+          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+            {isRTL
+              ? 'تم تحديث كلمة المرور بنجاح. يمكنك الآن العودة إلى شاشة تسجيل الدخول.'
+              : 'Your password has been updated successfully. You can now return to the sign-in screen.'}
+          </Typography>
+          <Button fullWidth variant="contained" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }} onClick={()=>router.push('/login')}>
+            {t('login.signIn') || 'Sign In Now'}
+          </Button>
+        </Stack>
+      ) : (
+        <Box component="form" onSubmit={handleSubmit}>
+          <Stack spacing={2}>
+            {error ? (
+              <Alert severity="error" sx={{ borderRadius: 3 }}>
+                {error}
+              </Alert>
+            ) : null}
+            <TextField fullWidth label={t('login.username')} value={userName} onChange={(e)=>setUserName(e.target.value)} required sx={fieldSx}
+              InputProps={{ startAdornment: <InputAdornment position="start"><PersonIcon sx={{ color: 'primary.main' }} /></InputAdornment> }} />
+            <TextField fullWidth label={t('login.resetToken')} value={token} onChange={(e)=>setToken(e.target.value)} required sx={fieldSx}
+              InputProps={{ startAdornment: <InputAdornment position="start"><TokenIcon sx={{ color: 'primary.main' }} /></InputAdornment> }} />
+            <TextField
+              fullWidth
+              type={showPassword ? 'text' : 'password'}
+              label={t('register.password')}
+              value={password}
+              onChange={(e)=>setPassword(e.target.value)}
+              required
+              sx={fieldSx}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: 'primary.main' }} /></InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
+                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              type={showPassword ? 'text' : 'password'}
+              label={t('register.confirmPassword')}
+              value={confirm}
+              onChange={(e)=>setConfirm(e.target.value)}
+              required
+              sx={fieldSx}
+              InputProps={{ startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: 'primary.main' }} /></InputAdornment> }}
+            />
+            <Button type="submit" fullWidth variant="contained" size="large" disabled={loading} sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }}>
+              {loading ? <CircularProgress size={24} color="inherit" /> : (t('login.resetPassword') || 'Update Password')}
+            </Button>
+          </Stack>
         </Box>
-
-        <CardContent sx={{ p: { xs: 4, sm: 6 }, pt: 8 }}>
-          {success ? (
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" fontWeight={800} gutterBottom sx={{ letterSpacing: '-0.02em', color: 'text.primary' }}>
-                {t('login.passwordResetSuccess') || 'Success!'}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontWeight: 500 }}>
-                {t('login.passwordResetSuccessSubtitle') || 'Your password has been updated successfully.'}
-              </Typography>
-              <Button 
-                fullWidth 
-                variant="contained" 
-                size="large"
-                onClick={()=>router.push('/login')}
-                sx={{ 
-                  py: 2,
-                  borderRadius: 3,
-                  fontWeight: 700,
-                  background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                }}
-              >
-                {t('login.signIn') || 'Sign In Now'}
-              </Button>
-            </Box>
-          ) : (
-            <>
-              <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Typography variant="h4" fontWeight={800} gutterBottom sx={{ letterSpacing: '-0.02em', color: 'text.primary' }}>
-                  {t('login.resetPassword') || 'Reset Password'}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                  {t('login.resetPasswordSubtitle') || 'Create a new secure password for your account.'}
-                </Typography>
-              </Box>
-
-              {error && (
-                <Alert 
-                  severity="error" 
-                  variant="filled"
-                  sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)' }}
-                >
-                  {error}
-                </Alert>
-              )}
-
-              <Box component="form" onSubmit={handleSubmit}>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2.5 }}>
-                  <Box sx={{ gridColumn: '1 / -1' }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
-                      {t('login.username')}
-                    </Typography>
-                    <TextField 
-                      fullWidth 
-                      placeholder={t('login.usernamePlaceholder') || "Username"}
-                      value={userName} 
-                      onChange={(e)=>setUserName(e.target.value)} 
-                      required
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: 'white' } }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PersonIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Box>
-
-                  <Box sx={{ gridColumn: '1 / -1' }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
-                      {t('login.resetToken')}
-                    </Typography>
-                    <TextField 
-                      fullWidth 
-                      placeholder={t('login.tokenPlaceholder') || "Enter reset token"}
-                      value={token} 
-                      onChange={(e)=>setToken(e.target.value)} 
-                      required
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: 'white' } }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <TokenIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
-                      {t('register.password')}
-                    </Typography>
-                    <TextField 
-                      fullWidth 
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={password} 
-                      onChange={(e)=>setPassword(e.target.value)} 
-                      required
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: 'white' } }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LockIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Box>
-
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, color: 'text.primary', textAlign: isRTL ? 'right' : 'left' }}>
-                      {t('register.confirmPassword')}
-                    </Typography>
-                    <TextField 
-                      fullWidth 
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={confirm} 
-                      onChange={(e)=>setConfirm(e.target.value)} 
-                      required
-                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: 'white' } }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LockIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
-                              {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                <Button 
-                  type="submit" 
-                  fullWidth 
-                  variant="contained" 
-                  size="large"
-                  disabled={loading}
-                  sx={{ 
-                    mt: 4, 
-                    py: 2,
-                    borderRadius: 3,
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                    boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.4)',
-                    '&:hover': {
-                      boxShadow: '0 15px 25px -5px rgba(99, 102, 241, 0.5)',
-                      transform: 'translateY(-1px)',
-                    },
-                    transition: 'all 0.2s ease-in-out',
-                  }}
-                >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : (t('login.resetPassword') || 'Update Password')}
-                </Button>
-              </Box>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
+      )}
+    </AuthSplitLayout>
   )
 }
 
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'linear-gradient(135deg, #081320 0%, #14345a 100%)' }}>
         <CircularProgress sx={{ color: 'white' }} />
       </Box>
     }>
@@ -320,5 +177,3 @@ export default function ResetPasswordPage() {
     </Suspense>
   )
 }
-
-

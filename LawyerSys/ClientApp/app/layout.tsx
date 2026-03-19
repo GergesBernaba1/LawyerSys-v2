@@ -5,8 +5,8 @@ const Providers = dynamic(() => import('../src/providers/Providers'), { ssr: fal
 const ServiceWorkerRegister = dynamic(() => import('../src/components/ServiceWorkerRegister'), { ssr: false })
 
 export const metadata = {
-  title: 'Qadaya - قضايا',
-  description: 'Lawyer Management System - نظام إدارة المحاماة',
+  title: 'Qadaya | Legal Operations Platform',
+  description: 'Bilingual legal operations workspace for case management, client coordination, and firm administration.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
