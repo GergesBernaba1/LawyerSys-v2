@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
@@ -27,12 +30,14 @@ public class CasesController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IUserContext _userContext;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CasesController(LegacyDbContext context, IUserContext userContext, IInAppNotificationService inAppNotificationService)
+    public CasesController(LegacyDbContext context, IUserContext userContext, IInAppNotificationService inAppNotificationService, IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _userContext = userContext;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     // GET: api/cases
@@ -118,7 +123,7 @@ public class CasesController : ControllerBase
     {
         var caseEntity = await _context.Cases.FindAsync(code);
         if (caseEntity == null)
-            return NotFound(new { message = "Case not found" });
+            return this.EntityNotFound<CaseDto>(_localizer, "Case");
 
         // Check access
         if (!await CanAccessCase(code))
@@ -137,7 +142,7 @@ public class CasesController : ControllerBase
 
         // Check if Code already exists
         if (await _context.Cases.AnyAsync(c => c.Code == dto.Code))
-            return BadRequest(new { message = "A case with this code already exists" });
+            return BadRequest(new { message = _localizer["CaseCodeAlreadyExists"].Value });
 
         var caseEntity = new Case
         {
@@ -171,7 +176,7 @@ public class CasesController : ControllerBase
     {
         var caseEntity = await _context.Cases.FindAsync(code);
         if (caseEntity == null)
-            return NotFound(new { message = "Case not found" });
+            return this.EntityNotFound(_localizer, "Case");
 
         // Employees can only update their assigned cases
         if (!await CanModifyCase(code))
@@ -195,7 +200,7 @@ public class CasesController : ControllerBase
     {
         var caseEntity = await _context.Cases.FindAsync(code);
         if (caseEntity == null)
-            return NotFound(new { message = "Case not found" });
+            return this.EntityNotFound(_localizer, "Case");
 
         // Employees can only delete their assigned cases
         if (!await CanModifyCase(code))
@@ -204,7 +209,7 @@ public class CasesController : ControllerBase
         _context.Cases.Remove(caseEntity);
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Case deleted" });
+        return Ok(new { message = _localizer["CaseDeleted"].Value });
     }
 
     // POST: api/cases/{code}/assign-employee
@@ -213,10 +218,10 @@ public class CasesController : ControllerBase
     public async Task<IActionResult> AssignEmployee(int code, [FromBody] AssignEmployeeDto dto)
     {
         var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
-        if (caseEntity == null) return NotFound(new { message = "Case not found" });
+        if (caseEntity == null) return this.EntityNotFound(_localizer, "Case");
 
         var employee = await _context.Employees.FindAsync(dto.EmployeeId);
-        if (employee == null) return NotFound(new { message = "Employee not found" });
+        if (employee == null) return this.EntityNotFound(_localizer, "Employee");
 
         // Remove existing assignments for this case to ensure single employee assignment
         var existing = _context.Cases_Employees.Where(ce => ce.Case_Code == code);
@@ -226,7 +231,7 @@ public class CasesController : ControllerBase
         _context.Cases_Employees.Add(assign);
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Employee assigned" });
+        return Ok(new { message = _localizer["EmployeeAssigned"].Value });
     }
 
     // DELETE: api/cases/{code}/assign-employee
@@ -235,7 +240,7 @@ public class CasesController : ControllerBase
     public async Task<IActionResult> UnassignEmployee(int code)
     {
         var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
-        if (caseEntity == null) return NotFound(new { message = "Case not found" });
+        if (caseEntity == null) return NotFound(new { message = _localizer["CaseNotFound"].Value });
 
         var existing = _context.Cases_Employees.Where(ce => ce.Case_Code == code);
         _context.Cases_Employees.RemoveRange(existing);
@@ -280,10 +285,10 @@ public class CasesController : ControllerBase
             return Forbid();
 
         if (string.IsNullOrWhiteSpace(dto.Status))
-            return BadRequest(new { message = "Status is required" });
+            return BadRequest(new { message = _localizer["StatusRequired"].Value });
 
         if (!System.Enum.TryParse<DTOs.CaseStatus>(dto.Status, true, out var newStatus))
-            return BadRequest(new { message = "Invalid status value" });
+            return BadRequest(new { message = _localizer["InvalidStatusValue"].Value });
 
         var oldStatus = (DTOs.CaseStatus)caseEntity.Status;
         if (oldStatus == newStatus)
@@ -293,7 +298,7 @@ public class CasesController : ControllerBase
         if (!allowedTargets.Contains(newStatus))
         {
             var allowed = string.Join(", ", allowedTargets.Select(MapStatusLabel));
-            return BadRequest(new { message = $"Invalid status transition from {MapStatusLabel(oldStatus)} to {MapStatusLabel(newStatus)}. Allowed: {allowed}" });
+            return BadRequest(new { message = _localizer["InvalidStatusTransition", MapStatusLabel(oldStatus), MapStatusLabel(newStatus), allowed].Value });
         }
 
         caseEntity.Status = (int)newStatus;
@@ -528,14 +533,14 @@ public class CasesController : ControllerBase
         Status = (DTOs.CaseStatus)c.Status
     };
 
-    private static string MapStatusLabel(DTOs.CaseStatus status) => status switch
+    private string MapStatusLabel(DTOs.CaseStatus status) => status switch
     {
-        DTOs.CaseStatus.New => "New",
-        DTOs.CaseStatus.InProgress => "In Progress",
-        DTOs.CaseStatus.AwaitingHearing => "Awaiting Hearing",
-        DTOs.CaseStatus.Closed => "Closed",
-        DTOs.CaseStatus.Won => "Won",
-        DTOs.CaseStatus.Lost => "Lost",
-        _ => "Unknown"
+        DTOs.CaseStatus.New => _localizer["CaseStatus_New"],
+        DTOs.CaseStatus.InProgress => _localizer["CaseStatus_InProgress"],
+        DTOs.CaseStatus.AwaitingHearing => _localizer["CaseStatus_AwaitingHearing"],
+        DTOs.CaseStatus.Closed => _localizer["CaseStatus_Closed"],
+        DTOs.CaseStatus.Won => _localizer["CaseStatus_Won"],
+        DTOs.CaseStatus.Lost => _localizer["CaseStatus_Lost"],
+        _ => _localizer["CaseStatus_Unknown"]
     };
 }

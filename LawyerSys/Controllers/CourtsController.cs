@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using System.Globalization;
 
@@ -17,15 +20,18 @@ public class CourtsController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IUserContext _userContext;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public CourtsController(
         LegacyDbContext context,
         ApplicationDbContext applicationDbContext,
-        IUserContext userContext)
+        IUserContext userContext,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _applicationDbContext = applicationDbContext;
         _userContext = userContext;
+        _localizer = localizer;
     }
 
     [HttpGet]
@@ -71,7 +77,7 @@ public class CourtsController : ControllerBase
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (court == null)
-            return NotFound(new { message = "Court not found" });
+            return this.EntityNotFound<CourtDto>(_localizer, "Court");
 
         return Ok(MapToDto(court));
     }
@@ -97,7 +103,7 @@ public class CourtsController : ControllerBase
 
         if (!await CanUseGovernmentAsync(dto.GovId))
         {
-            return BadRequest(new { message = "Selected city is outside the country saved in your profile." });
+            return this.ApiResponseError<CourtDto>(_localizer, "SelectedCityOutsideProfileCountry");
         }
 
         var court = new Court
@@ -145,11 +151,11 @@ public class CourtsController : ControllerBase
     {
         var court = await _context.Courts.FindAsync(id);
         if (court == null)
-            return NotFound(new { message = "Court not found" });
+            return this.EntityNotFound(_localizer, "Court");
 
         _context.Courts.Remove(court);
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Court deleted" });
+        return Ok(new { message = _localizer["CourtDeleted"].Value });
     }
 
     private static CourtDto MapToDto(Court c) => new()

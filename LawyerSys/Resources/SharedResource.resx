@@ -75,6 +75,57 @@
   <data name="Calendar_TaskReminderTitle" xml:space="preserve">
     <value>Task reminder - {0}</value>
   </data>
+  <data name="CaseNotFound" xml:space="preserve">
+    <value>Case not found</value>
+  </data>
+  <data name="CaseCodeAlreadyExists" xml:space="preserve">
+    <value>A case with this code already exists</value>
+  </data>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>{0} not found</value>
+  </data>
+  <data name="CustomerDeleted" xml:space="preserve">
+    <value>Customer deleted</value>
+  </data>
+  <data name="CourtDeleted" xml:space="preserve">
+    <value>Court deleted</value>
+  </data>
+  <data name="SelectedCityOutsideProfileCountry" xml:space="preserve">
+    <value>Selected city is outside the country saved in your profile.</value>
+  </data>
+  <data name="StatusRequired" xml:space="preserve">
+    <value>Status is required</value>
+  </data>
+  <data name="InvalidStatusValue" xml:space="preserve">
+    <value>Invalid status value</value>
+  </data>
+  <data name="InvalidStatusTransition" xml:space="preserve">
+    <value>Invalid status transition from {0} to {1}. Allowed: {2}</value>
+  </data>
+  <data name="CaseDeleted" xml:space="preserve">
+    <value>Case deleted</value>
+  </data>
+  <data name="CaseStatus_New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="CaseStatus_InProgress" xml:space="preserve">
+    <value>In Progress</value>
+  </data>
+  <data name="CaseStatus_AwaitingHearing" xml:space="preserve">
+    <value>Awaiting Hearing</value>
+  </data>
+  <data name="CaseStatus_Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="CaseStatus_Won" xml:space="preserve">
+    <value>Won</value>
+  </data>
+  <data name="CaseStatus_Lost" xml:space="preserve">
+    <value>Lost</value>
+  </data>
+  <data name="CaseStatus_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
   <data name="RegistrationFieldUserName" xml:space="preserve">
     <value>username</value>
   </data>
@@ -86,6 +137,12 @@
   </data>
   <data name="RegistrationFieldAlreadyUsedMessage" xml:space="preserve">
     <value>The {0} is already used.</value>
+  </data>
+  <data name="EmployeeNotFound" xml:space="preserve">
+    <value>Employee not found</value>
+  </data>
+  <data name="EmployeeAssigned" xml:space="preserve">
+    <value>Employee assigned</value>
   </data>
   <data name="RegistrationFieldsAlreadyUsedMessage" xml:space="preserve">
     <value>The following fields are already used: {0}.</value>
