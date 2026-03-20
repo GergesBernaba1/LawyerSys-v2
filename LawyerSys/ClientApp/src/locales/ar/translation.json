@@ -539,6 +539,7 @@
                       "pleaseSelectUser":  "يرجى اختيار مستخدم",
                       "employeeCreated":  "تم إنشاء الموظف بنجاح",
                       "employeeUpdated":  "تم تحديث الموظف بنجاح",
+                      "add": "إضافة",
                       "employeeDeleted":  "تم حذف الموظف بنجاح",
                       "failedLoad":  "فشل تحميل البيانات",
                       "failedCreate":  "فشل إنشاء الموظف",

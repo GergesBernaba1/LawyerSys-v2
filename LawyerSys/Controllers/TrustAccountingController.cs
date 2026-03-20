@@ -481,7 +481,7 @@ public class TrustAccountingController : ControllerBase
         }
 
         var openingBalance = await openingQuery
-            .SumAsync(e => (double?)SignedAmount(e.EntryType, e.Amount)) ?? 0;
+            .SumAsync(e => (double?)((e.EntryType == TrustEntryTypes.Deposit || e.EntryType == TrustEntryTypes.AdjustmentIncrease) ? e.Amount : -e.Amount)) ?? 0;
 
         var monthlyLedgerQuery = _context.TrustLedgerEntries
             .Where(e => e.OperationDate >= startMonth && e.OperationDate <= endDate);

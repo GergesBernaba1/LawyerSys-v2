@@ -539,6 +539,7 @@
                       "pleaseSelectUser":  "Please select a user",
                       "employeeCreated":  "Employee created successfully",
                       "employeeUpdated":  "Employee updated successfully",
+                      "add": "Add",
                       "employeeDeleted":  "Employee deleted successfully",
                       "failedLoad":  "Failed to load data",
                       "failedCreate":  "Failed to create employee",
