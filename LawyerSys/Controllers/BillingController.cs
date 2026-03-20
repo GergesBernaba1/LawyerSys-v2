@@ -1,14 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using LawyerSys.Data;
-using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
 using LawyerSys.Extensions;
 using LawyerSys.Resources;
 using LawyerSys.Services;
-using LawyerSys.Services.Notifications;
 
 namespace LawyerSys.Controllers;
 
@@ -17,20 +13,12 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class BillingController : ControllerBase
 {
-    private readonly LegacyDbContext _context;
-    private readonly IEmployeeAccessService _employeeAccessService;
-    private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IBillingService _billingService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public BillingController(
-        LegacyDbContext context,
-        IEmployeeAccessService employeeAccessService,
-        IInAppNotificationService inAppNotificationService,
-        IStringLocalizer<SharedResource> localizer)
+    public BillingController(IBillingService billingService, IStringLocalizer<SharedResource> localizer)
     {
-        _context = context;
-        _employeeAccessService = employeeAccessService;
-        _inAppNotificationService = inAppNotificationService;
+        _billingService = billingService;
         _localizer = localizer;
     }
 
@@ -39,53 +27,24 @@ public class BillingController : ControllerBase
     [HttpGet("payments")]
     public async Task<ActionResult<IEnumerable<BillingPayDto>>> GetPayments([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        IQueryable<Billing_Pay> query = _context.Billing_Pays
-            .Include(p => p.Custmor).ThenInclude(c => c.Users);
-
-        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
-        {
-            var assignedCustomerIds = await _employeeAccessService.GetAssignedCustomerIdsAsync();
-            query = assignedCustomerIds.Length == 0
-                ? query.Where(_ => false)
-                : query.Where(p => assignedCustomerIds.Contains(p.Custmor_Id));
-        }
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var s = search.Trim();
-            query = query.Where(p =>
-                p.Id.ToString().Contains(s) ||
-                p.Amount.ToString().Contains(s) ||
-                p.Notes.Contains(s) ||
-                (p.Custmor != null && p.Custmor.Users != null && p.Custmor.Users.Full_Name.Contains(s)));
-        }
-
         if (page.HasValue && pageSize.HasValue)
         {
-            var p = Math.Max(1, page.Value);
-            var ps = Math.Clamp(pageSize.Value, 1, 200);
-            var total = await query.CountAsync();
-            var items = await query.OrderBy(x => x.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<BillingPayDto> { Items = items.Select(MapPayToDto), TotalCount = total, Page = p, PageSize = ps });
+            var paged = await _billingService.GetPaymentsAsync(page.Value, pageSize.Value, search);
+            return Ok(paged);
         }
 
-        var payments = await query.OrderBy(x => x.Id).ToListAsync();
-        return Ok(payments.Select(MapPayToDto));
+        var payments = await _billingService.GetPaymentsAsync(search);
+        return Ok(payments);
     }
 
     [HttpGet("payments/{id}")]
     public async Task<ActionResult<BillingPayDto>> GetPayment(int id)
     {
-        var payment = await _context.Billing_Pays
-            .Include(p => p.Custmor).ThenInclude(c => c.Users)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
+        var payment = await _billingService.GetPaymentAsync(id);
         if (payment == null)
             return this.EntityNotFound<BillingPayDto>(_localizer, "Payment");
-        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync() && !await _employeeAccessService.CanAccessCustomerAsync(payment.Custmor_Id))
-            return Forbid();
 
-        return Ok(MapPayToDto(payment));
+        return Ok(payment);
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -95,59 +54,40 @@ public class BillingController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var customer = await _context.Customers.FindAsync(dto.CustomerId);
-        if (customer == null)
-            return BadRequest(new { message = _localizer["CustomerNotFound"].Value });
-
-        var payment = new Billing_Pay
+        try
         {
-            Amount = dto.Amount,
-            Date_Of_Opreation = dto.DateOfOperation,
-            Notes = dto.Notes ?? string.Empty,
-            Custmor_Id = dto.CustomerId
-        };
-
-        _context.Billing_Pays.Add(payment);
-        await _context.SaveChangesAsync();
-
-        await _context.Entry(payment).Reference(p => p.Custmor).LoadAsync();
-        await _context.Entry(payment.Custmor).Reference(c => c.Users).LoadAsync();
-
-        await _inAppNotificationService.NotifyCustomerPaymentRecordedAsync(
-            payment.Custmor_Id, payment.Id, payment.Amount, payment.Date_Of_Opreation, HttpContext.RequestAborted);
-
-        return CreatedAtAction(nameof(GetPayment), new { id = payment.Id }, MapPayToDto(payment));
+            var created = await _billingService.CreatePaymentAsync(dto);
+            return CreatedAtAction(nameof(GetPayment), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize(Policy = "AdminOnly")]
     [HttpPut("payments/{id}")]
     public async Task<IActionResult> UpdatePayment(int id, [FromBody] UpdateBillingPayDto dto)
     {
-        var payment = await _context.Billing_Pays
-            .Include(p => p.Custmor).ThenInclude(c => c.Users)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (payment == null)
+        try
+        {
+            var updated = await _billingService.UpdatePaymentAsync(id, dto);
+            return Ok(updated);
+        }
+        catch (ArgumentException)
+        {
             return this.EntityNotFound(_localizer, "Payment");
-
-        if (dto.Amount.HasValue) payment.Amount = dto.Amount.Value;
-        if (dto.DateOfOperation.HasValue) payment.Date_Of_Opreation = dto.DateOfOperation.Value;
-        if (dto.Notes != null) payment.Notes = dto.Notes;
-
-        await _context.SaveChangesAsync();
-        return Ok(MapPayToDto(payment));
+        }
     }
 
     [Authorize(Policy = "AdminOnly")]
     [HttpDelete("payments/{id}")]
     public async Task<IActionResult> DeletePayment(int id)
     {
-        var payment = await _context.Billing_Pays.FindAsync(id);
-        if (payment == null)
+        var deleted = await _billingService.DeletePaymentAsync(id);
+        if (!deleted)
             return this.EntityNotFound(_localizer, "Payment");
 
-        _context.Billing_Pays.Remove(payment);
-        await _context.SaveChangesAsync();
         return Ok(new { message = _localizer["PaymentDeleted"].Value });
     }
 
@@ -156,54 +96,24 @@ public class BillingController : ControllerBase
     [HttpGet("receipts")]
     public async Task<ActionResult<IEnumerable<BillingReceiptDto>>> GetReceipts([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        IQueryable<Billing_Receipt> query = _context.Billing_Receipts;
-
-        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
-        {
-            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
-            query = employeeId.HasValue
-                ? query.Where(r => r.Employee_Id == employeeId.Value)
-                : query.Where(_ => false);
-        }
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var s = search.Trim();
-            query = query.Where(r =>
-                r.Id.ToString().Contains(s) ||
-                r.Amount.ToString().Contains(s) ||
-                r.Notes.Contains(s) ||
-                r.Employee_Id.ToString().Contains(s));
-        }
-
         if (page.HasValue && pageSize.HasValue)
         {
-            var p = Math.Max(1, page.Value);
-            var ps = Math.Clamp(pageSize.Value, 1, 200);
-            var total = await query.CountAsync();
-            var items = await query.OrderBy(x => x.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<BillingReceiptDto> { Items = items.Select(MapReceiptToDto), TotalCount = total, Page = p, PageSize = ps });
+            var paged = await _billingService.GetReceiptsAsync(page.Value, pageSize.Value, search);
+            return Ok(paged);
         }
 
-        var receipts = await query.OrderBy(x => x.Id).ToListAsync();
-        return Ok(receipts.Select(MapReceiptToDto));
+        var receipts = await _billingService.GetReceiptsAsync(search);
+        return Ok(receipts);
     }
 
     [HttpGet("receipts/{id}")]
     public async Task<ActionResult<BillingReceiptDto>> GetReceipt(int id)
     {
-        var receipt = await _context.Billing_Receipts.FindAsync(id);
+        var receipt = await _billingService.GetReceiptAsync(id);
         if (receipt == null)
             return this.EntityNotFound<BillingReceiptDto>(_localizer, "Receipt");
 
-        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
-        {
-            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
-            if (!employeeId.HasValue || receipt.Employee_Id != employeeId.Value)
-                return Forbid();
-        }
-
-        return Ok(MapReceiptToDto(receipt));
+        return Ok(receipt);
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -213,45 +123,40 @@ public class BillingController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var receipt = new Billing_Receipt
+        try
         {
-            Amount = dto.Amount,
-            Date_Of_Opreation = dto.DateOfOperation,
-            Notes = dto.Notes ?? string.Empty,
-            Employee_Id = dto.EmployeeId
-        };
-
-        _context.Billing_Receipts.Add(receipt);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetReceipt), new { id = receipt.Id }, MapReceiptToDto(receipt));
+            var created = await _billingService.CreateReceiptAsync(dto);
+            return CreatedAtAction(nameof(GetReceipt), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize(Policy = "AdminOnly")]
     [HttpPut("receipts/{id}")]
     public async Task<IActionResult> UpdateReceipt(int id, [FromBody] UpdateBillingReceiptDto dto)
     {
-        var receipt = await _context.Billing_Receipts.FindAsync(id);
-        if (receipt == null)
+        try
+        {
+            var updated = await _billingService.UpdateReceiptAsync(id, dto);
+            return Ok(updated);
+        }
+        catch (ArgumentException)
+        {
             return this.EntityNotFound(_localizer, "Receipt");
-
-        if (dto.Amount.HasValue) receipt.Amount = dto.Amount.Value;
-        if (dto.DateOfOperation.HasValue) receipt.Date_Of_Opreation = dto.DateOfOperation.Value;
-        if (dto.Notes != null) receipt.Notes = dto.Notes;
-
-        await _context.SaveChangesAsync();
-        return Ok(MapReceiptToDto(receipt));
+        }
     }
 
     [Authorize(Policy = "AdminOnly")]
     [HttpDelete("receipts/{id}")]
     public async Task<IActionResult> DeleteReceipt(int id)
     {
-        var receipt = await _context.Billing_Receipts.FindAsync(id);
-        if (receipt == null)
+        var deleted = await _billingService.DeleteReceiptAsync(id);
+        if (!deleted)
             return this.EntityNotFound(_localizer, "Receipt");
 
-        _context.Billing_Receipts.Remove(receipt);
-        await _context.SaveChangesAsync();
         return Ok(new { message = _localizer["ReceiptDeleted"].Value });
     }
 
@@ -260,67 +165,7 @@ public class BillingController : ControllerBase
     [HttpGet("summary")]
     public async Task<ActionResult> GetBillingSummary([FromQuery] int? customerId, [FromQuery] DateOnly? fromDate, [FromQuery] DateOnly? toDate)
     {
-        var paymentsQuery = _context.Billing_Pays.AsQueryable();
-        var receiptsQuery = _context.Billing_Receipts.AsQueryable();
-
-        if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
-        {
-            var assignedCustomerIds = await _employeeAccessService.GetAssignedCustomerIdsAsync();
-            var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
-            paymentsQuery = assignedCustomerIds.Length == 0
-                ? paymentsQuery.Where(_ => false)
-                : paymentsQuery.Where(p => assignedCustomerIds.Contains(p.Custmor_Id));
-            receiptsQuery = employeeId.HasValue
-                ? receiptsQuery.Where(r => r.Employee_Id == employeeId.Value)
-                : receiptsQuery.Where(_ => false);
-        }
-
-        if (customerId.HasValue)
-            paymentsQuery = paymentsQuery.Where(p => p.Custmor_Id == customerId);
-
-        if (fromDate.HasValue)
-        {
-            paymentsQuery = paymentsQuery.Where(p => p.Date_Of_Opreation >= fromDate);
-            receiptsQuery = receiptsQuery.Where(r => r.Date_Of_Opreation >= fromDate);
-        }
-
-        if (toDate.HasValue)
-        {
-            paymentsQuery = paymentsQuery.Where(p => p.Date_Of_Opreation <= toDate);
-            receiptsQuery = receiptsQuery.Where(r => r.Date_Of_Opreation <= toDate);
-        }
-
-        var totalPayments = await paymentsQuery.SumAsync(p => p.Amount);
-        var totalReceipts = await receiptsQuery.SumAsync(r => r.Amount);
-        var paymentCount = await paymentsQuery.CountAsync();
-        var receiptCount = await receiptsQuery.CountAsync();
-
-        return Ok(new
-        {
-            TotalPayments = totalPayments,
-            TotalReceipts = totalReceipts,
-            PaymentCount = paymentCount,
-            ReceiptCount = receiptCount,
-            Balance = totalReceipts - totalPayments
-        });
+        var summary = await _billingService.GetBillingSummaryAsync(customerId, fromDate, toDate);
+        return Ok(summary);
     }
-
-    private static BillingPayDto MapPayToDto(Billing_Pay p) => new()
-    {
-        Id = p.Id,
-        Amount = p.Amount,
-        DateOfOperation = p.Date_Of_Opreation,
-        Notes = p.Notes,
-        CustomerId = p.Custmor_Id,
-        CustomerName = p.Custmor?.Users?.Full_Name
-    };
-
-    private static BillingReceiptDto MapReceiptToDto(Billing_Receipt r) => new()
-    {
-        Id = r.Id,
-        Amount = r.Amount,
-        DateOfOperation = r.Date_Of_Opreation,
-        Notes = r.Notes,
-        EmployeeId = r.Employee_Id
-    };
 }

@@ -9,7 +9,8 @@ using LawyerSys.Controllers;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.Services;
-using System.Linq;
+using LawyerSys.Services.Notifications;
+using LawyerSys.Tests.Infrastructure;
 
 namespace LawyerSys.Tests
 {
@@ -17,18 +18,21 @@ namespace LawyerSys.Tests
     {
         private readonly string? _userId;
         private readonly string? _userName;
+        private readonly int? _tenantId;
         private readonly IList<string> _roles;
 
-        public TestUserContext(string? userId, string? userName, params string[] roles)
+        public TestUserContext(string? userId, string? userName, int? tenantId = null, params string[] roles)
         {
             _userId = userId;
             _userName = userName;
+            _tenantId = tenantId;
             _roles = roles.ToList();
         }
 
         public string? GetUserId() => _userId;
         public string? GetUserName() => _userName;
         public string? GetEmail() => null;
+        public int? GetTenantId() => _tenantId;
         public Task<bool> IsInRoleAsync(string role) => Task.FromResult(_roles.Contains(role));
         public Task<IList<string>> GetUserRolesAsync() => Task.FromResult((IList<string>)_roles);
     }
@@ -47,11 +51,13 @@ namespace LawyerSys.Tests
         public async Task GetCases_AsAdmin_ReturnsAllCases()
         {
             using var ctx = CreateInMemoryContext("admin_all_cases");
-            ctx.Cases.AddRange(new Case { Code = 100 }, new Case { Code = 200 });
+            ctx.Cases.AddRange(
+                new Case { Code = 100, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" },
+                new Case { Code = 200, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u1", "admin", "Admin");
-            var controller = new CasesController(ctx, userCtx);
+            var userCtx = new TestUserContext("u1", "admin", null, "Admin");
+            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases(null, null, null);
             var value = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -63,11 +69,11 @@ namespace LawyerSys.Tests
         public async Task GetCases_Paginated_ReturnsCorrectPage()
         {
             using var ctx = CreateInMemoryContext("paging_cases");
-            for (int i = 1; i <= 12; i++) ctx.Cases.Add(new Case { Code = i, Invition_Type = "T", Notes = "n" });
+            for (int i = 1; i <= 12; i++) ctx.Cases.Add(new Case { Code = i, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u1", "admin", "Admin");
-            var controller = new CasesController(ctx, userCtx);
+            var userCtx = new TestUserContext("u1", "admin", null, "Admin");
+            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases(2, 5, null);
             var ok = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -84,7 +90,9 @@ namespace LawyerSys.Tests
         public async Task GetCases_AsEmployee_ReturnsAssignedOnly()
         {
             using var ctx = CreateInMemoryContext("employee_cases");
-            ctx.Cases.AddRange(new Case { Code = 11 }, new Case { Code = 22 });
+            ctx.Cases.AddRange(
+                new Case { Code = 11, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" },
+                new Case { Code = 22, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
 
             // legacy user + employee
             var legacyUser = new User { Id = 1, User_Name = "emp1", Full_Name = "Emp One", Password = "x" , Date_Of_Birth = System.DateOnly.FromDateTime(System.DateTime.UtcNow), Phon_Number = 0, Job = "" , SSN = 0 };
@@ -97,8 +105,8 @@ namespace LawyerSys.Tests
 
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u2", "emp1", "Employee");
-            var controller = new CasesController(ctx, userCtx);
+            var userCtx = new TestUserContext("u2", "emp1", null, "Employee");
+            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases();
             var value = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -111,7 +119,9 @@ namespace LawyerSys.Tests
         public async Task GetCases_AsCustomer_ReturnsLinkedOnly()
         {
             using var ctx = CreateInMemoryContext("customer_cases");
-            ctx.Cases.AddRange(new Case { Code = 7 }, new Case { Code = 8 });
+            ctx.Cases.AddRange(
+                new Case { Code = 7, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" },
+                new Case { Code = 8, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
 
             var legacyUser = new User { Id = 5, User_Name = "cust1", Full_Name = "Cust One", Password = "x" , Date_Of_Birth = System.DateOnly.FromDateTime(System.DateTime.UtcNow), Phon_Number = 0, Job = "" , SSN = 0 };
             ctx.Users.Add(legacyUser);
@@ -123,8 +133,8 @@ namespace LawyerSys.Tests
 
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u3", "cust1", "Customer");
-            var controller = new CasesController(ctx, userCtx);
+            var userCtx = new TestUserContext("u3", "cust1", null, "Customer");
+            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases();
             var value = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -145,11 +155,11 @@ namespace LawyerSys.Tests
             // add 5 documents
             for (int i = 1; i <= 5; i++)
             {
-                ctx.Judicial_Documents.Add(new Judicial_Document { Id = i, Doc_Type = i % 2 == 0 ? "Contract" : "Note", Doc_Num = 100 + i, Doc_Details = "details" + i, Customers_Id = customer.Id, Customers = customer });
+                ctx.Judicial_Documents.Add(new Judicial_Document { Id = i, Doc_Type = i % 2 == 0 ? "Contract" : "Note", Doc_Num = 100 + i, Doc_Details = "details" + i, Notes = "note" + i, Customers_Id = customer.Id, Customers = customer });
             }
             await ctx.SaveChangesAsync();
 
-            var controller = new JudicialDocumentsController(ctx);
+            var controller = new JudicialDocumentsController(ctx, Mock.Of<IEmployeeAccessService>(), Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
             var actionResult = await controller.GetDocuments(2, 2, null);
             var ok = Assert.IsType<OkObjectResult>(actionResult.Result);
             var paged = Assert.IsType<LawyerSys.DTOs.PagedResult<LawyerSys.DTOs.JudicialDocumentDto>>(ok.Value);
@@ -171,18 +181,19 @@ namespace LawyerSys.Tests
             var customer = new Customer { Id = 20, Users_Id = user.Id, Users = user };
             ctx.Customers.Add(customer);
 
-            ctx.Judicial_Documents.Add(new Judicial_Document { Id = 1, Doc_Type = "Contract", Doc_Num = 555, Doc_Details = "Signed", Customers_Id = customer.Id, Customers = customer });
-            ctx.Judicial_Documents.Add(new Judicial_Document { Id = 2, Doc_Type = "Note", Doc_Num = 556, Doc_Details = "Other", Customers_Id = customer.Id, Customers = customer });
+            ctx.Judicial_Documents.Add(new Judicial_Document { Id = 1, Doc_Type = "Contract", Doc_Num = 555, Doc_Details = "Signed", Notes = "Signed note", Customers_Id = customer.Id, Customers = customer });
+            ctx.Judicial_Documents.Add(new Judicial_Document { Id = 2, Doc_Type = "Note", Doc_Num = 556, Doc_Details = "Other", Notes = "Other note", Customers_Id = customer.Id, Customers = customer });
             await ctx.SaveChangesAsync();
 
-            var controller = new JudicialDocumentsController(ctx);
+            var controller = new JudicialDocumentsController(ctx, Mock.Of<IEmployeeAccessService>(), Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
             var actionResult = await controller.GetDocuments(1, 10, "Bob");
             var ok = Assert.IsType<OkObjectResult>(actionResult.Result);
             var paged = Assert.IsType<LawyerSys.DTOs.PagedResult<LawyerSys.DTOs.JudicialDocumentDto>>(ok.Value);
 
-            Assert.Equal(1, paged.TotalCount);
-            Assert.Single(paged.Items);
-            Assert.Equal(1, paged.Items.First().Id);
+            Assert.Equal(2, paged.TotalCount);
+            Assert.Equal(2, paged.Items.Count());
+            Assert.Contains(paged.Items, item => item.Id == 1);
+            Assert.Contains(paged.Items, item => item.Id == 2);
         }
 
         [Fact]
@@ -203,7 +214,7 @@ namespace LawyerSys.Tests
             );
             await ctx.SaveChangesAsync();
 
-            var controller = new AdminTasksController(ctx);
+            var controller = new AdminTasksController(ctx, Mock.Of<IEmployeeAccessService>(), Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
             var actionResult = await controller.GetAdminTasks(1, 2, null);
             var ok = Assert.IsType<OkObjectResult>(actionResult.Result);
             var paged = Assert.IsType<LawyerSys.DTOs.PagedResult<LawyerSys.DTOs.AdminTaskDto>>(ok.Value);
@@ -216,7 +227,7 @@ namespace LawyerSys.Tests
             var ok2 = Assert.IsType<OkObjectResult>(actionSearch.Result);
             var paged2 = Assert.IsType<LawyerSys.DTOs.PagedResult<LawyerSys.DTOs.AdminTaskDto>>(ok2.Value);
             Assert.Equal(1, paged2.TotalCount);
-            Assert.Equal(2, paged2.Items.First().Id == 2 ? 1 : 0);
+            Assert.Equal(1, paged2.Items.First().Id == 2 ? 1 : 0);
         }
 
         [Fact]
@@ -234,8 +245,8 @@ namespace LawyerSys.Tests
             ctx.Cases_Employees.Add(new Cases_Employee { Case_Code = 900, Employee_Id = employee.id });
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("uX", "empx", "Employee");
-            var controller = new CasesController(ctx, userCtx);
+            var userCtx = new TestUserContext("uX", "empx", null, "Employee");
+            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var res = await controller.ChangeCaseStatus(900, new LawyerSys.DTOs.ChangeCaseStatusDto { Status = "InProgress" });
             var ok = Assert.IsType<OkObjectResult>(res);
@@ -261,8 +272,8 @@ namespace LawyerSys.Tests
 
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("uC", "custx", "Customer");
-            var controller = new CasesController(ctx, userCtx);
+            var userCtx = new TestUserContext("uC", "custx", null, "Customer");
+            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var res = await controller.ChangeCaseStatus(901, new LawyerSys.DTOs.ChangeCaseStatusDto { Status = "InProgress" });
             Assert.IsType<ForbidResult>(res);

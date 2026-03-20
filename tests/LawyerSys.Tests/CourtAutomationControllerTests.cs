@@ -6,6 +6,7 @@ using LawyerSys.Controllers;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Tests.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -84,7 +85,7 @@ public class CourtAutomationControllerTests
     {
         using var ctx = CreateInMemoryContext(nameof(GetPacks_ReturnsConfiguredJurisdictionPacks));
         await SeedPackAsync(ctx);
-        var controller = new CourtAutomationController(ctx);
+        var controller = new CourtAutomationController(ctx, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
         var result = await controller.GetPacks("en");
         var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -99,7 +100,7 @@ public class CourtAutomationControllerTests
     {
         using var ctx = CreateInMemoryContext(nameof(CalculateDeadlines_UsesHearingAnchorRules));
         await SeedPackAsync(ctx);
-        var controller = new CourtAutomationController(ctx);
+        var controller = new CourtAutomationController(ctx, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
         var action = await controller.CalculateDeadlines(new CalculateCourtDeadlinesRequestDto
         {
@@ -155,7 +156,7 @@ public class CourtAutomationControllerTests
         ctx.Cases_Courts.Add(new Cases_Court { Id = 1, Case_Code = caseEntity.Code, Court_Id = court.Id, Case_CodeNavigation = caseEntity, Court = court });
         await ctx.SaveChangesAsync();
 
-        var controller = new CourtAutomationController(ctx);
+        var controller = new CourtAutomationController(ctx, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
         var fileResult = await controller.GenerateForm(new GenerateCourtFormRequestDto
         {
             PackKey = "sa-commercial-first-instance",
@@ -179,7 +180,7 @@ public class CourtAutomationControllerTests
     {
         using var ctx = CreateInMemoryContext(nameof(SubmitFiling_ThenGetSubmission_ReturnsSameSubmission));
         await SeedPackAsync(ctx);
-        var controller = new CourtAutomationController(ctx);
+        var controller = new CourtAutomationController(ctx, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
         var submit = await controller.SubmitFiling(new SubmitCourtFilingRequestDto
         {

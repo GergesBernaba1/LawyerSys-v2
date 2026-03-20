@@ -1,4 +1,5 @@
 using LawyerSys.Data;
+using LawyerSys.Services;
 using LawyerSys.Services.Auditing;
 using LawyerSys.Services.ESign;
 using LawyerSys.Services.MultiTenancy;
@@ -11,6 +12,8 @@ using LawyerSys.Services.CaseConversation;
 using LawyerSys.Services.CustomerExperience;
 using LawyerSys.Services.Subscriptions;
 using LawyerSys.Services.TrustAccounting;
+using LawyerSys.Services.Governments;
+using LawyerSys.Services.CaseRelations;
 using LawyerSys.Realtime;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -169,6 +172,13 @@ builder.Services.AddScoped<LawyerSys.Services.IEmployeeAccessService, LawyerSys.
 builder.Services.AddScoped<LawyerSys.Services.ICustomerService, LawyerSys.Services.CustomerService>();
 builder.Services.AddScoped<LawyerSys.Services.IEmployeeService, LawyerSys.Services.EmployeeService>();
 builder.Services.AddScoped<LawyerSys.Services.IAccountService, LawyerSys.Services.AccountService>();
+builder.Services.AddScoped<LawyerSys.Services.ICaseService, LawyerSys.Services.CaseService>();
+builder.Services.AddScoped<LawyerSys.Services.IBillingService, LawyerSys.Services.BillingService>();
+builder.Services.AddScoped<LawyerSys.Services.ICourtService, LawyerSys.Services.CourtService>();
+builder.Services.AddScoped<LawyerSys.Services.ISitingService, LawyerSys.Services.SitingService>();
+builder.Services.AddControllerRefactorCoreServices();
+builder.Services.AddScoped<IGovernmentsService, GovernmentsService>();
+builder.Services.AddScoped<ICaseRelationsService, CaseRelationsService>();
 builder.Services.AddScoped<ITenantSubscriptionService, TenantSubscriptionService>();
 builder.Services.AddScoped<IInAppNotificationService, InAppNotificationService>();
 builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRealtimePublisher>();

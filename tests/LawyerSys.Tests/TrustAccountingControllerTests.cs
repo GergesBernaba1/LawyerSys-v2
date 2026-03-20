@@ -4,9 +4,12 @@ using LawyerSys.Controllers;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
+using LawyerSys.Tests.Infrastructure;
 
 namespace LawyerSys.Tests;
 
@@ -18,6 +21,16 @@ public class TrustAccountingControllerTests
             .UseInMemoryDatabase(dbName)
             .Options;
         return new LegacyDbContext(options);
+    }
+
+    private static IEmployeeAccessService CreateAdminAccessService()
+    {
+        var mock = new Mock<IEmployeeAccessService>();
+        mock.Setup(s => s.IsCurrentUserAdminAsync()).ReturnsAsync(true);
+        mock.Setup(s => s.IsCurrentUserEmployeeOnlyAsync()).ReturnsAsync(false);
+        mock.Setup(s => s.CanAccessCustomerAsync(It.IsAny<int>())).ReturnsAsync(true);
+        mock.Setup(s => s.GetAssignedCustomerIdsAsync()).ReturnsAsync(Array.Empty<int>());
+        return mock.Object;
     }
 
     [Fact]
@@ -40,7 +53,7 @@ public class TrustAccountingControllerTests
         ctx.Customers.Add(customer);
         await ctx.SaveChangesAsync();
 
-        var controller = new TrustAccountingController(ctx);
+        var controller = new TrustAccountingController(ctx, CreateAdminAccessService(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
         await controller.CreateDeposit(new CreateTrustDepositDto
         {
             CustomerId = customer.Id,
@@ -80,7 +93,7 @@ public class TrustAccountingControllerTests
         ctx.Customers.Add(customer);
         await ctx.SaveChangesAsync();
 
-        var controller = new TrustAccountingController(ctx);
+        var controller = new TrustAccountingController(ctx, CreateAdminAccessService(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
         await controller.CreateDeposit(new CreateTrustDepositDto
         {
             CustomerId = customer.Id,
@@ -125,7 +138,7 @@ public class TrustAccountingControllerTests
         ctx.Customers.Add(customer);
         await ctx.SaveChangesAsync();
 
-        var controller = new TrustAccountingController(ctx);
+        var controller = new TrustAccountingController(ctx, CreateAdminAccessService(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
         await controller.CreateDeposit(new CreateTrustDepositDto
         {
             CustomerId = customer.Id,
@@ -162,7 +175,7 @@ public class TrustAccountingControllerTests
         ctx.Customers.Add(customer);
         await ctx.SaveChangesAsync();
 
-        var controller = new TrustAccountingController(ctx);
+        var controller = new TrustAccountingController(ctx, CreateAdminAccessService(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
         await controller.CreateDeposit(new CreateTrustDepositDto
         {
             CustomerId = customer.Id,
@@ -206,7 +219,7 @@ public class TrustAccountingControllerTests
         ctx.Customers.Add(customer);
         await ctx.SaveChangesAsync();
 
-        var controller = new TrustAccountingController(ctx);
+        var controller = new TrustAccountingController(ctx, CreateAdminAccessService(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
         await controller.CreateDeposit(new CreateTrustDepositDto
         {
             CustomerId = customer.Id,
