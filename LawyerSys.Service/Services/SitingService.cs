@@ -28,15 +28,31 @@ namespace LawyerSys.Services
 
         public async Task<IEnumerable<SitingDto>> GetSitingsAsync(string? search = null)
         {
-            var sitings = await GetSitingsQuery(search).OrderBy(st => st.Id).ToListAsync();
+            var query = await GetSitingsQueryAsync(search);
+            var sitings = await query.OrderBy(st => st.Id).ToListAsync();
             return sitings.Select(MapToDto);
         }
 
         public async Task<PagedResult<SitingDto>> GetSitingsAsync(int page, int pageSize, string? search)
         {
-            var query = GetSitingsQuery(search);
+            // Clamp pagination parameters to avoid runtime exceptions and ensure consistent behavior
+            page = Math.Max(1, page);
+            const int MaxPageSize = 100;
+            if (pageSize <= 0)
+            {
+                pageSize = 10;
+            }
+            else if (pageSize > MaxPageSize)
+            {
+                pageSize = MaxPageSize;
+            }
+
+            var query = await GetSitingsQueryAsync(search);
             var total = await query.CountAsync();
-            var items = await query.OrderBy(st => st.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = await query.OrderBy(st => st.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return new PagedResult<SitingDto>
             {
@@ -47,13 +63,13 @@ namespace LawyerSys.Services
             };
         }
 
-        private IQueryable<Siting> GetSitingsQuery(string? search)
+        private async Task<IQueryable<Siting>> GetSitingsQueryAsync(string? search)
         {
             IQueryable<Siting> query = _context.Sitings.Include(st => st.Cases_Sitings);
 
-            if (_employeeAccessService.IsCurrentUserEmployeeOnlyAsync().Result)
+            if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
             {
-                var assignedCaseCodes = _employeeAccessService.GetAssignedCaseCodesAsync().Result;
+                var assignedCaseCodes = await _employeeAccessService.GetAssignedCaseCodesAsync();
                 query = assignedCaseCodes.Length == 0
                     ? query.Where(_ => false)
                     : query.Where(st => st.Cases_Sitings.Any(cs => assignedCaseCodes.Contains(cs.Case_Code)));
@@ -78,7 +94,7 @@ namespace LawyerSys.Services
             {
                 var caseCodes = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
                 if (!await CanAccessAllCasesAsync(caseCodes))
-                    return null;
+                    throw new UnauthorizedAccessException();
             }
 
             return MapToDto(siting);

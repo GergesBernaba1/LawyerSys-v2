@@ -28,7 +28,8 @@ public class CustomersController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _customerService.GetCustomersAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _customerService.GetCustomersAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 

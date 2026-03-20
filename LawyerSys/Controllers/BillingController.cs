@@ -29,7 +29,8 @@ public class BillingController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _billingService.GetPaymentsAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _billingService.GetPaymentsAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 
@@ -98,7 +99,8 @@ public class BillingController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _billingService.GetReceiptsAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _billingService.GetReceiptsAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 

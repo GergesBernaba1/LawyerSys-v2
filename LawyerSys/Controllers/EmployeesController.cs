@@ -27,7 +27,8 @@ public class EmployeesController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _employeeService.GetEmployeesAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _employeeService.GetEmployeesAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 

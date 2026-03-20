@@ -28,7 +28,8 @@ public class CasesController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _caseService.GetCasesAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _caseService.GetCasesAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 

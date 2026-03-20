@@ -22,7 +22,7 @@ public class GovernmentsServiceTests
         var service = new GovernmentsService(
             legacyDb,
             appDb,
-            new ServiceOperationContextFactory(new TestUserContext("admin-1", "admin", tenantId: 1, "Admin")));
+            new ServiceOperationContextFactory(new TestUserContext(userId: "admin-1", userName: "admin", tenantId: 1, roles: new[] { "Admin" })));
 
         var result = await service.CreateGovernmentAsync(new CreateGovernamentDto { GovName = "Cairo" });
 
@@ -48,7 +48,7 @@ public class GovernmentsServiceTests
         var service = new GovernmentsService(
             legacyDb,
             appDb,
-            new ServiceOperationContextFactory(new TestUserContext("user-1", "tenant.user", tenantId: 5, "Admin")));
+            new ServiceOperationContextFactory(new TestUserContext("user-1", "tenant.user", email: null, tenantId: 5, roles: new[] { "Admin" })));
 
         var result = await service.GetLocationCatalogAsync(2);
 

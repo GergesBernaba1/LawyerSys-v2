@@ -56,8 +56,9 @@ namespace LawyerSys.Tests
                 new Case { Code = 200, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u1", "admin", null, "Admin");
-            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+            var userCtx = new TestUserContext(userId: "u1", userName: "admin", tenantId: null, roles: new[] { "Admin" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases(null, null, null);
             var value = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -72,8 +73,9 @@ namespace LawyerSys.Tests
             for (int i = 1; i <= 12; i++) ctx.Cases.Add(new Case { Code = i, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u1", "admin", null, "Admin");
-            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+            var userCtx = new TestUserContext(userId: "u1", userName: "admin", tenantId: null, roles: new[] { "Admin" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases(2, 5, null);
             var ok = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -85,6 +87,28 @@ namespace LawyerSys.Tests
             Assert.Equal(3, paged.TotalPages);
             Assert.Equal(5, paged.Items.Count());
             Assert.Equal(6, paged.Items.First().Code);
+        }
+
+        [Fact]
+        public async Task GetCases_InvalidPageAndPageSize_ClampsToDefaults()
+        {
+            using var ctx = CreateInMemoryContext("paging_cases_invalid");
+            for (int i = 1; i <= 15; i++) ctx.Cases.Add(new Case { Code = i, Invition_Type = "T", Invitions_Statment = "s", Notes = "n" });
+            await ctx.SaveChangesAsync();
+
+            var userCtx = new TestUserContext(userId: "u1", userName: "admin", tenantId: null, roles: new[] { "Admin" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+
+            var actionResult = await controller.GetCases(0, 0, null);
+            var ok = Assert.IsType<OkObjectResult>(actionResult.Result);
+            var paged = Assert.IsType<LawyerSys.DTOs.PagedResult<LawyerSys.DTOs.CaseDto>>(ok.Value);
+
+            Assert.Equal(15, paged.TotalCount);
+            Assert.Equal(1, paged.Page);
+            Assert.Equal(10, paged.PageSize);
+            Assert.Equal(10, paged.Items.Count());
+            Assert.Equal(1, paged.Items.First().Code);
         }
         [Fact]
         public async Task GetCases_AsEmployee_ReturnsAssignedOnly()
@@ -105,8 +129,9 @@ namespace LawyerSys.Tests
 
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u2", "emp1", null, "Employee");
-            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+            var userCtx = new TestUserContext(userId: "u2", userName: "emp1", tenantId: null, roles: new[] { "Employee" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases();
             var value = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -133,8 +158,9 @@ namespace LawyerSys.Tests
 
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("u3", "cust1", null, "Customer");
-            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+            var userCtx = new TestUserContext(userId: "u3", userName: "cust1", tenantId: null, roles: new[] { "Customer" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var actionResult = await controller.GetCases();
             var value = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -245,8 +271,9 @@ namespace LawyerSys.Tests
             ctx.Cases_Employees.Add(new Cases_Employee { Case_Code = 900, Employee_Id = employee.id });
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("uX", "empx", null, "Employee");
-            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+            var userCtx = new TestUserContext(userId: "uX", userName: "empx", tenantId: null, roles: new[] { "Employee" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var res = await controller.ChangeCaseStatus(900, new LawyerSys.DTOs.ChangeCaseStatusDto { Status = "InProgress" });
             var ok = Assert.IsType<OkObjectResult>(res);
@@ -272,8 +299,9 @@ namespace LawyerSys.Tests
 
             await ctx.SaveChangesAsync();
 
-            var userCtx = new TestUserContext("uC", "custx", null, "Customer");
-            var controller = new CasesController(ctx, userCtx, Mock.Of<IInAppNotificationService>(), new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
+            var userCtx = new TestUserContext(userId: "uC", userName: "custx", tenantId: null, roles: new[] { "Customer" });
+            var caseService = new CaseService(ctx, userCtx, Mock.Of<IInAppNotificationService>());
+            var controller = new CasesController(caseService, new TestStringLocalizer<LawyerSys.Resources.SharedResource>());
 
             var res = await controller.ChangeCaseStatus(901, new LawyerSys.DTOs.ChangeCaseStatusDto { Status = "InProgress" });
             Assert.IsType<ForbidResult>(res);

@@ -25,7 +25,7 @@ public class CaseRelationsServiceTests
         var service = new CaseRelationsService(
             legacyDb,
             new TestNotificationService(),
-            new ServiceOperationContextFactory(new TestUserContext("admin-1", "admin", tenantId: 1, "Admin")));
+            new ServiceOperationContextFactory(new TestUserContext("admin-1", "admin", tenantId: 1, roles: new[] { "Admin" })));
 
         var result = await service.AddCustomerToCaseAsync(10, 20);
 
@@ -56,7 +56,7 @@ public class CaseRelationsServiceTests
         var service = new CaseRelationsService(
             legacyDb,
             new TestNotificationService(),
-            new ServiceOperationContextFactory(new TestUserContext("customer-1", "customer.one", tenantId: 1, "Customer")));
+            new ServiceOperationContextFactory(new TestUserContext(userId: "customer-1", userName: "customer.one", tenantId: 1, roles: new[] { "Customer" })));
 
         var result = await service.GetCaseSitingsAsync(99);
 

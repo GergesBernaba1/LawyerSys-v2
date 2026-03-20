@@ -27,7 +27,8 @@ public class SitingsController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _sitingService.GetSitingsAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _sitingService.GetSitingsAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 
@@ -38,11 +39,18 @@ public class SitingsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<SitingDto>> GetSiting(int id)
     {
-        var siting = await _sitingService.GetSitingAsync(id);
-        if (siting == null)
-            return this.EntityNotFound<SitingDto>(_localizer, "Siting");
+        try
+        {
+            var siting = await _sitingService.GetSitingAsync(id);
+            if (siting == null)
+                return this.EntityNotFound<SitingDto>(_localizer, "Siting");
 
-        return Ok(siting);
+            return Ok(siting);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]

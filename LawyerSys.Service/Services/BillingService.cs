@@ -36,9 +36,24 @@ namespace LawyerSys.Services
 
         public async Task<PagedResult<BillingPayDto>> GetPaymentsAsync(int page, int pageSize, string? search)
         {
+            // Clamp pagination parameters to avoid runtime exceptions and ensure consistent behavior
+            page = Math.Max(1, page);
+            const int MaxPageSize = 100;
+            if (pageSize <= 0)
+            {
+                pageSize = 10;
+            }
+            else if (pageSize > MaxPageSize)
+            {
+                pageSize = MaxPageSize;
+            }
+
             var query = GetPaymentsQuery(search);
             var total = await query.CountAsync();
-            var items = await query.OrderBy(x => x.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = await query.OrderBy(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return new PagedResult<BillingPayDto>
             {
@@ -155,9 +170,24 @@ namespace LawyerSys.Services
 
         public async Task<PagedResult<BillingReceiptDto>> GetReceiptsAsync(int page, int pageSize, string? search)
         {
+            // Clamp pagination parameters to avoid runtime exceptions and ensure consistent behavior
+            page = Math.Max(1, page);
+            const int MaxPageSize = 100;
+            if (pageSize <= 0)
+            {
+                pageSize = 10;
+            }
+            else if (pageSize > MaxPageSize)
+            {
+                pageSize = MaxPageSize;
+            }
+
             var query = GetReceiptsQuery(search);
             var total = await query.CountAsync();
-            var items = await query.OrderBy(x => x.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = await query.OrderBy(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return new PagedResult<BillingReceiptDto>
             {

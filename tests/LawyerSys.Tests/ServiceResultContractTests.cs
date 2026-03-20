@@ -36,7 +36,7 @@ public class ServiceResultContractTests
     [Fact]
     public async Task OperationContextFactory_CapturesCurrentUserRolesAndTenant()
     {
-        var userContext = new Infrastructure.TestUserContext("user-1", "admin", tenantId: 7, roles: new[] { "Admin", "Employee" });
+        var userContext = new Infrastructure.TestUserContext(userId: "user-1", userName: "admin", tenantId: 7, roles: new[] { "Admin", "Employee" });
         var factory = new ServiceOperationContextFactory(userContext);
 
         var context = await factory.CreateAsync();

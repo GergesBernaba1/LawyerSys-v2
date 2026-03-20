@@ -44,9 +44,24 @@ namespace LawyerSys.Services
 
         public async Task<PagedResult<CaseDto>> GetCasesAsync(int page, int pageSize, string? search)
         {
+            // Clamp pagination parameters to avoid runtime exceptions and ensure consistent behavior
+            page = Math.Max(1, page);
+            const int MaxPageSize = 100;
+            if (pageSize <= 0)
+            {
+                pageSize = 10;
+            }
+            else if (pageSize > MaxPageSize)
+            {
+                pageSize = MaxPageSize;
+            }
+
             var query = GetCasesQuery(search);
             var total = await query.CountAsync();
-            var items = await query.OrderBy(c => c.Code).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = await query.OrderBy(c => c.Code)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return new PagedResult<CaseDto>
             {
