@@ -126,4 +126,331 @@
   <data name="RegistrationFieldsAlreadyUsedMessage" xml:space="preserve">
     <value>الحقول التالية مستخدمة من قبل: {0}.</value>
   </data>
+  <data name="EmployeeDeleted" xml:space="preserve">
+    <value>تم حذف الموظف</value>
+  </data>
+  <data name="SitingNotFound" xml:space="preserve">
+    <value>الجلسة غير موجودة</value>
+  </data>
+  <data name="SitingDeleted" xml:space="preserve">
+    <value>تم حذف الجلسة</value>
+  </data>
+  <data name="PaymentNotFound" xml:space="preserve">
+    <value>الدفعة غير موجودة</value>
+  </data>
+  <data name="PaymentDeleted" xml:space="preserve">
+    <value>تم حذف الدفعة</value>
+  </data>
+  <data name="ReceiptNotFound" xml:space="preserve">
+    <value>الإيصال غير موجود</value>
+  </data>
+  <data name="ReceiptDeleted" xml:space="preserve">
+    <value>تم حذف الإيصال</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>المستخدم غير موجود</value>
+  </data>
+  <data name="UserDeleted" xml:space="preserve">
+    <value>تم حذف المستخدم</value>
+  </data>
+  <data name="UserHasCustomers" xml:space="preserve">
+    <value>لا يمكن حذف مستخدم مرتبط بعملاء</value>
+  </data>
+  <data name="UserHasEmployees" xml:space="preserve">
+    <value>لا يمكن حذف مستخدم مرتبط بموظفين</value>
+  </data>
+  <data name="GovernmentNotFound" xml:space="preserve">
+    <value>الحكومة غير موجودة</value>
+  </data>
+  <data name="GovernmentDeleted" xml:space="preserve">
+    <value>تم حذف الحكومة</value>
+  </data>
+  <data name="GovernmentNameRequired" xml:space="preserve">
+    <value>اسم الحكومة مطلوب</value>
+  </data>
+  <data name="GovernmentNameExists" xml:space="preserve">
+    <value>اسم الحكومة موجود بالفعل</value>
+  </data>
+  <data name="CityNotFound" xml:space="preserve">
+    <value>المدينة غير موجودة</value>
+  </data>
+  <data name="CityDeleted" xml:space="preserve">
+    <value>تم حذف المدينة</value>
+  </data>
+  <data name="CityNameRequired" xml:space="preserve">
+    <value>اسم المدينة مطلوب</value>
+  </data>
+  <data name="CityNameExists" xml:space="preserve">
+    <value>اسم المدينة موجود بالفعل في هذه الدولة</value>
+  </data>
+  <data name="CountryRequired" xml:space="preserve">
+    <value>الدولة مطلوبة</value>
+  </data>
+  <data name="CountryNotFound" xml:space="preserve">
+    <value>الدولة غير موجودة</value>
+  </data>
+  <data name="TaskNotFound" xml:space="preserve">
+    <value>المهمة غير موجودة</value>
+  </data>
+  <data name="TaskDeleted" xml:space="preserve">
+    <value>تم حذف المهمة</value>
+  </data>
+  <data name="DocumentNotFound" xml:space="preserve">
+    <value>المستند غير موجود</value>
+  </data>
+  <data name="DocumentDeleted" xml:space="preserve">
+    <value>تم حذف المستند</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>الملف غير موجود</value>
+  </data>
+  <data name="FileDeleted" xml:space="preserve">
+    <value>تم حذف الملف</value>
+  </data>
+  <data name="ConsultationNotFound" xml:space="preserve">
+    <value>الاستشارة غير موجودة</value>
+  </data>
+  <data name="ConsultationDeleted" xml:space="preserve">
+    <value>تم حذف الاستشارة</value>
+  </data>
+  <data name="RelationNotFound" xml:space="preserve">
+    <value>العلاقة غير موجودة</value>
+  </data>
+  <data name="ContenderNotFound" xml:space="preserve">
+    <value>الخصم غير موجود</value>
+  </data>
+  <data name="ContenderDeleted" xml:space="preserve">
+    <value>تم حذف الخصم</value>
+  </data>
+  <data name="AlreadyLinked" xml:space="preserve">
+    <value>{0} مرتبط بالفعل بهذا {1}</value>
+  </data>
+  <data name="AddedTo" xml:space="preserve">
+    <value>تمت إضافة {0} إلى {1}</value>
+  </data>
+  <data name="RemovedFrom" xml:space="preserve">
+    <value>تمت إزالة {0} من {1}</value>
+  </data>
+  <data name="TenantNotFound" xml:space="preserve">
+    <value>الجهة غير موجودة</value>
+  </data>
+  <data name="TenantStatusUpdated" xml:space="preserve">
+    <value>تم تحديث حالة الجهة</value>
+  </data>
+  <data name="AssignmentRemoved" xml:space="preserve">
+    <value>تمت إزالة التعيين</value>
+  </data>
+  <data name="Timeline_CaseOpened" xml:space="preserve">
+    <value>تم فتح القضية</value>
+  </data>
+  <data name="Timeline_CaseType" xml:space="preserve">
+    <value>نوع القضية: {0}</value>
+  </data>
+  <data name="Timeline_HearingScheduled" xml:space="preserve">
+    <value>تمت جدولة جلسة</value>
+  </data>
+  <data name="Timeline_HearingJudge" xml:space="preserve">
+    <value>القاضي: {0}. {1}</value>
+  </data>
+  <data name="Timeline_DocumentAttached" xml:space="preserve">
+    <value>تم إرفاق مستند قضائي</value>
+  </data>
+  <data name="Timeline_DocumentDesc" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Timeline_StatusChanged" xml:space="preserve">
+    <value>تم تغيير حالة القضية</value>
+  </data>
+  <data name="Timeline_StatusDesc" xml:space="preserve">
+    <value>{0} -> {1} (بواسطة {2})</value>
+  </data>
+  <data name="Timeline_PaymentRecorded" xml:space="preserve">
+    <value>تم تسجيل دفعة</value>
+  </data>
+  <data name="Timeline_PaymentDesc" xml:space="preserve">
+    <value>المبلغ: {0:F2}. {1}</value>
+  </data>
+  <data name="CaseAlreadyInStatus" xml:space="preserve">
+    <value>القضية في الحالة المطلوبة بالفعل</value>
+  </data>
+  <data name="CourtNotFound" xml:space="preserve">
+    <value>المحكمة غير موجودة</value>
+  </data>
+  <data name="SubscriptionPackageRequired" xml:space="preserve">
+    <value>باقة الاشتراك مطلوبة.</value>
+  </data>
+  <data name="SubscriptionPackageInvalid" xml:space="preserve">
+    <value>باقة الاشتراك المختارة غير صالحة أو غير نشطة.</value>
+  </data>
+  <data name="SubscriptionPackageRequiredMessage" xml:space="preserve">
+    <value>باقة الاشتراك مطلوبة.</value>
+  </data>
+  <data name="SubscriptionPackageInvalidMessage" xml:space="preserve">
+    <value>باقة الاشتراك المختارة غير صالحة أو غير نشطة.</value>
+  </data>
+  <data name="EnglishCityNameRequired" xml:space="preserve">
+    <value>اسم المدينة بالإنجليزية مطلوب</value>
+  </data>
+  <data name="ArabicCityNameRequired" xml:space="preserve">
+    <value>اسم المدينة بالعربية مطلوب</value>
+  </data>
+  <data name="OnlyAddCitiesToProfileCountry" xml:space="preserve">
+    <value>يمكنك فقط إضافة مدن إلى الدولة المحددة في ملفك الشخصي.</value>
+  </data>
+  <data name="OnlyUpdateTenantCities" xml:space="preserve">
+    <value>يمكنك فقط تعديل المدن التي أنشأها حسابك.</value>
+  </data>
+  <data name="OnlyDeleteTenantCities" xml:space="preserve">
+    <value>يمكنك فقط حذف المدن التي أنشأها حسابك.</value>
+  </data>
+  <data name="OnlyMoveCitiesInsideProfileCountry" xml:space="preserve">
+    <value>يمكنك فقط نقل المدن داخل الدولة المحددة في ملفك الشخصي.</value>
+  </data>
+  <data name="TenantNotFoundForUser" xml:space="preserve">
+    <value>لم يتم العثور على الجهة للمستخدم الحالي</value>
+  </data>
+  <data name="NoFileUploaded" xml:space="preserve">
+    <value>لم يتم رفع أي ملف</value>
+  </data>
+  <data name="UnsupportedFileType" xml:space="preserve">
+    <value>نوع الملف غير مدعوم. الأنواع المسموح بها: .pdf, .doc, .docx, .png, .jpg, .jpeg, .gif, .bmp, .webp</value>
+  </data>
+  <data name="PhysicalFileNotFound" xml:space="preserve">
+    <value>الملف الفعلي غير موجود</value>
+  </data>
+  <data name="CustomerNotFound" xml:space="preserve">
+    <value>العميل غير موجود</value>
+  </data>
+  <data name="Customer" xml:space="preserve">
+    <value>العميل</value>
+  </data>
+  <data name="Consultation" xml:space="preserve">
+    <value>الاستشارة</value>
+  </data>
+  <data name="Employee" xml:space="preserve">
+    <value>الموظف</value>
+  </data>
+  <data name="Siting" xml:space="preserve">
+    <value>الجلسة</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>الملف</value>
+  </data>
+  <data name="Court" xml:space="preserve">
+    <value>المحكمة</value>
+  </data>
+  <data name="Relation" xml:space="preserve">
+    <value>العلاقة</value>
+  </data>
+  <data name="EmployeesMustLinkSiting" xml:space="preserve">
+    <value>يجب على الموظفين ربط الجلسة بقضية معينة.</value>
+  </data>
+  <data name="CaseNotFoundForSiting" xml:space="preserve">
+    <value>القضية غير موجودة</value>
+  </data>
+  <data name="SubscriptionNotFound" xml:space="preserve">
+    <value>الاشتراك غير موجود</value>
+  </data>
+  <data name="TransactionMarkedPaid" xml:space="preserve">
+    <value>تم تحديد المعاملة كمدفوعة</value>
+  </data>
+  <data name="TransactionCancelled" xml:space="preserve">
+    <value>تم إلغاء المعاملة</value>
+  </data>
+  <data name="DefaultFirmNoSubscriptions" xml:space="preserve">
+    <value>الشركة الافتراضية لا تستخدم الاشتراكات.</value>
+  </data>
+  <data name="TimeEntryNotFound" xml:space="preserve">
+    <value>إدخال الوقت غير موجود</value>
+  </data>
+  <data name="TimeEntryAlreadyStopped" xml:space="preserve">
+    <value>إدخال الوقت متوقف بالفعل</value>
+  </data>
+  <data name="HourlyRateNonNegative" xml:space="preserve">
+    <value>يجب أن يكون المعدل بالساعة غير سالب</value>
+  </data>
+  <data name="CaseNotLinkedToCustomer" xml:space="preserve">
+    <value>القضية غير مرتبطة بالعميل المحدد.</value>
+  </data>
+  <data name="ReconciliationNotFound" xml:space="preserve">
+    <value>التسوية غير موجودة</value>
+  </data>
+  <data name="InsufficientTrustBalance" xml:space="preserve">
+    <value>رصيد الأمانة غير كافٍ لهذا السحب.</value>
+  </data>
+  <data name="InsufficientTrustBalanceAdjustment" xml:space="preserve">
+    <value>رصيد الأمانة غير كافٍ لتعديل النقصان.</value>
+  </data>
+  <data name="CustomerNotLinkedToCase" xml:space="preserve">
+    <value>العميل غير مرتبط بهذه القضية.</value>
+  </data>
+  <data name="RequestedDocumentNotFound" xml:space="preserve">
+    <value>المستند المطلوب غير موجود</value>
+  </data>
+  <data name="PaymentProofNotFound" xml:space="preserve">
+    <value>إثبات الدفع غير موجود</value>
+  </data>
+  <data name="UserIdentityNotFound" xml:space="preserve">
+    <value>هوية المستخدم غير موجودة</value>
+  </data>
+  <data name="CustomerProfileNotFound" xml:space="preserve">
+    <value>ملف العميل غير موجود</value>
+  </data>
+  <data name="PaymentNotFoundForCustomer" xml:space="preserve">
+    <value>الدفعة غير موجودة</value>
+  </data>
+  <data name="AmountMustBePositive" xml:space="preserve">
+    <value>يجب أن يكون المبلغ أكبر من الصفر.</value>
+  </data>
+  <data name="JurisdictionPackNotFound" xml:space="preserve">
+    <value>حزمة الاختصاص القضائي غير موجودة</value>
+  </data>
+  <data name="InvalidJurisdictionPackKey" xml:space="preserve">
+    <value>مفتاح حزمة الاختصاص القضائي غير صالح</value>
+  </data>
+  <data name="PackNotFound" xml:space="preserve">
+    <value>الحزمة غير موجودة</value>
+  </data>
+  <data name="FormNotFoundInPack" xml:space="preserve">
+    <value>النموذج غير موجود في الحزمة المحددة</value>
+  </data>
+  <data name="FilingSubmissionNotFound" xml:space="preserve">
+    <value>طلب الإيداع غير موجود</value>
+  </data>
+  <data name="InvalidFilingChannel" xml:space="preserve">
+    <value>قناة الإيداع غير صالحة للحزمة المحددة</value>
+  </data>
+  <data name="LeadNotFound" xml:space="preserve">
+    <value>العميل المحتمل غير موجود</value>
+  </data>
+  <data name="LeadAlreadyConverted" xml:space="preserve">
+    <value>تم تحويل العميل المحتمل بالفعل</value>
+  </data>
+  <data name="LeadHasConflict" xml:space="preserve">
+    <value>يوجد تعارض في بيانات العميل المحتمل. يرجى حله قبل التحويل.</value>
+  </data>
+  <data name="AssignedEmployeeNotFound" xml:space="preserve">
+    <value>الموظف المعين غير موجود</value>
+  </data>
+  <data name="DemoFullNameRequired" xml:space="preserve">
+    <value>الاسم الكامل مطلوب.</value>
+  </data>
+  <data name="DemoEmailRequired" xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب.</value>
+  </data>
+  <data name="DemoOfficeNameRequired" xml:space="preserve">
+    <value>اسم المكتب مطلوب.</value>
+  </data>
+  <data name="DemoInvalidReviewStatus" xml:space="preserve">
+    <value>حالة المراجعة غير صالحة.</value>
+  </data>
+  <data name="DemoRequestNotFound" xml:space="preserve">
+    <value>طلب العرض التجريبي غير موجود.</value>
+  </data>
+  <data name="DemoRequestUpdated" xml:space="preserve">
+    <value>تم تحديث طلب العرض التجريبي.</value>
+  </data>
+  <data name="DemoRequestSubmitted" xml:space="preserve">
+    <value>تم إرسال طلب العرض التجريبي بنجاح.</value>
+  </data>
 </root>

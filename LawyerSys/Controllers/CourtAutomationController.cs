@@ -2,10 +2,12 @@ using System.Text;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services.Reporting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -18,10 +20,12 @@ public class CourtAutomationController : ControllerBase
     private const string HearingDateAnchor = "HearingDate";
 
     private readonly LegacyDbContext _context;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CourtAutomationController(LegacyDbContext context)
+    public CourtAutomationController(LegacyDbContext context, IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
 
     [HttpGet("packs")]
@@ -74,7 +78,7 @@ public class CourtAutomationController : ControllerBase
         var pack = await GetPackDtoAsync(packKey, NormalizeLanguage(language));
         if (pack is null)
         {
-            return NotFound(new { message = "Jurisdiction pack not found" });
+            return NotFound(new { message = _localizer["JurisdictionPackNotFound"].Value });
         }
 
         return Ok(pack);
@@ -94,7 +98,7 @@ public class CourtAutomationController : ControllerBase
             .FirstOrDefaultAsync(p => p.IsActive && p.Key == request.PackKey);
         if (pack is null)
         {
-            return BadRequest(new { message = "Invalid jurisdiction pack key" });
+            return BadRequest(new { message = _localizer["InvalidJurisdictionPackKey"].Value });
         }
 
         var triggerDate = request.TriggerDate == default ? DateOnly.FromDateTime(DateTime.UtcNow.Date) : request.TriggerDate;
@@ -105,7 +109,7 @@ public class CourtAutomationController : ControllerBase
             var exists = await _context.Cases.AnyAsync(c => c.Code == request.CaseCode.Value);
             if (!exists)
             {
-                return NotFound(new { message = "Case not found" });
+                return NotFound(new { message = _localizer["CaseNotFound"].Value });
             }
 
             if (!hearingDate.HasValue)
@@ -143,13 +147,13 @@ public class CourtAutomationController : ControllerBase
             .FirstOrDefaultAsync(p => p.IsActive && p.Key == request.PackKey);
         if (pack is null)
         {
-            return BadRequest(new { message = "Pack not found" });
+            return BadRequest(new { message = _localizer["PackNotFound"].Value });
         }
 
         var form = pack.FormTemplates.FirstOrDefault(f => f.IsActive && f.Key == request.FormKey);
         if (form is null)
         {
-            return BadRequest(new { message = "Form not found in selected pack" });
+            return BadRequest(new { message = _localizer["FormNotFoundInPack"].Value });
         }
 
         var variables = await BuildFormVariablesAsync(request);
@@ -187,13 +191,13 @@ public class CourtAutomationController : ControllerBase
             .FirstOrDefaultAsync(p => p.IsActive && p.Key == request.PackKey);
         if (pack is null)
         {
-            return BadRequest(new { message = "Pack not found" });
+            return BadRequest(new { message = _localizer["PackNotFound"].Value });
         }
 
         var form = pack.FormTemplates.FirstOrDefault(f => f.IsActive && f.Key == request.FormKey);
         if (form is null)
         {
-            return BadRequest(new { message = "Form not found in selected pack" });
+            return BadRequest(new { message = _localizer["FormNotFoundInPack"].Value });
         }
 
         var availableChannels = pack.FilingChannels.Where(c => c.IsActive).ToList();
@@ -202,7 +206,7 @@ public class CourtAutomationController : ControllerBase
             : request.FilingChannel.Trim();
         if (!availableChannels.Any(c => string.Equals(c.ChannelCode, channel, StringComparison.OrdinalIgnoreCase)))
         {
-            return BadRequest(new { message = "Invalid filing channel for selected pack" });
+            return BadRequest(new { message = _localizer["InvalidFilingChannel"].Value });
         }
 
         if (request.CaseCode.HasValue)
@@ -210,7 +214,7 @@ public class CourtAutomationController : ControllerBase
             var caseExists = await _context.Cases.AnyAsync(c => c.Code == request.CaseCode.Value);
             if (!caseExists)
             {
-                return NotFound(new { message = "Case not found" });
+                return NotFound(new { message = _localizer["CaseNotFound"].Value });
             }
         }
 
@@ -219,7 +223,7 @@ public class CourtAutomationController : ControllerBase
             var courtExists = await _context.Courts.AnyAsync(c => c.Id == request.CourtId.Value);
             if (!courtExists)
             {
-                return NotFound(new { message = "Court not found" });
+                return NotFound(new { message = _localizer["CourtNotFound"].Value });
             }
         }
 
@@ -290,7 +294,7 @@ public class CourtAutomationController : ControllerBase
             .FirstOrDefaultAsync(x => x.SubmissionId == submissionId);
         if (entity is null)
         {
-            return NotFound(new { message = "Filing submission not found" });
+            return NotFound(new { message = _localizer["FilingSubmissionNotFound"].Value });
         }
 
         if (AdvanceSubmissionStatus(entity))

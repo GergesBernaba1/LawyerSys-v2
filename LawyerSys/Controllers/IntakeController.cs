@@ -1,11 +1,13 @@
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -17,17 +19,20 @@ public class IntakeController : ControllerBase
     private readonly ApplicationDbContext _appDb;
     private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public IntakeController(
         LegacyDbContext legacy,
         ApplicationDbContext appDb,
         IEmployeeAccessService employeeAccessService,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _legacy = legacy;
         _appDb = appDb;
         _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     [AllowAnonymous]
@@ -120,7 +125,7 @@ public class IntakeController : ControllerBase
     public async Task<ActionResult<IntakeLeadDto>> GetLeadById(int id)
     {
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
-        if (lead == null) return NotFound(new { message = "Lead not found" });
+        if (lead == null) return NotFound(new { message = _localizer["LeadNotFound"].Value });
 
         if (!await CanAccessLeadAsync(lead))
             return Forbid();
@@ -133,7 +138,7 @@ public class IntakeController : ControllerBase
     public async Task<ActionResult<IntakeConflictCheckDto>> RunConflictCheck(int id)
     {
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
-        if (lead == null) return NotFound(new { message = "Lead not found" });
+        if (lead == null) return NotFound(new { message = _localizer["LeadNotFound"].Value });
 
         if (!await CanAccessLeadAsync(lead))
             return Forbid();
@@ -181,7 +186,7 @@ public class IntakeController : ControllerBase
     public async Task<ActionResult<IntakeLeadDto>> QualifyLead(int id, [FromBody] QualifyIntakeLeadDto dto)
     {
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
-        if (lead == null) return NotFound(new { message = "Lead not found" });
+        if (lead == null) return NotFound(new { message = _localizer["LeadNotFound"].Value });
 
         if (!await CanAccessLeadAsync(lead))
             return Forbid();
@@ -202,10 +207,10 @@ public class IntakeController : ControllerBase
             return Forbid();
 
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
-        if (lead == null) return NotFound(new { message = "Lead not found" });
+        if (lead == null) return NotFound(new { message = _localizer["LeadNotFound"].Value });
 
         var exists = await _legacy.Employees.AnyAsync(x => x.id == dto.AssignedEmployeeId);
-        if (!exists) return BadRequest(new { message = "Assigned employee not found" });
+        if (!exists) return BadRequest(new { message = _localizer["AssignedEmployeeNotFound"].Value });
 
         lead.AssignedEmployeeId = dto.AssignedEmployeeId;
         lead.NextFollowUpAt = dto.NextFollowUpAt;
@@ -228,9 +233,9 @@ public class IntakeController : ControllerBase
     public async Task<ActionResult<object>> ConvertLead(int id, [FromBody] ConvertIntakeLeadDto dto)
     {
         var lead = await _legacy.IntakeLeads.FirstOrDefaultAsync(x => x.Id == id);
-        if (lead == null) return NotFound(new { message = "Lead not found" });
-        if (lead.Status == "Converted") return BadRequest(new { message = "Lead already converted" });
-        if (lead.HasConflict) return BadRequest(new { message = "Lead has conflict. Resolve before conversion." });
+        if (lead == null) return NotFound(new { message = _localizer["LeadNotFound"].Value });
+        if (lead.Status == "Converted") return BadRequest(new { message = _localizer["LeadAlreadyConverted"].Value });
+        if (lead.HasConflict) return BadRequest(new { message = _localizer["LeadHasConflict"].Value });
 
         var maxUserId = await _legacy.Users.MaxAsync(x => (int?)x.Id) ?? 0;
         var maxCustomerId = await _legacy.Customers.MaxAsync(x => (int?)x.Id) ?? 0;

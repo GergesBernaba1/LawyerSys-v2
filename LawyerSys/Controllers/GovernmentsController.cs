@@ -2,9 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+using System.Globalization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
@@ -17,15 +21,18 @@ public class GovernmentsController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IUserContext _userContext;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public GovernmentsController(
         LegacyDbContext context,
         ApplicationDbContext applicationDbContext,
-        IUserContext userContext)
+        IUserContext userContext,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _applicationDbContext = applicationDbContext;
         _userContext = userContext;
+        _localizer = localizer;
     }
 
     [HttpGet("location-catalog")]
@@ -40,41 +47,30 @@ public class GovernmentsController : ControllerBase
         if (!isSuperAdmin)
         {
             if (string.IsNullOrWhiteSpace(currentUserId))
-            {
                 return Ok(Array.Empty<LocationCatalogCountryDto>());
-            }
 
-            currentUser = await _applicationDbContext.Users
-                .AsNoTracking()
-                .SingleOrDefaultAsync(user => user.Id == currentUserId);
-
+            currentUser = await _applicationDbContext.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == currentUserId);
             effectiveCountryId = currentUser?.CountryId;
             currentTenantId ??= currentUser?.TenantId;
 
             if (effectiveCountryId is null or <= 0)
-            {
                 return Ok(Array.Empty<LocationCatalogCountryDto>());
-            }
         }
 
-        IQueryable<Country> query = _applicationDbContext.Countries
-            .AsNoTracking()
-            .Include(country => country.Cities);
+        IQueryable<Country> query = _applicationDbContext.Countries.AsNoTracking().Include(c => c.Cities);
 
         if (effectiveCountryId.HasValue && effectiveCountryId.Value > 0)
-        {
-            query = query.Where(country => country.Id == effectiveCountryId.Value);
-        }
+            query = query.Where(c => c.Id == effectiveCountryId.Value);
 
         var countries = await query
-            .OrderBy(country => country.Name)
-            .Select(country => new LocationCatalogCountryDto
+            .OrderBy(c => c.Name)
+            .Select(c => new LocationCatalogCountryDto
             {
-                Id = country.Id,
-                NameEn = country.Name,
-                NameAr = country.NameAr,
-                CityCount = country.Cities.Count,
-                Cities = country.Cities
+                Id = c.Id,
+                NameEn = c.Name,
+                NameAr = c.NameAr,
+                CityCount = c.Cities.Count,
+                Cities = c.Cities
                     .OrderBy(city => city.Name)
                     .Select(city => new LocationCatalogCityDto
                     {
@@ -83,16 +79,8 @@ public class GovernmentsController : ControllerBase
                         NameEn = city.Name,
                         NameAr = city.NameAr,
                         IsTenantOwned = city.TenantId.HasValue && city.CreatedByUserId != null,
-                        CanEdit = isSuperAdmin || (
-                            currentTenantId.HasValue &&
-                            !string.IsNullOrWhiteSpace(currentUserId) &&
-                            city.TenantId == currentTenantId.Value &&
-                            city.CreatedByUserId == currentUserId),
-                        CanDelete = isSuperAdmin || (
-                            currentTenantId.HasValue &&
-                            !string.IsNullOrWhiteSpace(currentUserId) &&
-                            city.TenantId == currentTenantId.Value &&
-                            city.CreatedByUserId == currentUserId)
+                        CanEdit = isSuperAdmin || (currentTenantId.HasValue && !string.IsNullOrWhiteSpace(currentUserId) && city.TenantId == currentTenantId.Value && city.CreatedByUserId == currentUserId),
+                        CanDelete = isSuperAdmin || (currentTenantId.HasValue && !string.IsNullOrWhiteSpace(currentUserId) && city.TenantId == currentTenantId.Value && city.CreatedByUserId == currentUserId)
                     })
                     .ToList()
             })
@@ -107,54 +95,33 @@ public class GovernmentsController : ControllerBase
     {
         var nameEn = (dto.NameEn ?? string.Empty).Trim();
         var nameAr = (dto.NameAr ?? string.Empty).Trim();
+
         if (dto.CountryId <= 0)
-        {
-            return BadRequest(new { message = "Country is required" });
-        }
-
+            return BadRequest(new { message = _localizer["CountryRequired"].Value });
         if (string.IsNullOrWhiteSpace(nameEn))
-        {
-            return BadRequest(new { message = "English city name is required" });
-        }
-
+            return BadRequest(new { message = _localizer["EnglishCityNameRequired"].Value });
         if (string.IsNullOrWhiteSpace(nameAr))
-        {
-            return BadRequest(new { message = "Arabic city name is required" });
-        }
+            return BadRequest(new { message = _localizer["ArabicCityNameRequired"].Value });
 
         var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
         var currentUser = await GetCurrentUserAsync();
         if (!isSuperAdmin)
         {
             if (currentUser == null)
-            {
-                return Unauthorized(new { message = "User not found" });
-            }
-
+                return Unauthorized(new { message = _localizer["UserNotFound"].Value });
             if (currentUser.CountryId is null or <= 0 || currentUser.CountryId.Value != dto.CountryId)
-            {
-                return ForbiddenMessage("You can only add cities to the country selected in your profile.");
-            }
-
+                return ForbiddenMessage(_localizer["OnlyAddCitiesToProfileCountry"].Value);
             if (currentUser.TenantId <= 0)
-            {
-                return BadRequest(new { message = "Tenant not found for the current user" });
-            }
+                return BadRequest(new { message = _localizer["TenantNotFoundForUser"].Value });
         }
 
-        var countryExists = await _applicationDbContext.Countries.AnyAsync(country => country.Id == dto.CountryId);
-        if (!countryExists)
-        {
-            return BadRequest(new { message = "Country not found" });
-        }
+        if (!await _applicationDbContext.Countries.AnyAsync(c => c.Id == dto.CountryId))
+            return BadRequest(new { message = _localizer["CountryNotFound"].Value });
 
-        var duplicateExists = await _applicationDbContext.Cities.AnyAsync(existing =>
-            existing.CountryId == dto.CountryId &&
-            existing.Name.ToLower() == nameEn.ToLower());
+        var duplicateExists = await _applicationDbContext.Cities.AnyAsync(e =>
+            e.CountryId == dto.CountryId && e.Name.ToLower() == nameEn.ToLower());
         if (duplicateExists)
-        {
-            return BadRequest(new { message = "City name already exists in this country" });
-        }
+            return BadRequest(new { message = _localizer["CityNameExists"].Value });
 
         var city = new City
         {
@@ -186,61 +153,37 @@ public class GovernmentsController : ControllerBase
     {
         var city = await _applicationDbContext.Cities.FindAsync(id);
         if (city == null)
-        {
-            return NotFound(new { message = "City not found" });
-        }
+            return this.EntityNotFound(_localizer, "City");
 
         var nameEn = (dto.NameEn ?? string.Empty).Trim();
         var nameAr = (dto.NameAr ?? string.Empty).Trim();
+
         if (dto.CountryId <= 0)
-        {
-            return BadRequest(new { message = "Country is required" });
-        }
-
+            return BadRequest(new { message = _localizer["CountryRequired"].Value });
         if (string.IsNullOrWhiteSpace(nameEn))
-        {
-            return BadRequest(new { message = "English city name is required" });
-        }
-
+            return BadRequest(new { message = _localizer["EnglishCityNameRequired"].Value });
         if (string.IsNullOrWhiteSpace(nameAr))
-        {
-            return BadRequest(new { message = "Arabic city name is required" });
-        }
+            return BadRequest(new { message = _localizer["ArabicCityNameRequired"].Value });
 
         var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
         var currentUser = await GetCurrentUserAsync();
         if (!isSuperAdmin)
         {
             if (currentUser == null)
-            {
-                return Unauthorized(new { message = "User not found" });
-            }
-
+                return Unauthorized(new { message = _localizer["UserNotFound"].Value });
             if (city.TenantId != currentUser.TenantId || city.CreatedByUserId != currentUser.Id)
-            {
-                return ForbiddenMessage("You can only update cities created by your tenant account.");
-            }
-
+                return ForbiddenMessage(_localizer["OnlyUpdateTenantCities"].Value);
             if (currentUser.CountryId is null or <= 0 || currentUser.CountryId.Value != dto.CountryId)
-            {
-                return ForbiddenMessage("You can only move cities inside the country selected in your profile.");
-            }
+                return ForbiddenMessage(_localizer["OnlyMoveCitiesInsideProfileCountry"].Value);
         }
 
-        var countryExists = await _applicationDbContext.Countries.AnyAsync(country => country.Id == dto.CountryId);
-        if (!countryExists)
-        {
-            return BadRequest(new { message = "Country not found" });
-        }
+        if (!await _applicationDbContext.Countries.AnyAsync(c => c.Id == dto.CountryId))
+            return BadRequest(new { message = _localizer["CountryNotFound"].Value });
 
-        var duplicateExists = await _applicationDbContext.Cities.AnyAsync(existing =>
-            existing.Id != id &&
-            existing.CountryId == dto.CountryId &&
-            existing.Name.ToLower() == nameEn.ToLower());
+        var duplicateExists = await _applicationDbContext.Cities.AnyAsync(e =>
+            e.Id != id && e.CountryId == dto.CountryId && e.Name.ToLower() == nameEn.ToLower());
         if (duplicateExists)
-        {
-            return BadRequest(new { message = "City name already exists in this country" });
-        }
+            return BadRequest(new { message = _localizer["CityNameExists"].Value });
 
         city.CountryId = dto.CountryId;
         city.Name = nameEn;
@@ -265,28 +208,21 @@ public class GovernmentsController : ControllerBase
     {
         var city = await _applicationDbContext.Cities.FindAsync(id);
         if (city == null)
-        {
-            return NotFound(new { message = "City not found" });
-        }
+            return this.EntityNotFound(_localizer, "City");
 
         var isSuperAdmin = await _userContext.IsInRoleAsync("SuperAdmin");
         if (!isSuperAdmin)
         {
             var currentUser = await GetCurrentUserAsync();
             if (currentUser == null)
-            {
-                return Unauthorized(new { message = "User not found" });
-            }
-
+                return Unauthorized(new { message = _localizer["UserNotFound"].Value });
             if (city.TenantId != currentUser.TenantId || city.CreatedByUserId != currentUser.Id)
-            {
-                return ForbiddenMessage("You can only delete cities created by your tenant account.");
-            }
+                return ForbiddenMessage(_localizer["OnlyDeleteTenantCities"].Value);
         }
 
         _applicationDbContext.Cities.Remove(city);
         await _applicationDbContext.SaveChangesAsync();
-        return Ok(new { message = "City deleted" });
+        return Ok(new { message = _localizer["CityDeleted"].Value });
     }
 
     [HttpGet]
@@ -324,8 +260,7 @@ public class GovernmentsController : ControllerBase
     {
         var gov = await _context.Governaments.FindAsync(id);
         if (gov == null)
-            return NotFound(new { message = "Government not found" });
-
+            return this.EntityNotFound<GovernamentDto>(_localizer, "Government");
         return Ok(new GovernamentDto { Id = gov.Id, GovName = gov.Gov_Name });
     }
 
@@ -336,15 +271,14 @@ public class GovernmentsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         if (string.IsNullOrWhiteSpace(dto.GovName))
-            return BadRequest(new { message = "Government name is required" });
+            return BadRequest(new { message = _localizer["GovernmentNameRequired"].Value });
 
         var normalizedName = dto.GovName.Trim();
         var exists = await _context.Governaments.AnyAsync(g =>
             g.Gov_Name != null && g.Gov_Name.Trim().ToLower() == normalizedName.ToLower());
         if (exists)
-            return BadRequest(new { message = "Government name already exists" });
+            return BadRequest(new { message = _localizer["GovernmentNameExists"].Value });
 
-        // Governament.Id uses ValueGeneratedNever, so we must assign it manually
         var maxId = await _context.Governaments.AnyAsync()
             ? await _context.Governaments.MaxAsync(g => g.Id)
             : 0;
@@ -362,19 +296,18 @@ public class GovernmentsController : ControllerBase
     {
         var gov = await _context.Governaments.FindAsync(id);
         if (gov == null)
-            return NotFound(new { message = "Government not found" });
+            return this.EntityNotFound(_localizer, "Government");
         if (string.IsNullOrWhiteSpace(dto.GovName))
-            return BadRequest(new { message = "Government name is required" });
+            return BadRequest(new { message = _localizer["GovernmentNameRequired"].Value });
 
         var normalizedName = dto.GovName.Trim();
         var exists = await _context.Governaments.AnyAsync(g =>
             g.Id != id && g.Gov_Name != null && g.Gov_Name.Trim().ToLower() == normalizedName.ToLower());
         if (exists)
-            return BadRequest(new { message = "Government name already exists" });
+            return BadRequest(new { message = _localizer["GovernmentNameExists"].Value });
 
         gov.Gov_Name = normalizedName;
         await _context.SaveChangesAsync();
-
         return Ok(new GovernamentDto { Id = gov.Id, GovName = gov.Gov_Name });
     }
 
@@ -384,27 +317,20 @@ public class GovernmentsController : ControllerBase
     {
         var gov = await _context.Governaments.FindAsync(id);
         if (gov == null)
-            return NotFound(new { message = "Government not found" });
+            return this.EntityNotFound(_localizer, "Government");
 
         _context.Governaments.Remove(gov);
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Government deleted" });
+        return Ok(new { message = _localizer["GovernmentDeleted"].Value });
     }
 
     private async Task<ApplicationUser?> GetCurrentUserAsync()
     {
         var currentUserId = _userContext.GetUserId();
-        if (string.IsNullOrWhiteSpace(currentUserId))
-        {
-            return null;
-        }
-
-        return await _applicationDbContext.Users
-            .SingleOrDefaultAsync(user => user.Id == currentUserId);
+        if (string.IsNullOrWhiteSpace(currentUserId)) return null;
+        return await _applicationDbContext.Users.SingleOrDefaultAsync(u => u.Id == currentUserId);
     }
 
     private ObjectResult ForbiddenMessage(string message)
-    {
-        return StatusCode(StatusCodes.Status403Forbidden, new { message });
-    }
+        => StatusCode(StatusCodes.Status403Forbidden, new { message });
 }

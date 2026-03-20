@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
@@ -17,22 +20,24 @@ public class SitingsController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public SitingsController(
         LegacyDbContext context,
         IEmployeeAccessService employeeAccessService,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SitingDto>>> GetSitings([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
-        IQueryable<Siting> query = _context.Sitings
-            .Include(st => st.Cases_Sitings);
+        IQueryable<Siting> query = _context.Sitings.Include(st => st.Cases_Sitings);
 
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
@@ -54,13 +59,7 @@ public class SitingsController : ControllerBase
             var ps = Math.Clamp(pageSize.Value, 1, 200);
             var total = await query.CountAsync();
             var items = await query.OrderBy(st => st.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<SitingDto>
-            {
-                Items = items.Select(MapToDto),
-                TotalCount = total,
-                Page = p,
-                PageSize = ps
-            });
+            return Ok(new PagedResult<SitingDto> { Items = items.Select(MapToDto), TotalCount = total, Page = p, PageSize = ps });
         }
 
         var sitings = await query.OrderBy(st => st.Id).ToListAsync();
@@ -70,19 +69,15 @@ public class SitingsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<SitingDto>> GetSiting(int id)
     {
-        var siting = await _context.Sitings
-            .Include(st => st.Cases_Sitings)
-            .FirstOrDefaultAsync(st => st.Id == id);
+        var siting = await _context.Sitings.Include(st => st.Cases_Sitings).FirstOrDefaultAsync(st => st.Id == id);
         if (siting == null)
-            return NotFound(new { message = "Siting not found" });
+            return this.EntityNotFound<SitingDto>(_localizer, "Siting");
 
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
             var caseCodes = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
             if (!await CanAccessAllCasesAsync(caseCodes))
-            {
                 return Forbid();
-            }
         }
 
         return Ok(MapToDto(siting));
@@ -99,20 +94,16 @@ public class SitingsController : ControllerBase
         {
             var caseExists = await _context.Cases.AnyAsync(c => c.Code == dto.CaseCode.Value);
             if (!caseExists)
-                return BadRequest(new { message = "Case not found" });
+                return BadRequest(new { message = _localizer["CaseNotFoundForSiting"].Value });
         }
 
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
             if (!dto.CaseCode.HasValue)
-            {
-                return BadRequest(new { message = "Employees must link a siting to an assigned case." });
-            }
+                return BadRequest(new { message = _localizer["EmployeesMustLinkSiting"].Value });
 
             if (!await _employeeAccessService.CanAccessCaseAsync(dto.CaseCode.Value))
-            {
                 return Forbid();
-            }
         }
 
         var siting = new Siting
@@ -129,25 +120,14 @@ public class SitingsController : ControllerBase
 
         if (dto.CaseCode.HasValue)
         {
-            var exists = await _context.Cases_Sitings
-                .AnyAsync(cs => cs.Case_Code == dto.CaseCode.Value && cs.Siting_Id == siting.Id);
-
+            var exists = await _context.Cases_Sitings.AnyAsync(cs => cs.Case_Code == dto.CaseCode.Value && cs.Siting_Id == siting.Id);
             if (!exists)
             {
-                _context.Cases_Sitings.Add(new Cases_Siting
-                {
-                    Case_Code = dto.CaseCode.Value,
-                    Siting_Id = siting.Id
-                });
+                _context.Cases_Sitings.Add(new Cases_Siting { Case_Code = dto.CaseCode.Value, Siting_Id = siting.Id });
                 await _context.SaveChangesAsync();
             }
 
-            await _inAppNotificationService.NotifyCaseSitingScheduledAsync(
-                dto.CaseCode.Value,
-                siting.Id,
-                siting.Siting_Time,
-                siting.Judge_Name,
-                HttpContext.RequestAborted);
+            await _inAppNotificationService.NotifyCaseSitingScheduledAsync(dto.CaseCode.Value, siting.Id, siting.Siting_Time, siting.Judge_Name, HttpContext.RequestAborted);
         }
 
         await _context.Entry(siting).Collection(st => st.Cases_Sitings).LoadAsync();
@@ -158,19 +138,15 @@ public class SitingsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSiting(int id, [FromBody] UpdateSitingDto dto)
     {
-        var siting = await _context.Sitings
-            .Include(item => item.Cases_Sitings)
-            .FirstOrDefaultAsync(item => item.Id == id);
+        var siting = await _context.Sitings.Include(item => item.Cases_Sitings).FirstOrDefaultAsync(item => item.Id == id);
         if (siting == null)
-            return NotFound(new { message = "Siting not found" });
+            return this.EntityNotFound(_localizer, "Siting");
 
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
             var caseCodes = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
             if (!await CanAccessAllCasesAsync(caseCodes))
-            {
                 return Forbid();
-            }
         }
 
         if (dto.SitingTime.HasValue) siting.Siting_Time = dto.SitingTime.Value;
@@ -182,14 +158,7 @@ public class SitingsController : ControllerBase
         await _context.SaveChangesAsync();
 
         foreach (var caseCode in siting.Cases_Sitings.Select(item => item.Case_Code).Distinct())
-        {
-            await _inAppNotificationService.NotifyCaseSitingUpdatedAsync(
-                caseCode,
-                siting.Id,
-                siting.Siting_Time,
-                siting.Judge_Name,
-                HttpContext.RequestAborted);
-        }
+            await _inAppNotificationService.NotifyCaseSitingUpdatedAsync(caseCode, siting.Id, siting.Siting_Time, siting.Judge_Name, HttpContext.RequestAborted);
 
         return Ok(MapToDto(siting));
     }
@@ -198,44 +167,31 @@ public class SitingsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSiting(int id)
     {
-        var siting = await _context.Sitings
-            .Include(item => item.Cases_Sitings)
-            .FirstOrDefaultAsync(item => item.Id == id);
+        var siting = await _context.Sitings.Include(item => item.Cases_Sitings).FirstOrDefaultAsync(item => item.Id == id);
         if (siting == null)
-            return NotFound(new { message = "Siting not found" });
+            return this.EntityNotFound(_localizer, "Siting");
 
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
             var caseCodesToValidate = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToArray();
             if (!await CanAccessAllCasesAsync(caseCodesToValidate))
-            {
                 return Forbid();
-            }
         }
 
-        var caseCodes = siting.Cases_Sitings
-            .Select(item => item.Case_Code)
-            .Distinct()
-            .ToList();
-
+        var caseCodes = siting.Cases_Sitings.Select(item => item.Case_Code).Distinct().ToList();
         _context.Sitings.Remove(siting);
         await _context.SaveChangesAsync();
 
         foreach (var caseCode in caseCodes)
-        {
             await _inAppNotificationService.NotifyCaseSitingCancelledAsync(caseCode, id, HttpContext.RequestAborted);
-        }
 
-        return Ok(new { message = "Siting deleted" });
+        return Ok(new { message = _localizer["SitingDeleted"].Value });
     }
 
     private static SitingDto MapToDto(Siting s) => new()
     {
         Id = s.Id,
-        CaseCode = s.Cases_Sitings
-            .OrderBy(cs => cs.Id)
-            .Select(cs => (int?)cs.Case_Code)
-            .FirstOrDefault(),
+        CaseCode = s.Cases_Sitings.OrderBy(cs => cs.Id).Select(cs => (int?)cs.Case_Code).FirstOrDefault(),
         SitingTime = s.Siting_Time,
         SitingDate = s.Siting_Date,
         SitingNotification = s.Siting_Notification,
@@ -245,20 +201,10 @@ public class SitingsController : ControllerBase
 
     private async Task<bool> CanAccessAllCasesAsync(IEnumerable<int> caseCodes)
     {
-        var distinctCaseCodes = caseCodes.Distinct().ToArray();
-        if (distinctCaseCodes.Length == 0)
-        {
-            return false;
-        }
-
-        foreach (var caseCode in distinctCaseCodes)
-        {
-            if (!await _employeeAccessService.CanAccessCaseAsync(caseCode))
-            {
-                return false;
-            }
-        }
-
+        var distinct = caseCodes.Distinct().ToArray();
+        if (distinct.Length == 0) return false;
+        foreach (var code in distinct)
+            if (!await _employeeAccessService.CanAccessCaseAsync(code)) return false;
         return true;
     }
 }

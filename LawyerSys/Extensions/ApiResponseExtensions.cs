@@ -1,8 +1,18 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using LawyerSys.Resources;
 
 namespace LawyerSys.Extensions;
+
+public static class LocalizationHelper
+{
+    /// <summary>Returns the Arabic value when the current UI culture is Arabic and the Arabic value is non-empty; otherwise returns the English value.</summary>
+    public static string Localize(string? nameEn, string? nameAr)
+        => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" && !string.IsNullOrWhiteSpace(nameAr)
+            ? nameAr!
+            : nameEn ?? string.Empty;
+}
 
 public static class ApiResponseExtensions
 {

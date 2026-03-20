@@ -147,4 +147,331 @@
   <data name="RegistrationFieldsAlreadyUsedMessage" xml:space="preserve">
     <value>The following fields are already used: {0}.</value>
   </data>
+  <data name="EmployeeDeleted" xml:space="preserve">
+    <value>Employee deleted</value>
+  </data>
+  <data name="SitingNotFound" xml:space="preserve">
+    <value>Siting not found</value>
+  </data>
+  <data name="SitingDeleted" xml:space="preserve">
+    <value>Siting deleted</value>
+  </data>
+  <data name="PaymentNotFound" xml:space="preserve">
+    <value>Payment not found</value>
+  </data>
+  <data name="PaymentDeleted" xml:space="preserve">
+    <value>Payment deleted</value>
+  </data>
+  <data name="ReceiptNotFound" xml:space="preserve">
+    <value>Receipt not found</value>
+  </data>
+  <data name="ReceiptDeleted" xml:space="preserve">
+    <value>Receipt deleted</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="UserDeleted" xml:space="preserve">
+    <value>User deleted</value>
+  </data>
+  <data name="UserHasCustomers" xml:space="preserve">
+    <value>Cannot delete user with associated customers</value>
+  </data>
+  <data name="UserHasEmployees" xml:space="preserve">
+    <value>Cannot delete user with associated employees</value>
+  </data>
+  <data name="GovernmentNotFound" xml:space="preserve">
+    <value>Government not found</value>
+  </data>
+  <data name="GovernmentDeleted" xml:space="preserve">
+    <value>Government deleted</value>
+  </data>
+  <data name="GovernmentNameRequired" xml:space="preserve">
+    <value>Government name is required</value>
+  </data>
+  <data name="GovernmentNameExists" xml:space="preserve">
+    <value>Government name already exists</value>
+  </data>
+  <data name="CityNotFound" xml:space="preserve">
+    <value>City not found</value>
+  </data>
+  <data name="CityDeleted" xml:space="preserve">
+    <value>City deleted</value>
+  </data>
+  <data name="CityNameRequired" xml:space="preserve">
+    <value>City name is required</value>
+  </data>
+  <data name="CityNameExists" xml:space="preserve">
+    <value>City name already exists in this country</value>
+  </data>
+  <data name="CountryRequired" xml:space="preserve">
+    <value>Country is required</value>
+  </data>
+  <data name="CountryNotFound" xml:space="preserve">
+    <value>Country not found</value>
+  </data>
+  <data name="TaskNotFound" xml:space="preserve">
+    <value>Task not found</value>
+  </data>
+  <data name="TaskDeleted" xml:space="preserve">
+    <value>Task deleted</value>
+  </data>
+  <data name="DocumentNotFound" xml:space="preserve">
+    <value>Document not found</value>
+  </data>
+  <data name="DocumentDeleted" xml:space="preserve">
+    <value>Document deleted</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="FileDeleted" xml:space="preserve">
+    <value>File deleted</value>
+  </data>
+  <data name="ConsultationNotFound" xml:space="preserve">
+    <value>Consultation not found</value>
+  </data>
+  <data name="ConsultationDeleted" xml:space="preserve">
+    <value>Consultation deleted</value>
+  </data>
+  <data name="RelationNotFound" xml:space="preserve">
+    <value>Relation not found</value>
+  </data>
+  <data name="ContenderNotFound" xml:space="preserve">
+    <value>Contender not found</value>
+  </data>
+  <data name="ContenderDeleted" xml:space="preserve">
+    <value>Contender deleted</value>
+  </data>
+  <data name="AlreadyLinked" xml:space="preserve">
+    <value>{0} already linked to this {1}</value>
+  </data>
+  <data name="AddedTo" xml:space="preserve">
+    <value>{0} added to {1}</value>
+  </data>
+  <data name="RemovedFrom" xml:space="preserve">
+    <value>{0} removed from {1}</value>
+  </data>
+  <data name="TenantNotFound" xml:space="preserve">
+    <value>Tenant not found</value>
+  </data>
+  <data name="TenantStatusUpdated" xml:space="preserve">
+    <value>Tenant status updated</value>
+  </data>
+  <data name="AssignmentRemoved" xml:space="preserve">
+    <value>Assignment removed</value>
+  </data>
+  <data name="Timeline_CaseOpened" xml:space="preserve">
+    <value>Case opened</value>
+  </data>
+  <data name="Timeline_CaseType" xml:space="preserve">
+    <value>Case type: {0}</value>
+  </data>
+  <data name="Timeline_HearingScheduled" xml:space="preserve">
+    <value>Hearing scheduled</value>
+  </data>
+  <data name="Timeline_HearingJudge" xml:space="preserve">
+    <value>Judge: {0}. {1}</value>
+  </data>
+  <data name="Timeline_DocumentAttached" xml:space="preserve">
+    <value>Judicial document attached</value>
+  </data>
+  <data name="Timeline_DocumentDesc" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Timeline_StatusChanged" xml:space="preserve">
+    <value>Case status changed</value>
+  </data>
+  <data name="Timeline_StatusDesc" xml:space="preserve">
+    <value>{0} -> {1} (by {2})</value>
+  </data>
+  <data name="Timeline_PaymentRecorded" xml:space="preserve">
+    <value>Payment recorded</value>
+  </data>
+  <data name="Timeline_PaymentDesc" xml:space="preserve">
+    <value>Amount: {0:F2}. {1}</value>
+  </data>
+  <data name="CaseAlreadyInStatus" xml:space="preserve">
+    <value>Case already in requested status</value>
+  </data>
+  <data name="CourtNotFound" xml:space="preserve">
+    <value>Court not found</value>
+  </data>
+  <data name="SubscriptionPackageRequired" xml:space="preserve">
+    <value>Subscription package is required.</value>
+  </data>
+  <data name="SubscriptionPackageInvalid" xml:space="preserve">
+    <value>Selected subscription package is invalid or inactive.</value>
+  </data>
+  <data name="SubscriptionPackageRequiredMessage" xml:space="preserve">
+    <value>Subscription package is required.</value>
+  </data>
+  <data name="SubscriptionPackageInvalidMessage" xml:space="preserve">
+    <value>Selected subscription package is invalid or inactive.</value>
+  </data>
+  <data name="EnglishCityNameRequired" xml:space="preserve">
+    <value>English city name is required</value>
+  </data>
+  <data name="ArabicCityNameRequired" xml:space="preserve">
+    <value>Arabic city name is required</value>
+  </data>
+  <data name="OnlyAddCitiesToProfileCountry" xml:space="preserve">
+    <value>You can only add cities to the country selected in your profile.</value>
+  </data>
+  <data name="OnlyUpdateTenantCities" xml:space="preserve">
+    <value>You can only update cities created by your tenant account.</value>
+  </data>
+  <data name="OnlyDeleteTenantCities" xml:space="preserve">
+    <value>You can only delete cities created by your tenant account.</value>
+  </data>
+  <data name="OnlyMoveCitiesInsideProfileCountry" xml:space="preserve">
+    <value>You can only move cities inside the country selected in your profile.</value>
+  </data>
+  <data name="TenantNotFoundForUser" xml:space="preserve">
+    <value>Tenant not found for the current user</value>
+  </data>
+  <data name="NoFileUploaded" xml:space="preserve">
+    <value>No file uploaded</value>
+  </data>
+  <data name="UnsupportedFileType" xml:space="preserve">
+    <value>Unsupported file type. Allowed types: .pdf, .doc, .docx, .png, .jpg, .jpeg, .gif, .bmp, .webp</value>
+  </data>
+  <data name="PhysicalFileNotFound" xml:space="preserve">
+    <value>Physical file not found</value>
+  </data>
+  <data name="CustomerNotFound" xml:space="preserve">
+    <value>Customer not found</value>
+  </data>
+  <data name="Customer" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+  <data name="Consultation" xml:space="preserve">
+    <value>Consultation</value>
+  </data>
+  <data name="Employee" xml:space="preserve">
+    <value>Employee</value>
+  </data>
+  <data name="Siting" xml:space="preserve">
+    <value>Siting</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Court" xml:space="preserve">
+    <value>Court</value>
+  </data>
+  <data name="Relation" xml:space="preserve">
+    <value>Relation</value>
+  </data>
+  <data name="EmployeesMustLinkSiting" xml:space="preserve">
+    <value>Employees must link a siting to an assigned case.</value>
+  </data>
+  <data name="CaseNotFoundForSiting" xml:space="preserve">
+    <value>Case not found</value>
+  </data>
+  <data name="SubscriptionNotFound" xml:space="preserve">
+    <value>Subscription not found</value>
+  </data>
+  <data name="TransactionMarkedPaid" xml:space="preserve">
+    <value>Transaction marked as paid</value>
+  </data>
+  <data name="TransactionCancelled" xml:space="preserve">
+    <value>Transaction cancelled</value>
+  </data>
+  <data name="DefaultFirmNoSubscriptions" xml:space="preserve">
+    <value>Default Firm does not use subscriptions.</value>
+  </data>
+  <data name="TimeEntryNotFound" xml:space="preserve">
+    <value>Time entry not found</value>
+  </data>
+  <data name="TimeEntryAlreadyStopped" xml:space="preserve">
+    <value>Time entry already stopped</value>
+  </data>
+  <data name="HourlyRateNonNegative" xml:space="preserve">
+    <value>hourlyRate must be non-negative</value>
+  </data>
+  <data name="CaseNotLinkedToCustomer" xml:space="preserve">
+    <value>Case is not linked to the selected customer.</value>
+  </data>
+  <data name="ReconciliationNotFound" xml:space="preserve">
+    <value>Reconciliation not found</value>
+  </data>
+  <data name="InsufficientTrustBalance" xml:space="preserve">
+    <value>Insufficient trust balance for this withdrawal.</value>
+  </data>
+  <data name="InsufficientTrustBalanceAdjustment" xml:space="preserve">
+    <value>Insufficient trust balance for a decrease adjustment.</value>
+  </data>
+  <data name="CustomerNotLinkedToCase" xml:space="preserve">
+    <value>Customer is not linked to this case.</value>
+  </data>
+  <data name="RequestedDocumentNotFound" xml:space="preserve">
+    <value>Requested document not found</value>
+  </data>
+  <data name="PaymentProofNotFound" xml:space="preserve">
+    <value>Payment proof not found</value>
+  </data>
+  <data name="UserIdentityNotFound" xml:space="preserve">
+    <value>User identity not found</value>
+  </data>
+  <data name="CustomerProfileNotFound" xml:space="preserve">
+    <value>Customer profile not found</value>
+  </data>
+  <data name="PaymentNotFoundForCustomer" xml:space="preserve">
+    <value>Payment not found</value>
+  </data>
+  <data name="AmountMustBePositive" xml:space="preserve">
+    <value>Amount must be greater than zero.</value>
+  </data>
+  <data name="JurisdictionPackNotFound" xml:space="preserve">
+    <value>Jurisdiction pack not found</value>
+  </data>
+  <data name="InvalidJurisdictionPackKey" xml:space="preserve">
+    <value>Invalid jurisdiction pack key</value>
+  </data>
+  <data name="PackNotFound" xml:space="preserve">
+    <value>Pack not found</value>
+  </data>
+  <data name="FormNotFoundInPack" xml:space="preserve">
+    <value>Form not found in selected pack</value>
+  </data>
+  <data name="FilingSubmissionNotFound" xml:space="preserve">
+    <value>Filing submission not found</value>
+  </data>
+  <data name="InvalidFilingChannel" xml:space="preserve">
+    <value>Invalid filing channel for selected pack</value>
+  </data>
+  <data name="LeadNotFound" xml:space="preserve">
+    <value>Lead not found</value>
+  </data>
+  <data name="LeadAlreadyConverted" xml:space="preserve">
+    <value>Lead already converted</value>
+  </data>
+  <data name="LeadHasConflict" xml:space="preserve">
+    <value>Lead has conflict. Resolve before conversion.</value>
+  </data>
+  <data name="AssignedEmployeeNotFound" xml:space="preserve">
+    <value>Assigned employee not found</value>
+  </data>
+  <data name="DemoFullNameRequired" xml:space="preserve">
+    <value>Full name is required.</value>
+  </data>
+  <data name="DemoEmailRequired" xml:space="preserve">
+    <value>Email is required.</value>
+  </data>
+  <data name="DemoOfficeNameRequired" xml:space="preserve">
+    <value>Office name is required.</value>
+  </data>
+  <data name="DemoInvalidReviewStatus" xml:space="preserve">
+    <value>Invalid review status.</value>
+  </data>
+  <data name="DemoRequestNotFound" xml:space="preserve">
+    <value>Demo request not found.</value>
+  </data>
+  <data name="DemoRequestUpdated" xml:space="preserve">
+    <value>Demo request updated.</value>
+  </data>
+  <data name="DemoRequestSubmitted" xml:space="preserve">
+    <value>Demo request submitted successfully.</value>
+  </data>
 </root>

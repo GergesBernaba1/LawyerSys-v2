@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
@@ -17,15 +20,18 @@ public class ConsulationsController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public ConsulationsController(
         LegacyDbContext context,
         IEmployeeAccessService employeeAccessService,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     [HttpGet]
@@ -59,13 +65,7 @@ public class ConsulationsController : ControllerBase
             var ps = Math.Clamp(pageSize.Value, 1, 200);
             var total = await query.CountAsync();
             var items = await query.OrderBy(c => c.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<ConsulationDto>
-            {
-                Items = items.Select(MapToDto),
-                TotalCount = total,
-                Page = p,
-                PageSize = ps
-            });
+            return Ok(new PagedResult<ConsulationDto> { Items = items.Select(MapToDto), TotalCount = total, Page = p, PageSize = ps });
         }
 
         var consulations = await query.OrderBy(c => c.Id).ToListAsync();
@@ -77,11 +77,9 @@ public class ConsulationsController : ControllerBase
     {
         var consulation = await _context.Consulations.FindAsync(id);
         if (consulation == null)
-            return NotFound(new { message = "Consultation not found" });
-
+            return this.EntityNotFound<ConsulationDto>(_localizer, "Consultation");
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
-
         return Ok(MapToDto(consulation));
     }
 
@@ -109,19 +107,14 @@ public class ConsulationsController : ControllerBase
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
             var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
-            if (!employeeId.HasValue)
-                return Forbid();
+            if (!employeeId.HasValue) return Forbid();
 
             var relationExists = await _context.Consulations_Employees
                 .AnyAsync(item => item.Consl_ID == consulation.Id && item.Employee_Id == employeeId.Value);
 
             if (!relationExists)
             {
-                _context.Consulations_Employees.Add(new Consulations_Employee
-                {
-                    Consl_ID = consulation.Id,
-                    Employee_Id = employeeId.Value
-                });
+                _context.Consulations_Employees.Add(new Consulations_Employee { Consl_ID = consulation.Id, Employee_Id = employeeId.Value });
                 await _context.SaveChangesAsync();
             }
         }
@@ -135,8 +128,7 @@ public class ConsulationsController : ControllerBase
     {
         var consulation = await _context.Consulations.FindAsync(id);
         if (consulation == null)
-            return NotFound(new { message = "Consultation not found" });
-
+            return this.EntityNotFound(_localizer, "Consultation");
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
 
@@ -158,14 +150,13 @@ public class ConsulationsController : ControllerBase
     {
         var consulation = await _context.Consulations.FindAsync(id);
         if (consulation == null)
-            return NotFound(new { message = "Consultation not found" });
-
+            return this.EntityNotFound(_localizer, "Consultation");
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
 
         _context.Consulations.Remove(consulation);
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Consultation deleted" });
+        return Ok(new { message = _localizer["ConsultationDeleted"].Value });
     }
 
     // ========== CONSULTATION - CUSTOMER RELATIONS ==========
@@ -173,58 +164,37 @@ public class ConsulationsController : ControllerBase
     [HttpGet("{id}/customers")]
     public async Task<ActionResult> GetConsulationCustomers(int id)
     {
-        var exists = await _context.Consulations.AnyAsync(c => c.Id == id);
-        if (!exists)
-            return NotFound(new { message = "Consultation not found" });
-
+        if (!await _context.Consulations.AnyAsync(c => c.Id == id))
+            return this.EntityNotFound(_localizer, "Consultation");
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
 
         var relations = await _context.Consltitions_Custmors
-            .Include(r => r.Customer)
-                .ThenInclude(c => c.Users)
+            .Include(r => r.Customer).ThenInclude(c => c.Users)
             .Where(r => r.Consl_Id == id)
             .ToListAsync();
 
-        return Ok(relations.Select(r => new
-        {
-            Id = r.Id,
-            CustomerId = r.Customer_Id,
-            CustomerName = r.Customer?.Users?.Full_Name
-        }));
+        return Ok(relations.Select(r => new { Id = r.Id, CustomerId = r.Customer_Id, CustomerName = r.Customer?.Users?.Full_Name }));
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost("{id}/customers/{customerId}")]
     public async Task<ActionResult> AddCustomerToConsulation(int id, int customerId)
     {
-        var consulationExists = await _context.Consulations.AnyAsync(c => c.Id == id);
-        if (!consulationExists)
-            return NotFound(new { message = "Consultation not found" });
-
+        if (!await _context.Consulations.AnyAsync(c => c.Id == id))
+            return this.EntityNotFound(_localizer, "Consultation");
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
+        if (!await _context.Customers.AnyAsync(c => c.Id == customerId))
+            return this.EntityNotFound(_localizer, "Customer");
 
-        var customerExists = await _context.Customers.AnyAsync(c => c.Id == customerId);
-        if (!customerExists)
-            return NotFound(new { message = "Customer not found" });
+        if (await _context.Consltitions_Custmors.AnyAsync(r => r.Consl_Id == id && r.Customer_Id == customerId))
+            return BadRequest(new { message = _localizer["AlreadyLinked", _localizer["Customer"].Value, _localizer["Consultation"].Value].Value });
 
-        var exists = await _context.Consltitions_Custmors
-            .AnyAsync(r => r.Consl_Id == id && r.Customer_Id == customerId);
-
-        if (exists)
-            return BadRequest(new { message = "Customer already linked to this consultation" });
-
-        var relation = new Consltitions_Custmor
-        {
-            Consl_Id = id,
-            Customer_Id = customerId
-        };
-
+        var relation = new Consltitions_Custmor { Consl_Id = id, Customer_Id = customerId };
         _context.Consltitions_Custmors.Add(relation);
         await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Customer added to consultation", id = relation.Id });
+        return Ok(new { message = _localizer["AddedTo", _localizer["Customer"].Value, _localizer["Consultation"].Value].Value, id = relation.Id });
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
@@ -234,16 +204,13 @@ public class ConsulationsController : ControllerBase
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
 
-        var relation = await _context.Consltitions_Custmors
-            .FirstOrDefaultAsync(r => r.Consl_Id == id && r.Customer_Id == customerId);
-
+        var relation = await _context.Consltitions_Custmors.FirstOrDefaultAsync(r => r.Consl_Id == id && r.Customer_Id == customerId);
         if (relation == null)
-            return NotFound(new { message = "Relation not found" });
+            return this.EntityNotFound(_localizer, "Relation");
 
         _context.Consltitions_Custmors.Remove(relation);
         await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Customer removed from consultation" });
+        return Ok(new { message = _localizer["RemovedFrom", _localizer["Customer"].Value, _localizer["Consultation"].Value].Value });
     }
 
     // ========== CONSULTATION - EMPLOYEE RELATIONS ==========
@@ -251,25 +218,17 @@ public class ConsulationsController : ControllerBase
     [HttpGet("{id}/employees")]
     public async Task<ActionResult> GetConsulationEmployees(int id)
     {
-        var exists = await _context.Consulations.AnyAsync(c => c.Id == id);
-        if (!exists)
-            return NotFound(new { message = "Consultation not found" });
-
+        if (!await _context.Consulations.AnyAsync(c => c.Id == id))
+            return this.EntityNotFound(_localizer, "Consultation");
         if (!await CanAccessConsultationAsync(id))
             return Forbid();
 
         var relations = await _context.Consulations_Employees
-            .Include(r => r.Employee)
-                .ThenInclude(e => e.Users)
+            .Include(r => r.Employee).ThenInclude(e => e.Users)
             .Where(r => r.Consl_ID == id)
             .ToListAsync();
 
-        return Ok(relations.Select(r => new
-        {
-            Id = r.Id,
-            EmployeeId = r.Employee_Id,
-            EmployeeName = r.Employee?.Users?.Full_Name
-        }));
+        return Ok(relations.Select(r => new { Id = r.Id, EmployeeId = r.Employee_Id, EmployeeName = r.Employee?.Users?.Full_Name }));
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
@@ -281,34 +240,19 @@ public class ConsulationsController : ControllerBase
 
         var consulation = await _context.Consulations.FirstOrDefaultAsync(c => c.Id == id);
         if (consulation == null)
-            return NotFound(new { message = "Consultation not found" });
+            return this.EntityNotFound(_localizer, "Consultation");
+        if (!await _context.Employees.AnyAsync(e => e.id == employeeId))
+            return this.EntityNotFound(_localizer, "Employee");
 
-        var employeeExists = await _context.Employees.AnyAsync(e => e.id == employeeId);
-        if (!employeeExists)
-            return NotFound(new { message = "Employee not found" });
+        if (await _context.Consulations_Employees.AnyAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId))
+            return BadRequest(new { message = _localizer["AlreadyLinked", _localizer["Employee"].Value, _localizer["Consultation"].Value].Value });
 
-        var exists = await _context.Consulations_Employees
-            .AnyAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId);
-
-        if (exists)
-            return BadRequest(new { message = "Employee already linked to this consultation" });
-
-        var relation = new Consulations_Employee
-        {
-            Consl_ID = id,
-            Employee_Id = employeeId
-        };
-
+        var relation = new Consulations_Employee { Consl_ID = id, Employee_Id = employeeId };
         _context.Consulations_Employees.Add(relation);
         await _context.SaveChangesAsync();
-        await _inAppNotificationService.NotifyEmployeeConsultationAssignedAsync(
-            employeeId,
-            id,
-            consulation.Subject,
-            consulation.Date_time,
-            HttpContext.RequestAborted);
 
-        return Ok(new { message = "Employee added to consultation", id = relation.Id });
+        await _inAppNotificationService.NotifyEmployeeConsultationAssignedAsync(employeeId, id, consulation.Subject, consulation.Date_time, HttpContext.RequestAborted);
+        return Ok(new { message = _localizer["AddedTo", _localizer["Employee"].Value, _localizer["Consultation"].Value].Value, id = relation.Id });
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
@@ -318,26 +262,19 @@ public class ConsulationsController : ControllerBase
         if (!await _employeeAccessService.IsCurrentUserAdminAsync())
             return Forbid();
 
-        var relation = await _context.Consulations_Employees
-            .FirstOrDefaultAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId);
-
+        var relation = await _context.Consulations_Employees.FirstOrDefaultAsync(r => r.Consl_ID == id && r.Employee_Id == employeeId);
         if (relation == null)
-            return NotFound(new { message = "Relation not found" });
+            return this.EntityNotFound(_localizer, "Relation");
 
         _context.Consulations_Employees.Remove(relation);
         await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Employee removed from consultation" });
+        return Ok(new { message = _localizer["RemovedFrom", _localizer["Employee"].Value, _localizer["Consultation"].Value].Value });
     }
 
     private async Task<bool> CanAccessConsultationAsync(int id)
     {
-        if (await _employeeAccessService.IsCurrentUserAdminAsync())
-            return true;
-
-        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
-            return false;
-
+        if (await _employeeAccessService.IsCurrentUserAdminAsync()) return true;
+        if (!await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync()) return false;
         var employeeId = await _employeeAccessService.GetCurrentEmployeeIdAsync();
         return employeeId.HasValue && await _context.Consulations_Employees
             .AnyAsync(item => item.Consl_ID == id && item.Employee_Id == employeeId.Value);

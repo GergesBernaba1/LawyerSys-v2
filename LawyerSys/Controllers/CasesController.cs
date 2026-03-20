@@ -240,13 +240,13 @@ public class CasesController : ControllerBase
     public async Task<IActionResult> UnassignEmployee(int code)
     {
         var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
-        if (caseEntity == null) return NotFound(new { message = _localizer["CaseNotFound"].Value });
+        if (caseEntity == null) return this.EntityNotFound(_localizer, "Case");
 
         var existing = _context.Cases_Employees.Where(ce => ce.Case_Code == code);
         _context.Cases_Employees.RemoveRange(existing);
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Assignment removed" });
+        return Ok(new { message = _localizer["AssignmentRemoved"].Value });
     }
 
     // GET: api/cases/assignments
@@ -278,7 +278,7 @@ public class CasesController : ControllerBase
     public async Task<IActionResult> ChangeCaseStatus(int code, [FromBody] DTOs.ChangeCaseStatusDto dto)
     {
         var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
-        if (caseEntity == null) return NotFound(new { message = "Case not found" });
+        if (caseEntity == null) return this.EntityNotFound(_localizer, "Case");
 
         // permission check: employees can only modify their assigned cases
         if (!await CanModifyCase(code))
@@ -292,7 +292,7 @@ public class CasesController : ControllerBase
 
         var oldStatus = (DTOs.CaseStatus)caseEntity.Status;
         if (oldStatus == newStatus)
-            return BadRequest(new { message = "Case already in requested status" });
+            return BadRequest(new { message = _localizer["CaseAlreadyInStatus"].Value });
 
         var allowedTargets = AllowedStatusTransitions.GetValueOrDefault(oldStatus, Array.Empty<DTOs.CaseStatus>());
         if (!allowedTargets.Contains(newStatus))
@@ -341,7 +341,7 @@ public class CasesController : ControllerBase
     public async Task<ActionResult<IEnumerable<DTOs.CaseStatusHistoryDto>>> GetStatusHistory(int code)
     {
         var exists = await _context.Cases.AnyAsync(c => c.Code == code);
-        if (!exists) return NotFound(new { message = "Case not found" });
+        if (!exists) return this.EntityNotFound(_localizer, "Case");
 
         var list = await _context.CaseStatusHistories
             .Where(h => h.Case_Id == code)
@@ -358,7 +358,7 @@ public class CasesController : ControllerBase
     {
         var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
         if (caseEntity == null)
-            return NotFound(new { message = "Case not found" });
+            return this.EntityNotFound(_localizer, "Case");
 
         if (!await CanAccessCase(code))
             return Forbid();
@@ -369,8 +369,8 @@ public class CasesController : ControllerBase
             {
                 Category = "Case",
                 OccurredAt = caseEntity.Invition_Date.ToDateTime(TimeOnly.MinValue),
-                Title = "Case opened",
-                Description = $"Case type: {caseEntity.Invition_Type}"
+                Title = _localizer["Timeline_CaseOpened"].Value,
+                Description = _localizer["Timeline_CaseType", caseEntity.Invition_Type].Value
             }
         };
 
@@ -390,8 +390,8 @@ public class CasesController : ControllerBase
         {
             Category = "Hearing",
             OccurredAt = h.Siting_Time,
-            Title = "Hearing scheduled",
-            Description = $"Judge: {h.Judge_Name}. {h.Notes}",
+            Title = _localizer["Timeline_HearingScheduled"].Value,
+            Description = _localizer["Timeline_HearingJudge", h.Judge_Name, h.Notes].Value,
             EntityId = h.Siting_Id
         }));
 
@@ -415,8 +415,8 @@ public class CasesController : ControllerBase
         {
             Category = "Document",
             OccurredAt = DateTime.UtcNow,
-            Title = "Judicial document attached",
-            Description = $"{d.Doc_Type}: {d.Doc_Details}",
+            Title = _localizer["Timeline_DocumentAttached"].Value,
+            Description = _localizer["Timeline_DocumentDesc", d.Doc_Type, d.Doc_Details].Value,
             EntityId = d.Id
         }));
 
@@ -429,8 +429,8 @@ public class CasesController : ControllerBase
         {
             Category = "Status",
             OccurredAt = s.ChangedAt,
-            Title = "Case status changed",
-            Description = $"{MapStatusLabel((DTOs.CaseStatus)s.OldStatus)} -> {MapStatusLabel((DTOs.CaseStatus)s.NewStatus)} (by {s.ChangedBy ?? "Unknown"})",
+            Title = _localizer["Timeline_StatusChanged"].Value,
+            Description = _localizer["Timeline_StatusDesc", MapStatusLabel((DTOs.CaseStatus)s.OldStatus), MapStatusLabel((DTOs.CaseStatus)s.NewStatus), s.ChangedBy ?? "Unknown"].Value,
             EntityId = s.Id
         }));
 
@@ -450,8 +450,8 @@ public class CasesController : ControllerBase
         {
             Category = "Billing",
             OccurredAt = b.Date_Of_Opreation.ToDateTime(TimeOnly.MinValue),
-            Title = "Payment recorded",
-            Description = $"Amount: {b.Amount:F2}. {b.Notes}",
+            Title = _localizer["Timeline_PaymentRecorded"].Value,
+            Description = _localizer["Timeline_PaymentDesc", b.Amount, b.Notes].Value,
             EntityId = b.Id
         }));
 

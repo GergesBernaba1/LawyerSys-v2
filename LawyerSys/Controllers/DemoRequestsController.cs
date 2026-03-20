@@ -1,9 +1,11 @@
+using LawyerSys.Resources;
 using LawyerSys.Services.Email;
 using LawyerSys.Services.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -15,17 +17,20 @@ public class DemoRequestsController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IInAppNotificationService _inAppNotificationService;
     private readonly IEmailSender _emailSender;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public DemoRequestsController(
         ApplicationDbContext applicationDbContext,
         UserManager<ApplicationUser> userManager,
         IInAppNotificationService inAppNotificationService,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IStringLocalizer<SharedResource> localizer)
     {
         _applicationDbContext = applicationDbContext;
         _userManager = userManager;
         _inAppNotificationService = inAppNotificationService;
         _emailSender = emailSender;
+        _localizer = localizer;
     }
 
     [AllowAnonymous]
@@ -40,17 +45,17 @@ public class DemoRequestsController : ControllerBase
 
         if (string.IsNullOrWhiteSpace(fullName))
         {
-            return BadRequest(new { message = "Full name is required." });
+            return BadRequest(new { message = _localizer["DemoFullNameRequired"].Value });
         }
 
         if (string.IsNullOrWhiteSpace(email))
         {
-            return BadRequest(new { message = "Email is required." });
+            return BadRequest(new { message = _localizer["DemoEmailRequired"].Value });
         }
 
         if (string.IsNullOrWhiteSpace(officeName))
         {
-            return BadRequest(new { message = "Office name is required." });
+            return BadRequest(new { message = _localizer["DemoOfficeNameRequired"].Value });
         }
 
         var item = new DemoRequest
@@ -69,7 +74,7 @@ public class DemoRequestsController : ControllerBase
         await _applicationDbContext.SaveChangesAsync();
         await _inAppNotificationService.NotifySuperAdminsOfDemoRequestAsync(item);
 
-        return Ok(new { message = "Demo request submitted successfully." });
+        return Ok(new { message = _localizer["DemoRequestSubmitted"].Value });
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -120,13 +125,13 @@ public class DemoRequestsController : ControllerBase
         if (!Enum.TryParse<DemoRequestStatus>(request.Status, true, out var status) ||
             (status != DemoRequestStatus.Approved && status != DemoRequestStatus.Rejected))
         {
-            return BadRequest(new { message = "Invalid review status." });
+            return BadRequest(new { message = _localizer["DemoInvalidReviewStatus"].Value });
         }
 
         var item = await _applicationDbContext.DemoRequests.SingleOrDefaultAsync(entry => entry.Id == id);
         if (item == null)
         {
-            return NotFound(new { message = "Demo request not found." });
+            return NotFound(new { message = _localizer["DemoRequestNotFound"].Value });
         }
 
         item.Status = status;
@@ -137,7 +142,7 @@ public class DemoRequestsController : ControllerBase
         await _applicationDbContext.SaveChangesAsync();
         await SendDecisionEmailAsync(item, status, Normalize(request.Message));
 
-        return Ok(new { message = "Demo request updated." });
+        return Ok(new { message = _localizer["DemoRequestUpdated"].Value });
     }
 
     private async Task SendDecisionEmailAsync(DemoRequest request, DemoRequestStatus status, string reviewerMessage)

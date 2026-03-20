@@ -1,11 +1,13 @@
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Reporting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -16,11 +18,13 @@ public class TrustAccountingController : ControllerBase
 {
     private readonly LegacyDbContext _context;
     private readonly IEmployeeAccessService _employeeAccessService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public TrustAccountingController(LegacyDbContext context, IEmployeeAccessService employeeAccessService)
+    public TrustAccountingController(LegacyDbContext context, IEmployeeAccessService employeeAccessService, IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _employeeAccessService = employeeAccessService;
+        _localizer = localizer;
     }
 
     [HttpGet("accounts")]
@@ -98,7 +102,7 @@ public class TrustAccountingController : ControllerBase
 
         if (customer is null)
         {
-            return NotFound(new { message = "Customer not found" });
+            return NotFound(new { message = _localizer["CustomerNotFound"].Value });
         }
         if (!await CanAccessCustomerAsync(customerId))
         {
@@ -128,7 +132,7 @@ public class TrustAccountingController : ControllerBase
 
         if (customer is null)
         {
-            return NotFound(new { message = "Customer not found" });
+            return NotFound(new { message = _localizer["CustomerNotFound"].Value });
         }
         if (!await CanAccessCustomerAsync(customerId))
         {
@@ -156,7 +160,7 @@ public class TrustAccountingController : ControllerBase
 
         if (customer is null)
         {
-            return NotFound(new { message = "Customer not found" });
+            return NotFound(new { message = _localizer["CustomerNotFound"].Value });
         }
         if (!await CanAccessCustomerAsync(customerId))
         {
@@ -221,7 +225,7 @@ public class TrustAccountingController : ControllerBase
             .FirstOrDefaultAsync(c => c.Id == dto.CustomerId);
         if (customer is null)
         {
-            return BadRequest(new { message = "Customer not found" });
+            return BadRequest(new { message = _localizer["CustomerNotFound"].Value });
         }
 
         if (dto.CaseCode.HasValue)
@@ -267,7 +271,7 @@ public class TrustAccountingController : ControllerBase
             .FirstOrDefaultAsync(c => c.Id == dto.CustomerId);
         if (customer is null)
         {
-            return BadRequest(new { message = "Customer not found" });
+            return BadRequest(new { message = _localizer["CustomerNotFound"].Value });
         }
 
         if (dto.CaseCode.HasValue)
@@ -284,7 +288,7 @@ public class TrustAccountingController : ControllerBase
         {
             return BadRequest(new
             {
-                message = "Insufficient trust balance for this withdrawal.",
+                message = _localizer["InsufficientTrustBalance"].Value,
                 available = balanceAtOperationDate,
                 requested = dto.Amount
             });
@@ -324,7 +328,7 @@ public class TrustAccountingController : ControllerBase
             .FirstOrDefaultAsync(c => c.Id == dto.CustomerId);
         if (customer is null)
         {
-            return BadRequest(new { message = "Customer not found" });
+            return BadRequest(new { message = _localizer["CustomerNotFound"].Value });
         }
 
         if (dto.CaseCode.HasValue)
@@ -347,7 +351,7 @@ public class TrustAccountingController : ControllerBase
             {
                 return BadRequest(new
                 {
-                    message = "Insufficient trust balance for a decrease adjustment.",
+                    message = _localizer["InsufficientTrustBalanceAdjustment"].Value,
                     available = balanceAtOperationDate,
                     requested = dto.Amount
                 });
@@ -460,7 +464,7 @@ public class TrustAccountingController : ControllerBase
 
             if (customer is null)
             {
-                return NotFound(new { message = "Customer not found" });
+                return NotFound(new { message = _localizer["CustomerNotFound"].Value });
             }
 
             customerName = customer.Users?.Full_Name ?? $"Customer #{customer.Id}";
@@ -760,7 +764,7 @@ public class TrustAccountingController : ControllerBase
 
         if (item is null)
         {
-            return NotFound(new { message = "Reconciliation not found" });
+            return NotFound(new { message = _localizer["ReconciliationNotFound"].Value });
         }
 
         return Ok(item);
@@ -796,14 +800,14 @@ public class TrustAccountingController : ControllerBase
         var caseExists = await _context.Cases.AnyAsync(c => c.Code == caseCode);
         if (!caseExists)
         {
-            return BadRequest(new { message = "Case not found" });
+            return BadRequest(new { message = _localizer["CaseNotFound"].Value });
         }
 
         var caseLinkedToCustomer = await _context.Custmors_Cases
             .AnyAsync(cc => cc.Custmors_Id == customerId && cc.Case_Id == caseCode);
         if (!caseLinkedToCustomer)
         {
-            return BadRequest(new { message = "Case is not linked to the selected customer." });
+            return BadRequest(new { message = _localizer["CaseNotLinkedToCustomer"].Value });
         }
 
         return null;

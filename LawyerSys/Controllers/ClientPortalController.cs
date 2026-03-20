@@ -1,10 +1,12 @@
 using LawyerSys.Data;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services.Notifications;
 using LawyerSys.Services.Pdf;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Globalization;
 using System.Security.Claims;
 using FileEntity = LawyerSys.Data.ScaffoldedModels.File;
@@ -22,17 +24,20 @@ public class ClientPortalController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IWebHostEnvironment _env;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public ClientPortalController(
         ApplicationDbContext applicationDbContext,
         LegacyDbContext context,
         IWebHostEnvironment env,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _applicationDbContext = applicationDbContext;
         _context = context;
         _env = env;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     [HttpGet("overview")]
@@ -42,7 +47,7 @@ public class ClientPortalController : ControllerBase
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         if (string.IsNullOrWhiteSpace(userName))
         {
-            return Unauthorized(new { message = "User identity not found" });
+            return Unauthorized(new { message = _localizer["UserIdentityNotFound"].Value });
         }
 
         var useArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
@@ -55,7 +60,7 @@ public class ClientPortalController : ControllerBase
                 return Ok(BuildEmptyResponse(userName));
             }
 
-            return NotFound(new { message = "Customer profile not found" });
+            return NotFound(new { message = _localizer["CustomerProfileNotFound"].Value });
         }
 
         var caseCodes = await _context.Custmors_Cases
@@ -373,7 +378,7 @@ public class ClientPortalController : ControllerBase
         var customer = await GetCurrentCustomerOrThrowAsync();
         if (customer is null)
         {
-            return NotFound(new { message = "Customer profile not found" });
+            return NotFound(new { message = _localizer["CustomerProfileNotFound"].Value });
         }
 
         if (!await CustomerHasAccessToCaseAsync(customer.Id, caseCode))
@@ -418,7 +423,7 @@ public class ClientPortalController : ControllerBase
         var customer = await GetCurrentCustomerOrThrowAsync();
         if (customer is null)
         {
-            return NotFound(new { message = "Customer profile not found" });
+            return NotFound(new { message = _localizer["CustomerProfileNotFound"].Value });
         }
 
         var request = await _context.CustomerRequestedDocuments.SingleOrDefaultAsync(item =>
@@ -428,7 +433,7 @@ public class ClientPortalController : ControllerBase
 
         if (request == null)
         {
-            return NotFound(new { message = "Requested document not found" });
+            return NotFound(new { message = _localizer["RequestedDocumentNotFound"].Value });
         }
 
         if (!await CustomerHasAccessToCaseAsync(customer.Id, caseCode))
@@ -492,13 +497,13 @@ public class ClientPortalController : ControllerBase
     {
         if (amount <= 0)
         {
-            return BadRequest(new { message = "Amount must be greater than zero." });
+            return BadRequest(new { message = _localizer["AmountMustBePositive"].Value });
         }
 
         var customer = await GetCurrentCustomerOrThrowAsync();
         if (customer is null)
         {
-            return NotFound(new { message = "Customer profile not found" });
+            return NotFound(new { message = _localizer["CustomerProfileNotFound"].Value });
         }
 
         if (!await CustomerHasAccessToCaseAsync(customer.Id, caseCode))
@@ -564,7 +569,7 @@ public class ClientPortalController : ControllerBase
         var customer = await GetCurrentCustomerOrThrowAsync();
         if (customer is null)
         {
-            return NotFound(new { message = "Customer profile not found" });
+            return NotFound(new { message = _localizer["CustomerProfileNotFound"].Value });
         }
 
         var payment = await _context.Billing_Pays
@@ -573,8 +578,9 @@ public class ClientPortalController : ControllerBase
 
         if (payment == null)
         {
-            return NotFound(new { message = "Payment not found" });
+            return NotFound(new { message = _localizer["PaymentNotFoundForCustomer"].Value });
         }
+
         var officeName = User.FindFirst("tenant_name")?.Value ?? "Qadaya";
         var officePhone = User.FindFirst("tenant_phone")?.Value ?? string.Empty;
         var caseCode = await _context.Custmors_Cases

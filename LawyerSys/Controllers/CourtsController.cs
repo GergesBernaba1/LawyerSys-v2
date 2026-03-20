@@ -128,12 +128,10 @@ public class CourtsController : ControllerBase
     {
         var court = await _context.Courts.Include(c => c.Gov).FirstOrDefaultAsync(c => c.Id == id);
         if (court == null)
-            return NotFound(new { message = "Court not found" });
+            return this.EntityNotFound(_localizer, "Court");
 
         if (dto.GovId.HasValue && !await CanUseGovernmentAsync(dto.GovId.Value))
-        {
-            return BadRequest(new { message = "Selected city is outside the country saved in your profile." });
-        }
+            return BadRequest(new { message = _localizer["SelectedCityOutsideProfileCountry"].Value });
 
         if (dto.Name != null) court.Name = dto.Name;
         if (dto.Address != null) court.Address = dto.Address;
