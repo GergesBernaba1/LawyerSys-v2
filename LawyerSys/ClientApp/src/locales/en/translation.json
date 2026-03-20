@@ -1,4 +1,4 @@
-﻿{
+{
     "app":  {
                 "title":  "Qadaya",
                 "dashboard":  "Dashboard",
@@ -25,6 +25,10 @@
                 "profile":  "Profile",
                 "loading":  "Loading...",
                 "welcome":  "Welcome",
+                "year": "Year",
+                "month": "Month",
+                "trend": "Trend",
+                "outstanding": "Outstanding",
                 "quickActions":  "Quick Actions",
                 "recentActivity":  "Recent Activity",
                 "viewAll":  "View All",
@@ -90,7 +94,11 @@
                 "intake":  "Intake",
                 "notifications":  "Notifications",
                 "tenant":  "Tenant",
-                "selectTenant":  "Select tenant filter"
+                "selectTenant":  "Select tenant filter",
+                "year":  "Year",
+                "month":  "Month",
+                "trend":  "Last 6 Months",
+                "outstanding":  "Outstanding Balances"
             },
     "notifications":  {
                           "empty":  "No notifications yet.",
@@ -1586,6 +1594,9 @@
                    "total":  "Total",
                    "new":  "New",
                    "noRecords":  "No records found",
+                   "all":  "All",
+                   "failedLoad":  "Failed to load reports",
+                   "failedExport":  "Failed to export report",
                    "createFirst":  "Create First Record",
                    "created":  "Created successfully",
                    "updated":  "Updated successfully",

@@ -68,7 +68,7 @@ export default function ReportsPage() {
       const customerItems = customersRes.data?.items || customersRes.data || [];
       setCustomers(customerItems);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load reports');
+      setError(err?.response?.data?.message || t('common.failedLoad'));
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function ReportsPage() {
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      setError('Failed to export report');
+      setError(t('common.failedExport'));
     }
   }
 
@@ -108,7 +108,7 @@ export default function ReportsPage() {
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'center' }}>
             <SearchableSelect<number>
               size="small"
-              label={t('app.year') || 'Year'}
+              label={t('app.year')}
               value={year}
               onChange={(value) => setYear(value ?? now.getFullYear())}
               options={yearOptions.map((y) => ({ value: y, label: String(y) }))}
@@ -118,7 +118,7 @@ export default function ReportsPage() {
 
             <SearchableSelect<number>
               size="small"
-              label={t('app.month') || 'Month'}
+              label={t('app.month')}
               value={month}
               onChange={(value) => setMonth(value ?? now.getMonth() + 1)}
               options={Array.from({ length: 12 }, (_, i) => i + 1).map((m) => ({ value: m, label: String(m) }))}
@@ -132,7 +132,7 @@ export default function ReportsPage() {
               value={customerId}
               onChange={(value) => setCustomerId(value ?? '')}
               options={[
-                { value: '', label: t('common.all') || 'All' },
+                { value: '', label: t('common.all') },
                 ...customers.map((c) => ({ value: String(c.id), label: c.user?.fullName || '-' })),
               ]}
               disableClearable
@@ -180,7 +180,7 @@ export default function ReportsPage() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 1.5 }}>{t('app.trend') || 'Last 6 Months'}</Typography>
+              <Typography variant="h6" sx={{ mb: 1.5 }}>{t('app.trend')}</Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -208,7 +208,7 @@ export default function ReportsPage() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 1.5 }}>{t('app.outstanding') || 'Outstanding Balances'}</Typography>
+              <Typography variant="h6" sx={{ mb: 1.5 }}>{t('app.outstanding')}</Typography>
               <Table size="small">
                 <TableHead>
                   <TableRow>
