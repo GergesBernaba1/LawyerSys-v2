@@ -1,4 +1,5 @@
 import axios from 'axios'
+import i18n from '../i18n'
 
 const API_BASE =
   (typeof process !== 'undefined' &&
@@ -100,6 +101,11 @@ instance.interceptors.request.use((config) => {
   const activeTenantId = getActiveTenantId()
   if (activeTenantId && config.headers) {
     config.headers['X-Firm-Id'] = activeTenantId
+  }
+
+  if (config.headers) {
+    const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US'
+    config.headers['Accept-Language'] = language
   }
 
   return config

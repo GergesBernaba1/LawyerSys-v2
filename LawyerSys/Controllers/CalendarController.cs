@@ -1,9 +1,11 @@
 using LawyerSys.Data;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -14,11 +16,13 @@ public class CalendarController : ControllerBase
 {
     private readonly LegacyDbContext _context;
     private readonly IEmployeeAccessService _employeeAccessService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CalendarController(LegacyDbContext context, IEmployeeAccessService employeeAccessService)
+    public CalendarController(LegacyDbContext context, IEmployeeAccessService employeeAccessService, IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _employeeAccessService = employeeAccessService;
+        _localizer = localizer;
     }
 
     [HttpGet("events")]
@@ -45,8 +49,8 @@ public class CalendarController : ControllerBase
             .Select(cs => new CalendarEventDto
             {
                 Id = $"hearing-{cs.Siting_Id}",
-                Type = "Hearing",
-                Title = $"Hearing - Judge {cs.Siting.Judge_Name}",
+                Type = _localizer["Calendar_Hearing"],
+                Title = _localizer["Calendar_HearingTitle", cs.Siting.Judge_Name],
                 Start = cs.Siting.Siting_Time,
                 End = cs.Siting.Siting_Time.AddHours(1),
                 Notes = cs.Siting.Notes,
@@ -71,8 +75,8 @@ public class CalendarController : ControllerBase
             .Select(cs => new CalendarEventDto
             {
                 Id = $"hearing-reminder-{cs.Siting_Id}",
-                Type = "HearingReminder",
-                Title = "Hearing reminder",
+                Type = _localizer["Calendar_HearingReminder"],
+                Title = _localizer["Calendar_HearingReminderTitle"],
                 Start = cs.Siting.Siting_Notification,
                 End = cs.Siting.Siting_Notification.AddMinutes(15),
                 Notes = cs.Siting.Notes,
@@ -96,7 +100,7 @@ public class CalendarController : ControllerBase
             .Select(t => new CalendarEventDto
             {
                 Id = $"task-{t.Id}",
-                Type = "Task",
+                Type = _localizer["Calendar_Task"],
                 Title = t.Task_Name,
                 Start = t.Task_Date.ToDateTime(TimeOnly.MinValue),
                 End = t.Task_Date.ToDateTime(TimeOnly.MinValue).AddHours(1),
@@ -120,8 +124,8 @@ public class CalendarController : ControllerBase
             .Select(t => new CalendarEventDto
             {
                 Id = $"task-reminder-{t.Id}",
-                Type = "TaskReminder",
-                Title = $"Task reminder - {t.Task_Name}",
+                Type = _localizer["Calendar_TaskReminder"],
+                Title = _localizer["Calendar_TaskReminderTitle", t.Task_Name],
                 Start = t.Task_Reminder_Date,
                 End = t.Task_Reminder_Date.AddMinutes(15),
                 Notes = t.Notes,
