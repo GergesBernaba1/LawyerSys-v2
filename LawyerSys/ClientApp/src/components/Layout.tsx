@@ -871,14 +871,16 @@ export default function Layout({ children }: LayoutProps) {
   }
 
   const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper', backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(246,250,252,0.98) 100%)' }}>
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          p: 2.5,
+          p: 2.75,
           minHeight: 72,
+          borderBottom: '1px solid',
+          borderColor: alpha(theme.palette.primary.main, 0.08),
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -920,7 +922,7 @@ export default function Layout({ children }: LayoutProps) {
         )}
       </Box>
       
-      <Box sx={{ px: 3, mb: 2, mt: 1 }}>
+      <Box sx={{ px: 3, mb: 2, mt: 1.5 }}>
         {!collapsed && (
           <Box sx={{ display: 'grid', gap: 1.25 }}>
             <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary', opacity: 0.5, letterSpacing: '0.1em' }}>
@@ -1567,15 +1569,17 @@ export default function Layout({ children }: LayoutProps) {
         sx={{
           flexGrow: 1,
           p: { xs: 2, md: 4 },
-          mt: '72px',
+          mt: '78px',
           width: { xs: '100%', md: `calc(100% - ${collapsed ? collapsedWidth : drawerWidth}px)` },
           marginInlineStart: { xs: 0, md: `${collapsed ? collapsedWidth : drawerWidth}px` },
           marginInlineEnd: 0,
           transition: theme.transitions.create(['width', 'margin'], { easing: theme.transitions.easing.sharp, duration: theme.transitions.duration.shortest }),
+          background:
+            'radial-gradient(circle at top, rgba(45, 106, 135, 0.08) 0%, rgba(45, 106, 135, 0) 24%), linear-gradient(180deg, rgba(238,244,250,0.72) 0%, rgba(248,251,253,0.92) 100%)',
         }}
       >
         {/* Breadcrumb Navigation */}
-        <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+        <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, p: { xs: 2.25, md: 3 }, borderRadius: 5, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.08), bgcolor: alpha(theme.palette.background.paper, 0.9), boxShadow: '0 18px 40px -30px rgba(15, 23, 42, 0.2)' }}>
           <Box>
             <Breadcrumbs
               separator={isRTL ? <NavigateBeforeIcon sx={{ fontSize: 18, opacity: 0.6, color: 'primary.main' }} /> : <NavigateNextIcon sx={{ fontSize: 18, opacity: 0.6, color: 'primary.main' }} />}

@@ -381,7 +381,7 @@ export default function CaseDetailsPage() {
         try{ await api.post(`/cases/${code}/courts/${selectedCourtToSet}`); }catch(e){}
       }
 
-      setSnackbar({ open:true, message: 'Case updated', severity: 'success' });
+      setSnackbar({ open:true, message: t('cases.caseUpdated', { defaultValue: 'Case updated' }), severity: 'success' });
       setEditing(false);
       await load();
     }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update', severity: 'error' }); }
@@ -396,7 +396,7 @@ export default function CaseDetailsPage() {
       await api.post(`/cases/${code}/sitings/${sitingId}`);
       setCreateSitingOpen(false);
       setNewSiting({ date:'', time:'', judgeName:'', notes:'' });
-      setSnackbar({ open:true, message: t('sitingCreated') ?? 'Siting created', severity: 'success' });
+      setSnackbar({ open:true, message: t('cases.sitingCreated', { defaultValue: 'Hearing created' }), severity: 'success' });
       await load();
     }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to create siting', severity: 'error' }); }
   }
@@ -423,7 +423,7 @@ export default function CaseDetailsPage() {
       await api.put(`/Sitings/${editingSiting.id}`, payload);
       setEditSitingOpen(false);
       setEditingSiting(null);
-      setSnackbar({ open:true, message: t('sitingUpdated') ?? 'Siting updated', severity:'success' });
+      setSnackbar({ open:true, message: t('cases.sitingUpdated', { defaultValue: 'Hearing updated' }), severity:'success' });
       await load();
     }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update siting', severity:'error' }); }
   }
@@ -432,12 +432,12 @@ export default function CaseDetailsPage() {
   function openEditContender(cont:any){ setEditingContender(cont); setEditContenderOpen(true); }
   async function saveContenderEdit(){
     if(!editingContender) return;
-    try{ await api.put(`/Contenders/${editingContender.ContenderId || editingContender.Id}`, { FullName: editingContender.FullName ?? editingContender.ContenderName, SSN: editingContender.SSN, BirthDate: editingContender.BirthDate }); setEditContenderOpen(false); setEditingContender(null); setSnackbar({ open:true, message: 'Contender updated', severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update contender', severity:'error' }); }
+    try{ await api.put(`/Contenders/${editingContender.ContenderId || editingContender.Id}`, { FullName: editingContender.FullName ?? editingContender.ContenderName, SSN: editingContender.SSN, BirthDate: editingContender.BirthDate }); setEditContenderOpen(false); setEditingContender(null); setSnackbar({ open:true, message: t('cases.contenderUpdated', { defaultValue: 'Contender updated' }), severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedUpdate', { defaultValue: 'Failed to update case' }), severity:'error' }); }
   }
 
   // Employees assign
   async function openAssignEmployee(){ try{ const r = await api.get('/Employees'); setEmployeesList(r.data || []); setAssignEmployeeOpen(true); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to load employees', severity:'error' }); } }
-  async function assignEmployee(){ if(!selectedEmployeeToAdd) return; try{ await api.post(`/cases/${code}/employees/${selectedEmployeeToAdd}`); setAssignEmployeeOpen(false); setSelectedEmployeeToAdd(''); setSnackbar({ open:true, message: 'Employee assigned', severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to assign', severity:'error' }); } }
+  async function assignEmployee(){ if(!selectedEmployeeToAdd) return; try{ await api.post(`/cases/${code}/employees/${selectedEmployeeToAdd}`); setAssignEmployeeOpen(false); setSelectedEmployeeToAdd(''); setSnackbar({ open:true, message: t('cases.employeeAssigned', { defaultValue: 'Employee assigned' }), severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedUpdate', { defaultValue: 'Failed to update case' }), severity:'error' }); } }
 
   async function removeContender(id:number){ try{ await api.delete(`/cases/${code}/contenders/${id}`); await load(); setSnackbar({ open:true, message: 'Contender removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed', severity:'error' }); } }
 
@@ -1060,10 +1060,10 @@ export default function CaseDetailsPage() {
             {!isCustomerOnly && isTabActive('employees') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{translateText('cases.employees', 'Employees')}</Typography>
-                {canManageCase && <Button size="small" onClick={openAssignEmployee} startIcon={<AddIcon/>}>{t('employees.add') || 'Assign'}</Button>}
+                {canManageCase && <Button size="small" onClick={openAssignEmployee} startIcon={<AddIcon/>}>{t('employees.add', { defaultValue: 'Assign' })}</Button>}
               </Box>
               <List>
-                {caseEmployees.map((e:any)=> (<ListItem key={e.id}><ListItemText primary={e.Full_Name || e.fullName} />{canManageCase && <Button size="small" color="error" onClick={async ()=>{ try{ await api.delete(`/cases/${code}/employees/${e.id}`); await load(); setSnackbar({ open:true, message: 'Employee removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove', severity:'error' }); } }}>Remove</Button>}</ListItem>))}
+                {caseEmployees.map((e:any)=> (<ListItem key={e.id}><ListItemText primary={e.Full_Name || e.fullName} />{canManageCase && <Button size="small" color="error" onClick={async ()=>{ try{ await api.delete(`/cases/${code}/employees/${e.id}`); await load(); setSnackbar({ open:true, message: t('cases.employeeDeleted', { defaultValue: 'Employee removed' }), severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: t('cases.failedDelete', { defaultValue: 'Failed to remove' }), severity:'error' }); } }}>{t('app.remove', { defaultValue: 'Remove' })}</Button>}</ListItem>))}
               </List>
             </CardContent></Card>}
 
@@ -1162,9 +1162,9 @@ export default function CaseDetailsPage() {
               await api.put(`/Files/${editingFile.id}`, { Code: editingFile.code });
               setEditFileOpen(false);
               setEditingFile(null);
-              setSnackbar({ open:true, message: t('fileUpdated') ?? 'File updated', severity:'success' });
+              setSnackbar({ open:true, message: t('cases.fileUpdated', { defaultValue: 'File updated' }), severity:'success' });
               await load();
-            }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update file', severity:'error' }); }
+            }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedUpdate', { defaultValue: 'Failed to update case' }), severity:'error' }); }
           }}>{t('app.save')}</Button>
         </DialogActions>
       </Dialog>

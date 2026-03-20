@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
@@ -11,10 +14,12 @@ namespace LawyerSys.Controllers;
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public CustomersController(ICustomerService customerService)
+    public CustomersController(ICustomerService customerService, IStringLocalizer<SharedResource> localizer)
     {
         _customerService = customerService;
+        _localizer = localizer;
     }
 
     // GET: api/customers
@@ -23,7 +28,8 @@ public class CustomersController : ControllerBase
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _customerService.GetCustomersAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _customerService.GetCustomersAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 
@@ -36,7 +42,7 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<CustomerDto>> GetCustomer(int id)
     {
         var dto = await _customerService.GetCustomerAsync(id);
-        if (dto == null) return NotFound(new { message = "Customer not found" });
+        if (dto == null) return this.EntityNotFound<CustomerDto>(_localizer, "Customer");
         return Ok(dto);
     }
 
@@ -45,7 +51,7 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<CustomerProfileDto>> GetCustomerProfile(int id)
     {
         var dto = await _customerService.GetCustomerProfileAsync(id);
-        if (dto == null) return NotFound(new { message = "Customer not found" });
+        if (dto == null) return this.EntityNotFound<CustomerProfileDto>(_localizer, "Customer");
         return Ok(dto);
     }
 
@@ -137,7 +143,7 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> DeleteCustomer(int id)
     {
         var ok = await _customerService.DeleteCustomerAsync(id);
-        if (!ok) return NotFound(new { message = "Customer not found" });
-        return Ok(new { message = "Customer deleted" });
+        if (!ok) return this.EntityNotFound(_localizer, "Customer");
+        return Ok(new { message = _localizer["CustomerDeleted"].Value });
     }
 }

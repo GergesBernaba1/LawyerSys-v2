@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 
 namespace LawyerSys.Controllers;
@@ -11,19 +14,21 @@ namespace LawyerSys.Controllers;
 public class EmployeesController : ControllerBase
 {
     private readonly IEmployeeService _employeeService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public EmployeesController(IEmployeeService employeeService)
+    public EmployeesController(IEmployeeService employeeService, IStringLocalizer<SharedResource> localizer)
     {
         _employeeService = employeeService;
+        _localizer = localizer;
     }
 
-    // GET: api/employees
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployees([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
         if (page.HasValue && pageSize.HasValue)
         {
-            var paged = await _employeeService.GetEmployeesAsync(page.Value, pageSize.Value, search);
+            var safePage = Math.Max(1, page.Value);
+            var paged = await _employeeService.GetEmployeesAsync(safePage, pageSize.Value, search);
             return Ok(paged);
         }
 
@@ -31,16 +36,14 @@ public class EmployeesController : ControllerBase
         return Ok(dtos);
     }
 
-    // GET: api/employees/{id}
     [HttpGet("{id}")]
     public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
     {
         var dto = await _employeeService.GetEmployeeAsync(id);
-        if (dto == null) return NotFound(new { message = "Employee not found" });
+        if (dto == null) return this.EntityNotFound<EmployeeDto>(_localizer, "Employee");
         return Ok(dto);
     }
 
-    // POST: api/employees
     [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<ActionResult<EmployeeDto>> CreateEmployee([FromBody] CreateEmployeeDto dto)
@@ -59,7 +62,6 @@ public class EmployeesController : ControllerBase
         }
     }
 
-    // POST: api/employees/withuser - Create employee with new user
     [Authorize(Policy = "AdminOnly")]
     [HttpPost("withuser")]
     public async Task<ActionResult<EmployeeDto>> CreateEmployeeWithUser([FromBody] CreateEmployeeWithUserDto dto)
@@ -70,7 +72,7 @@ public class EmployeesController : ControllerBase
         try
         {
             var (employee, tempCredentials) = await _employeeService.CreateEmployeeWithUserAsync(dto);
-            return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, new { employee = employee, tempCredentials = new { userName = tempCredentials.UserName, password = tempCredentials.Password } });
+            return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, new { employee, tempCredentials = new { userName = tempCredentials.UserName, password = tempCredentials.Password } });
         }
         catch (ArgumentException ex)
         {
@@ -82,7 +84,6 @@ public class EmployeesController : ControllerBase
         }
     }
 
-    // PUT: api/employees/{id}
     [Authorize(Policy = "AdminOnly")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEmployee(int id, [FromBody] UpdateEmployeeDto dto)
@@ -98,13 +99,12 @@ public class EmployeesController : ControllerBase
         }
     }
 
-    // DELETE: api/employees/{id}
     [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEmployee(int id)
     {
         var ok = await _employeeService.DeleteEmployeeAsync(id);
-        if (!ok) return NotFound(new { message = "Employee not found" });
-        return Ok(new { message = "Employee deleted" });
+        if (!ok) return this.EntityNotFound(_localizer, "Employee");
+        return Ok(new { message = _localizer["EmployeeDeleted"].Value });
     }
 }

@@ -1,8 +1,10 @@
+using LawyerSys.Resources;
 using LawyerSys.Services.Subscriptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Globalization;
 
 namespace LawyerSys.Controllers;
@@ -16,15 +18,18 @@ public class TenantSubscriptionsController : ControllerBase
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITenantSubscriptionService _tenantSubscriptionService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public TenantSubscriptionsController(
         ApplicationDbContext applicationDbContext,
         UserManager<ApplicationUser> userManager,
-        ITenantSubscriptionService tenantSubscriptionService)
+        ITenantSubscriptionService tenantSubscriptionService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _applicationDbContext = applicationDbContext;
         _userManager = userManager;
         _tenantSubscriptionService = tenantSubscriptionService;
+        _localizer = localizer;
     }
 
     [HttpGet("current")]
@@ -33,12 +38,12 @@ public class TenantSubscriptionsController : ControllerBase
         var currentUser = await GetCurrentUserAsync();
         if (currentUser == null)
         {
-            return Unauthorized(new { message = "User not found" });
+            return Unauthorized(new { message = _localizer["UserNotFound"].Value });
         }
 
         var payload = await BuildTenantSubscriptionPayloadAsync(currentUser.TenantId, limitTransactions: 20);
         return payload == null
-            ? NotFound(new { message = "Subscription not found" })
+            ? NotFound(new { message = _localizer["SubscriptionNotFound"].Value })
             : Ok(payload);
     }
 
@@ -54,7 +59,7 @@ public class TenantSubscriptionsController : ControllerBase
         var currentUser = await GetCurrentUserAsync();
         if (currentUser == null)
         {
-            return Unauthorized(new { message = "User not found" });
+            return Unauthorized(new { message = _localizer["UserNotFound"].Value });
         }
 
         try
@@ -80,7 +85,7 @@ public class TenantSubscriptionsController : ControllerBase
 
         var payload = await BuildTenantSubscriptionPayloadAsync(tenantId, limitTransactions: 50);
         return payload == null
-            ? NotFound(new { message = "Tenant not found" })
+            ? NotFound(new { message = _localizer["TenantNotFound"].Value })
             : Ok(payload);
     }
 
@@ -101,12 +106,12 @@ public class TenantSubscriptionsController : ControllerBase
 
             if (tenant == null)
             {
-                return NotFound(new { message = "Tenant not found" });
+                return NotFound(new { message = _localizer["TenantNotFound"].Value });
             }
 
             if (string.Equals(tenant.Name?.Trim(), DefaultFirmName, StringComparison.OrdinalIgnoreCase))
             {
-                return BadRequest(new { message = "Default Firm does not use subscriptions." });
+                return BadRequest(new { message = _localizer["DefaultFirmNoSubscriptions"].Value });
             }
 
             var existingSubscription = await _tenantSubscriptionService.GetCurrentSubscriptionAsync(tenantId);
@@ -121,7 +126,7 @@ public class TenantSubscriptionsController : ControllerBase
 
             var payload = await BuildTenantSubscriptionPayloadAsync(tenantId, limitTransactions: 50);
             return payload == null
-                ? NotFound(new { message = "Tenant not found" })
+                ? NotFound(new { message = _localizer["TenantNotFound"].Value })
                 : Ok(payload);
         }
         catch (InvalidOperationException ex)
@@ -236,7 +241,7 @@ public class TenantSubscriptionsController : ControllerBase
         try
         {
             await _tenantSubscriptionService.MarkTransactionPaidAsync(id, request?.Reference, request?.Notes);
-            return Ok(new { message = "Transaction marked as paid" });
+            return Ok(new { message = _localizer["TransactionMarkedPaid"].Value });
         }
         catch (InvalidOperationException ex)
         {
@@ -256,7 +261,7 @@ public class TenantSubscriptionsController : ControllerBase
         try
         {
             await _tenantSubscriptionService.MarkTransactionCancelledAsync(id, request?.Notes);
-            return Ok(new { message = "Transaction cancelled" });
+            return Ok(new { message = _localizer["TransactionCancelled"].Value });
         }
         catch (InvalidOperationException ex)
         {

@@ -1,9 +1,11 @@
 using LawyerSys.Data;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services.Reporting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +15,12 @@ namespace LawyerSys.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ReportsController(LegacyDbContext context)
+    public ReportsController(LegacyDbContext context, IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
 
     [HttpGet("financial-summary")]
@@ -158,7 +162,7 @@ public class ReportsController : ControllerBase
 
         if (customer is null)
         {
-            return NotFound(new { message = "Customer not found" });
+            return NotFound(new { message = _localizer["CustomerNotFound"].Value });
         }
 
         var payments = await _context.Billing_Pays

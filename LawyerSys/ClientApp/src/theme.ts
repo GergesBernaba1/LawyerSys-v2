@@ -16,7 +16,7 @@ const base = {
       contrastText: '#ffffff',
     },
     background: {
-      default: '#f3f6fb',
+      default: '#eef4fa',
       paper: '#ffffff',
     },
     error: {
@@ -97,7 +97,7 @@ const base = {
     },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 18,
   },
   shadows: [
     'none',
@@ -113,10 +113,10 @@ const base = {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
-          padding: '8px 16px',
+          borderRadius: 14,
+          padding: '10px 18px',
           boxShadow: 'none',
-          fontWeight: 600,
+          fontWeight: 700,
           '&:hover': {
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
           },
@@ -132,12 +132,12 @@ const base = {
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
-          borderRadius: 16,
-          border: '1px solid #e2e8f0',
+          boxShadow: '0 18px 40px -30px rgba(15, 23, 42, 0.3)',
+          borderRadius: 22,
+          border: '1px solid rgba(20, 52, 90, 0.1)',
           '&:hover': {
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-            borderColor: '#cbd5e1',
+            boxShadow: '0 26px 52px -34px rgba(15, 23, 42, 0.34)',
+            borderColor: 'rgba(20, 52, 90, 0.18)',
           },
           transition: 'all 0.2s ease-in-out',
         },
@@ -146,11 +146,11 @@ const base = {
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 18,
           backgroundImage: 'none',
         },
         elevation1: {
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 18px 40px -30px rgba(15, 23, 42, 0.28)',
         },
       },
     },
@@ -158,13 +158,13 @@ const base = {
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 10,
-            backgroundColor: '#ffffff',
+            borderRadius: 14,
+            backgroundColor: 'rgba(255,255,255,0.92)',
             '& fieldset': {
-              borderColor: '#e2e8f0',
+              borderColor: 'rgba(20, 52, 90, 0.12)',
             },
             '&:hover fieldset': {
-              borderColor: '#cbd5e1',
+              borderColor: 'rgba(20, 52, 90, 0.2)',
             },
             '&.Mui-focused fieldset': {
               borderWidth: '2px',
@@ -190,43 +190,44 @@ const base = {
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          borderRight: '1px solid #e2e8f0',
-          borderLeft: '1px solid #e2e8f0',
-          backgroundColor: '#ffffff',
+          borderRight: '1px solid rgba(20, 52, 90, 0.08)',
+          borderLeft: '1px solid rgba(20, 52, 90, 0.08)',
+          background:
+            'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,250,252,0.98) 100%)',
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(8px)',
+          backgroundColor: 'rgba(255, 255, 255, 0.82)',
+          backdropFilter: 'blur(16px)',
           color: '#0f172a',
           boxShadow: 'none',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid rgba(20, 52, 90, 0.08)',
         },
       },
     },
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
-          margin: '4px 12px',
-          padding: '10px 16px',
+          borderRadius: 14,
+          margin: '5px 12px',
+          padding: '11px 16px',
           color: '#64748b',
           '&.Mui-selected': {
-            backgroundColor: '#f1f5f9',
+            background: 'linear-gradient(135deg, rgba(20, 52, 90, 0.1) 0%, rgba(45, 106, 135, 0.12) 100%)',
             color: '#14345a',
             fontWeight: 600,
             '& .MuiListItemIcon-root': {
               color: '#14345a',
             },
             '&:hover': {
-              backgroundColor: '#e2e8f0',
+              backgroundColor: 'rgba(20, 52, 90, 0.12)',
             },
           },
           '&:hover': {
-            backgroundColor: '#f8fafc',
+            backgroundColor: '#f6f9fc',
             color: '#0f172a',
           },
         },

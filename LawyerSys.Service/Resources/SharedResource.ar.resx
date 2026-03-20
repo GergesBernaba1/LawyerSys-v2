@@ -55,6 +55,27 @@
   <data name="TenantInactiveMessage" xml:space="preserve">
     <value>الجهة الخاصة بك غير مفعلة. يرجى التواصل مع مسؤول النظام.</value>
   </data>
+  <data name="Calendar_Hearing" xml:space="preserve">
+    <value>جلسة</value>
+  </data>
+  <data name="Calendar_HearingTitle" xml:space="preserve">
+    <value>جلسة - القاضي {0}</value>
+  </data>
+  <data name="Calendar_HearingReminder" xml:space="preserve">
+    <value>تذكير جلسة</value>
+  </data>
+  <data name="Calendar_HearingReminderTitle" xml:space="preserve">
+    <value>تذكير جلسة</value>
+  </data>
+  <data name="Calendar_Task" xml:space="preserve">
+    <value>مهمة</value>
+  </data>
+  <data name="Calendar_TaskReminder" xml:space="preserve">
+    <value>تذكير مهمة</value>
+  </data>
+  <data name="Calendar_TaskReminderTitle" xml:space="preserve">
+    <value>تذكير مهمة - {0}</value>
+  </data>
   <data name="SubscriptionPackageRequiredMessage" xml:space="preserve">
     <value>يرجى اختيار باقة الاشتراك.</value>
   </data>

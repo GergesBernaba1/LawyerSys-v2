@@ -1,13 +1,42 @@
 import { test, expect } from '@playwright/test';
+import { fakeToken } from './helpers';
 
-function fakeToken(payload: Record<string, any>) {
-  const header = { alg: 'HS256', typ: 'JWT' };
-  const b64 = (obj: any) => Buffer.from(JSON.stringify(obj)).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  return `${b64(header)}.${b64(payload)}.signature`;
-}
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('i18nextLng', 'en');
+  });
+});
 
 test('login flow works with API token response', async ({ page }) => {
   const token = fakeToken({ role: 'Admin', unique_name: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 });
+
+  await page.route('**/api/Account/me', route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ tenantId: 1, tenantName: 'Office' })
+    });
+  });
+
+  await page.route('**/api/Dashboard/analytics', route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        totals: { cases: 0, customers: 0, employees: 0, files: 0 },
+        trends: { casesChangePercent: 0, revenueThisMonth: 0, revenueChangePercent: 0 },
+        alerts: { upcomingHearings: 0, overdueTasks: 0 }
+      })
+    });
+  });
+
+  await page.route('**/api/Cases?page=1&pageSize=5', route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [] })
+    });
+  });
 
   await page.route('**/api/Account/login', route => {
     route.fulfill({
@@ -18,25 +47,33 @@ test('login flow works with API token response', async ({ page }) => {
   });
 
   await page.goto('/login');
-  await page.getByLabel(/username/i).fill('admin');
-  await page.getByLabel(/password/i).fill('Admin@1234');
+  await expect(page.locator('#userName')).toBeVisible({ timeout: 30000 });
+  await page.locator('#userName').fill('admin');
+  await page.locator('#password').fill('Admin@1234');
   await page.getByRole('button', { name: /login|sign in/i }).click();
 
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
 });
 
-test('case creation flow and billing pages are functional', async ({ page }) => {
+test('case creation flow submits correct POST and shows new case', async ({ page }) => {
   const token = fakeToken({ role: 'Admin', unique_name: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 });
+  // nosec: test-only localStorage seeding via Playwright addInitScript, not reachable by untrusted input
   await page.addInitScript((t) => localStorage.setItem('lawyersys-token', t), token);
+  await page.route('**/api/Account/me', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ tenantId: 1, tenantName: 'Office' }) }));
+  await page.route('**/api/Dashboard/analytics', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ totals: { cases: 0, customers: 0, employees: 0, files: 0 }, trends: { casesChangePercent: 0, revenueThisMonth: 0, revenueChangePercent: 0 }, alerts: { upcomingHearings: 0, overdueTasks: 0 } }) }));
+  let createdCaseRequest: any = null;
+  let cases: any[] = [];
 
-  let caseCreated = false;
-  await page.route('**/api/Cases**', route => {
-    if (route.request().method() === 'POST') {
-      caseCreated = true;
-      return route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ id: 1, code: 1001, notes: 'e2e' }) });
+  await page.route('**/api/Cases*', async route => {
+    const request = route.request();
+    if (request.method() === 'POST') {
+      createdCaseRequest = request;
+      const newCase = { id: 1001, code: 1234, invitionsStatment: '', invitionType: '', invitionDate: '', totalAmount: 0, notes: 'Test case notes', status: 0 };
+      cases = [newCase];
+      await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify(newCase) });
+      return;
     }
-
-    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [], totalCount: 0, page: 1, pageSize: 10 }) });
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: cases, totalCount: cases.length, page: 1, pageSize: 10 }) });
   });
 
   await page.route('**/api/Courts**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) }));
@@ -45,12 +82,31 @@ test('case creation flow and billing pages are functional', async ({ page }) => 
   await page.route('**/api/cases/1001/**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) }));
 
   await page.goto('/cases');
-  await page.getByRole('button', { name: /new case/i }).click();
-  await page.getByLabel(/code/i).first().fill('1001');
-  await page.getByLabel(/notes/i).last().fill('e2e case');
-  await page.getByRole('button', { name: /create/i }).last().click();
-  await expect.poll(() => caseCreated).toBeTruthy();
+  await expect(page.getByText(/Cases Management|إدارة القضايا/i)).toBeVisible({ timeout: 30000 });
 
+  await page.getByRole('button', { name: /new case|create first/i }).click();
+  await expect(page.getByRole('heading', { name: /create new/i })).toBeVisible({ timeout: 15000 });
+  await page.getByLabel('Code').fill('1234');
+  await page.getByLabel(/Notes|notes/i).fill('Test case notes');
+  await page.getByRole('button', { name: /create/i }).first().click();
+
+  await expect(createdCaseRequest).not.toBeNull();
+  expect(createdCaseRequest.method()).toBe('POST');
+  expect(createdCaseRequest.url()).toContain('/api/Cases');
+
+  const payload = JSON.parse(createdCaseRequest.postData() ?? '{}');
+  expect(payload.code || payload.CaseCode || payload.name).toBeDefined();
+  expect(payload.code || payload.CaseCode || payload.name).toBe('1234');
+  expect(payload.notes).toBe('Test case notes');
+
+  await expect(page.getByText('1234')).toBeVisible({ timeout: 30000 });
+});
+
+test('billing page loads without errors', async ({ page }) => {
+  const token = fakeToken({ role: 'Admin', unique_name: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 });
+  // nosec: test-only localStorage seeding via Playwright addInitScript, not reachable by untrusted input
+  await page.addInitScript((t) => localStorage.setItem('lawyersys-token', t), token);
+  await page.route('**/api/Account/me', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ tenantId: 1, tenantName: 'Office' }) }));
   await page.route('**/api/Billing/payments**', route => {
     if (route.request().method() === 'POST') {
       return route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ id: 1, amount: 10 }) });
@@ -61,12 +117,15 @@ test('case creation flow and billing pages are functional', async ({ page }) => 
   await page.route('**/api/Billing/summary**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ totalPayments: 0, totalReceipts: 0, balance: 0 }) }));
 
   await page.goto('/billing');
-  await expect(page.getByText(/billing/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /billing/i }).first()).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(/error|something went wrong|unhandled/i);
 });
 
 test('CRUD pages load without API errors (smoke)', async ({ page }) => {
   const token = fakeToken({ role: 'Admin', unique_name: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 });
+  // nosec: test-only localStorage seeding via Playwright addInitScript, not reachable by untrusted input
   await page.addInitScript((t) => localStorage.setItem('lawyersys-token', t), token);
+  await page.route('**/api/Account/me', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ tenantId: 1, tenantName: 'Office' }) }));
 
   await page.route('**/api/**', route => {
     const method = route.request().method();
@@ -80,6 +139,7 @@ test('CRUD pages load without API errors (smoke)', async ({ page }) => {
 
   for (const path of pages) {
     await page.goto(path);
-    await expect(page.getByRole('heading').first()).toBeVisible();
+    await expect(page.getByRole('heading').first()).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('body')).not.toContainText(/error|something went wrong|unhandled/i);
   }
 });

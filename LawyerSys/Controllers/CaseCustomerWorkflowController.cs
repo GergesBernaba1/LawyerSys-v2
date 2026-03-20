@@ -1,10 +1,12 @@
 using LawyerSys.Data;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -16,15 +18,18 @@ public class CaseCustomerWorkflowController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IUserContext _userContext;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public CaseCustomerWorkflowController(
         LegacyDbContext context,
         IUserContext userContext,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _userContext = userContext;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
@@ -42,13 +47,13 @@ public class CaseCustomerWorkflowController : ControllerBase
 
         if (customer == null)
         {
-            return BadRequest(new { message = "Customer not found." });
+            return BadRequest(new { message = _localizer["CustomerNotFound"].Value });
         }
 
         var isLinked = await _context.Custmors_Cases.AnyAsync(item => item.Case_Id == caseCode && item.Custmors_Id == request.CustomerId);
         if (!isLinked)
         {
-            return BadRequest(new { message = "Customer is not linked to this case." });
+            return BadRequest(new { message = _localizer["CustomerNotLinkedToCase"].Value });
         }
 
         var entity = new LawyerSys.Data.ScaffoldedModels.CustomerRequestedDocument
@@ -95,7 +100,7 @@ public class CaseCustomerWorkflowController : ControllerBase
         var entity = await _context.CustomerRequestedDocuments.SingleOrDefaultAsync(item => item.Id == requestId && item.CaseCode == caseCode);
         if (entity == null)
         {
-            return NotFound(new { message = "Requested document not found." });
+            return NotFound(new { message = _localizer["RequestedDocumentNotFound"].Value });
         }
 
         entity.Status = request.Status;
@@ -120,7 +125,7 @@ public class CaseCustomerWorkflowController : ControllerBase
         var proof = await _context.CustomerPaymentProofs.SingleOrDefaultAsync(item => item.Id == proofId && item.CaseCode == caseCode);
         if (proof == null)
         {
-            return NotFound(new { message = "Payment proof not found." });
+            return NotFound(new { message = _localizer["PaymentProofNotFound"].Value });
         }
 
         proof.Status = request.Status;

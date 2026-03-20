@@ -1,0 +1,53 @@
+﻿# LawyerSys-v2 Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2026-03-20
+
+## Active Technologies
+- C# 12 on .NET 8, TypeScript 5.x for the existing client context + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, xUnit, Moq, Next.js 14.2, React 18 (002-service-layer-refactor)
+- PostgreSQL via `ApplicationDbContext` and `LegacyDbContext` in `LawyerSys.Domain`/`LawyerSys.Infrastructure` (002-service-layer-refactor)
+
+- TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming + Next.js, React, Material UI, Emotion, i18next, axios (001-clientapp-ui-refresh)
+
+## Project Structure
+
+```text
+LawyerSys/
+LawyerSys.Domain/
+LawyerSys.Infrastructure/
+LawyerSys.Service/
+specs/
+tests/
+```
+
+## Commands
+
+- dotnet test
+- npm --prefix LawyerSys/ClientApp test
+- npm --prefix LawyerSys/ClientApp run lint
+
+## Code Style
+
+TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming: Follow standard conventions
+
+## Recent Changes
+- 002-service-layer-refactor: Added C# 12 on .NET 8, TypeScript 5.x for the existing client context + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, xUnit, Moq, Next.js 14.2, React 18
+
+- 001-clientapp-ui-refresh: Added TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming + Next.js, React, Material UI, Emotion, i18next, axios
+
+<!-- MANUAL ADDITIONS START -->
+## Project Constitution
+
+1. Keep `AGENTS.md` as the single source of truth for workspace policy notes and team conventions.
+2. Update this document when development workflows or agent responsibilities change (e.g., changed from main->feature branch, updated required tech stack, or new linting / security requirements).
+3. Include active branch and team-specific instructions explicitly as bullet points under `## Recent Changes` for clarity.
+4. For code reviews, include both the app policy and expected style in PR descriptions.
+5. For agent-specific commands, include references to built-in skills and required file patterns.
+
+## Custom Agent Instructions
+
+- Agent name: GitHub Copilot
+- Model: Raptor mini (Preview)
+- Behavior: concise, factual, no self-harm or abusive content.
+- Always answer with short, structured markdown.
+
+<!-- MANUAL ADDITIONS END -->

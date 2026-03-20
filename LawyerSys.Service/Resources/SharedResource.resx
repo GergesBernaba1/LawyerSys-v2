@@ -55,6 +55,27 @@
   <data name="TenantInactiveMessage" xml:space="preserve">
     <value>Your tenant is inactive. Contact the system administrator.</value>
   </data>
+  <data name="Calendar_Hearing" xml:space="preserve">
+    <value>Hearing</value>
+  </data>
+  <data name="Calendar_HearingTitle" xml:space="preserve">
+    <value>Hearing - Judge {0}</value>
+  </data>
+  <data name="Calendar_HearingReminder" xml:space="preserve">
+    <value>Hearing Reminder</value>
+  </data>
+  <data name="Calendar_HearingReminderTitle" xml:space="preserve">
+    <value>Hearing reminder</value>
+  </data>
+  <data name="Calendar_Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="Calendar_TaskReminder" xml:space="preserve">
+    <value>Task Reminder</value>
+  </data>
+  <data name="Calendar_TaskReminderTitle" xml:space="preserve">
+    <value>Task reminder - {0}</value>
+  </data>
   <data name="SubscriptionPackageRequiredMessage" xml:space="preserve">
     <value>Please select a subscription package.</value>
   </data>

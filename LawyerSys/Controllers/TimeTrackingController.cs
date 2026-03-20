@@ -1,10 +1,12 @@
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -16,15 +18,18 @@ public class TimeTrackingController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IUserContext _userContext;
     private readonly IEmployeeAccessService _employeeAccessService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public TimeTrackingController(
         LegacyDbContext context,
         IUserContext userContext,
-        IEmployeeAccessService employeeAccessService)
+        IEmployeeAccessService employeeAccessService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _userContext = userContext;
         _employeeAccessService = employeeAccessService;
+        _localizer = localizer;
     }
 
     [HttpGet]
@@ -90,9 +95,9 @@ public class TimeTrackingController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var item = await _context.TimeTrackingEntries.FirstOrDefaultAsync(x => x.Id == id);
-        if (item == null) return NotFound(new { message = "Time entry not found" });
+        if (item == null) return NotFound(new { message = _localizer["TimeEntryNotFound"].Value });
         if (!item.Status.Equals("Running", StringComparison.OrdinalIgnoreCase))
-            return BadRequest(new { message = "Time entry already stopped" });
+            return BadRequest(new { message = _localizer["TimeEntryAlreadyStopped"].Value });
         if (!await CanAccessEntryAsync(item))
             return Forbid();
 
@@ -115,7 +120,7 @@ public class TimeTrackingController : ControllerBase
     [HttpGet("suggestions")]
     public async Task<ActionResult<IEnumerable<TimeTrackingSuggestionDto>>> GetSuggestions([FromQuery] decimal hourlyRate = 0)
     {
-        if (hourlyRate < 0) return BadRequest(new { message = "hourlyRate must be non-negative" });
+        if (hourlyRate < 0) return BadRequest(new { message = _localizer["HourlyRateNonNegative"].Value });
 
         var query = _context.TimeTrackingEntries
             .Where(x => x.Status == "Stopped");

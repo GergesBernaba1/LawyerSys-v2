@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 using LawyerSys.Services;
 using LawyerSys.Services.Notifications;
 
@@ -17,23 +20,25 @@ public class JudicialDocumentsController : ControllerBase
     private readonly LegacyDbContext _context;
     private readonly IEmployeeAccessService _employeeAccessService;
     private readonly IInAppNotificationService _inAppNotificationService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
     public JudicialDocumentsController(
         LegacyDbContext context,
         IEmployeeAccessService employeeAccessService,
-        IInAppNotificationService inAppNotificationService)
+        IInAppNotificationService inAppNotificationService,
+        IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
         _employeeAccessService = employeeAccessService;
         _inAppNotificationService = inAppNotificationService;
+        _localizer = localizer;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<JudicialDocumentDto>>> GetDocuments([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
     {
         IQueryable<Judicial_Document> query = _context.Judicial_Documents
-            .Include(d => d.Customers)
-                .ThenInclude(c => c.Users);
+            .Include(d => d.Customers).ThenInclude(c => c.Users);
 
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
         {
@@ -46,26 +51,17 @@ public class JudicialDocumentsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(search))
         {
             var s = search.Trim();
-            query = query.Where(d => d.Doc_Type.Contains(s) || d.Doc_Num.ToString().Contains(s) || d.Doc_Details.Contains(s) || (d.Customers != null && d.Customers.Users != null && d.Customers.Users.Full_Name.Contains(s)));
+            query = query.Where(d => d.Doc_Type.Contains(s) || d.Doc_Num.ToString().Contains(s) || d.Doc_Details.Contains(s)
+                || (d.Customers != null && d.Customers.Users != null && d.Customers.Users.Full_Name.Contains(s)));
         }
 
-        // If pagination params provided, return paged response (backward-compatible)
         if (page.HasValue && pageSize.HasValue)
         {
             var p = Math.Max(1, page.Value);
             var ps = Math.Clamp(pageSize.Value, 1, 200);
             var total = await query.CountAsync();
             var items = await query.OrderBy(d => d.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-
-            var dtoItems = items.Select(MapToDto);
-            var paged = new PagedResult<JudicialDocumentDto>
-            {
-                Items = dtoItems,
-                TotalCount = total,
-                Page = p,
-                PageSize = ps
-            };
-            return Ok(paged);
+            return Ok(new PagedResult<JudicialDocumentDto> { Items = items.Select(MapToDto), TotalCount = total, Page = p, PageSize = ps });
         }
 
         var list = await query.OrderBy(d => d.Id).ToListAsync();
@@ -76,12 +72,11 @@ public class JudicialDocumentsController : ControllerBase
     public async Task<ActionResult<JudicialDocumentDto>> GetDocument(int id)
     {
         var doc = await _context.Judicial_Documents
-            .Include(d => d.Customers)
-                .ThenInclude(c => c.Users)
+            .Include(d => d.Customers).ThenInclude(c => c.Users)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (doc == null)
-            return NotFound(new { message = "Document not found" });
+            return this.EntityNotFound<JudicialDocumentDto>(_localizer, "Document");
         if (!await CanAccessDocumentAsync(doc))
             return Forbid();
 
@@ -91,18 +86,11 @@ public class JudicialDocumentsController : ControllerBase
     [HttpGet("bycustomer/{customerId}")]
     public async Task<ActionResult<IEnumerable<JudicialDocumentDto>>> GetByCustomer(int customerId)
     {
-        if (!await _employeeAccessService.CanAccessCustomerAsync(customerId))
-        {
-            var isEmployeeOnly = await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync();
-            if (isEmployeeOnly)
-            {
-                return Forbid();
-            }
-        }
+        if (!await _employeeAccessService.CanAccessCustomerAsync(customerId) && await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
+            return Forbid();
 
         var docs = await _context.Judicial_Documents
-            .Include(d => d.Customers)
-                .ThenInclude(c => c.Users)
+            .Include(d => d.Customers).ThenInclude(c => c.Users)
             .Where(d => d.Customers_Id == customerId)
             .ToListAsync();
 
@@ -118,7 +106,7 @@ public class JudicialDocumentsController : ControllerBase
 
         var customer = await _context.Customers.FindAsync(dto.CustomerId);
         if (customer == null)
-            return BadRequest(new { message = "Customer not found" });
+            return BadRequest(new { message = _localizer["CustomerNotFound"].Value });
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync() && !await _employeeAccessService.CanAccessCustomerAsync(dto.CustomerId))
             return Forbid();
 
@@ -145,13 +133,7 @@ public class JudicialDocumentsController : ControllerBase
             .ToListAsync();
 
         foreach (var caseCode in caseCodes)
-        {
-            await _inAppNotificationService.NotifyCaseDocumentAddedAsync(
-                caseCode,
-                doc.Id,
-                doc.Doc_Type,
-                HttpContext.RequestAborted);
-        }
+            await _inAppNotificationService.NotifyCaseDocumentAddedAsync(caseCode, doc.Id, doc.Doc_Type, HttpContext.RequestAborted);
 
         return CreatedAtAction(nameof(GetDocument), new { id = doc.Id }, MapToDto(doc));
     }
@@ -161,12 +143,11 @@ public class JudicialDocumentsController : ControllerBase
     public async Task<IActionResult> UpdateDocument(int id, [FromBody] UpdateJudicialDocumentDto dto)
     {
         var doc = await _context.Judicial_Documents
-            .Include(d => d.Customers)
-                .ThenInclude(c => c.Users)
+            .Include(d => d.Customers).ThenInclude(c => c.Users)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (doc == null)
-            return NotFound(new { message = "Document not found" });
+            return this.EntityNotFound(_localizer, "Document");
         if (!await CanAccessDocumentAsync(doc))
             return Forbid();
 
@@ -186,13 +167,13 @@ public class JudicialDocumentsController : ControllerBase
     {
         var doc = await _context.Judicial_Documents.FindAsync(id);
         if (doc == null)
-            return NotFound(new { message = "Document not found" });
+            return this.EntityNotFound(_localizer, "Document");
         if (!await CanAccessDocumentAsync(doc))
             return Forbid();
 
         _context.Judicial_Documents.Remove(doc);
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Document deleted" });
+        return Ok(new { message = _localizer["DocumentDeleted"].Value });
     }
 
     private static JudicialDocumentDto MapToDto(Judicial_Document d) => new()
@@ -210,10 +191,7 @@ public class JudicialDocumentsController : ControllerBase
     private async Task<bool> CanAccessDocumentAsync(Judicial_Document document)
     {
         if (await _employeeAccessService.IsCurrentUserEmployeeOnlyAsync())
-        {
             return await _employeeAccessService.CanAccessCustomerAsync(document.Customers_Id);
-        }
-
         return true;
     }
 }

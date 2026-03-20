@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Extensions;
+using LawyerSys.Resources;
 
 namespace LawyerSys.Controllers;
 
@@ -13,10 +16,12 @@ namespace LawyerSys.Controllers;
 public class ContendersController : ControllerBase
 {
     private readonly LegacyDbContext _context;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ContendersController(LegacyDbContext context)
+    public ContendersController(LegacyDbContext context, IStringLocalizer<SharedResource> localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
 
     [HttpGet]
@@ -36,13 +41,7 @@ public class ContendersController : ControllerBase
             var ps = Math.Clamp(pageSize.Value, 1, 200);
             var total = await query.CountAsync();
             var items = await query.OrderBy(c => c.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<ContenderDto>
-            {
-                Items = items.Select(MapToDto),
-                TotalCount = total,
-                Page = p,
-                PageSize = ps
-            });
+            return Ok(new PagedResult<ContenderDto> { Items = items.Select(MapToDto), TotalCount = total, Page = p, PageSize = ps });
         }
 
         var contenders = await query.OrderBy(c => c.Id).ToListAsync();
@@ -54,8 +53,7 @@ public class ContendersController : ControllerBase
     {
         var contender = await _context.Contenders.FindAsync(id);
         if (contender == null)
-            return NotFound(new { message = "Contender not found" });
-
+            return this.EntityNotFound<ContenderDto>(_localizer, "Contender");
         return Ok(MapToDto(contender));
     }
 
@@ -76,7 +74,6 @@ public class ContendersController : ControllerBase
 
         _context.Contenders.Add(contender);
         await _context.SaveChangesAsync();
-
         return CreatedAtAction(nameof(GetContender), new { id = contender.Id }, MapToDto(contender));
     }
 
@@ -86,7 +83,7 @@ public class ContendersController : ControllerBase
     {
         var contender = await _context.Contenders.FindAsync(id);
         if (contender == null)
-            return NotFound(new { message = "Contender not found" });
+            return this.EntityNotFound(_localizer, "Contender");
 
         if (dto.FullName != null) contender.Full_Name = dto.FullName;
         if (dto.SSN != null && int.TryParse(dto.SSN, out var ssn)) contender.SSN = ssn;
@@ -103,11 +100,11 @@ public class ContendersController : ControllerBase
     {
         var contender = await _context.Contenders.FindAsync(id);
         if (contender == null)
-            return NotFound(new { message = "Contender not found" });
+            return this.EntityNotFound(_localizer, "Contender");
 
         _context.Contenders.Remove(contender);
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Contender deleted" });
+        return Ok(new { message = _localizer["ContenderDeleted"].Value });
     }
 
     private static ContenderDto MapToDto(Contender c) => new()

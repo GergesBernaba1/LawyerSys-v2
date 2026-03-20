@@ -305,7 +305,7 @@ export default function LandingPage() {
         </Button>
       }
     >
-      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 }, animation: "fade-in-up 0.45s ease-out" }}>
         {error && (
           <Alert severity="warning" sx={{ mb: 3 }}>
             {error}
@@ -350,7 +350,7 @@ export default function LandingPage() {
               elevation={0}
               sx={{
                 p: { xs: 2.5, md: 4 },
-                borderRadius: 6,
+                borderRadius: 7,
                 minHeight: { xs: 360, md: 400 },
                 display: "flex",
                 flexDirection: "column",
@@ -424,7 +424,7 @@ export default function LandingPage() {
               </Typography>
             </Box>
 
-            <Stack spacing={2.25} sx={{ mt: 3, position: "relative", zIndex: 1 }}>
+              <Stack spacing={2.25} sx={{ mt: 3, position: "relative", zIndex: 1 }}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
                 <Button
                   size="large"
@@ -477,7 +477,7 @@ export default function LandingPage() {
                     elevation={0}
                     sx={{
                       p: 1.4,
-                      borderRadius: 3,
+                      borderRadius: 4,
                       border: "1px solid",
                       borderColor: alpha("#ffffff", 0.12),
                       backgroundColor: alpha("#ffffff", 0.08),
@@ -501,7 +501,7 @@ export default function LandingPage() {
             elevation={0}
             sx={{
               p: { xs: 2.5, md: 3 },
-              borderRadius: 5,
+              borderRadius: 6,
               border: "1px solid",
               borderColor: alpha(theme.palette.primary.main, 0.12),
               background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(241,247,250,0.98) 100%)",
@@ -548,7 +548,7 @@ export default function LandingPage() {
             elevation={0}
             sx={{
               p: { xs: 2.5, md: 3 },
-              borderRadius: 5,
+              borderRadius: 6,
               color: "common.white",
               border: "1px solid",
               borderColor: alpha(theme.palette.primary.main, 0.08),
@@ -607,7 +607,7 @@ export default function LandingPage() {
           sx={{
             mb: 4,
             p: { xs: 2.5, md: 3 },
-            borderRadius: 5,
+            borderRadius: 6,
             border: "1px solid",
             borderColor: alpha(theme.palette.primary.main, 0.1),
             background: "linear-gradient(180deg, rgba(255,255,255,0.84) 0%, rgba(247,250,252,0.96) 100%)",
@@ -681,7 +681,7 @@ export default function LandingPage() {
           sx={{
             mb: 4,
             p: { xs: 2.5, md: 3 },
-            borderRadius: 5,
+            borderRadius: 6,
             border: "1px solid",
             borderColor: alpha(theme.palette.primary.main, 0.1),
             background: "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(243,248,251,0.98) 100%)",
@@ -794,7 +794,7 @@ export default function LandingPage() {
           sx={{
             mb: 4,
             p: { xs: 2.5, md: 3 },
-            borderRadius: 5,
+            borderRadius: 6,
             border: "1px solid",
             borderColor: alpha(theme.palette.primary.main, 0.1),
             background: "linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(246,250,252,0.96) 100%)",

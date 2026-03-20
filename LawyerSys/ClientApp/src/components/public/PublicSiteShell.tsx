@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
   Box,
@@ -39,6 +40,7 @@ export default function PublicSiteShell({
   const theme = useTheme();
   const { t } = useTranslation();
   const isRTL = currentLanguage === "ar";
+  const pathname = usePathname();
 
   const navLinks = [
     { label: t("landing.footer.links.home"), path: "/" },
@@ -54,6 +56,8 @@ export default function PublicSiteShell({
       path: isAuthenticated ? "/dashboard" : data.secondaryButtonUrl || "/login",
     },
   ];
+
+  const isActivePath = (path: string) => pathname === path;
 
   return (
     <Box
@@ -77,6 +81,33 @@ export default function PublicSiteShell({
         }}
       >
         <Container maxWidth="lg">
+          <Stack
+            direction="row"
+            spacing={0.75}
+            alignItems="center"
+            sx={{
+              display: { xs: "flex", md: "none" },
+              overflowX: "auto",
+              py: 1,
+              mb: 0.5,
+            }}
+          >
+            {navLinks.map((link) => (
+              <Button
+                key={`mobile-${link.path}`}
+                variant={isActivePath(link.path) ? "contained" : "text"}
+                onClick={() => onNavigate(link.path)}
+                sx={{
+                  borderRadius: 999,
+                  whiteSpace: "nowrap",
+                  fontWeight: 800,
+                  minWidth: "fit-content",
+                }}
+              >
+                {link.label}
+              </Button>
+            ))}
+          </Stack>
           <Box
             sx={{
               py: 1.5,
@@ -135,6 +166,8 @@ export default function PublicSiteShell({
                     borderRadius: 999,
                     fontWeight: 800,
                     textDecoration: "none",
+                    backgroundColor: isActivePath(link.path) ? alpha(theme.palette.primary.main, 0.12) : "transparent",
+                    color: isActivePath(link.path) ? "primary.main" : "text.primary",
                     "&:hover": {
                       backgroundColor: alpha(theme.palette.primary.main, 0.08),
                     },

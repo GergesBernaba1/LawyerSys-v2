@@ -1,4 +1,4 @@
-﻿{
+{
     "app":  {
                 "title":  "Qadaya",
                 "dashboard":  "Dashboard",
@@ -90,7 +90,11 @@
                 "intake":  "Intake",
                 "notifications":  "Notifications",
                 "tenant":  "Tenant",
-                "selectTenant":  "Select tenant filter"
+                "selectTenant":  "Select tenant filter",
+                "year":  "Year",
+                "month":  "Month",
+                "trend":  "Last 6 Months",
+                "outstanding":  "Outstanding Balances"
             },
     "notifications":  {
                           "empty":  "No notifications yet.",
@@ -255,12 +259,16 @@
                   "invalidCredentials":  "Invalid username or password. Please try again.",
                   "errorOccurred":  "An error occurred. Please try again later.",
                   "forgotPassword":  "Forgot your password?",
+                  "backToSignIn":  "Back to Sign In",
+                  "usernamePlaceholder":  "Enter your username",
                   "noAccount":  "Don\u0027t have an account? Sign up",
                   "requestReset":  "Request Reset",
                   "passwordResetRequested":  "Password reset token issued.",
                   "resetPassword":  "Reset Password",
                   "resetToken":  "Token",
                   "passwordResetSuccess":  "Password updated successfully",
+                  "workspaceTitle":  "A clearer sign-in experience for your legal operations team",
+                  "workspaceSubtitle":  "Sign in to the legal workspace through a cleaner, more structured interface while preserving the current access flow and permissions.",
                   "newPassword":  "New Password",
                   "confirmNewPassword":  "Confirm New Password",
                   "resetEmailSent":  "Reset link sent to your email",
@@ -284,6 +292,8 @@
                      "package":  "Subscription Package",
                      "packageRequired":  "Please select a subscription package",
                      "selectedPackage":  "Selected plan",
+                     "workspaceTitle":  "Create a modern legal workspace for your team",
+                     "workspaceSubtitle":  "The registration flow keeps the same required information and package options, now with clearer sequencing and easier package comparison.",
                      "password":  "Password",
                      "confirmPassword":  "Confirm Password",
                      "createAccount":  "Create Account",
@@ -533,6 +543,7 @@
                       "pleaseSelectUser":  "Please select a user",
                       "employeeCreated":  "Employee created successfully",
                       "employeeUpdated":  "Employee updated successfully",
+                      "add": "Add",
                       "employeeDeleted":  "Employee deleted successfully",
                       "failedLoad":  "Failed to load data",
                       "failedCreate":  "Failed to create employee",
@@ -1579,6 +1590,9 @@
                    "total":  "Total",
                    "new":  "New",
                    "noRecords":  "No records found",
+                   "all":  "All",
+                   "failedLoad":  "Failed to load reports",
+                   "failedExport":  "Failed to export report",
                    "createFirst":  "Create First Record",
                    "created":  "Created successfully",
                    "updated":  "Updated successfully",
