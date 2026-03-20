@@ -247,8 +247,11 @@ export default function RegisterPage() {
                 return (
                   <Paper
                     key={pkg.officeSize}
+                    component="button"
+                    type="button"
                     elevation={0}
                     onClick={() => setSelectedOfficeSize(pkg.officeSize)}
+                    aria-pressed={selected}
                     sx={{
                       p: 2,
                       borderRadius: 3,
@@ -256,6 +259,15 @@ export default function RegisterPage() {
                       borderColor: selected ? 'primary.main' : 'divider',
                       bgcolor: selected ? 'rgba(20, 52, 90, 0.04)' : '#ffffff',
                       cursor: 'pointer',
+                      textAlign: 'left',
+                      '&:hover': {
+                        boxShadow: 3,
+                      },
+                      '&:focus-visible': {
+                        outline: '2px solid',
+                        outlineColor: 'primary.main',
+                        outlineOffset: 2,
+                      },
                     }}
                   >
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>

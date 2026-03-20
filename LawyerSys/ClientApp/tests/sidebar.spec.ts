@@ -1,10 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-function fakeToken(payload: Record<string, any>) {
-  const header = { alg: 'HS256', typ: 'JWT' };
-  const b64 = (obj: any) => Buffer.from(JSON.stringify(obj)).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  return `${b64(header)}.${b64(payload)}.signature`;
-}
+import { fakeToken } from './helpers';
 
 test('sidebar default expanded and toggle works on dashboard shell', async ({ page }) => {
   const token = fakeToken({
@@ -35,7 +30,15 @@ test('sidebar default expanded and toggle works on dashboard shell', async ({ pa
 
   const headerToggle = page.locator('button[aria-label="toggle sidebar"]');
   await expect(headerToggle).toBeVisible();
+
+  // Nav label visible when sidebar is expanded
+  const navLabel = page.getByRole('navigation', { name: 'sidebar navigation' }).getByText('Dashboard');
+  await expect(navLabel).toBeVisible();
+
   await headerToggle.click();
+
+  // Nav label hidden after collapse (ListItemText is unmounted when collapsed)
+  await expect(navLabel).not.toBeVisible();
 
   const saved = await page.evaluate(() => localStorage.getItem('layout.sidebarCollapsed'));
   expect(saved).toBe('true');

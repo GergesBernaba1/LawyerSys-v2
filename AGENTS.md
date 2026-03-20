@@ -9,14 +9,19 @@ Auto-generated from all feature plans. Last updated: 2026-03-20
 ## Project Structure
 
 ```text
-backend/
-frontend/
+LawyerSys/
+LawyerSys.Domain/
+LawyerSys.Infrastructure/
+LawyerSys.Service/
+specs/
 tests/
 ```
 
 ## Commands
 
-npm test; npm run lint
+- dotnet test
+- npm --prefix LawyerSys/ClientApp test
+- npm --prefix LawyerSys/ClientApp run lint
 
 ## Code Style
 
