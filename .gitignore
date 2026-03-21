@@ -268,3 +268,25 @@ test-results/
 # SQL Server files
 *.mdf
 *.ldf
+
+# Flutter / Dart
+MobileApp/.dart_tool/
+MobileApp/.flutter-plugins
+MobileApp/.flutter-plugins-dependencies
+MobileApp/.packages
+MobileApp/.pub-cache/
+MobileApp/.pub/
+MobileApp/build/
+MobileApp/ios/.symlinks/
+MobileApp/ios/Pods/
+MobileApp/ios/Podfile.lock
+MobileApp/android/.gradle/
+MobileApp/android/app/build/
+MobileApp/android/build/
+MobileApp/android/captures/
+MobileApp/lib/generated/
+MobileApp/test/.test_cache/
+*.flutter-plugins
+*.flutter-plugins-dependencies
+*.lock
+pubspec.lock
