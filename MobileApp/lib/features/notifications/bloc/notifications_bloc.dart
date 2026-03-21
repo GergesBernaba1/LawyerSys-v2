@@ -19,7 +19,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     emit(NotificationsLoading());
     try {
       final list = await notificationsRepository.getNotifications();
-      emit(NotificationsLoaded(list));
+      final unread = list.where((n) => !n.isRead).length;
+      emit(NotificationsLoaded(list, unreadCount: unread));
     } catch (e) {
       emit(NotificationsError(e.toString()));
     }
@@ -29,7 +30,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     try {
       await notificationsRepository.addNotification(event.notification);
       final list = await notificationsRepository.getNotifications();
-      emit(NotificationsLoaded(list));
+      final unread = list.where((n) => !n.isRead).length;
+      emit(NotificationsLoaded(list, unreadCount: unread));
     } catch (e) {
       emit(NotificationsError(e.toString()));
     }
@@ -39,7 +41,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     try {
       await notificationsRepository.markAsRead(event.notificationId);
       final list = await notificationsRepository.getNotifications();
-      emit(NotificationsLoaded(list));
+      final unread = list.where((n) => !n.isRead).length;
+      emit(NotificationsLoaded(list, unreadCount: unread));
     } catch (e) {
       emit(NotificationsError(e.toString()));
     }

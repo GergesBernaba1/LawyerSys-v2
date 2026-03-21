@@ -8,7 +8,8 @@ class NotificationsLoading extends NotificationsState {}
 
 class NotificationsLoaded extends NotificationsState {
   final List<AppNotification> notifications;
-  NotificationsLoaded(this.notifications);
+  final int unreadCount;
+  NotificationsLoaded(this.notifications, {this.unreadCount = 0});
 }
 
 class NotificationsError extends NotificationsState {

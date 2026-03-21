@@ -17,8 +17,5 @@ class Permissions {
   static const deleteTrustAccounting = 'DeleteTrustAccounting';
   static const viewClientPortal = 'ViewClientPortal';
   static const manageClientPortal = 'ManageClientPortal';
-  static const createTrustAccounting = 'CreateTrustAccounting';
-  static const editTrustAccounting = 'EditTrustAccounting';
-  static const deleteTrustAccounting = 'DeleteTrustAccounting';
   static const manageSettings = 'ManageSettings';
 }
