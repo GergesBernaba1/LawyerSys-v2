@@ -66,9 +66,15 @@ localization correctness, not just functional correctness.
 
 ## Platform Constraints & Data Handling
 
-LawyerSys-v2 is governed around an ASP.NET Core 8 backend, a Next.js/React client in
-`LawyerSys/ClientApp`, SQL Server persistence through EF Core, JWT-based authenticated access, and
-existing audit/logging infrastructure. Feature plans MUST state which of these surfaces change.
+LawyerSys-v2 is governed around an ASP.NET Core 8 backend, a Next.js/React web client in
+`LawyerSys/ClientApp`, a Flutter mobile app for iOS/Android, SQL Server persistence through EF Core,
+JWT-based authenticated access, and existing audit/logging infrastructure. Feature plans MUST state
+which of these surfaces change.
+
+Mobile app features MUST use the same ASP.NET Core Web API endpoints with JWT Bearer token
+authentication. Mobile-specific requirements (offline mode, native features, push notifications)
+MUST be documented in feature specs and MUST maintain the same tenant isolation, authorization,
+and audit requirements as the web client.
 
 Database-first compatibility and migration safety are mandatory. Schema, seed, or data-migration
 changes MUST document how existing tenant data, identity records, reports, and demo flows remain

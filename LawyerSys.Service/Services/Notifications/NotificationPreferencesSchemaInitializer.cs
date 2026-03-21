@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS "UserNotificationPreferences"
     "ConversationUpdatesEnabled" boolean NOT NULL DEFAULT TRUE,
     "EmailNotificationsEnabled" boolean NOT NULL DEFAULT FALSE,
     "SmsNotificationsEnabled" boolean NOT NULL DEFAULT FALSE,
+    "PushNotificationsEnabled" boolean NOT NULL DEFAULT TRUE,
     "PreferredLanguage" VARCHAR(12) NOT NULL DEFAULT 'en',
     "UpdatedAtUtc" timestamp without time zone NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
@@ -36,6 +37,7 @@ ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "DocumentRequ
 ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "ConversationUpdatesEnabled" boolean NOT NULL DEFAULT TRUE;
 ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "EmailNotificationsEnabled" boolean NOT NULL DEFAULT FALSE;
 ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "SmsNotificationsEnabled" boolean NOT NULL DEFAULT FALSE;
+ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "PushNotificationsEnabled" boolean NOT NULL DEFAULT TRUE;
 ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "PreferredLanguage" VARCHAR(12) NOT NULL DEFAULT 'en';
 ALTER TABLE "UserNotificationPreferences" ADD COLUMN IF NOT EXISTS "UpdatedAtUtc" timestamp without time zone NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC');
 

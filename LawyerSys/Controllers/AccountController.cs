@@ -520,6 +520,68 @@ public class AccountController : ControllerBase
         return Ok(new { message = "Password updated" });
     }
 
+    [Authorize]
+    [HttpPost("register-device-token")]
+    public async Task<IActionResult> RegisterDeviceToken([FromBody] RegisterDeviceTokenRequest model)
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        if (string.IsNullOrWhiteSpace(model.Token))
+        {
+            return BadRequest(new { message = "Device token is required." });
+        }
+
+        var existing = await _applicationDbContext.UserPushTokens
+            .FirstOrDefaultAsync(item => item.UserId == user.Id && item.Token == model.Token);
+
+        if (existing == null)
+        {
+            _applicationDbContext.UserPushTokens.Add(new UserPushToken
+            {
+                UserId = user.Id,
+                Token = model.Token.Trim(),
+                Platform = model.Platform?.Trim() ?? string.Empty,
+                IsActive = true,
+                CreatedAtUtc = DateTime.UtcNow,
+                LastSeenAtUtc = DateTime.UtcNow
+            });
+        }
+        else
+        {
+            existing.IsActive = true;
+            existing.Platform = model.Platform?.Trim() ?? existing.Platform;
+            existing.LastSeenAtUtc = DateTime.UtcNow;
+        }
+
+        await _applicationDbContext.SaveChangesAsync();
+        return Ok(new { message = "Device token registered." });
+    }
+
+    [Authorize]
+    [HttpPost("unregister-device-token")]
+    public async Task<IActionResult> UnregisterDeviceToken([FromBody] UnregisterDeviceTokenRequest model)
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        if (string.IsNullOrWhiteSpace(model.Token))
+        {
+            return BadRequest(new { message = "Device token is required." });
+        }
+
+        var existing = await _applicationDbContext.UserPushTokens
+            .FirstOrDefaultAsync(item => item.UserId == user.Id && item.Token == model.Token);
+
+        if (existing != null)
+        {
+            existing.IsActive = false;
+            await _applicationDbContext.SaveChangesAsync();
+        }
+
+        return Ok(new { message = "Device token unregistered." });
+    }
+
     [Authorize(Policy = "AdminOnly")]
     [HttpGet("users")]
     public async Task<IActionResult> GetIdentityUsers()
@@ -791,6 +853,7 @@ public class AccountController : ControllerBase
             ConversationUpdatesEnabled = preference.ConversationUpdatesEnabled,
             EmailNotificationsEnabled = preference.EmailNotificationsEnabled,
             SmsNotificationsEnabled = preference.SmsNotificationsEnabled,
+            PushNotificationsEnabled = preference.PushNotificationsEnabled,
             PreferredLanguage = preference.PreferredLanguage
         };
     }
@@ -895,4 +958,15 @@ public class ResetPasswordRequest
     public string UserName { get; set; } = string.Empty;
     public string Token { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
+}
+
+public class RegisterDeviceTokenRequest
+{
+    public string Token { get; set; } = string.Empty;
+    public string? Platform { get; set; }
+}
+
+public class UnregisterDeviceTokenRequest
+{
+    public string Token { get; set; } = string.Empty;
 }

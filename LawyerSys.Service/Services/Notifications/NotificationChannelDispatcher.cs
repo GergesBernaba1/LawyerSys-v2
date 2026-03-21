@@ -9,15 +9,18 @@ public class NotificationChannelDispatcher : INotificationChannelDispatcher
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IEmailSender _emailSender;
     private readonly IExternalMessageSender _externalMessageSender;
+    private readonly IPushNotificationService _pushNotificationService;
 
     public NotificationChannelDispatcher(
         ApplicationDbContext applicationDbContext,
         IEmailSender emailSender,
-        IExternalMessageSender externalMessageSender)
+        IExternalMessageSender externalMessageSender,
+        IPushNotificationService pushNotificationService)
     {
         _applicationDbContext = applicationDbContext;
         _emailSender = emailSender;
         _externalMessageSender = externalMessageSender;
+        _pushNotificationService = pushNotificationService;
     }
 
     public async Task DispatchAsync(
@@ -99,6 +102,44 @@ public class NotificationChannelDispatcher : INotificationChannelDispatcher
                 catch (Exception ex)
                 {
                     Log.Warning(ex, "Failed to send customer SMS notification {Type} to {RecipientUserId}", type, recipient.Id);
+                }
+            }
+        }
+
+        var pushRecipientIds = recipients
+            .Where(r => r.Preference?.PushNotificationsEnabled == true)
+            .Select(r => r.Id)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        if (pushRecipientIds.Length > 0)
+        {
+            var pushTokens = await _applicationDbContext.UserPushTokens
+                .AsNoTracking()
+                .Where(token => pushRecipientIds.Contains(token.UserId) && token.IsActive && !string.IsNullOrWhiteSpace(token.Token))
+                .Select(token => token.Token)
+                .Distinct(StringComparer.Ordinal)
+                .ToListAsync(cancellationToken);
+
+            if (pushTokens.Count > 0)
+            {
+                try
+                {
+                    await _pushNotificationService.SendAsync(
+                        pushTokens,
+                        localizedTitle,
+                        localizedMessage,
+                        route,
+                        new Dictionary<string, string>
+                        {
+                            ["type"] = type,
+                            ["route"] = route ?? string.Empty
+                        },
+                        cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "Failed to send push notification {Type}.", type);
                 }
             }
         }
