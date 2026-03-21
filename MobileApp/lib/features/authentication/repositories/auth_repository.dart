@@ -1,4 +1,5 @@
 ﻿import 'dart:convert';
+import 'dart:io';
 
 import '../../core/api/api_client.dart';
 import '../../core/api/api_constants.dart';
@@ -75,12 +76,18 @@ class AuthRepository {
     return null;
   }
 
-  Future<void> registerDeviceToken(String deviceToken) async {
-    await apiClient.post(ApiConstants.registerDeviceToken, data: {'token': deviceToken});
+  Future<void> registerDeviceToken(String deviceToken, {String? platform}) async {
+    await apiClient.post(ApiConstants.registerDeviceToken, data: {
+      'token': deviceToken,
+      'platform': platform ?? Platform.operatingSystem,
+    });
   }
 
   Future<void> unregisterDeviceToken(String deviceToken) async {
-    await apiClient.post(ApiConstants.unregisterDeviceToken, data: {'token': deviceToken});
+    await apiClient.post(ApiConstants.unregisterDeviceToken, data: {
+      'token': deviceToken,
+      'platform': Platform.operatingSystem,
+    });
   }
 
   Future<void> _secureSession(UserSession session) async {

@@ -66,7 +66,10 @@ class _AppState extends State<App> {
       final authRepository = RepositoryProvider.of<AuthRepository>(context);
 
       final pushService = PushNotificationService();
-      pushService.configure(authRepository);
+      pushService.configure(
+        authRepository,
+        notificationsRepository: NotificationsRepository(LocalDatabase.instance),
+      );
       pushService.init();
 
       final signalRService = SignalRService();
@@ -128,6 +131,7 @@ class _AppState extends State<App> {
             final locale = snapshot.data != null && snapshot.data!.isNotEmpty ? Locale(snapshot.data!) : const Locale('en');
             return MaterialApp(
               title: 'LawyerSys Mobile',
+              navigatorKey: PushNotificationService.navigatorKey,
               localizationsDelegates: const [
                 AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,

@@ -142,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               secondary: const Icon(Icons.fingerprint),
             ),
           const SizedBox(height: 24),
-          ListTile,
+          ListTile(
             leading: const Icon(Icons.logout),
             title: Text(localizer.logout),
             onTap: () {
