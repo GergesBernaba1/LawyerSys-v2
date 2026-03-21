@@ -89,16 +89,9 @@ jobs:
         working-directory: MobileApp
         run: flutter create . --platforms ios
 
-      - name: Create iOS AppIcon asset directory
-        run: mkdir -p MobileApp/ios/Runner/Assets.xcassets/AppIcon.appiconset
-
       - name: Install dependencies
         working-directory: MobileApp
         run: flutter pub get
-
-      - name: Generate app icons
-        working-directory: MobileApp
-        run: dart run flutter_launcher_icons
 
       - name: Run tests
         working-directory: MobileApp
