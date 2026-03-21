@@ -12,4 +12,6 @@ public class ApplicationUser : IdentityUser
     public Tenant? Tenant { get; set; }
     public int? CountryId { get; set; }
     public Country? Country { get; set; }
+
+    public ICollection<UserPushToken> PushTokens { get; set; } = new List<UserPushToken>();
 }

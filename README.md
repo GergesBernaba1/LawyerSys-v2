@@ -1,10 +1,11 @@
 # LawyerSys-v2
 
-This folder is the start of the migration to ASP.NET Core + React (Database-first EF Core + JWT auth).
+This folder is the start of the migration to ASP.NET Core + React + Flutter (Database-first EF Core + JWT auth).
 
 Quick overview:
-- Backend: ASP.NET Core (net8.0) Web API hosting a React SPA
-- Frontend: React (ClientApp)
+- Backend: ASP.NET Core (net8.0) Web API
+- Web Frontend: Next.js/React (ClientApp)
+- Mobile Frontend: Flutter (MobileApp) for iOS/Android
 - Database: SQL Server (Database-first EF Core) — your old DB script / instance will be used to scaffold models
 - Auth: JWT + ASP.NET Identity (instructions included)
 
@@ -47,5 +48,25 @@ dotnet run
 ```
 
 6) Open `ClientApp` and run the React dev server (instructions will appear in `ClientApp/README.md`).
+
+## Mobile App (Flutter)
+
+The `MobileApp/` directory will contain a Flutter mobile application for iOS and Android that connects to the same ASP.NET Core Web API backend.
+
+**Prerequisites:**
+- Flutter SDK 3.x or later
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
+
+**Setup:**
+```sh
+cd MobileApp
+flutter pub get
+flutter run
+```
+
+The mobile app uses JWT authentication with the same backend API endpoints.
+
+---
 
 If you prefer separate backend + frontend projects or want additional setup steps (IIS hosting, Docker, CI), tell me and I will add them.

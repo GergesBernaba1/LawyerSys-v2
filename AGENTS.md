@@ -5,16 +5,17 @@ Auto-generated from all feature plans. Last updated: 2026-03-20
 ## Active Technologies
 - C# 12 on .NET 8, TypeScript 5.x for the existing client context + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, xUnit, Moq, Next.js 14.2, React 18 (002-service-layer-refactor)
 - PostgreSQL via `ApplicationDbContext` and `LegacyDbContext` in `LawyerSys.Domain`/`LawyerSys.Infrastructure` (002-service-layer-refactor)
-
 - TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming + Next.js, React, Material UI, Emotion, i18next, axios (001-clientapp-ui-refresh)
+- Flutter 3.x, Dart 3.x for mobile (iOS/Android) + flutter_bloc/riverpod, dio/http, shared_preferences, flutter_secure_storage, flutter_localizations (planned)
 
 ## Project Structure
 
 ```text
-LawyerSys/
+LawyerSys/          # ASP.NET Core backend + Next.js web client
 LawyerSys.Domain/
 LawyerSys.Infrastructure/
 LawyerSys.Service/
+MobileApp/          # Flutter mobile app (iOS/Android)
 specs/
 tests/
 ```
@@ -24,6 +25,8 @@ tests/
 - dotnet test
 - npm --prefix LawyerSys/ClientApp test
 - npm --prefix LawyerSys/ClientApp run lint
+- flutter test (when mobile app is implemented)
+- flutter analyze (when mobile app is implemented)
 
 ## Code Style
 

@@ -180,6 +180,10 @@ builder.Services.AddControllerRefactorCoreServices();
 builder.Services.AddScoped<IGovernmentsService, GovernmentsService>();
 builder.Services.AddScoped<ICaseRelationsService, CaseRelationsService>();
 builder.Services.AddScoped<ITenantSubscriptionService, TenantSubscriptionService>();
+
+builder.Services.Configure<FirebaseOptions>(builder.Configuration.GetSection("Firebase"));
+builder.Services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
+
 builder.Services.AddScoped<IInAppNotificationService, InAppNotificationService>();
 builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRealtimePublisher>();
 
@@ -391,10 +395,13 @@ try
         var scopedApplication = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var notificationPreferencesInitializer = new NotificationPreferencesSchemaInitializer(scopedApplication);
         await notificationPreferencesInitializer.EnsureCreatedAsync();
+
+        var pushTokensInitializer = new PushTokensSchemaInitializer(scopedApplication);
+        await pushTokensInitializer.EnsureCreatedAsync();
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Error during notification preference schema initialization");
+        Log.Error(ex, "Error during notification schema initialization");
     }
 
     try
