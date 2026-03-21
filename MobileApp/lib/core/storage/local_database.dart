@@ -241,6 +241,27 @@ class LocalDatabase {
     return db.query('notifications', where: where, whereArgs: whereArgs, limit: limit, offset: offset, orderBy: 'notificationId DESC');
   }
 
+  Future<void> upsertDocument(String documentId, Map<String, dynamic> documentJson, {String? tenantId, bool isDownloaded = false}) async {
+    final db = await database;
+    await db.insert(
+      'documents',
+      {
+        'documentId': documentId,
+        'data': jsonEncode(documentJson),
+        'tenantId': tenantId,
+        'isDownloaded': isDownloaded ? 1 : 0,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getDocuments({String? tenantId, int limit = 100, int offset = 0}) async {
+    final db = await database;
+    final where = tenantId != null ? 'tenantId = ?' : null;
+    final whereArgs = tenantId != null ? [tenantId] : null;
+    return db.query('documents', where: where, whereArgs: whereArgs, limit: limit, offset: offset, orderBy: 'documentId DESC');
+  }
+
   Future<void> markNotificationAsRead(String notificationId) async {
     final db = await database;
     await db.update('notifications', {'isRead': 1}, where: 'notificationId = ?', whereArgs: [notificationId]);

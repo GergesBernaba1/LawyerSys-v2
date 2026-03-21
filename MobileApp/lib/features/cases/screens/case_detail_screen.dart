@@ -21,10 +21,16 @@ class CaseDetailScreen extends StatelessWidget {
         title: Text('${localizer.caseDetail} ${caseModel.caseNumber}'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () {
+              Navigator.pushNamed(context, '/documents');
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () async {
               await Navigator.push(context, MaterialPageRoute(builder: (_) => CaseFormScreen(caseModel: caseModel)));
-              if (mounted) {
+              if (context.mounted) {
                 context.read<CasesBloc>().add(RefreshCases());
                 context.read<CasesBloc>().add(SelectCase(caseModel.caseId));
               }

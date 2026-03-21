@@ -32,6 +32,7 @@ import 'features/hearings/bloc/hearings_bloc.dart';
 import 'features/hearings/repositories/hearings_repository.dart';
 import 'features/notifications/bloc/notifications_bloc.dart';
 import 'features/notifications/repositories/notifications_repository.dart';
+import 'features/documents/screens/documents_list_screen.dart';
 import 'features/authentication/screens/login_screen.dart';
 import 'features/authentication/screens/register_screen.dart';
 import 'features/authentication/screens/forgot_password_screen.dart';
@@ -170,6 +171,7 @@ class _AppState extends State<App> {
                 '/billing': (_) => const BillingListScreen(),
                 '/customers': (_) => const CustomersListScreen(),
                 '/settings': (_) => const SettingsScreen(),
+                '/documents': (_) => const DocumentsListScreen(),
               },
             );
           },
