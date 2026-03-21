@@ -2,6 +2,7 @@
 
 import '../../core/api/api_client.dart';
 import '../../core/storage/local_database.dart';
+import '../../core/sync/sync_queue_item.dart';
 import '../cases/models/case.dart';
 import '../../features/customers/models/customer.dart';
 
@@ -50,6 +51,13 @@ class CasesRepository {
     } catch (_) {
       // fallback offline create
       await localDatabase.upsertCase(caseModel.caseId, caseModel.toJson(), tenantId: caseModel.tenantId, isDirty: true);
+      await localDatabase.addSyncQueueItem(SyncQueueItem(
+        id: 'create_case_${caseModel.caseId}_${DateTime.now().millisecondsSinceEpoch}',
+        operationType: 'create_case',
+        entityType: 'case',
+        entityId: caseModel.caseId,
+        payload: caseModel.toJson(),
+      ));
       rethrow;
     }
   }
@@ -60,6 +68,13 @@ class CasesRepository {
       await localDatabase.upsertCase(caseModel.caseId, caseModel.toJson(), tenantId: caseModel.tenantId, isDirty: false);
     } catch (_) {
       await localDatabase.upsertCase(caseModel.caseId, caseModel.toJson(), tenantId: caseModel.tenantId, isDirty: true);
+      await localDatabase.addSyncQueueItem(SyncQueueItem(
+        id: 'update_case_${caseModel.caseId}_${DateTime.now().millisecondsSinceEpoch}',
+        operationType: 'update_case',
+        entityType: 'case',
+        entityId: caseModel.caseId,
+        payload: caseModel.toJson(),
+      ));
       rethrow;
     }
   }
@@ -69,8 +84,14 @@ class CasesRepository {
       await apiClient.delete('/api/cases/$caseId');
       await localDatabase.deleteCase(caseId);
     } catch (_) {
-      // Mark as dirty for sync later by keeping delete event in queue in the future
       await localDatabase.deleteCase(caseId);
+      await localDatabase.addSyncQueueItem(SyncQueueItem(
+        id: 'delete_case_${caseId}_${DateTime.now().millisecondsSinceEpoch}',
+        operationType: 'delete_case',
+        entityType: 'case',
+        entityId: caseId,
+        payload: {},
+      ));
       rethrow;
     }
   }

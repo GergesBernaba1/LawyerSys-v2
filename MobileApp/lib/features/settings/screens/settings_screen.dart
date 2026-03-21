@@ -2,7 +2,9 @@
 
 import '../../../core/auth/biometric_auth.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/network/connectivity_service.dart';
 import '../../../core/notifications/push_notification_service.dart';
+import '../../../core/storage/local_database.dart';
 import '../../../core/storage/preferences_storage.dart';
 import '../../authentication/bloc/auth_bloc.dart';
 import '../../authentication/bloc/auth_event.dart';
@@ -21,6 +23,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _pushNotificationsEnabled = true;
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
+  int _queueSize = 0;
+  String _lastSync = 'Unknown';
+  String _syncStatus = 'No data';
+  bool _isForceSyncing = false;
   final _preferences = PreferencesStorage();
   final _pushService = PushNotificationService();
 
@@ -37,11 +43,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final session = await authRepository.getStoredSession();
 
+    final queueSize = await LocalDatabase.instance.getSyncQueueSize();
+    final persisted = await ConnectivityService().getPersistedHealth();
+
     setState(() {
       _language = storedLanguage ?? 'en';
       _pushNotificationsEnabled = storedPush;
       _biometricAvailable = biometricAvailable;
       _biometricEnabled = session?.biometricEnabled ?? false;
+      _queueSize = queueSize;
+      _lastSync = persisted?.lastSyncAt.toIso8601String() ?? 'None';
+      _syncStatus = persisted != null ? 'S:${persisted.succeeded} F:${persisted.failed} C:${persisted.canceled}' : 'No data';
     });
   }
 

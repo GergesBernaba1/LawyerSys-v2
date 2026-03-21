@@ -3,6 +3,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../sync/sync_queue_item.dart';
+
 class LocalDatabase {
   static final LocalDatabase instance = LocalDatabase._();
   Database? _db;
@@ -82,6 +84,41 @@ class LocalDatabase {
         tenantId TEXT,
         lastSyncedAt TEXT,
         isDirty INTEGER
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE sync_queue(
+        id TEXT PRIMARY KEY,
+        operationType TEXT,
+        entityType TEXT,
+        entityId TEXT,
+        payload TEXT,
+        retryCount INTEGER DEFAULT 0,
+        createdAt TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE sync_metrics(
+        metricId TEXT PRIMARY KEY,
+        lastSyncAt TEXT,
+        attempted INTEGER,
+        succeeded INTEGER,
+        failed INTEGER,
+        canceled INTEGER
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE sync_activity(
+        id TEXT PRIMARY KEY,
+        queueId TEXT,
+        entityType TEXT,
+        operationType TEXT,
+        status TEXT,
+        message TEXT,
+        occurredAt TEXT
       )
     ''');
   }
@@ -207,6 +244,77 @@ class LocalDatabase {
   Future<void> markNotificationAsRead(String notificationId) async {
     final db = await database;
     await db.update('notifications', {'isRead': 1}, where: 'notificationId = ?', whereArgs: [notificationId]);
+  }
+
+  Future<void> addSyncQueueItem(SyncQueueItem item) async {
+    final db = await database;
+    await db.insert(
+      'sync_queue',
+      {
+        'id': item.id,
+        'operationType': item.operationType,
+        'entityType': item.entityType,
+        'entityId': item.entityId,
+        'payload': jsonEncode(item.payload),
+        'retryCount': item.retryCount,
+        'createdAt': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> addSyncActivity(
+    String id,
+    String queueId,
+    String entityType,
+    String operationType,
+    String status,
+    String message,
+  ) async {
+    final db = await database;
+    await db.insert(
+      'sync_activity',
+      {
+        'id': id,
+        'queueId': queueId,
+        'entityType': entityType,
+        'operationType': operationType,
+        'status': status,
+        'message': message,
+        'occurredAt': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getSyncActivity({int limit = 50}) async {
+    final db = await database;
+    return db.query('sync_activity', orderBy: 'occurredAt DESC', limit: limit);
+  }
+
+  Future<List<SyncQueueItem>> getSyncQueueItems() async {
+    final db = await database;
+    final rows = await db.query('sync_queue', orderBy: 'createdAt ASC');
+    return rows
+        .map((row) => SyncQueueItem(
+              id: row['id'] as String,
+              operationType: row['operationType'] as String,
+              entityType: row['entityType'] as String,
+              entityId: row['entityId'] as String,
+              payload: jsonDecode(row['payload'] as String) as Map<String, dynamic>,
+              retryCount: row['retryCount'] is int ? row['retryCount'] as int : int.tryParse(row['retryCount']?.toString() ?? '0') ?? 0,
+            ))
+        .toList();
+  }
+
+  Future<void> removeSyncQueueItem(String id) async {
+    final db = await database;
+    await db.delete('sync_queue', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> clearSyncQueue() async {
+    final db = await database;
+    await db.delete('sync_queue');
   }
 
   Future<void> clearAllNotifications() async {

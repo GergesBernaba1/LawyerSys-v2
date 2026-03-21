@@ -9,6 +9,7 @@ import 'core/notifications/push_notification_service.dart';
 import 'core/realtime/signalr_service.dart';
 import 'core/storage/local_database.dart';
 import 'core/storage/secure_storage.dart';
+import 'core/sync/sync_service.dart';
 import 'core/storage/preferences_storage.dart';
 import 'core/localization/app_localizations.dart';
 import 'features/authentication/bloc/auth_bloc.dart';
@@ -74,7 +75,20 @@ class _AppState extends State<App> {
       }).catchError((error) {
         signalRService.init('${ApiConstants.baseUrl}${ApiConstants.signalRHub}');
       });
+
+      // Automatically attempt to sync pending offline changes when possible
+      SyncService().syncPendingOperations(context).catchError((error) {
+        debugPrint('Startup sync failed: $error');
+      });
+
+      ConnectivityService().startListening();
     }
+  }
+
+  @override
+  void dispose() {
+    ConnectivityService().stopListening();
+    super.dispose();
   }
 
   @override
