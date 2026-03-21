@@ -16,7 +16,7 @@ dependencies:
   firebase_core: ^2.16.0
   firebase_messaging: ^14.6.6
   local_auth: ^2.2.1
-  intl: ^0.18.1
+  intl: ^0.20.2
   shared_preferences: ^2.2.0
   path_provider: ^2.0.17
   url_launcher: ^6.1.10
