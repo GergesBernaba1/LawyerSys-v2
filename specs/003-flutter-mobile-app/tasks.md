@@ -25,8 +25,8 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Phase 1A: Employees Management (Priority: P1)
 
-- [ ] T137 [P] Create Employee model in MobileApp/lib/features/employees/models/employee.dart with JSON serialization
-- [ ] T138 [P] Create EmployeesRepository in MobileApp/lib/features/employees/repositories/employees_repository.dart
+- [x] T137 [P] Create Employee model in MobileApp/lib/features/employees/models/employee.dart with JSON serialization
+- [x] T138 [P] Create EmployeesRepository in MobileApp/lib/features/employees/repositories/employees_repository.dart
 - [x] T139 [P] Create EmployeesEvent classes in MobileApp/lib/features/employees/bloc/employees_event.dart
 - [x] T140 [P] Create EmployeesState classes in MobileApp/lib/features/employees/bloc/employees_state.dart
 - [x] T141 Create EmployeesBloc in MobileApp/lib/features/employees/bloc/employees_bloc.dart
@@ -56,13 +56,13 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Phase 1D: Consultations Management (Priority: P2)
 
-- [ ] T157 [P] Create Consultation model in MobileApp/lib/features/consultations/models/consultation.dart with JSON serialization
-- [ ] T158 [P] Create ConsultationsRepository in MobileApp/lib/features/consultations/repositories/consultations_repository.dart
-- [ ] T159 [P] Create ConsultationsEvent classes in MobileApp/lib/features/consultations/bloc/consultations_event.dart
-- [ ] T160 [P] Create ConsultationsState classes in MobileApp/lib/features/consultations/bloc/consultations_state.dart
-- [ ] T161 Create ConsultationsBloc in MobileApp/lib/features/consultations/bloc/consultations_bloc.dart
-- [ ] T162 Create ConsultationsListScreen in MobileApp/lib/features/consultations/screens/consultations_list_screen.dart
-- [ ] T163 Create ConsultationDetailScreen in MobileApp/lib/features/consultations/screens/consultation_detail_screen.dart
+- [x] T157 [P] Create Consultation model in MobileApp/lib/features/consultations/models/consultation.dart with JSON serialization
+- [x] T158 [P] Create ConsultationsRepository in MobileApp/lib/features/consultations/repositories/consultations_repository.dart
+- [x] T159 [P] Create ConsultationsEvent classes in MobileApp/lib/features/consultations/bloc/consultations_event.dart
+- [x] T160 [P] Create ConsultationsState classes in MobileApp/lib/features/consultations/bloc/consultations_state.dart
+- [x] T161 Create ConsultationsBloc in MobileApp/lib/features/consultations/bloc/consultations_bloc.dart
+- [x] T162 Create ConsultationsListScreen in MobileApp/lib/features/consultations/screens/consultations_list_screen.dart
+- [x] T163 Create ConsultationDetailScreen in MobileApp/lib/features/consultations/screens/consultation_detail_screen.dart
 
 ### Phase 1E: Trust Accounting (Priority: P2)
 
