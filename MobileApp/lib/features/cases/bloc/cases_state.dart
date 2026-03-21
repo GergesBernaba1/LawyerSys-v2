@@ -1,4 +1,4 @@
-﻿import '../cases/models/case.dart';
+import '../models/case.dart';
 
 abstract class CasesState {}
 class CasesInitial extends CasesState {}

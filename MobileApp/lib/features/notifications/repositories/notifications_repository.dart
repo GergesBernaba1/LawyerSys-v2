@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../core/storage/local_database.dart';
+import '../../../core/storage/local_database.dart';
 import '../models/notification.dart';
 
 class NotificationsRepository {

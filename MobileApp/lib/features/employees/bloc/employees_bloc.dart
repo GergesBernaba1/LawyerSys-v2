@@ -1,6 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../core/api/api_client.dart';
-import '../../core/storage/local_database.dart';
 import '../models/employee.dart';
 import '../repositories/employees_repository.dart';
 import 'employees_event.dart';
@@ -8,9 +6,8 @@ import 'employees_state.dart';
 
 class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
   final EmployeesRepository employeesRepository;
-  final LocalDatabase localDatabase;
 
-  EmployeesBloc({required this.employeesRepository, required this.localDatabase})
+  EmployeesBloc({required this.employeesRepository})
       : super(EmployeesInitial()) {
     on<LoadEmployees>(_onLoadEmployees);
     on<RefreshEmployees>(_onRefreshEmployees);
@@ -34,7 +31,7 @@ class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
   Future<void> _onRefreshEmployees(RefreshEmployees event, Emitter<EmployeesState> emit) async {
     emit(EmployeesLoading());
     try {
-      final employees = await employeesRepository.getEmployees(forceRefresh: true);
+      final employees = await employeesRepository.getEmployees();
       emit(EmployeesLoaded(employees));
     } catch (e) {
       emit(EmployeesError(e.toString()));

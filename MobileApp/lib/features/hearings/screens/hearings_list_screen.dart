@@ -8,7 +8,7 @@ import '../bloc/hearings_state.dart';
 import '../models/hearing.dart';
 import 'hearing_form_screen.dart';
 import '../screens/hearing_detail_screen.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class HearingsListScreen extends StatefulWidget {
   const HearingsListScreen({super.key});
@@ -257,6 +257,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
               },
             ),
           ),
+        ),
         ],
       ),
     );

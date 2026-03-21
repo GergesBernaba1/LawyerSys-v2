@@ -13,7 +13,7 @@ class CourtDetailScreen extends StatelessWidget {
     final localizer = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.court ?? 'Court')), 
+      appBar: AppBar(title: Text(localizer.court)), 
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -22,11 +22,11 @@ class CourtDetailScreen extends StatelessWidget {
             Text(court.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text('${localizer.address}: ${court.address}'),
-            Text('${localizer.governorate ?? 'Governorate'}: ${court.governorate}'),
-            Text('${localizer.phone ?? 'Phone'}: ${court.phone}'),
+            Text('${localizer.governorate}: ${court.governorate}'),
+            Text('${localizer.phone}: ${court.phone}'),
             const SizedBox(height: 16),
-            Text('${localizer.notes ?? 'Notes'}:', style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(court.notes.isNotEmpty ? court.notes : localizer.noData ?? 'No notes'),
+            Text('${localizer.notes}:', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(court.notes.isNotEmpty ? court.notes : localizer.noData),
           ],
         ),
       ),

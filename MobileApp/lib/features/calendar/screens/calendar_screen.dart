@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/calendar_bloc.dart';
 import '../bloc/calendar_event.dart';
 import '../bloc/calendar_state.dart';
-import '../models/calendar_event.dart';
-import '../../core/localization/app_localizations.dart';
+import '../models/calendar_event.dart' as model_calendar_event;
+import '../../../core/localization/app_localizations.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -62,7 +62,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations();
+    final localizer = AppLocalizations.of(context);
     final isEmployeeOnly = false; // This would come from auth state in a real implementation
 
     return Scaffold(
@@ -84,7 +84,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             final events = calendarState.events;
             
             // Group events by date
-            final Map<String, List<CalendarEvent>> groupedByDate = {};
+            final Map<String, List<model_calendar_event.CalendarEvent>> groupedByDate = {};
             for (final event in events) {
               final dateKey = event.start.substring(0, 10); // YYYY-MM-DD
               if (!groupedByDate.containsKey(dateKey)) {
@@ -181,23 +181,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     itemBuilder: (context, index) {
                       final date = sortedDates[index];
                       final dayEvents = groupedByDate[date] ?? [];
-                      
                       return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: ExpansionTile(
                           title: Text(
-                            Text(
-                              DateTime.parse(date).toLocal().toIso8601String().split('T').first,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
+                            DateTime.parse(date).toLocal().toIso8601String().split('T').first,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                           children: dayEvents.map((event) => ListTile(
                             leading: Container(
                               width: 4,
                               height: 24,
-                              color: event.isReminderEvent
-                                  ? Colors.orange
-                                  : Colors.blue,
+                              color: event.isReminderEvent ? Colors.orange : Colors.blue,
                             ),
                             title: Text(event.title),
                             subtitle: Column(
@@ -205,24 +200,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               children: [
                                 Text('${event.type} • ${_formatTime(event.start)}'),
                                 if (event.notes != null && event.notes!.isNotEmpty)
-                                  Text(event.notes!,
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600])),
+                                  Text(event.notes!, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                               ],
                             ),
                             trailing: event.caseCode != null
                                 ? IconButton(
                                     icon: const Icon(Icons.description),
                                     tooltip: 'View Case',
-                                    onPressed: () {
-                                      // Navigate to case details
-                                      // TODO: Implement case navigation
-                                    },
+                                    onPressed: () {},
                                   )
                                 : null,
-                          ),
-                        ).toList(),
+                          )).toList(),
+                        ),
                       );
                     },
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../authentication/bloc/auth_bloc.dart';
 import '../../authentication/bloc/auth_state.dart';

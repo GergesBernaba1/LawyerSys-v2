@@ -1,5 +1,5 @@
-import '../../core/api/api_client.dart';
-import '../courts/models/court.dart';
+import '../../../core/api/api_client.dart';
+import '../models/court.dart';
 
 class CourtsRepository {
   final ApiClient apiClient;

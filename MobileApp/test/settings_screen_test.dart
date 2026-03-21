@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lawyersys_mobile/core/storage/preferences_storage.dart';
-import 'package:lawyersys_mobile/features/settings/screens/settings_screen.dart';
+import 'package:qadaya_lawyersys/core/storage/preferences_storage.dart';
+import 'package:qadaya_lawyersys/features/settings/screens/settings_screen.dart';
 
 void main() {
   testWidgets('settings screen push notification toggle persists', (WidgetTester tester) async {

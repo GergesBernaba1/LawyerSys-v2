@@ -6,7 +6,7 @@ import '../bloc/notifications_event.dart';
 import '../bloc/notifications_state.dart';
 import '../models/notification.dart';
 import 'notification_detail_screen.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class NotificationsInboxScreen extends StatefulWidget {
   const NotificationsInboxScreen({super.key});

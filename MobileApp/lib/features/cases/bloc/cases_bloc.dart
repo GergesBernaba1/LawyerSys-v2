@@ -1,7 +1,7 @@
 ﻿import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cases/models/case.dart';
-import '../cases/repositories/cases_repository.dart';
+import '../models/case.dart';
+import '../repositories/cases_repository.dart';
 import 'cases_event.dart';
 import 'cases_state.dart';
 

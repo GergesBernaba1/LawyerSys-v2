@@ -1,10 +1,10 @@
-﻿import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/auth/biometric_auth.dart';
-import '../authentication/models/login_request.dart';
-import '../authentication/models/user_session.dart';
-import '../authentication/repositories/auth_repository.dart';
+import '../../../core/auth/biometric_auth.dart';
+import '../models/login_request.dart';
+import '../models/user_session.dart';
+import '../repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 

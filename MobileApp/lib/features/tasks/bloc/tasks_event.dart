@@ -1,3 +1,5 @@
+import '../models/task.dart';
+
 abstract class TasksEvent {}
 
 class LoadTasks extends TasksEvent {}

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import '../../core/api/api_client.dart';
-import '../../core/storage/local_database.dart';
-import '../employees/models/employee.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/storage/local_database.dart';
+import '../models/employee.dart';
 
 class EmployeesRepository {
   final ApiClient apiClient;
@@ -61,6 +61,10 @@ class EmployeesRepository {
       await localDatabase.upsertEmployee(employee.id.toString(), employee.toJson(), isDirty: true);
       rethrow;
     }
+  }
+
+  Future<void> deleteEmployee(int employeeId) async {
+    await apiClient.delete('/api/employees/$employeeId');
   }
 
   Future<List<EmployeeModel>> searchEmployees(String query, {String? tenantId}) async {

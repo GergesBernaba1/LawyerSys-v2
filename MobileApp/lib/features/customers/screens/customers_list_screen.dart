@@ -6,7 +6,7 @@ import '../bloc/customers_bloc.dart';
 import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
 import 'customer_detail_screen.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class CustomersListScreen extends StatefulWidget {
   const CustomersListScreen({super.key});

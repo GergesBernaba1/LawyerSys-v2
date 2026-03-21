@@ -1,6 +1,6 @@
 ﻿import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../dashboard/repositories/dashboard_repository.dart';
+import '../repositories/dashboard_repository.dart';
 import 'dashboard_event.dart';
 import 'dashboard_state.dart';
 

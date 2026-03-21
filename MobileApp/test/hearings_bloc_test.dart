@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lawyersys_mobile/core/api/api_client.dart';
-import 'package:lawyersys_mobile/core/storage/local_database.dart';
-import 'package:lawyersys_mobile/features/hearings/bloc/hearings_bloc.dart';
-import 'package:lawyersys_mobile/features/hearings/bloc/hearings_event.dart';
-import 'package:lawyersys_mobile/features/hearings/bloc/hearings_state.dart';
-import 'package:lawyersys_mobile/features/hearings/models/hearing.dart';
-import 'package:lawyersys_mobile/features/hearings/repositories/hearings_repository.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_bloc.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_event.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_state.dart';
+import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
+import 'package:qadaya_lawyersys/features/hearings/repositories/hearings_repository.dart';
 
 class FakeHearingsRepository extends HearingsRepository {
   final List<Hearing> _items;

@@ -157,7 +157,7 @@ class _AppState extends State<App> {
         RepositoryProvider(create: (_) => CustomersRepository(apiClient)),
         RepositoryProvider(create: (_) => TrustAccountingRepository(apiClient)),
         RepositoryProvider(create: (_) => ClientPortalRepository(apiClient)),
-        RepositoryProvider(create: (_) => HearingsRepository(apiClient)),
+        RepositoryProvider(create: (_) => HearingsRepository(apiClient, localDatabase)),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -198,7 +198,7 @@ class _AppState extends State<App> {
                   elevation: 0,
                   surfaceTintColor: Colors.transparent,
                 ),
-                cardTheme: CardTheme(
+                cardTheme: CardThemeData(
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),

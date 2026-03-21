@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import '../../core/api/api_client.dart';
-import '../../core/storage/local_database.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/storage/local_database.dart';
 import '../models/hearing.dart';
 
 class HearingsRepository {

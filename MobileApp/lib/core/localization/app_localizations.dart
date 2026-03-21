@@ -1,4 +1,4 @@
-﻿import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart';
 
 class AppLocalizations {
   AppLocalizations(this.locale);
@@ -11,6 +11,23 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
+  String translate(String key) {
+    final localeValues = _localizedValues[locale.languageCode];
+    if (localeValues != null && localeValues.containsKey(key)) {
+      return localeValues[key]!;
+    }
+    return _localizedValues['en']?[key] ?? key;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    if (invocation.isGetter) {
+      final key = invocation.memberName.toString().replaceAll('Symbol("', '').replaceAll('")', '');
+      return translate(key);
+    }
+    return super.noSuchMethod(invocation);
+  }
+
   static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'login': 'Login',
@@ -20,12 +37,19 @@ class AppLocalizations {
       'phoneNumber': 'Phone Number',
       'confirmPassword': 'Confirm Password',
       'alreadyHaveAccount': 'Already have an account? Login',
+      'noAccount': "Don't have an account?",
       'dashboard': 'Dashboard',
       'email': 'Email',
       'password': 'Password',
       'cases': 'Cases',
       'customers': 'Customers',
       'hearings': 'Hearings',
+      'employees': 'Employees',
+      'calendar': 'Calendar',
+      'consultations': 'Consultations',
+      'documents': 'Documents',
+      'reports': 'Reports',
+      'courts': 'Courts',
       'settings': 'Settings',
       'logout': 'Logout',
       'search': 'Search',
@@ -38,11 +62,16 @@ class AppLocalizations {
       'english': 'English',
       'arabic': 'Arabic',
       'sessionExpired': 'Session expired. Please log in again.',
+      'accessDenied': 'Access denied',
+      'accessDeniedMessage': 'You do not have permission to access this section.',
       'caseDetail': 'Case Details',
       'customerDetail': 'Customer Details',
       'contenders': 'Contenders',
       'court': 'Court',
       'courtLocation': 'Court Location',
+      'address': 'Address',
+      'governorate': 'Governorate',
+      'phone': 'Phone',
       'notifications': 'Notifications',
       'forgotPassword': 'Forgot Password',
       'forgotPasswordDescription': 'Enter your email to receive password reset instructions.',
@@ -54,12 +83,6 @@ class AppLocalizations {
       'resetPasswordFor': 'Reset password for',
       'newPassword': 'New Password',
       'confirmNewPassword': 'Confirm New Password',
-      'register': 'Register',
-      'firstName': 'First Name',
-      'lastName': 'Last Name',
-      'phoneNumber': 'Phone Number',
-      'confirmPassword': 'Confirm Password',
-      'alreadyHaveAccount': 'Already have an account? Login',
       'biometricLogin': 'Biometric Login',
       'biometricLoginDisabled': 'Biometric login is disabled',
       'biometricEnabled': 'Biometric login enabled',
@@ -68,7 +91,6 @@ class AppLocalizations {
       'caseType': 'Type',
       'status': 'Status',
       'customer': 'Customer',
-      'court': 'Court',
       'filingDate': 'Filing Date',
       'closingDate': 'Closing Date',
       'assignedEmployees': 'Assigned Employees',
@@ -105,6 +127,11 @@ class AppLocalizations {
       'cancel': 'Cancel',
       'edit': 'Edit',
       'task': 'Task',
+      'tasks': 'Tasks',
+      'taskEdit': 'Edit',
+      'taskDelete': 'Delete',
+      'taskDeleteAlert': 'Are you sure you want to delete',
+      'searchTasks': 'Search tasks',
       'notificationsLabel': 'Notifications',
       'billing': 'Billing',
       'clientPortal': 'Client Portal',
@@ -127,7 +154,6 @@ class AppLocalizations {
       'deleteHearingConfirm': 'Are you sure you want to delete this hearing?',
       'addHearing': 'Add Hearing',
       'hearingNotificationDetails': 'Notification Details',
-      'courtLocation': 'Court Location',
       'dateLabel': 'Date',
       'timeEntries': 'Time Entries',
       'calendarView': 'Calendar View',
@@ -145,22 +171,48 @@ class AppLocalizations {
       'dataColumnMinutes': 'Minutes',
       'dataColumnAmount': 'Amount',
       'dataColumnActions': 'Actions',
-      'taskDeleteAlert': 'Are you sure you want to delete',
       'passwordsDoNotMatch': 'Passwords do not match',
       'allFieldsAreRequired': 'All fields are required',
       'emailIsRequired': 'Email is required',
       'addEventComingSoon': 'Add event functionality coming soon',
-      'tasks': 'Tasks',
       'recentActivity': 'Recent Activity',
-      'task': 'Task',
-      'taskEdit': 'Edit',
-      'taskDelete': 'Delete',
-      'cancel': 'Cancel',
-      'accessDenied': 'Access denied',
-      'accessDeniedMessage': 'You do not have permission to access this section.',
-      'consultations': 'Consultations',
       'consultationDetail': 'Consultation Details',
       'assignedEmployee': 'Assigned Employee',
+      'create': 'Create',
+      'add': 'Add',
+      'ssn': 'SSN',
+      'salary': 'Salary',
+      'lastSyncedAt': 'Last synced',
+      'never': 'Never',
+      'isDirty': 'Has pending changes',
+      'yes': 'Yes',
+      'no': 'No',
+      'notificationDetails': 'Notification Details',
+      'searchEmployees': 'Search employees',
+      'noEmployeesFound': 'No employees found',
+      'job': 'Job',
+      'department': 'Department',
+      'employeeDetails': 'Employee Details',
+      'employeeInformation': 'Employee Information',
+      'fullName': 'Full Name',
+      'caseHistory': 'Case History',
+      'noCaseHistory': 'No case history found',
+      'assignedTo': 'Assigned to',
+      'editTask': 'Edit Task',
+      'createTask': 'Create Task',
+      'taskName': 'Task Name',
+      'taskType': 'Task Type',
+      'startDate': 'Start Date',
+      'reminderDate': 'Reminder Date',
+      'pleaseEnterTaskName': 'Please enter task name',
+      'pleaseEnterTaskType': 'Please enter task type',
+      'createCase': 'Create Case',
+      'editCase': 'Edit Case',
+      'deleteCase': 'Delete Case',
+      'deleteConfirm': 'Are you sure?',
+      'delete': 'Delete',
+      'caseSaved': 'Case saved',
+      'caseDeleted': 'Case deleted',
     },
     'ar': {
       'login': 'تسجيل الدخول',
@@ -170,12 +222,19 @@ class AppLocalizations {
       'phoneNumber': 'رقم الهاتف',
       'confirmPassword': 'تأكيد كلمة المرور',
       'alreadyHaveAccount': 'هل لديك حساب؟ تسجيل الدخول',
+      'noAccount': 'ليس لديك حساب؟',
       'dashboard': 'لوحة القيادة',
       'email': 'البريد الإلكتروني',
       'password': 'كلمة المرور',
       'cases': 'القضايا',
       'customers': 'العملاء',
       'hearings': 'الجلسات',
+      'employees': 'الموظفون',
+      'calendar': 'التقويم',
+      'consultations': 'الاستشارات',
+      'documents': 'المستندات',
+      'reports': 'التقارير',
+      'courts': 'المحاكم',
       'settings': 'الإعدادات',
       'logout': 'تسجيل الخروج',
       'search': 'بحث',
@@ -190,11 +249,14 @@ class AppLocalizations {
       'sessionExpired': 'انتهت الجلسة. الرجاء تسجيل الدخول مرة أخرى.',
       'accessDenied': 'تم رفض الوصول',
       'accessDeniedMessage': 'ليس لديك إذن بالوصول إلى هذا القسم.',
-      'consultations': 'الاستشارات',
-      'consultationDetail': 'تفاصيل الاستشارة',
-      'assignedEmployee': 'الموظف المعين',
       'caseDetail': 'تفاصيل القضية',
       'customerDetail': 'تفاصيل العميل',
+      'contenders': 'الطرف المقابل',
+      'court': 'المحكمة',
+      'courtLocation': 'موقع المحكمة',
+      'address': 'العنوان',
+      'governorate': 'المحافظة',
+      'phone': 'الهاتف',
       'notifications': 'الإشعارات',
       'forgotPassword': 'نسيت كلمة المرور',
       'forgotPasswordDescription': 'أدخل بريدك الإلكتروني لتلقي تعليمات إعادة تعيين كلمة المرور.',
@@ -206,12 +268,6 @@ class AppLocalizations {
       'resetPasswordFor': 'إعادة تعيين كلمة المرور لـ',
       'newPassword': 'كلمة المرور الجديدة',
       'confirmNewPassword': 'تأكيد كلمة المرور الجديدة',
-      'register': 'تسجيل',
-      'firstName': 'الاسم الأول',
-      'lastName': 'اسم العائلة',
-      'phoneNumber': 'رقم الهاتف',
-      'confirmPassword': 'تأكيد كلمة المرور',
-      'alreadyHaveAccount': 'هل لديك حساب؟ تسجيل الدخول',
       'biometricLogin': 'تسجيل الدخول البيومتري',
       'biometricLoginDisabled': 'تم تعطيل تسجيل الدخول البيومتري',
       'biometricEnabled': 'تم تفعيل تسجيل الدخول البيومتري',
@@ -220,8 +276,6 @@ class AppLocalizations {
       'caseType': 'نوع القضية',
       'status': 'الوضع',
       'customer': 'العميل',
-      'contenders': 'الطرف المقابل',
-      'court': 'المحكمة',
       'filingDate': 'تاريخ التسجيل',
       'closingDate': 'تاريخ الإغلاق',
       'assignedEmployees': 'الموظفون المعنيون',
@@ -258,6 +312,11 @@ class AppLocalizations {
       'cancel': 'إلغاء',
       'edit': 'تعديل',
       'task': 'مهمة',
+      'tasks': 'المهام',
+      'taskEdit': 'تعديل',
+      'taskDelete': 'حذف',
+      'taskDeleteAlert': 'هل أنت متأكد من أنك تريد حذف',
+      'searchTasks': 'البحث في المهام',
       'notificationsLabel': 'الإشعارات',
       'billing': 'الفوترة',
       'clientPortal': 'بوابة العملاء',
@@ -280,13 +339,11 @@ class AppLocalizations {
       'deleteHearingConfirm': 'هل أنت متأكد من أنك تريد حذف هذه الجلسة؟',
       'addHearing': 'إضافة جلسة',
       'hearingNotificationDetails': 'تفاصيل الإخطار',
-      'courtLocation': 'موقع المحكمة',
       'dateLabel': 'التاريخ',
       'timeEntries': 'إدخالات الوقت',
       'calendarView': 'عرض التقويم',
       'listView': 'عرض القائمة',
       'judgeLabel': 'القاضي',
-
       'suggestions': 'الاقتراحات',
       'caseCode': 'رمز القضية',
       'workTypeLabel': 'نوع العمل',
@@ -299,44 +356,75 @@ class AppLocalizations {
       'dataColumnMinutes': 'الدقائق',
       'dataColumnAmount': 'المبلغ',
       'dataColumnActions': 'الإجراءات',
-      'taskDeleteAlert': 'هل أنت متأكد من أنك تريد حذف',
       'passwordsDoNotMatch': 'كلمات المرور غير متطابقة',
       'allFieldsAreRequired': 'جميع الحقول مطلوبة',
       'emailIsRequired': 'البريد الإلكتروني مطلوب',
       'addEventComingSoon': 'ميزة إضافة حدث قادمة قريباً',
-      'tasks': 'المهام',
       'recentActivity': 'النشاط الحديث',
-      'task': 'مهمة',
-      'taskEdit': 'تعديل',
-      'taskDelete': 'حذف',
-      'cancel': 'إلغاء',
-      'allFieldsAreRequired': 'All fields are required',
-      'emailIsRequired': 'Email is required',
-      'addEventComingSoon': 'Add event functionality coming soon',
-      'tasks': 'Tasks',
-      'recentActivity': 'Recent Activity',
-      'task': 'Task',
-      'taskEdit': 'Edit',
-      'taskDelete': 'Delete',
-      'cancel': 'Cancel',
+      'consultationDetail': 'تفاصيل الاستشارة',
+      'assignedEmployee': 'الموظف المعين',
+      'create': 'إنشاء',
+      'add': 'إضافة',
+      'ssn': 'رقم الهوية',
+      'salary': 'الراتب',
+      'lastSyncedAt': 'آخر مزامنة',
+      'never': 'أبداً',
+      'isDirty': 'يوجد تغييرات معلقة',
+      'yes': 'نعم',
+      'no': 'لا',
+      'notificationDetails': 'تفاصيل الإشعار',
+      'searchEmployees': 'البحث في الموظفين',
+      'noEmployeesFound': 'لم يتم العثور على موظفين',
+      'job': 'الوظيفة',
+      'department': 'القسم',
+      'employeeDetails': 'تفاصيل الموظف',
+      'employeeInformation': 'معلومات الموظف',
+      'fullName': 'الاسم الكامل',
+      'caseHistory': 'سجل القضايا',
+      'noCaseHistory': 'لا يوجد سجل قضايا',
+      'assignedTo': 'مسند إلى',
+      'editTask': 'تعديل المهمة',
+      'createTask': 'إنشاء مهمة',
+      'taskName': 'اسم المهمة',
+      'taskType': 'نوع المهمة',
+      'startDate': 'تاريخ البدء',
+      'reminderDate': 'تاريخ التذكير',
+      'pleaseEnterTaskName': 'يرجى إدخال اسم المهمة',
+      'pleaseEnterTaskType': 'يرجى إدخال نوع المهمة',
+      'createCase': 'إنشاء قضية',
+      'editCase': 'تعديل القضية',
+      'deleteCase': 'حذف القضية',
+      'deleteConfirm': 'هل أنت متأكد؟',
+      'delete': 'حذف',
+      'caseSaved': 'تم حفظ القضية',
+      'caseDeleted': 'تم حذف القضية',
     },
   };
 
   String _translate(String key) => _localizedValues[locale.languageCode]?[key] ?? _localizedValues['en']![key] ?? key;
 
+  String translate(String key) => _translate(key);
+
   String get login => _translate('login');
+  String get register => _translate('register');
+  String get firstName => _translate('firstName');
+  String get lastName => _translate('lastName');
+  String get phoneNumber => _translate('phoneNumber');
+  String get confirmPassword => _translate('confirmPassword');
+  String get alreadyHaveAccount => _translate('alreadyHaveAccount');
+  String get noAccount => _translate('noAccount');
   String get dashboard => _translate('dashboard');
   String get email => _translate('email');
   String get password => _translate('password');
   String get cases => _translate('cases');
   String get customers => _translate('customers');
   String get hearings => _translate('hearings');
-  String get trustAccounting => _translate('trustAccounting');
-  String get trustTransaction => _translate('trustTransaction');
-  String get transactionType => _translate('transactionType');
-  String get transactionId => _translate('transactionId');
-  String get accountId => _translate('accountId');
-  String get trustType => _translate('trustType');
+  String get employees => _translate('employees');
+  String get calendar => _translate('calendar');
+  String get consultations => _translate('consultations');
+  String get documents => _translate('documents');
+  String get reports => _translate('reports');
+  String get courts => _translate('courts');
   String get settings => _translate('settings');
   String get logout => _translate('logout');
   String get search => _translate('search');
@@ -348,30 +436,18 @@ class AppLocalizations {
   String get english => _translate('english');
   String get arabic => _translate('arabic');
   String get pushNotifications => _translate('pushNotifications');
-  String get clientPortal => _translate('clientPortal');
-  String get portalMessages => _translate('portalMessages');
-  String get portalDocuments => _translate('portalDocuments');
-  String get markedAsRead => _translate('markedAsRead');
-  String get downloadStarted => _translate('downloadStarted');
   String get sessionExpired => _translate('sessionExpired');
   String get accessDenied => _translate('accessDenied');
   String get accessDeniedMessage => _translate('accessDeniedMessage');
+  String get caseDetail => _translate('caseDetail');
+  String get customerDetail => _translate('customerDetail');
   String get contenders => _translate('contenders');
   String get court => _translate('court');
   String get courtLocation => _translate('courtLocation');
-  String get caseDetail => _translate('caseDetail');
-  String get customerDetail => _translate('customerDetail');
+  String get address => _translate('address');
+  String get governorate => _translate('governorate');
+  String get phone => _translate('phone');
   String get notifications => _translate('notifications');
-  String get register => _translate('register');
-  String get firstName => _translate('firstName');
-  String get lastName => _translate('lastName');
-  String get phoneNumber => _translate('phoneNumber');
-  String get confirmPassword => _translate('confirmPassword');
-  String get alreadyHaveAccount => _translate('alreadyHaveAccount');
-  String get biometricLogin => _translate('biometricLogin');
-  String get biometricLoginDisabled => _translate('biometricLoginDisabled');
-  String get biometricEnabled => _translate('biometricEnabled');
-  String get biometricDisabled => _translate('biometricDisabled');
   String get forgotPassword => _translate('forgotPassword');
   String get forgotPasswordDescription => _translate('forgotPasswordDescription');
   String get resetEmailSent => _translate('resetEmailSent');
@@ -382,14 +458,14 @@ class AppLocalizations {
   String get resetPasswordFor => _translate('resetPasswordFor');
   String get newPassword => _translate('newPassword');
   String get confirmNewPassword => _translate('confirmNewPassword');
-
-  String translate(String key) => _translate(key);
-
+  String get biometricLogin => _translate('biometricLogin');
+  String get biometricLoginDisabled => _translate('biometricLoginDisabled');
+  String get biometricEnabled => _translate('biometricEnabled');
+  String get biometricDisabled => _translate('biometricDisabled');
   String get caseNumber => _translate('caseNumber');
   String get caseType => _translate('caseType');
   String get status => _translate('status');
   String get customer => _translate('customer');
-  String get court => _translate('court');
   String get filingDate => _translate('filingDate');
   String get closingDate => _translate('closingDate');
   String get assignedEmployees => _translate('assignedEmployees');
@@ -402,7 +478,6 @@ class AppLocalizations {
   String get delete => _translate('delete');
   String get caseSaved => _translate('caseSaved');
   String get caseDeleted => _translate('caseDeleted');
-  String get searchTasks => _translate('searchTasks');
   String get call => _translate('call');
   String get message => _translate('message');
   String get noTimeEntriesFound => _translate('noTimeEntriesFound');
@@ -410,22 +485,20 @@ class AppLocalizations {
   String get viewRunningTimers => _translate('viewRunningTimers');
   String get selectACase => _translate('selectACase');
   String get all => _translate('all');
+  String get running => _translate('running');
+  String get stopped => _translate('stopped');
   String get runningStatus => _translate('running');
   String get stoppedStatus => _translate('stopped');
   String get start => _translate('start');
   String get workType => _translate('workType');
   String get duration => _translate('duration');
-  String get year => _translate('year');
-  String get stopTimerFunctionality => _translate('stopTimerFunctionality');
   String get statusLabel => _translate('statusLabel');
-  String get stopped => _translate('stopped');
-  String get running => _translate('running');
   String get save => _translate('save');
   String get timeEntryForm => _translate('timeEntryForm');
   String get pleaseEnterWorkType => _translate('pleaseEnterWorkType');
   String get customerIdOptional => _translate('customerIdOptional');
   String get timeEntrySaved => _translate('timeEntrySavedSuccessfully');
-
+  String get stopTimerFunctionality => _translate('stopTimerFunctionality');
   String get amount => _translate('amount');
   String get actions => _translate('actions');
   String get noDataAvailable => _translate('noDataAvailable');
@@ -438,26 +511,25 @@ class AppLocalizations {
   String get cancel => _translate('cancel');
   String get edit => _translate('edit');
   String get task => _translate('task');
-  String get searchTasks => _translate('searchTasks');
-  String get languageSelectionScreen => _translate('languageSelectionScreen');
-  String get passwordsDoNotMatch => _translate('passwordsDoNotMatch');
-  String get allFieldsAreRequired => _translate('allFieldsAreRequired');
-  String get emailIsRequired => _translate('emailIsRequired');
-  String get addEventComingSoon => _translate('addEventComingSoon');
   String get tasks => _translate('tasks');
-  String get recentActivity => _translate('recentActivity');
   String get taskEdit => _translate('taskEdit');
   String get taskDelete => _translate('taskDelete');
-  String get noSuggestions => _translate('noSuggestions');
+  String get taskDeleteAlert => _translate('taskDeleteAlert');
+  String get searchTasks => _translate('searchTasks');
   String get notificationsLabel => _translate('notificationsLabel');
   String get billing => _translate('billing');
+  String get clientPortal => _translate('clientPortal');
+  String get portalMessages => _translate('portalMessages');
+  String get portalDocuments => _translate('portalDocuments');
+  String get markedAsRead => _translate('markedAsRead');
+  String get downloadStarted => _translate('downloadStarted');
   String get timeTracking => _translate('timeTracking');
   String get payments => _translate('payments');
   String get receipts => _translate('receipts');
-  String get balance => _translate('balance');
   String get notes => _translate('notes');
   String get noPaymentsFound => _translate('noPaymentsFound');
   String get noReceiptsFound => _translate('noReceiptsFound');
+  String get balance => _translate('balance');
   String get hearingDetail => _translate('hearingDetail');
   String get hearingId => _translate('hearingId');
   String get createHearing => _translate('createHearing');
@@ -466,14 +538,11 @@ class AppLocalizations {
   String get deleteHearingConfirm => _translate('deleteHearingConfirm');
   String get addHearing => _translate('addHearing');
   String get hearingNotificationDetails => _translate('hearingNotificationDetails');
-  String get courtLocation => _translate('courtLocation');
   String get dateLabel => _translate('dateLabel');
+  String get timeEntries => _translate('timeEntries');
   String get calendarView => _translate('calendarView');
   String get listView => _translate('listView');
   String get judgeLabel => _translate('judgeLabel');
-  String get caseDetail => _translate('caseDetail');
-  String get customerDetail => _translate('customerDetail');
-  String get timeEntries => _translate('timeEntries');
   String get suggestions => _translate('suggestions');
   String get caseCode => _translate('caseCode');
   String get workTypeLabel => _translate('workTypeLabel');
@@ -486,7 +555,51 @@ class AppLocalizations {
   String get dataColumnMinutes => _translate('dataColumnMinutes');
   String get dataColumnAmount => _translate('dataColumnAmount');
   String get dataColumnActions => _translate('dataColumnActions');
-  String get taskDeleteAlert => _translate('taskDeleteAlert');
+  String get passwordsDoNotMatch => _translate('passwordsDoNotMatch');
+  String get allFieldsAreRequired => _translate('allFieldsAreRequired');
+  String get emailIsRequired => _translate('emailIsRequired');
+  String get addEventComingSoon => _translate('addEventComingSoon');
+  String get recentActivity => _translate('recentActivity');
+  String get consultationDetail => _translate('consultationDetail');
+  String get assignedEmployee => _translate('assignedEmployee');
+  String get myCalendar => _translate('calendar');
+  String get trustAccounting => _translate('trustAccounting');
+  String get trustTransaction => _translate('trustTransaction');
+  String get transactionType => _translate('transactionType');
+  String get transactionId => _translate('transactionId');
+  String get accountId => _translate('accountId');
+  String get trustType => _translate('trustType');
+  String get year => _translate('year');
+  String get noSuggestions => _translate('noSuggestions');
+  String get languageSelectionScreen => _translate('languageSelectionScreen');
+  String get create => _translate('create');
+  String get add => _translate('add');
+  String get notificationDetails => _translate('notificationDetails');
+  String get searchEmployees => _translate('searchEmployees');
+  String get noEmployeesFound => _translate('noEmployeesFound');
+  String get job => _translate('job');
+  String get department => _translate('department');
+  String get employeeDetails => _translate('employeeDetails');
+  String get employeeInformation => _translate('employeeInformation');
+  String get fullName => _translate('fullName');
+  String get caseHistory => _translate('caseHistory');
+  String get noCaseHistory => _translate('noCaseHistory');
+  String get assignedTo => _translate('assignedTo');
+  String get editTask => _translate('editTask');
+  String get createTask => _translate('createTask');
+  String get taskName => _translate('taskName');
+  String get taskType => _translate('taskType');
+  String get startDate => _translate('startDate');
+  String get reminderDate => _translate('reminderDate');
+  String get pleaseEnterTaskName => _translate('pleaseEnterTaskName');
+  String get pleaseEnterTaskType => _translate('pleaseEnterTaskType');
+  String get ssn => _translate('ssn');
+  String get salary => _translate('salary');
+  String get lastSyncedAt => _translate('lastSyncedAt');
+  String get never => _translate('never');
+  String get isDirty => _translate('isDirty');
+  String get yes => _translate('yes');
+  String get no => _translate('no');
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -501,4 +614,3 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   @override
   bool shouldReload(LocalizationsDelegate<AppLocalizations> old) => false;
 }
-

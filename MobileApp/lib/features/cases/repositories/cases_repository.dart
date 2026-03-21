@@ -1,10 +1,10 @@
 ﻿import 'dart:convert';
 
-import '../../core/api/api_client.dart';
-import '../../core/storage/local_database.dart';
-import '../../core/sync/sync_queue_item.dart';
-import '../cases/models/case.dart';
-import '../../features/customers/models/customer.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/storage/local_database.dart';
+import '../../../core/sync/sync_queue_item.dart';
+import '../models/case.dart';
+import '../../customers/models/customer.dart';
 
 class CasesRepository {
   final ApiClient apiClient;

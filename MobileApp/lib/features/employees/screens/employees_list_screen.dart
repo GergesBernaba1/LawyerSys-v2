@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../authentication/bloc/auth_bloc.dart';
 import '../../authentication/bloc/auth_state.dart';
@@ -43,7 +44,6 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
       floatingActionButton: (session?.hasPermission(Permissions.createEmployees) ?? false)
           ? FloatingActionButton(
               onPressed: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeDetailScreen()));
                 context.read<EmployeesBloc>().add(RefreshEmployees());
               },
               child: const Icon(Icons.add),

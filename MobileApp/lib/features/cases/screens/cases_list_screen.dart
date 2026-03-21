@@ -44,7 +44,7 @@ class _CasesListScreenState extends State<CasesListScreen> {
   @override
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
-    final session = context.select((AuthBloc b) =>
+    final session = context.select<AuthBloc, dynamic>((AuthBloc b) =>
         b.state is AuthAuthenticated ? (b.state as AuthAuthenticated).session : null);
     final canCreate = session?.hasPermission(Permissions.createCases) ?? false;
 

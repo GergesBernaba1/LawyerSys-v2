@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lawyersys_mobile/core/api/api_client.dart';
-import 'package:lawyersys_mobile/core/storage/local_database.dart';
-import 'package:lawyersys_mobile/features/cases/bloc/cases_bloc.dart';
-import 'package:lawyersys_mobile/features/cases/bloc/cases_event.dart';
-import 'package:lawyersys_mobile/features/cases/bloc/cases_state.dart';
-import 'package:lawyersys_mobile/features/cases/models/case.dart';
-import 'package:lawyersys_mobile/features/cases/repositories/cases_repository.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_bloc.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_event.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_state.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
+import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
 
 class FakeCasesRepository extends CasesRepository {
   final List<CaseModel> _items;

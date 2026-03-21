@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lawyersys_mobile/core/api/api_client.dart';
-import 'package:lawyersys_mobile/core/auth/biometric_auth.dart';
-import 'package:lawyersys_mobile/features/authentication/bloc/auth_bloc.dart';
-import 'package:lawyersys_mobile/features/authentication/bloc/auth_event.dart';
-import 'package:lawyersys_mobile/features/authentication/bloc/auth_state.dart';
-import 'package:lawyersys_mobile/features/authentication/models/login_request.dart';
-import 'package:lawyersys_mobile/features/authentication/models/user_session.dart';
-import 'package:lawyersys_mobile/features/authentication/repositories/auth_repository.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/auth/biometric_auth.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/login_request.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 
 class FakeAuthRepository extends AuthRepository {
   UserSession? currentSession;

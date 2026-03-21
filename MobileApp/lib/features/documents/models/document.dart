@@ -1,4 +1,4 @@
-import '../../core/api/api_constants.dart';
+import '../../../core/api/api_constants.dart';
 
 class Document {
   final int id;

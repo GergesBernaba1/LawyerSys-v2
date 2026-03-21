@@ -95,7 +95,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
       );
       // Reload data after starting
       add(LoadTimeEntries(statusFilter: event.statusFilter ?? 'All'));
-      add(LoadSuggestions(hourlyRate: event.hourlyRate ?? 0));
+      add(LoadSuggestions(event.hourlyRate ?? 0));
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
     }
@@ -110,7 +110,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
       );
       // Reload data after stopping
       add(LoadTimeEntries(statusFilter: event.statusFilter ?? 'All'));
-      add(LoadSuggestions(hourlyRate: event.hourlyRate ?? 0));
+      add(LoadSuggestions(event.hourlyRate ?? 0));
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
     }
@@ -124,7 +124,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   Future<void> _onRefreshTimeTracking(
       RefreshTimeTracking event, Emitter<TimeTrackingState> emit) async {
     add(LoadTimeEntries(statusFilter: event.statusFilter ?? 'All'));
-    add(LoadSuggestions(hourlyRate: event.hourlyRate ?? 0));
+    add(LoadSuggestions(event.hourlyRate ?? 0));
     add(LoadCaseOptions());
   }
 }

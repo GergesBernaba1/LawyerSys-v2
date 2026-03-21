@@ -9,7 +9,7 @@ class ConnectivityService {
   final Connectivity _connectivity;
   final SyncService _syncService;
 
-  StreamSubscription<ConnectivityResult>? _subscription;
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
   Timer? _metricsTimer;
 
   ConnectivityService({Connectivity? connectivity, SyncService? syncService})
@@ -17,7 +17,8 @@ class ConnectivityService {
         _syncService = syncService ?? SyncService();
 
   void startListening({Duration statsInterval = const Duration(minutes: 5)}) {
-    _subscription ??= _connectivity.onConnectivityChanged.listen((result) async {
+    _subscription ??= _connectivity.onConnectivityChanged.listen((results) async {
+      final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
       if (kDebugMode) {
         debugPrint('Connectivity changed: $result');
       }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:signalr_core/signalr_core.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 class SignalRService {
   static final SignalRService _instance = SignalRService._internal();

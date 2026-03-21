@@ -1,5 +1,5 @@
-import '../../core/api/api_client.dart';
-import '../customers/models/customer.dart';
+import '../../../core/api/api_client.dart';
+import '../models/customer.dart';
 
 class CustomersRepository {
   final ApiClient apiClient;

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lawyersys_mobile/core/api/api_client.dart';
-import 'package:lawyersys_mobile/core/localization/app_localizations.dart';
-import 'package:lawyersys_mobile/core/storage/local_database.dart';
-import 'package:lawyersys_mobile/features/cases/models/case.dart';
-import 'package:lawyersys_mobile/features/cases/repositories/cases_repository.dart';
-import 'package:lawyersys_mobile/features/customers/bloc/customers_bloc.dart';
-import 'package:lawyersys_mobile/features/customers/repositories/customers_repository.dart';
-import 'package:lawyersys_mobile/features/customers/screens/customer_detail_screen.dart';
-import 'package:lawyersys_mobile/features/customers/models/customer.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
+import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/repositories/customers_repository.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/customer_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
 
 class FakeCustomersRepository extends CustomersRepository {
   FakeCustomersRepository() : super(ApiClient());

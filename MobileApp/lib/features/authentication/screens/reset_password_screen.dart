@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/localization/app_localizations.dart';
-import '../authentication/bloc/auth_bloc.dart';
-import '../authentication/bloc/auth_event.dart';
-import '../authentication/bloc/auth_state.dart';
+import '../../../core/localization/app_localizations.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;

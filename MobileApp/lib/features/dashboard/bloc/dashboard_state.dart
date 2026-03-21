@@ -1,4 +1,4 @@
-﻿import '../dashboard/models/dashboard_summary.dart';
+import '../models/dashboard_summary.dart';
 
 abstract class DashboardState {}
 class DashboardInitial extends DashboardState {}

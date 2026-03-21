@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../features/cases/repositories/cases_repository.dart';
+import '../../cases/repositories/cases_repository.dart';
 import '../bloc/customers_bloc.dart';
 import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class CustomerDetailScreen extends StatefulWidget {
   final String customerId;

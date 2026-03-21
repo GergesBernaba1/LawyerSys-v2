@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../../core/api/api_client.dart';
-import '../../core/api/api_constants.dart';
-import '../../core/storage/local_database.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/api/api_constants.dart';
+import '../../../core/storage/local_database.dart';
 import '../models/document.dart';
 
 class DocumentsRepository {

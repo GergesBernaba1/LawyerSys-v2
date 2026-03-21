@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/tasks_bloc.dart';
 import '../bloc/tasks_event.dart';
 import '../models/task.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../../core/localization/app_localizations.dart';
 
 class TaskFormScreen extends StatefulWidget {
   final Task? task; // If provided, we're editing; if null, we're creating
@@ -109,7 +109,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations();
+    final localizer = AppLocalizations.of(context);
     final isEdit = widget.task != null;
 
     return Scaffold(

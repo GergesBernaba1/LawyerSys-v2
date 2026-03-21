@@ -284,6 +284,39 @@ class LocalDatabase {
     );
   }
 
+  Future<void> updateSyncQueueRetryCount(String id, int retryCount) async {
+    final db = await database;
+    await db.update(
+      'sync_queue',
+      {'retryCount': retryCount},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> upsertSyncMetrics(String metricId, DateTime lastSyncAt, int attempted, int succeeded, int failed, int canceled) async {
+    final db = await database;
+    await db.insert(
+      'sync_metrics',
+      {
+        'metricId': metricId,
+        'lastSyncAt': lastSyncAt.toIso8601String(),
+        'attempted': attempted,
+        'succeeded': succeeded,
+        'failed': failed,
+        'canceled': canceled,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getSyncMetrics(String metricId) async {
+    final db = await database;
+    final rows = await db.query('sync_metrics', where: 'metricId = ?', whereArgs: [metricId]);
+    if (rows.isEmpty) return null;
+    return rows.first;
+  }
+
   Future<void> addSyncActivity(
     String id,
     String queueId,

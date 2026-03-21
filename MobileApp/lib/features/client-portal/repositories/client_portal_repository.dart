@@ -1,4 +1,4 @@
-import '../../core/api/api_client.dart';
+import '../../../core/api/api_client.dart';
 import '../models/portal_message.dart';
 
 class ClientPortalRepository {
@@ -29,3 +29,4 @@ class ClientPortalRepository {
     if (data == null) return [];
     return data.map((raw) => PortalMessageModel.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
   }
+}

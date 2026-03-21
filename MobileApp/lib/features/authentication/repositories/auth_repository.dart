@@ -1,11 +1,11 @@
 ﻿import 'dart:convert';
 import 'dart:io';
 
-import '../../core/api/api_client.dart';
-import '../../core/api/api_constants.dart';
-import '../../core/storage/secure_storage.dart';
-import '../authentication/models/user_session.dart';
-import '../authentication/models/login_request.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/api/api_constants.dart';
+import '../../../core/storage/secure_storage.dart';
+import '../models/user_session.dart';
+import '../models/login_request.dart';
 
 class AuthRepository {
   final ApiClient apiClient;

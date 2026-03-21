@@ -2,21 +2,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/calendar_event.dart';
 import '../repositories/calendar_repository.dart';
-import 'calendar_event.dart';
+import 'calendar_event.dart' as bloc_calendar_event;
 import 'calendar_state.dart';
 
-class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
+class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState> {
   final CalendarRepository calendarRepository;
 
   CalendarBloc({required this.calendarRepository}) : super(CalendarInitial()) {
-    on<LoadCalendarEvents>(_onLoadCalendarEvents);
-    on<RefreshCalendarEvents>(_onRefreshCalendarEvents);
-    on<ChangeView>(_onChangeView);
-    on<ChangeDate>(_onChangeDate);
+    on<bloc_calendar_event.LoadCalendarEvents>(_onLoadCalendarEvents);
+    on<bloc_calendar_event.RefreshCalendarEvents>(_onRefreshCalendarEvents);
+    on<bloc_calendar_event.ChangeView>(_onChangeView);
+    on<bloc_calendar_event.ChangeDate>(_onChangeDate);
   }
 
   Future<void> _onLoadCalendarEvents(
-      LoadCalendarEvents event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.LoadCalendarEvents event, Emitter<CalendarState> emit) async {
     emit(CalendarLoading());
     try {
       final events = await calendarRepository.getEvents(
@@ -30,7 +30,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   Future<void> _onRefreshCalendarEvents(
-      RefreshCalendarEvents event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.RefreshCalendarEvents event, Emitter<CalendarState> emit) async {
     try {
       final events = await calendarRepository.getEvents(
         fromDate: event.fromDate,
@@ -42,7 +42,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  void _onChangeView(ChangeView event, Emitter<CalendarState> emit) {
+  void _onChangeView(bloc_calendar_event.ChangeView event, Emitter<CalendarState> emit) {
     if (state is CalendarLoaded) {
       final currentState = state as CalendarLoaded;
       emit(CalendarLoaded(
@@ -59,7 +59,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     }
   }
 
-  void _onChangeDate(ChangeDate event, Emitter<CalendarState> emit) {
+  void _onChangeDate(bloc_calendar_event.ChangeDate event, Emitter<CalendarState> emit) {
     if (state is CalendarLoaded) {
       final currentState = state as CalendarLoaded;
       emit(CalendarLoaded(

@@ -95,7 +95,7 @@ class _TrustFormScreenState extends State<TrustFormScreen> {
     final isEdit = widget.transaction != null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? localizer.edit : localizer.add ?? 'Add')),
+      appBar: AppBar(title: Text(isEdit ? localizer.edit : localizer.add)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -136,7 +136,7 @@ class _TrustFormScreenState extends State<TrustFormScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: _submit, child: Text(isEdit ? (localizer.save ?? 'Save') : (localizer.create ?? 'Create'))),
+              ElevatedButton(onPressed: _submit, child: Text(isEdit ? localizer.save : localizer.create)),
             ],
           ),
         ),

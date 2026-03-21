@@ -1,4 +1,4 @@
-import '../../core/api/api_client.dart';
+import '../../../core/api/api_client.dart';
 import '../models/trust_transaction.dart';
 
 class TrustAccountingRepository {
@@ -11,7 +11,6 @@ class TrustAccountingRepository {
       'page': page,
       'pageSize': pageSize,
     });
-
     final data = response.data as List<dynamic>?;
     if (data == null) return [];
     return data.map((raw) => TrustTransactionModel.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
@@ -43,3 +42,4 @@ class TrustAccountingRepository {
     if (data == null) return [];
     return data.map((raw) => TrustTransactionModel.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
   }
+}
