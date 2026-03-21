@@ -14,9 +14,6 @@ concurrency:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: MobileApp
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,32 +39,34 @@ jobs:
         run: flutter --version
 
       - name: Generate Android platform files
+        working-directory: MobileApp
         run: flutter create . --platforms android
 
       - name: Install dependencies
+        working-directory: MobileApp
         run: flutter pub get
 
       - name: Generate app icons
-        run: flutter pub run flutter_launcher_icons
+        working-directory: MobileApp
+        run: dart run flutter_launcher_icons
 
       - name: Run tests
+        working-directory: MobileApp
         run: flutter test
 
       - name: Build release APK
+        working-directory: MobileApp
         run: flutter build apk --release
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: lawyersys-mobile-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: MobileApp/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
   build-ios:
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: MobileApp
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -87,23 +86,28 @@ jobs:
         run: flutter --version
 
       - name: Generate iOS platform files
+        working-directory: MobileApp
         run: flutter create . --platforms ios
 
       - name: Install dependencies
+        working-directory: MobileApp
         run: flutter pub get
 
       - name: Generate app icons
-        run: flutter pub run flutter_launcher_icons
+        working-directory: MobileApp
+        run: dart run flutter_launcher_icons
 
       - name: Run tests
+        working-directory: MobileApp
         run: flutter test
 
       - name: Build IPA
+        working-directory: MobileApp
         run: flutter build ios --release --no-codesign
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: lawyersys-mobile-release-ipa
-          path: build/ios/iphoneos/Runner.app
+          path: MobileApp/build/ios/iphoneos/Runner.app
           if-no-files-found: error
