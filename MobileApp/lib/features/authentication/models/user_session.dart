@@ -57,3 +57,19 @@
     'biometricEnabled': biometricEnabled,
   };
 }
+
+extension UserSessionAuthorization on UserSession {
+  bool hasRole(String role) {
+    return roles.map((r) => r.toLowerCase()).contains(role.toLowerCase());
+  }
+
+  bool hasPermission(String permission) {
+    return permissions.map((p) => p.toLowerCase()).contains(permission.toLowerCase());
+  }
+
+  bool hasAnyPermission(List<String> required) {
+    final normalized = required.map((p) => p.toLowerCase()).toSet();
+    return permissions.map((p) => p.toLowerCase()).any(normalized.contains);
+  }
+}
+

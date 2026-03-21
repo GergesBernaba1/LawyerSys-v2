@@ -18,6 +18,8 @@ import 'features/dashboard/bloc/dashboard_bloc.dart';
 import 'features/dashboard/repositories/dashboard_repository.dart';
 import 'features/cases/bloc/cases_bloc.dart';
 import 'features/cases/repositories/cases_repository.dart';
+import 'features/courts/bloc/courts_bloc.dart';
+import 'features/courts/repositories/courts_repository.dart';
 import 'features/tasks/bloc/tasks_bloc.dart';
 import 'features/tasks/repositories/tasks_repository.dart';
 import 'features/calendar/bloc/calendar_bloc.dart';
@@ -26,13 +28,21 @@ import 'features/timetracking/bloc/timetracking_bloc.dart';
 import 'features/timetracking/repositories/timetracking_repository.dart';
 import 'features/billing/bloc/billing_bloc.dart';
 import 'features/billing/repositories/billing_repository.dart';
+import 'features/courts/screens/courts_list_screen.dart';
+import 'features/trust-accounting/bloc/trust_accounting_bloc.dart';
+import 'features/trust-accounting/repositories/trust_accounting_repository.dart';
+import 'features/trust-accounting/screens/trust_list_screen.dart';
 import 'features/customers/bloc/customers_bloc.dart';
 import 'features/customers/repositories/customers_repository.dart';
 import 'features/hearings/bloc/hearings_bloc.dart';
 import 'features/hearings/repositories/hearings_repository.dart';
 import 'features/notifications/bloc/notifications_bloc.dart';
 import 'features/notifications/repositories/notifications_repository.dart';
+import 'features/courts/bloc/courts_bloc.dart';
 import 'features/documents/screens/documents_list_screen.dart';
+import 'features/authentication/bloc/auth_bloc.dart';
+import 'features/authentication/bloc/auth_state.dart';
+import 'features/authentication/models/user_session.dart';
 import 'features/authentication/screens/login_screen.dart';
 import 'features/authentication/screens/register_screen.dart';
 import 'features/authentication/screens/forgot_password_screen.dart';
@@ -47,6 +57,8 @@ import 'features/hearings/screens/hearings_list_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'shared/screens/main_screen.dart';
 import 'shared/screens/splash_screen.dart';
+import 'shared/screens/unauthorized_screen.dart';
+import 'core/auth/permissions.dart';
 
 
 class App extends StatefulWidget {
@@ -95,6 +107,34 @@ class _AppState extends State<App> {
     super.dispose();
   }
 
+  bool _canAccessRoute(String? route, UserSession? session) {
+    if (route == null) return false;
+
+    final routePermissions = <String, String?>{
+      '/': null,
+      '/login': null,
+      '/register': null,
+      '/forgot-password': null,
+      '/reset-password': null,
+      '/main': Permissions.dashboard,
+      '/dashboard': Permissions.dashboard,
+      '/tasks': Permissions.dashboard,
+      '/calendar': Permissions.viewHearings,
+      '/hearings': Permissions.viewHearings,
+      '/courts': Permissions.viewCourts,
+      '/timetracking': Permissions.dashboard,
+      '/billing': Permissions.viewBilling,
+      '/trust-accounting': Permissions.viewTrustAccounting,
+      '/customers': Permissions.viewCustomers,
+      '/settings': Permissions.manageSettings,
+      '/documents': Permissions.dashboard,
+    };
+
+    final requiredPermission = routePermissions[route];
+    if (requiredPermission == null) return true;
+    return session?.hasPermission(requiredPermission) ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final apiClient = ApiClient();
@@ -109,8 +149,10 @@ class _AppState extends State<App> {
         RepositoryProvider(create: (_) => TasksRepository(apiClient)),
         RepositoryProvider(create: (_) => CalendarRepository(apiClient)),
         RepositoryProvider(create: (_) => TimeTrackingRepository(apiClient)),
+        RepositoryProvider(create: (_) => CourtsRepository(apiClient)),
         RepositoryProvider(create: (_) => BillingRepository(apiClient)),
         RepositoryProvider(create: (_) => CustomersRepository(apiClient)),
+        RepositoryProvider(create: (_) => TrustAccountingRepository(apiClient)),
         RepositoryProvider(create: (_) => HearingsRepository(apiClient)),
       ],
       child: MultiBlocProvider(
@@ -118,9 +160,11 @@ class _AppState extends State<App> {
           BlocProvider(create: (context) => AuthBloc(authRepository: RepositoryProvider.of<AuthRepository>(context))),
           BlocProvider(create: (context) => DashboardBloc(dashboardRepository: RepositoryProvider.of<DashboardRepository>(context))),
           BlocProvider(create: (context) => CasesBloc(casesRepository: RepositoryProvider.of<CasesRepository>(context))),
+          BlocProvider(create: (context) => TrustAccountingBloc(trustAccountingRepository: RepositoryProvider.of<TrustAccountingRepository>(context))),
           BlocProvider(create: (context) => TasksBloc(tasksRepository: RepositoryProvider.of<TasksRepository>(context))),
           BlocProvider(create: (context) => CalendarBloc(calendarRepository: RepositoryProvider.of<CalendarRepository>(context))),
           BlocProvider(create: (context) => TimeTrackingBloc(timeTrackingRepository: RepositoryProvider.of<TimeTrackingRepository>(context))),
+          BlocProvider(create: (context) => CourtsBloc(courtsRepository: RepositoryProvider.of<CourtsRepository>(context))),
           BlocProvider(create: (context) => BillingBloc(billingRepository: RepositoryProvider.of<BillingRepository>(context))),
           BlocProvider(create: (context) => CustomersBloc(customersRepository: RepositoryProvider.of<CustomersRepository>(context))),
           BlocProvider(create: (context) => HearingsBloc(hearingsRepository: RepositoryProvider.of<HearingsRepository>(context))),
@@ -156,24 +200,53 @@ class _AppState extends State<App> {
                 return Directionality(textDirection: textDirection, child: child ?? const SizedBox.shrink());
               },
               initialRoute: '/',
-              routes: {
-                '/': (_) => const SplashScreen(),
-                '/login': (_) => const LoginScreen(),
-                '/register': (_) => const RegisterScreen(),
-                '/forgot-password': (_) => const ForgotPasswordScreen(),
-                '/reset-password': (_) => const ResetScreen(),
-                '/main': (_) => const MainScreen(),
-                '/dashboard': (_) => const DashboardScreen(),
-                '/tasks': (_) => const TasksListScreen(),
-                '/calendar': (_) => const CalendarScreen(),
-                '/hearings': (_) => const HearingsListScreen(),
-                '/timetracking': (_) => const TimeTrackingListScreen(),
-                '/billing': (_) => const BillingListScreen(),
-                '/customers': (_) => const CustomersListScreen(),
-                '/settings': (_) => const SettingsScreen(),
-                '/documents': (_) => const DocumentsListScreen(),
+              onGenerateRoute: (settings) {
+                final authState = context.read<AuthBloc>().state;
+                final session = authState is AuthAuthenticated ? authState.session : null;
+
+                if (!_canAccessRoute(settings.name, session)) {
+                  return MaterialPageRoute(builder: (_) => const UnauthorizedScreen());
+                }
+
+                switch (settings.name) {
+                  case '/':
+                    return MaterialPageRoute(builder: (_) => const SplashScreen());
+                  case '/login':
+                    return MaterialPageRoute(builder: (_) => const LoginScreen());
+                  case '/register':
+                    return MaterialPageRoute(builder: (_) => const RegisterScreen());
+                  case '/forgot-password':
+                    return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+                  case '/reset-password':
+                    return MaterialPageRoute(builder: (_) => const ResetScreen());
+                  case '/main':
+                    return MaterialPageRoute(builder: (_) => const MainScreen());
+                  case '/dashboard':
+                    return MaterialPageRoute(builder: (_) => const DashboardScreen());
+                  case '/tasks':
+                    return MaterialPageRoute(builder: (_) => const TasksListScreen());
+                  case '/calendar':
+                    return MaterialPageRoute(builder: (_) => const CalendarScreen());
+                  case '/hearings':
+                    return MaterialPageRoute(builder: (_) => const HearingsListScreen());
+                  case '/courts':
+                    return MaterialPageRoute(builder: (_) => const CourtsListScreen());
+                  case '/timetracking':
+                    return MaterialPageRoute(builder: (_) => const TimeTrackingListScreen());
+                  case '/billing':
+                    return MaterialPageRoute(builder: (_) => const BillingListScreen());
+                  case '/trust-accounting':
+                    return MaterialPageRoute(builder: (_) => const TrustListScreen());
+                  case '/customers':
+                    return MaterialPageRoute(builder: (_) => const CustomersListScreen());
+                  case '/settings':
+                    return MaterialPageRoute(builder: (_) => const SettingsScreen());
+                  case '/documents':
+                    return MaterialPageRoute(builder: (_) => const DocumentsListScreen());
+                  default:
+                    return null;
+                }
               },
-            );
           },
         ),
       ),

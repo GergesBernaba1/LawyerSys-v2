@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/auth/permissions.dart';
+import '../../authentication/bloc/auth_bloc.dart';
+import '../../authentication/bloc/auth_state.dart';
 import '../bloc/billing_bloc.dart';
 import '../bloc/billing_event.dart';
 import '../bloc/billing_state.dart';
@@ -31,6 +34,10 @@ class _BillingListScreenState extends State<BillingListScreen> {
   @override
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
+    final authState = context.watch<AuthBloc>().state;
+    final session = authState is AuthAuthenticated ? authState.session : null;
+    final canCreateBilling = session?.hasPermission(Permissions.createBilling) ?? false;
+    final canDeleteBilling = session?.hasPermission(Permissions.deleteBilling) ?? false;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.billing)),
@@ -121,33 +128,43 @@ class _BillingListScreenState extends State<BillingListScreen> {
                   ),
                 ),
 
-                // Add button (only for admins)
-                // In a real app, we'd check user roles here
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BillingFormScreen(
-                            isPayment: _selectedTab == 0,
+                if (canCreateBilling)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BillingFormScreen(
+                              isPayment: _selectedTab == 0,
+                            ),
                           ),
                         ),
+                        icon: const Icon(Icons.add),
+                        label: Text(
+                            _selectedTab == 0 ? localizer.payments : localizer.receipts),
                       ),
-                      icon: const Icon(Icons.add),
-                      label: Text(
-                          _selectedTab == 0 ? localizer.payments : localizer.receipts),
                     ),
                   ),
-                ),
+                if (!canCreateBilling)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        localizer.accessDenied ?? 'No permission to add billing entries',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
 
                 // Expanded list
                 Expanded(
                   child: _selectedTab == 0
-                      ? _buildPaymentsList(payments)
-                      : _buildReceiptsList(receipts),
+                      ? _buildPaymentsList(payments, canDeleteBilling)
+                      : _buildReceiptsList(receipts, canDeleteBilling),
                 ),
               ],
             );
@@ -184,7 +201,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
     );
   }
 
-  Widget _buildPaymentsList(List<BillingPay> payments) {
+  Widget _buildPaymentsList(List<BillingPay> payments, bool canDeleteBilling) {
     if (payments.isEmpty) {
       return Center(
         child: Column(
@@ -218,12 +235,14 @@ class _BillingListScreenState extends State<BillingListScreen> {
             ),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                // In a real app, we'd show a confirmation dialog
-                context
-                    .read<BillingBloc>()
-                    .add(DeletePayment(payment.id ?? 0));
-              },
+              onPressed: canDeleteBilling
+                  ? () {
+                      // In a real app, we'd show a confirmation dialog
+                      context
+                          .read<BillingBloc>()
+                          .add(DeletePayment(payment.id ?? 0));
+                    }
+                  : null,
             ),
           ),
         );
@@ -231,7 +250,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
     );
   }
 
-  Widget _buildReceiptsList(List<BillingReceipt> receipts) {
+  Widget _buildReceiptsList(List<BillingReceipt> receipts, bool canDeleteBilling) {
     if (receipts.isEmpty) {
       return const Center(
         child: Column(
@@ -265,12 +284,14 @@ class _BillingListScreenState extends State<BillingListScreen> {
             ),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                // In a real app, we'd show a confirmation dialog
-                context
-                    .read<BillingBloc>()
-                    .add(DeleteReceipt(receipt.id ?? 0));
-              },
+              onPressed: canDeleteBilling
+                  ? () {
+                      // In a real app, we'd show a confirmation dialog
+                      context
+                          .read<BillingBloc>()
+                          .add(DeleteReceipt(receipt.id ?? 0));
+                    }
+                  : null,
             ),
           ),
         );

@@ -27,30 +27,32 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 - [ ] T137 [P] Create Employee model in MobileApp/lib/features/employees/models/employee.dart with JSON serialization
 - [ ] T138 [P] Create EmployeesRepository in MobileApp/lib/features/employees/repositories/employees_repository.dart
-- [ ] T139 [P] Create EmployeesEvent classes in MobileApp/lib/features/employees/bloc/employees_event.dart
-- [ ] T140 [P] Create EmployeesState classes in MobileApp/lib/features/employees/bloc/employees_state.dart
-- [ ] T141 Create EmployeesBloc in MobileApp/lib/features/employees/bloc/employees_bloc.dart
-- [ ] T142 Create EmployeesListScreen in MobileApp/lib/features/employees/screens/employees_list_screen.dart
-- [ ] T143 Create EmployeeDetailScreen in MobileApp/lib/features/employees/screens/employee_detail_screen.dart
+- [x] T139 [P] Create EmployeesEvent classes in MobileApp/lib/features/employees/bloc/employees_event.dart
+- [x] T140 [P] Create EmployeesState classes in MobileApp/lib/features/employees/bloc/employees_state.dart
+- [x] T141 Create EmployeesBloc in MobileApp/lib/features/employees/bloc/employees_bloc.dart
+- [x] T142 Create EmployeesListScreen in MobileApp/lib/features/employees/screens/employees_list_screen.dart
+- [x] T143 Create EmployeeDetailScreen in MobileApp/lib/features/employees/screens/employee_detail_screen.dart
 
 ### Phase 1B: Courts Management (Priority: P2)
 
-- [ ] T144 [P] Create Court model in MobileApp/lib/features/courts/models/court.dart with JSON serialization
-- [ ] T145 [P] Create CourtsRepository in MobileApp/lib/features/courts/repositories/courts_repository.dart
-- [ ] T146 [P] Create CourtsEvent classes in MobileApp/lib/features/courts/bloc/courts_event.dart
-- [ ] T147 [P] Create CourtsState classes in MobileApp/lib/features/courts/bloc/courts_state.dart
-- [ ] T148 Create CourtsBloc in MobileApp/lib/features/courts/bloc/courts_bloc.dart
-- [ ] T149 Create CourtsListScreen in MobileApp/lib/features/courts/screens/courts_list_screen.dart
-- [ ] T150 Create CourtDetailScreen in MobileApp/lib/features/courts/screens/court_detail_screen.dart
+- [x] T144 [P] Create Court model in MobileApp/lib/features/courts/models/court.dart with JSON serialization
+- [x] T145 [P] Create CourtsRepository in MobileApp/lib/features/courts/repositories/courts_repository.dart
+- [x] T146 [P] Create CourtsEvent classes in MobileApp/lib/features/courts/bloc/courts_event.dart
+- [x] T147 [P] Create CourtsState classes in MobileApp/lib/features/courts/bloc/courts_state.dart
+- [x] T148 Create CourtsBloc in MobileApp/lib/features/courts/bloc/courts_bloc.dart
+- [x] T149 Create CourtsListScreen in MobileApp/lib/features/courts/screens/courts_list_screen.dart
+- [x] T150 Create CourtDetailScreen in MobileApp/lib/features/courts/screens/court_detail_screen.dart
 
 ### Phase 1C: Contenders Management (Priority: P2)
 
-- [ ] T151 [P] Create Contender model in MobileApp/lib/features/contenders/models/contender.dart with JSON serialization
-- [ ] T152 [P] Create ContendersRepository in MobileApp/lib/features/contenders/repositories/contenders_repository.dart
-- [ ] T153 [P] Create ContendersEvent classes in MobileApp/lib/features/contenders/bloc/contenders_event.dart
-- [ ] T154 [P] Create ContendersState classes in MobileApp/lib/features/contenders/bloc/contenders_state.dart
-- [ ] T155 Create ContendersBloc in MobileApp/lib/features/contenders/bloc/contenders_bloc.dart
-- [ ] T156 Create ContendersListScreen in MobileApp/lib/features/contenders/screens/contenders_list_screen.dart
+- [x] T151 [P] Create Contender model in MobileApp/lib/features/contenders/models/contender.dart with JSON serialization
+- [x] T152 [P] Create ContendersRepository in MobileApp/lib/features/contenders/repositories/contenders_repository.dart
+- [x] T153 [P] Create ContendersEvent classes in MobileApp/lib/features/contenders/bloc/contenders_event.dart
+- [x] T154 [P] Create ContendersState classes in MobileApp/lib/features/contenders/bloc/contenders_state.dart
+- [x] T155 Create ContendersBloc in MobileApp/lib/features/contenders/bloc/contenders_bloc.dart
+- [x] T156 Create ContendersListScreen in MobileApp/lib/features/contenders/screens/contenders_list_screen.dart
+- [x] T157 Create ContenderDetailScreen in MobileApp/lib/features/contenders/screens/contender_detail_screen.dart
+- [x] T158 Create ContenderFormScreen in MobileApp/lib/features/contenders/screens/contender_form_screen.dart
 
 ### Phase 1D: Consultations Management (Priority: P2)
 
@@ -64,13 +66,13 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Phase 1E: Trust Accounting (Priority: P2)
 
-- [ ] T164 [P] Create TrustTransaction model in MobileApp/lib/features/trust-accounting/models/trust_transaction.dart with JSON serialization
-- [ ] T165 [P] Create TrustAccountingRepository in MobileApp/lib/features/trust-accounting/repositories/trust_accounting_repository.dart
-- [ ] T166 [P] Create TrustAccountingEvent classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_event.dart
-- [ ] T167 [P] Create TrustAccountingState classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_state.dart
-- [ ] T168 Create TrustAccountingBloc in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_bloc.dart
-- [ ] T169 Create TrustAccountingListScreen in MobileApp/lib/features/trust-accounting/screens/trust_list_screen.dart
-- [ ] T170 Create TrustFormScreen in MobileApp/lib/features/trust-accounting/screens/trust_form_screen.dart
+- [x] T164 [P] Create TrustTransaction model in MobileApp/lib/features/trust-accounting/models/trust_transaction.dart with JSON serialization
+- [x] T165 [P] Create TrustAccountingRepository in MobileApp/lib/features/trust-accounting/repositories/trust_accounting_repository.dart
+- [x] T166 [P] Create TrustAccountingEvent classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_event.dart
+- [x] T167 [P] Create TrustAccountingState classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_state.dart
+- [x] T168 Create TrustAccountingBloc in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_bloc.dart
+- [x] T169 Create TrustAccountingListScreen in MobileApp/lib/features/trust-accounting/screens/trust_list_screen.dart
+- [x] T170 Create TrustFormScreen in MobileApp/lib/features/trust-accounting/screens/trust_form_screen.dart
 
 ### Phase 1F: Client Portal (Priority: P2)
 
@@ -200,6 +202,7 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 - [x] T041 [US1] Create DashboardBloc in MobileApp/lib/features/dashboard/bloc/dashboard_bloc.dart implementing event handlers for loading and refreshing dashboard
 - [x] T042 [US1] Create LanguageSelectScreen in MobileApp/lib/features/authentication/screens/language_select_screen.dart with Arabic/English selection UI
 - [x] T043 [US1] Create LoginScreen in MobileApp/lib/features/authentication/screens/login_screen.dart with email and password fields, login button, and error display
+- [x] T043b [US1] Implement role/permission UI gating and route guards for FR-021 (main tabs, cases create/edit/delete, billing create/delete, navigation routes) in MobileApp/lib/**
 - [x] T044 [US1] Create DashboardScreen in MobileApp/lib/features/dashboard/screens/dashboard_screen.dart with statistics display, recent activities list, navigation to cases/hearings/customers, and pull-to-refresh
 - [x] T045 [US1] Implement BiometricAuthService in MobileApp/lib/core/auth/biometric_auth.dart using local_auth package for optional quick-unlock
 - [x] T046 [US1] Update AuthBloc to support biometric authentication flow (unlock stored token on biometric success)

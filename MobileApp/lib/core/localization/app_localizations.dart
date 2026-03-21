@@ -40,6 +40,9 @@ class AppLocalizations {
       'sessionExpired': 'Session expired. Please log in again.',
       'caseDetail': 'Case Details',
       'customerDetail': 'Customer Details',
+      'contenders': 'Contenders',
+      'court': 'Court',
+      'courtLocation': 'Court Location',
       'notifications': 'Notifications',
       'forgotPassword': 'Forgot Password',
       'forgotPasswordDescription': 'Enter your email to receive password reset instructions.',
@@ -148,6 +151,8 @@ class AppLocalizations {
       'taskEdit': 'Edit',
       'taskDelete': 'Delete',
       'cancel': 'Cancel',
+      'accessDenied': 'Access denied',
+      'accessDeniedMessage': 'You do not have permission to access this section.',
     },
     'ar': {
       'login': 'تسجيل الدخول',
@@ -175,6 +180,8 @@ class AppLocalizations {
       'english': 'الإنجليزية',
       'arabic': 'العربية',
       'sessionExpired': 'انتهت الجلسة. الرجاء تسجيل الدخول مرة أخرى.',
+      'accessDenied': 'تم رفض الوصول',
+      'accessDeniedMessage': 'ليس لديك إذن بالوصول إلى هذا القسم.',
       'caseDetail': 'تفاصيل القضية',
       'customerDetail': 'تفاصيل العميل',
       'notifications': 'الإشعارات',
@@ -202,6 +209,7 @@ class AppLocalizations {
       'caseType': 'نوع القضية',
       'status': 'الوضع',
       'customer': 'العميل',
+      'contenders': 'الطرف المقابل',
       'court': 'المحكمة',
       'filingDate': 'تاريخ التسجيل',
       'closingDate': 'تاريخ الإغلاق',
@@ -307,6 +315,12 @@ class AppLocalizations {
   String get cases => _translate('cases');
   String get customers => _translate('customers');
   String get hearings => _translate('hearings');
+  String get trustAccounting => _translate('trustAccounting');
+  String get trustTransaction => _translate('trustTransaction');
+  String get transactionType => _translate('transactionType');
+  String get transactionId => _translate('transactionId');
+  String get accountId => _translate('accountId');
+  String get trustType => _translate('trustType');
   String get settings => _translate('settings');
   String get logout => _translate('logout');
   String get search => _translate('search');
@@ -319,6 +333,11 @@ class AppLocalizations {
   String get arabic => _translate('arabic');
   String get pushNotifications => _translate('pushNotifications');
   String get sessionExpired => _translate('sessionExpired');
+  String get accessDenied => _translate('accessDenied');
+  String get accessDeniedMessage => _translate('accessDeniedMessage');
+  String get contenders => _translate('contenders');
+  String get court => _translate('court');
+  String get courtLocation => _translate('courtLocation');
   String get caseDetail => _translate('caseDetail');
   String get customerDetail => _translate('customerDetail');
   String get notifications => _translate('notifications');

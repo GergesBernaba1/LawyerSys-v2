@@ -1,7 +1,10 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../authentication/bloc/auth_bloc.dart';
+import '../../authentication/bloc/auth_state.dart';
 import '../bloc/cases_bloc.dart';
 import '../bloc/cases_event.dart';
 import '../models/case.dart';
@@ -16,6 +19,9 @@ class CaseDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
 
+    final authState = context.watch<AuthBloc>().state;
+    final session = authState is AuthAuthenticated ? authState.session : null;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('${localizer.caseDetail} ${caseModel.caseNumber}'),
@@ -26,19 +32,21 @@ class CaseDetailScreen extends StatelessWidget {
               Navigator.pushNamed(context, '/documents');
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () async {
-              await Navigator.push(context, MaterialPageRoute(builder: (_) => CaseFormScreen(caseModel: caseModel)));
-              if (context.mounted) {
-                context.read<CasesBloc>().add(RefreshCases());
-                context.read<CasesBloc>().add(SelectCase(caseModel.caseId));
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () async {
+          if (session?.hasPermission(Permissions.editCases) ?? false)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => CaseFormScreen(caseModel: caseModel)));
+                if (context.mounted) {
+                  context.read<CasesBloc>().add(RefreshCases());
+                  context.read<CasesBloc>().add(SelectCase(caseModel.caseId));
+                }
+              },
+            ),
+          if (session?.hasPermission(Permissions.deleteCases) ?? false)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () async {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(

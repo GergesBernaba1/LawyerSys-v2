@@ -1,7 +1,10 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../authentication/bloc/auth_bloc.dart';
+import '../../authentication/bloc/auth_state.dart';
 import '../bloc/cases_bloc.dart';
 import '../bloc/cases_event.dart';
 import '../bloc/cases_state.dart';
@@ -35,15 +38,20 @@ class _CasesListScreenState extends State<CasesListScreen> {
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
 
+    final authState = context.watch<AuthBloc>().state;
+    final session = authState is AuthAuthenticated ? authState.session : null;
+
     return Scaffold(
       appBar: AppBar(title: Text(localizer.cases)),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (_) => const CaseFormScreen()));
-          context.read<CasesBloc>().add(RefreshCases());
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: (session?.hasPermission(Permissions.createCases) ?? false)
+          ? FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => const CaseFormScreen()));
+                context.read<CasesBloc>().add(RefreshCases());
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: BlocListener<CasesBloc, CasesState>(
         listener: (context, state) {
           if (state is CaseOperationSuccess) {
