@@ -76,27 +76,27 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Phase 1F: Client Portal (Priority: P2)
 
-- [ ] T171 [P] Create PortalMessage model in MobileApp/lib/features/client-portal/models/portal_message.dart with JSON serialization
-- [ ] T172 [P] Create ClientPortalRepository in MobileApp/lib/features/client-portal/repositories/client_portal_repository.dart
-- [ ] T173 [P] Create ClientPortalEvent classes in MobileApp/lib/features/client-portal/bloc/client_portal_event.dart
-- [ ] T174 [P] Create ClientPortalState classes in MobileApp/lib/features/client-portal/bloc/client_portal_state.dart
-- [ ] T175 Create ClientPortalBloc in MobileApp/lib/features/client-portal/bloc/client_portal_bloc.dart
-- [ ] T176 Create PortalMessagesScreen in MobileApp/lib/features/client-portal/screens/portal_messages_screen.dart
-- [ ] T177 Create PortalDocumentsScreen in MobileApp/lib/features/client-portal/screens/portal_documents_screen.dart
+- [x] T171 [P] Create PortalMessage model in MobileApp/lib/features/client-portal/models/portal_message.dart with JSON serialization
+- [x] T172 [P] Create ClientPortalRepository in MobileApp/lib/features/client-portal/repositories/client_portal_repository.dart
+- [x] T173 [P] Create ClientPortalEvent classes in MobileApp/lib/features/client-portal/bloc/client_portal_event.dart
+- [x] T174 [P] Create ClientPortalState classes in MobileApp/lib/features/client-portal/bloc/client_portal_state.dart
+- [x] T175 Create ClientPortalBloc in MobileApp/lib/features/client-portal/bloc/client_portal_bloc.dart
+- [x] T176 Create PortalMessagesScreen in MobileApp/lib/features/client-portal/screens/portal_messages_screen.dart
+- [x] T177 Create PortalDocumentsScreen in MobileApp/lib/features/client-portal/screens/portal_documents_screen.dart
 
 ### Phase 1G: Governments (Priority: P3)
 
-- [ ] T178 [P] Create Government model in MobileApp/lib/features/governments/models/government.dart with JSON serialization
-- [ ] T179 [P] Create GovernmentsRepository in MobileApp/lib/features/governments/repositories/governments_repository.dart
-- [ ] T180 Create GovernmentsBloc in MobileApp/lib/features/governments/bloc/governments_bloc.dart
-- [ ] T181 Create GovernmentsListScreen in MobileApp/lib/features/governments/screens/governments_list_screen.dart
+- [x] T178 [P] Create Government model in MobileApp/lib/features/governments/models/government.dart with JSON serialization
+- [x] T179 [P] Create GovernmentsRepository in MobileApp/lib/features/governments/repositories/governments_repository.dart
+- [x] T180 Create GovernmentsBloc in MobileApp/lib/features/governments/bloc/governments_bloc.dart
+- [x] T181 Create GovernmentsListScreen in MobileApp/lib/features/governments/screens/governments_list_screen.dart
 
 ### Phase 1H: Case Relations (Priority: P3)
 
-- [ ] T182 [P] Create CaseRelation model in MobileApp/lib/features/case-relations/models/case_relation.dart with JSON serialization
-- [ ] T183 [P] Create CaseRelationsRepository in MobileApp/lib/features/case-relations/repositories/case_relations_repository.dart
-- [ ] T184 Create CaseRelationsBloc in MobileApp/lib/features/case-relations/bloc/case_relations_bloc.dart
-- [ ] T185 Create CaseRelationsListScreen in MobileApp/lib/features/case-relations/screens/case_relations_list_screen.dart
+- [x] T182 [P] Create CaseRelation model in MobileApp/lib/features/case-relations/models/case_relation.dart with JSON serialization
+- [x] T183 [P] Create CaseRelationsRepository in MobileApp/lib/features/case-relations/repositories/case_relations_repository.dart
+- [x] T184 Create CaseRelationsBloc in MobileApp/lib/features/case-relations/bloc/case_relations_bloc.dart
+- [x] T185 Create CaseRelationsListScreen in MobileApp/lib/features/case-relations/screens/case_relations_list_screen.dart
 
 ### Phase 1I: Judicial Documents (Priority: P3)
 
@@ -107,17 +107,17 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Phase 1J: Reports (Priority: P3)
 
-- [ ] T190 [P] Create Report model in MobileApp/lib/features/reports/models/report.dart with JSON serialization
-- [ ] T191 [P] Create ReportsRepository in MobileApp/lib/features/reports/repositories/reports_repository.dart
-- [ ] T192 Create ReportsBloc in MobileApp/lib/features/reports/bloc/reports_bloc.dart
-- [ ] T193 Create ReportsScreen in MobileApp/lib/features/reports/screens/reports_screen.dart
+- [x] T190 [P] Create Report model in MobileApp/lib/features/reports/models/report.dart with JSON serialization
+- [x] T191 [P] Create ReportsRepository in MobileApp/lib/features/reports/repositories/reports_repository.dart
+- [x] T192 Create ReportsBloc in MobileApp/lib/features/reports/bloc/reports_bloc.dart
+- [x] T193 Create ReportsScreen in MobileApp/lib/features/reports/screens/reports_screen.dart
 
 ### Phase 1K: Intake Forms (Priority: P3)
 
-- [ ] T194 [P] Create IntakeForm model in MobileApp/lib/features/intake/models/intake_form.dart with JSON serialization
-- [ ] T195 [P] Create IntakeRepository in MobileApp/lib/features/intake/repositories/intake_repository.dart
-- [ ] T196 Create IntakeBloc in MobileApp/lib/features/intake/bloc/intake_bloc.dart
-- [ ] T197 Create IntakeFormScreen in MobileApp/lib/features/intake/screens/intake_form_screen.dart
+- [x] T194 [P] Create IntakeForm model in MobileApp/lib/features/intake/models/intake_form.dart with JSON serialization
+- [x] T195 [P] Create IntakeRepository in MobileApp/lib/features/intake/repositories/intake_repository.dart
+- [x] T196 Create IntakeBloc in MobileApp/lib/features/intake/bloc/intake_bloc.dart
+- [x] T197 Create IntakeFormScreen in MobileApp/lib/features/intake/screens/intake_form_screen.dart
 
 ### Phase 1L: Billing (Priority: P2 - Already exists in MobileApp)
 

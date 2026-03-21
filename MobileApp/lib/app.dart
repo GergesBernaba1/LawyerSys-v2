@@ -32,6 +32,10 @@ import 'features/courts/screens/courts_list_screen.dart';
 import 'features/trust-accounting/bloc/trust_accounting_bloc.dart';
 import 'features/trust-accounting/repositories/trust_accounting_repository.dart';
 import 'features/trust-accounting/screens/trust_list_screen.dart';
+import 'features/client-portal/bloc/client_portal_bloc.dart';
+import 'features/client-portal/repositories/client_portal_repository.dart';
+import 'features/client-portal/screens/portal_messages_screen.dart';
+import 'features/client-portal/screens/portal_documents_screen.dart';
 import 'features/customers/bloc/customers_bloc.dart';
 import 'features/customers/repositories/customers_repository.dart';
 import 'features/hearings/bloc/hearings_bloc.dart';
@@ -125,6 +129,8 @@ class _AppState extends State<App> {
       '/timetracking': Permissions.dashboard,
       '/billing': Permissions.viewBilling,
       '/trust-accounting': Permissions.viewTrustAccounting,
+      '/client-portal-messages': Permissions.viewClientPortal,
+      '/client-portal-documents': Permissions.viewClientPortal,
       '/customers': Permissions.viewCustomers,
       '/settings': Permissions.manageSettings,
       '/documents': Permissions.dashboard,
@@ -153,6 +159,7 @@ class _AppState extends State<App> {
         RepositoryProvider(create: (_) => BillingRepository(apiClient)),
         RepositoryProvider(create: (_) => CustomersRepository(apiClient)),
         RepositoryProvider(create: (_) => TrustAccountingRepository(apiClient)),
+        RepositoryProvider(create: (_) => ClientPortalRepository(apiClient)),
         RepositoryProvider(create: (_) => HearingsRepository(apiClient)),
       ],
       child: MultiBlocProvider(
@@ -161,6 +168,7 @@ class _AppState extends State<App> {
           BlocProvider(create: (context) => DashboardBloc(dashboardRepository: RepositoryProvider.of<DashboardRepository>(context))),
           BlocProvider(create: (context) => CasesBloc(casesRepository: RepositoryProvider.of<CasesRepository>(context))),
           BlocProvider(create: (context) => TrustAccountingBloc(trustAccountingRepository: RepositoryProvider.of<TrustAccountingRepository>(context))),
+          BlocProvider(create: (context) => ClientPortalBloc(clientPortalRepository: RepositoryProvider.of<ClientPortalRepository>(context))),
           BlocProvider(create: (context) => TasksBloc(tasksRepository: RepositoryProvider.of<TasksRepository>(context))),
           BlocProvider(create: (context) => CalendarBloc(calendarRepository: RepositoryProvider.of<CalendarRepository>(context))),
           BlocProvider(create: (context) => TimeTrackingBloc(timeTrackingRepository: RepositoryProvider.of<TimeTrackingRepository>(context))),
@@ -237,6 +245,10 @@ class _AppState extends State<App> {
                     return MaterialPageRoute(builder: (_) => const BillingListScreen());
                   case '/trust-accounting':
                     return MaterialPageRoute(builder: (_) => const TrustListScreen());
+                  case '/client-portal-messages':
+                    return MaterialPageRoute(builder: (_) => const PortalMessagesScreen());
+                  case '/client-portal-documents':
+                    return MaterialPageRoute(builder: (_) => const PortalDocumentsScreen());
                   case '/customers':
                     return MaterialPageRoute(builder: (_) => const CustomersListScreen());
                   case '/settings':

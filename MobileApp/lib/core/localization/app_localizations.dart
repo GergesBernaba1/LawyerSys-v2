@@ -107,6 +107,11 @@ class AppLocalizations {
       'task': 'Task',
       'notificationsLabel': 'Notifications',
       'billing': 'Billing',
+      'clientPortal': 'Client Portal',
+      'portalMessages': 'Portal Messages',
+      'portalDocuments': 'Portal Documents',
+      'markedAsRead': 'Marked as read',
+      'downloadStarted': 'Download started',
       'timeTracking': 'Time Tracking',
       'payments': 'Payments',
       'receipts': 'Receipts',
@@ -249,6 +254,11 @@ class AppLocalizations {
       'task': 'مهمة',
       'notificationsLabel': 'الإشعارات',
       'billing': 'الفوترة',
+      'clientPortal': 'بوابة العملاء',
+      'portalMessages': 'رسائل البوابة',
+      'portalDocuments': 'مستندات البوابة',
+      'markedAsRead': 'تم وسمها كمقروءة',
+      'downloadStarted': 'بدء التنزيل',
       'timeTracking': 'تتبع الوقت',
       'payments': 'المدفوعات',
       'receipts': 'الإيصالات',
@@ -332,6 +342,11 @@ class AppLocalizations {
   String get english => _translate('english');
   String get arabic => _translate('arabic');
   String get pushNotifications => _translate('pushNotifications');
+  String get clientPortal => _translate('clientPortal');
+  String get portalMessages => _translate('portalMessages');
+  String get portalDocuments => _translate('portalDocuments');
+  String get markedAsRead => _translate('markedAsRead');
+  String get downloadStarted => _translate('downloadStarted');
   String get sessionExpired => _translate('sessionExpired');
   String get accessDenied => _translate('accessDenied');
   String get accessDeniedMessage => _translate('accessDeniedMessage');
