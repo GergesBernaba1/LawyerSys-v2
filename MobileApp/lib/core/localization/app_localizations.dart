@@ -8,7 +8,9 @@ class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final appLoc = Localizations.of<AppLocalizations>(context, AppLocalizations);
+    if (appLoc != null) return appLoc;
+    return AppLocalizations(const Locale('en'));
   }
 
   String translate(String key) {

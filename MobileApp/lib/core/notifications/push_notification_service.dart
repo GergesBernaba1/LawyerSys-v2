@@ -17,9 +17,13 @@ class PushNotificationService {
 
   PushNotificationService._internal();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging? _messaging;
   AuthRepository? _authRepository;
   NotificationsRepository? _notificationsRepository;
+
+  FirebaseMessaging get _firebaseMessaging {
+    return _messaging ??= FirebaseMessaging.instance;
+  }
 
   void configure(AuthRepository authRepository, {NotificationsRepository? notificationsRepository}) {
     _authRepository = authRepository;
@@ -32,12 +36,12 @@ class PushNotificationService {
         await _requestPermission();
       }
 
-      final token = await _messaging.getToken();
+      final token = await _firebaseMessaging.getToken();
       if (token != null && token.isNotEmpty && _authRepository != null) {
         await _authRepository!.registerDeviceToken(token, platform: Platform.operatingSystem);
       }
 
-      _messaging.onTokenRefresh.listen((newToken) async {
+      _firebaseMessaging.onTokenRefresh.listen((newToken) async {
         if (newToken.isNotEmpty && _authRepository != null) {
           await _authRepository!.registerDeviceToken(newToken, platform: Platform.operatingSystem);
         }
@@ -62,14 +66,18 @@ class PushNotificationService {
   }
 
   Future<void> disable() async {
-    final token = await _messaging.getToken();
-    if (token != null && token.isNotEmpty && _authRepository != null) {
-      await _authRepository!.unregisterDeviceToken(token);
+    try {
+      final token = await _firebaseMessaging.getToken();
+      if (token != null && token.isNotEmpty && _authRepository != null) {
+        await _authRepository!.unregisterDeviceToken(token);
+      }
+    } catch (e, st) {
+      debugPrint('PushNotificationService.disable failed: $e\n$st');
     }
   }
 
   Future<void> _requestPermission() async {
-    final settings = await _messaging.requestPermission(
+    final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,

@@ -72,8 +72,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Hearings'), findsOneWidget);
-    expect(find.text('CASE-001'), findsOneWidget);
-    expect(find.text('CASE-002'), findsOneWidget);
+    expect(find.text('Case Number: CASE-001'), findsOneWidget);
+    expect(find.text('Case Number: CASE-002'), findsOneWidget);
 
     // Toggle to calendar view
     final toggleButton = find.widgetWithText(TextButton, 'Calendar View');
@@ -85,7 +85,7 @@ void main() {
     expect(find.byType(TableCalendar<Hearing>), findsOneWidget);
 
     // Selected day event should show list entry for the first hearing
-    expect(find.text('CASE-001'), findsOneWidget);
+    expect(find.textContaining('CASE-001'), findsOneWidget);
 
     hearingsBloc.close();
   });

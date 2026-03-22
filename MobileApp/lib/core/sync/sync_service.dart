@@ -201,7 +201,14 @@ class SyncService {
         upsert: (items) async {
           for (final item in items) {
             final id = item['id']?.toString() ?? '';
-            if (id.isNotEmpty) await _localDatabase.upsertEmployee(id, item, isDirty: false);
+            if (id.isNotEmpty) {
+              await _localDatabase.upsertEmployee(
+                id,
+                item,
+                tenantId: item['tenantId'] as String?,
+                isDirty: false,
+              );
+            }
           }
         },
       ),

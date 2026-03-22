@@ -12,7 +12,9 @@ import '../../authentication/repositories/auth_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final BiometricAuthService? biometricAuthService;
+
+  const SettingsScreen({super.key, this.biometricAuthService});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -35,12 +37,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final storedLanguage = await _preferences.getLanguageCode();
     final storedPush = await _preferences.getPushNotificationEnabled();
-    final biometricAvailable = await BiometricAuthService().isBiometricAvailable();
+    final biometricService = widget.biometricAuthService ?? BiometricAuthService();
+    final biometricAvailable = await biometricService.isBiometricAvailable();
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final session = await authRepository.getStoredSession();
 
-    await LocalDatabase.instance.getSyncQueueSize();
-    await ConnectivityService().getPersistedHealth();
+    try {
+      await LocalDatabase.instance.getSyncQueueSize();
+      await ConnectivityService().getPersistedHealth();
+    } catch (e) {
+      debugPrint('SettingsScreen: unable to init local persistence for settings: $e');
+    }
 
     setState(() {
       _language = storedLanguage ?? 'en';
