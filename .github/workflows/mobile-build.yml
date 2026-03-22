@@ -93,6 +93,12 @@ jobs:
         working-directory: MobileApp
         run: flutter pub get
 
+      - name: Run CocoaPods install
+        working-directory: MobileApp/ios
+        run: |
+          pod repo update
+          pod install
+
       - name: Run tests
         working-directory: MobileApp
         run: flutter test
