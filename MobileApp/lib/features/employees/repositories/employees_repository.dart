@@ -76,9 +76,9 @@ class EmployeesRepository {
       return cached
           .map((row) => EmployeeModel.fromJson(jsonDecode(row['data'] as String) as Map<String, dynamic>))
           .where((e) =>
-            e.user?.fullName.toLowerCase().contains(query.toLowerCase()) ||
-            e.user?.userName.toLowerCase().contains(query.toLowerCase()) ||
-            e.user?.job.toLowerCase().contains(query.toLowerCase()))
+            (e.user?.fullName.toLowerCase().contains(query.toLowerCase()) ?? false) ||
+            (e.user?.userName.toLowerCase().contains(query.toLowerCase()) ?? false) ||
+            (e.user?.job.toLowerCase().contains(query.toLowerCase()) ?? false))
           .toList();
     }
   }

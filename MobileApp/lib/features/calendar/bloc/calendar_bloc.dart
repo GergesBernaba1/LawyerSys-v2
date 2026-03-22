@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/calendar_event.dart';
 import '../repositories/calendar_repository.dart';
 import 'calendar_event.dart' as bloc_calendar_event;
 import 'calendar_state.dart';

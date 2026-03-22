@@ -23,10 +23,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _pushNotificationsEnabled = true;
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
-  int _queueSize = 0;
-  String _lastSync = 'Unknown';
-  String _syncStatus = 'No data';
-  bool _isForceSyncing = false;
   final _preferences = PreferencesStorage();
   final _pushService = PushNotificationService();
 
@@ -43,24 +39,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final session = await authRepository.getStoredSession();
 
-    final queueSize = await LocalDatabase.instance.getSyncQueueSize();
-    final persisted = await ConnectivityService().getPersistedHealth();
+    await LocalDatabase.instance.getSyncQueueSize();
+    await ConnectivityService().getPersistedHealth();
 
     setState(() {
       _language = storedLanguage ?? 'en';
       _pushNotificationsEnabled = storedPush;
       _biometricAvailable = biometricAvailable;
       _biometricEnabled = session?.biometricEnabled ?? false;
-      _queueSize = queueSize;
-      _lastSync = persisted?.lastSyncAt.toIso8601String() ?? 'None';
-      _syncStatus = persisted != null ? 'S:${persisted.succeeded} F:${persisted.failed} C:${persisted.canceled}' : 'No data';
-    });
-  }
-
-  Future<void> _loadLanguage() async {
-    final stored = await _preferences.getLanguageCode();
-    setState(() {
-      _language = stored ?? 'en';
     });
   }
 
@@ -110,21 +96,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(localizer.language),
             subtitle: Text(_language == 'ar' ? localizer.arabic : localizer.english),
           ),
-          RadioListTile<String>(
+          ListTile(
             title: Text(localizer.english),
-            value: 'en',
-            groupValue: _language,
-            onChanged: (value) {
-              if (value != null) _setLanguage(value);
-            },
+            leading: RadioGroup<String>(
+              groupValue: _language,
+              onChanged: (value) { if (value != null) _setLanguage(value); },
+              child: Radio<String>(value: 'en'),
+            ),
+            onTap: () => _setLanguage('en'),
           ),
-          RadioListTile<String>(
+          ListTile(
             title: Text(localizer.arabic),
-            value: 'ar',
-            groupValue: _language,
-            onChanged: (value) {
-              if (value != null) _setLanguage(value);
-            },
+            leading: RadioGroup<String>(
+              groupValue: _language,
+              onChanged: (value) { if (value != null) _setLanguage(value); },
+              child: Radio<String>(value: 'ar'),
+            ),
+            onTap: () => _setLanguage('ar'),
           ),
           const SizedBox(height: 16),
           SwitchListTile(

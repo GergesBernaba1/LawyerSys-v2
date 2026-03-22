@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/customer.dart';
 import '../repositories/customers_repository.dart';
 import 'customers_event.dart';
 import 'customers_state.dart';

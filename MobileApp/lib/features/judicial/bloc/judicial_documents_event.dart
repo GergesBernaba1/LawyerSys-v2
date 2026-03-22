@@ -1,5 +1,3 @@
-import '../models/judicial_document.dart';
-
 abstract class JudicialDocumentsEvent {}
 
 class LoadJudicialDocuments extends JudicialDocumentsEvent {

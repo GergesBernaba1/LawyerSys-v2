@@ -1,3 +1,5 @@
+import '../models/billing.dart';
+
 abstract class BillingEvent {}
 
 class LoadPayments extends BillingEvent {}

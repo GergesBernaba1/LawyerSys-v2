@@ -1,4 +1,4 @@
-import '../../core/api/api_client.dart';
+import '../../../core/api/api_client.dart';
 import '../models/contender.dart';
 
 class ContendersRepository {

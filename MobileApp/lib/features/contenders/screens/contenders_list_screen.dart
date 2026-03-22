@@ -36,7 +36,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
     final localizer = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.contenders ?? 'Contenders')),
+      appBar: AppBar(title: Text(localizer.contenders)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => const ContenderFormScreen()));
@@ -51,7 +51,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: localizer.searchContenders ?? 'Search contenders',
+                hintText: localizer.search,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () => context.read<ContendersBloc>().add(SearchContenders(_searchController.text)),
@@ -67,7 +67,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizer.error}: ${state.message}')));
                 }
                 if (state is ContenderOperationSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizer.translate(state.message))));
                 }
               },
               builder: (context, state) {
@@ -80,7 +80,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                 if (state is ContendersLoaded) {
                   final contenders = state.contenders;
                   if (contenders.isEmpty) {
-                    return Center(child: Text(localizer.noData ?? 'No contenders found'));
+                    return Center(child: Text(localizer.noData));
                   }
                   return ListView.builder(
                     itemCount: contenders.length,
@@ -89,10 +89,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                       return ListTile(
                         title: Text(contender.fullName),
                         subtitle: Text('${contender.contenderType} • ${contender.ssn}'),
-                        onTap: () {
-                          context.read<ContendersBloc>().add(SelectContender(contender.contenderId));
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => ContenderDetailScreen(contender: contender)));
-                        },
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContenderDetailScreen(contender: contender))),
                       );
                     },
                   );
@@ -117,13 +114,13 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
         children: [
           Text(contender.fullName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('${localizer.ssn ?? 'SSN'}: ${contender.ssn}'),
-          Text('${localizer.phone ?? 'Phone'}: ${contender.phone}'),
-          Text('${localizer.email ?? 'Email'}: ${contender.email}'),
-          Text('${localizer.address ?? 'Address'}: ${contender.address}'),
-          Text('${localizer.contenderType ?? 'Type'}: ${contender.contenderType}'),
+          Text('${localizer.ssn}: ${contender.ssn}'),
+          Text('${localizer.phone}: ${contender.phone}'),
+          Text('${localizer.email}: ${contender.email}'),
+          Text('${localizer.address}: ${contender.address}'),
+          Text('${localizer.caseType}: ${contender.contenderType}'),
           const SizedBox(height: 8),
-          Text('${localizer.notes ?? 'Notes'}: ${contender.notes}'),
+          Text('${localizer.notes}: ${contender.notes}'),
         ],
       ),
     );

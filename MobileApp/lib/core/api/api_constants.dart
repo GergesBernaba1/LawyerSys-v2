@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const baseUrl = 'https://api.lawyersys.example.com';
+  static const baseUrl = 'https://qadayaapi.naqreo.com/api';
 
   // Authentication endpoints
   static const login = '/auth/login';
@@ -16,9 +16,9 @@ class ApiConstants {
   static const employeeById = '/employees/{id}';
 
   // Account endpoints
-  static const logout = '/api/account/logout';
-  static const registerDeviceToken = '/api/account/register-device-token';
-  static const unregisterDeviceToken = '/api/account/unregister-device-token';
+  static const logout = '/account/logout';
+  static const registerDeviceToken = '/account/register-device-token';
+  static const unregisterDeviceToken = '/account/unregister-device-token';
 
   // Realtime / SignalR
   static const signalRHub = '/hubs/notifications';

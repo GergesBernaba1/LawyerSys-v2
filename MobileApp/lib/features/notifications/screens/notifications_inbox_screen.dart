@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/notifications_bloc.dart';
 import '../bloc/notifications_event.dart';
 import '../bloc/notifications_state.dart';
-import '../models/notification.dart';
 import 'notification_detail_screen.dart';
 import '../../../core/localization/app_localizations.dart';
 

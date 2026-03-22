@@ -72,23 +72,29 @@ class _ConflictResolverWidgetState extends State<ConflictResolverWidget> {
                       Row(
                         children: [
                           Expanded(
-                            child: RadioListTile<bool>(
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              title: const Text('Local'),
-                              value: true,
+                            child: RadioGroup<bool>(
                               groupValue: localSelected,
-                              onChanged: (value) => _toggleKey(key, true),
-                            ),
-                          ),
-                          Expanded(
-                            child: RadioListTile<bool>(
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              title: const Text('Remote'),
-                              value: false,
-                              groupValue: localSelected,
-                              onChanged: (value) => _toggleKey(key, false),
+                              onChanged: (value) => _toggleKey(key, value ?? true),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: RadioListTile<bool>(
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: const Text('Local'),
+                                      value: true,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: RadioListTile<bool>(
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: const Text('Remote'),
+                                      value: false,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

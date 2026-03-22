@@ -112,6 +112,11 @@ public class NotificationChannelDispatcher : INotificationChannelDispatcher
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
+        // Define localizedTitle and localizedMessage for push notifications
+        var useArabicForPush = recipients.Any(r => string.Equals(r.Preference?.PreferredLanguage, "ar", StringComparison.OrdinalIgnoreCase));
+        var localizedTitleForPush = useArabicForPush && !string.IsNullOrWhiteSpace(titleAr) ? titleAr : title;
+        var localizedMessageForPush = useArabicForPush && !string.IsNullOrWhiteSpace(messageAr) ? messageAr : message;
+
         if (pushRecipientIds.Length > 0)
         {
             var pushTokens = await _applicationDbContext.UserPushTokens
@@ -127,8 +132,8 @@ public class NotificationChannelDispatcher : INotificationChannelDispatcher
                 {
                     await _pushNotificationService.SendAsync(
                         pushTokens,
-                        localizedTitle,
-                        localizedMessage,
+                        localizedTitleForPush,
+                        localizedMessageForPush,
                         route,
                         new Dictionary<string, string>
                         {

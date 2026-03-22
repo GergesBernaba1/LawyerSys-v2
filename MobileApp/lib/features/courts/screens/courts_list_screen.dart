@@ -35,7 +35,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.courts ?? 'Courts')),
+      appBar: AppBar(title: Text(localizer.courts)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => const CourtFormScreen()));
@@ -50,7 +50,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: localizer.search ?? 'Search',
+                hintText: localizer.search,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () => context.read<CourtsBloc>().add(SearchCourts(_searchController.text)),
@@ -79,7 +79,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
                 if (state is CourtsLoaded) {
                   final courts = state.courts;
                   if (courts.isEmpty) {
-                    return Center(child: Text(localizer.noData ?? 'No courts found'));
+                    return Center(child: Text(localizer.noData));
                   }
                   return ListView.builder(
                     itemCount: courts.length,
@@ -118,10 +118,10 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
           Text(court.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text('${localizer.address}: ${court.address}'),
-          Text('${localizer.governorate ?? 'Governorate'}: ${court.governorate}'),
-          Text('${localizer.phone ?? 'Phone'}: ${court.phone}'),
+          Text('${localizer.governorate}: ${court.governorate}'),
+          Text('${localizer.phone}: ${court.phone}'),
           const SizedBox(height: 16),
-          Text('${localizer.notes ?? 'Notes'}: ${court.notes}'),
+          Text('${localizer.notes}: ${court.notes}'),
         ],
       ),
     );

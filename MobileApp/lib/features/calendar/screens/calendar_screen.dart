@@ -46,12 +46,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   String _getToDate(String view, DateTime anchorDate) {
     final base = DateTime(anchorDate.year, anchorDate.month, anchorDate.day);
     if (view == 'week') {
-      final start = DateTime(base.year, base.month, base.day - base.weekday + 1);
-      final end = start.add(const Duration(days: 6));
+      final weekStart = DateTime(base.year, base.month, base.day - base.weekday + 1);
+      final end = weekStart.add(const Duration(days: 6));
       return _toDateOnly(end);
     }
     // Month view
-    final start = DateTime(base.year, base.month, 1);
     final end = DateTime(base.year, base.month + 1, 0);
     return _toDateOnly(end);
   }
@@ -63,13 +62,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
-    final isEmployeeOnly = false; // This would come from auth state in a real implementation
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEmployeeOnly
-            ? localizer.myCalendar
-            : localizer.calendar),
+        title: Text(localizer.calendar),
       ),
       body: BlocBuilder<CalendarBloc, CalendarState>(
         builder: (context, state) {
@@ -80,8 +76,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             return Center(child: Text('Error: ${state.message}'));
           }
           if (state is CalendarLoaded) {
-            final calendarState = state as CalendarLoaded;
-            final events = calendarState.events;
+            final events = state.events;
             
             // Group events by date
             final Map<String, List<model_calendar_event.CalendarEvent>> groupedByDate = {};
@@ -107,9 +102,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       Row(
                         children: [
                           Text(
-                            isEmployeeOnly
-                                ? localizer.myCalendar
-                                : localizer.calendar,
+                            localizer.calendar,
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],
@@ -223,7 +216,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Add event functionality
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Add event functionality coming soon')),
           );

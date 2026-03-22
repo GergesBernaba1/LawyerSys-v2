@@ -5,7 +5,6 @@ import '../../../core/localization/app_localizations.dart';
 import '../bloc/timetracking_bloc.dart';
 import '../bloc/timetracking_event.dart';
 import '../bloc/timetracking_state.dart';
-import '../models/time_entry.dart';
 
 class TimeTrackingFormScreen extends StatefulWidget {
   const TimeTrackingFormScreen({super.key});
@@ -19,7 +18,6 @@ class _TimeTrackingFormScreenState extends State<TimeTrackingFormScreen> {
   final _workTypeController = TextEditingController();
   final _descriptionController = TextEditingController();
   int? _selectedCaseCode;
-  String? _selectedCustomerId;
   String _status = 'Stopped';
 
   @override
@@ -97,19 +95,8 @@ class _TimeTrackingFormScreenState extends State<TimeTrackingFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: localizer.customerIdOptional,
-                      border: const OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      _selectedCustomerId = value.isEmpty ? null : value;
-                    },
-                  ),
-                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _status,
+                    initialValue: _status,
                     decoration: InputDecoration(
                       labelText: localizer.statusLabel,
                       border: const OutlineInputBorder(),
@@ -152,8 +139,15 @@ class _TimeTrackingFormScreenState extends State<TimeTrackingFormScreen> {
       return;
     }
 
-    // In a real implementation, we would add/update the time entry via bloc
-    // For now, we'll just show a success message and go back
+    context.read<TimeTrackingBloc>().add(StartTimeEntry(
+      caseCode: _selectedCaseCode,
+      workType: _workTypeController.text.trim(),
+      description: _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim(),
+      statusFilter: _status,
+    ));
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context).timeEntrySaved)),
     );

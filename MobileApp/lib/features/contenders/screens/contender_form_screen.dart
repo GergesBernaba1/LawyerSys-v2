@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../bloc/contenders_bloc.dart';
 import '../bloc/contenders_event.dart';
+import '../bloc/contenders_state.dart';
 import '../models/contender.dart';
 
 class ContenderFormScreen extends StatefulWidget {
@@ -52,9 +53,7 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final contender = ContenderModel(
       contenderId: widget.contender?.contenderId ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -74,8 +73,6 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
     } else {
       bloc.add(UpdateContender(contender));
     }
-
-    Navigator.pop(context);
   }
 
   @override
@@ -83,53 +80,65 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
     final localizer = AppLocalizations.of(context);
     final isEdit = widget.contender != null;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? localizer.edit : localizer.add ?? 'Add')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _fullNameController,
-                decoration: InputDecoration(labelText: localizer.fullName ?? 'Full Name'),
-                validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired ?? 'Required' : null,
-              ),
-              TextFormField(
-                controller: _ssnController,
-                decoration: InputDecoration(labelText: localizer.ssn ?? 'SSN'),
-                validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired ?? 'Required' : null,
-              ),
-              TextFormField(
-                controller: _phoneController,
-                decoration: InputDecoration(labelText: localizer.phone ?? 'Phone'),
-                keyboardType: TextInputType.phone,
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: localizer.email),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              TextFormField(
-                controller: _addressController,
-                decoration: InputDecoration(labelText: localizer.address ?? 'Address'),
-              ),
-              TextFormField(
-                controller: _typeController,
-                decoration: InputDecoration(labelText: localizer.contenderType ?? 'Contender Type'),
-              ),
-              TextFormField(
-                controller: _notesController,
-                decoration: InputDecoration(labelText: localizer.notes ?? 'Notes'),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _submit,
-                child: Text(isEdit ? (localizer.save ?? 'Save') : (localizer.create ?? 'Create')),
-              ),
-            ],
+    return BlocListener<ContendersBloc, ContendersState>(
+      listener: (context, state) {
+        if (state is ContenderOperationSuccess) {
+          Navigator.pop(context);
+        }
+        if (state is ContendersError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${localizer.error}: ${state.message}')),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text(isEdit ? localizer.edit : localizer.add)),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                TextFormField(
+                  controller: _fullNameController,
+                  decoration: InputDecoration(labelText: localizer.fullName),
+                  validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
+                ),
+                TextFormField(
+                  controller: _ssnController,
+                  decoration: InputDecoration(labelText: localizer.ssn),
+                  validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
+                ),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: InputDecoration(labelText: localizer.phone),
+                  keyboardType: TextInputType.phone,
+                ),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(labelText: localizer.email),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                TextFormField(
+                  controller: _addressController,
+                  decoration: InputDecoration(labelText: localizer.address),
+                ),
+                TextFormField(
+                  controller: _typeController,
+                  decoration: InputDecoration(labelText: localizer.caseType),
+                ),
+                TextFormField(
+                  controller: _notesController,
+                  decoration: InputDecoration(labelText: localizer.notes),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _submit,
+                  child: Text(isEdit ? localizer.save : localizer.create),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/trust_transaction.dart';
 import '../repositories/trust_accounting_repository.dart';
 import 'trust_accounting_event.dart';
 import 'trust_accounting_state.dart';

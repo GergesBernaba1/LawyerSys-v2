@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
 import '../bloc/cases_bloc.dart';
 import '../bloc/cases_event.dart';
 import '../bloc/cases_state.dart';
 import '../models/case.dart';
 import 'case_detail_screen.dart';
-import 'case_form_screen.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
 const _kGold = Color(0xFFB98746);
-const _kBg = Color(0xFFEEF4FA);
 const _kText = Color(0xFF0F172A);
 const _kTextSecondary = Color(0xFF5F7085);
 
@@ -44,10 +39,6 @@ class _CasesListScreenState extends State<CasesListScreen> {
   @override
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context);
-    final session = context.select<AuthBloc, dynamic>((AuthBloc b) =>
-        b.state is AuthAuthenticated ? (b.state as AuthAuthenticated).session : null);
-    final canCreate = session?.hasPermission(Permissions.createCases) ?? false;
-
     return BlocListener<CasesBloc, CasesState>(
       listener: (context, state) {
         if (state is CaseOperationSuccess) {
@@ -84,11 +75,11 @@ class _CasesListScreenState extends State<CasesListScreen> {
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: _kPrimary.withOpacity(0.12)),
+                  borderSide: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: _kPrimary.withOpacity(0.12)),
+                  borderSide: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -123,7 +114,7 @@ class _CasesListScreenState extends State<CasesListScreen> {
                         children: [
                           Icon(Icons.folder_open,
                               size: 64,
-                              color: _kPrimary.withOpacity(0.3)),
+                              color: _kPrimary.withValues(alpha: 0.3)),
                           const SizedBox(height: 12),
                           Text(localizer.noCasesFound,
                               style: const TextStyle(
@@ -190,10 +181,10 @@ class _CaseTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _kPrimary.withOpacity(0.08)),
+          border: Border.all(color: _kPrimary.withValues(alpha: 0.08)),
           boxShadow: [
             BoxShadow(
-              color: _kText.withOpacity(0.06),
+              color: _kText.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -242,7 +233,7 @@ class _CaseTile extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.12),
+                color: statusColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(

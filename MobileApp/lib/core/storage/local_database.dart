@@ -150,6 +150,28 @@ class LocalDatabase {
     return db.query('cases', where: where, whereArgs: whereArgs, limit: limit, offset: offset, orderBy: 'lastSyncedAt DESC');
   }
 
+  Future<void> upsertCustomer(String customerId, Map<String, dynamic> customerJson, {String? tenantId}) async {
+    final db = await database;
+    await db.insert(
+      'customers',
+      {
+        'customerId': customerId,
+        'data': jsonEncode(customerJson),
+        'tenantId': tenantId,
+        'lastSyncedAt': DateTime.now().toIso8601String(),
+        'isDirty': 0,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getCustomers({String? tenantId, int limit = 50, int offset = 0}) async {
+    final db = await database;
+    final where = tenantId != null ? 'tenantId = ?' : null;
+    final whereArgs = tenantId != null ? [tenantId] : null;
+    return db.query('customers', where: where, whereArgs: whereArgs, limit: limit, offset: offset, orderBy: 'lastSyncedAt DESC');
+  }
+
   Future<void> upsertHearing(String hearingId, Map<String, dynamic> hearingJson, {String? tenantId, bool isDirty = false}) async {
     final db = await database;
     await db.insert(
@@ -364,6 +386,12 @@ class LocalDatabase {
   Future<void> removeSyncQueueItem(String id) async {
     final db = await database;
     await db.delete('sync_queue', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> getSyncQueueSize() async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM sync_queue');
+    return Sqflite.firstIntValue(result) ?? 0;
   }
 
   Future<void> clearSyncQueue() async {

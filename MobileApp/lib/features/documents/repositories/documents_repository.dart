@@ -34,7 +34,7 @@ class DocumentsRepository {
 
     // Cache locally for offline access
     for (final doc in docs) {
-      await localDatabase.upsertDocument(doc.id.toString(), doc.toJson(), tenantId: null, isDownloaded: 0);
+      await localDatabase.upsertDocument(doc.id.toString(), doc.toJson(), tenantId: null, isDownloaded: false);
     }
 
     return docs;

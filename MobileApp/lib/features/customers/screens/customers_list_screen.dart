@@ -7,6 +7,7 @@ import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
 import 'customer_detail_screen.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../cases/repositories/cases_repository.dart';
 
 class CustomersListScreen extends StatefulWidget {
   const CustomersListScreen({super.key});
@@ -120,7 +121,16 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                             ],
                           ),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => CustomerDetailScreen(customerId: customer.customerId)));
+                            final casesRepository = RepositoryProvider.of<CasesRepository>(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CustomerDetailScreen(
+                                  customerId: customer.customerId,
+                                  casesRepository: casesRepository,
+                                ),
+                              ),
+                            );
                           },
                         );
                       },

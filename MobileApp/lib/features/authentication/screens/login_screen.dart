@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: _kPrimary.withOpacity(0.35),
+                              color: _kPrimary.withValues(alpha: 0.35),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
@@ -147,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () => Navigator.pushNamed(
                             context, '/forgot-password'),
                         child: Text(
-                          localizer.forgotPassword ?? 'Forgot password?',
+                          localizer.forgotPassword,
                           style: const TextStyle(
                               color: _kPrimary, fontWeight: FontWeight.w700),
                         ),
@@ -198,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(localizer.noAccount ?? "Don't have an account?",
+                        Text(localizer.noAccount,
                             style: const TextStyle(color: Color(0xFF5F7085))),
                         TextButton(
                           onPressed: () =>
@@ -267,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: _kPrimary.withOpacity(0.35),
+            color: _kPrimary.withValues(alpha: 0.35),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),

@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/contender.dart';
 import '../repositories/contenders_repository.dart';
 import 'contenders_event.dart';
 import 'contenders_state.dart';
@@ -54,7 +53,7 @@ class ContendersBloc extends Bloc<ContendersEvent, ContendersState> {
       if (contender != null) {
         emit(ContenderDetailLoaded(contender));
       } else {
-        emit(ContendersError('Contender not found'));
+        emit(ContendersError('contenderNotFound'));
       }
     } catch (e) {
       emit(ContendersError(e.toString()));
@@ -64,8 +63,8 @@ class ContendersBloc extends Bloc<ContendersEvent, ContendersState> {
   Future<void> _onCreateContender(CreateContender event, Emitter<ContendersState> emit) async {
     emit(ContendersLoading());
     try {
-      final created = await contendersRepository.createContender(event.contender);
-      emit(ContenderOperationSuccess('Contender created: ${created.fullName}'));
+      await contendersRepository.createContender(event.contender);
+      emit(ContenderOperationSuccess('contenderCreated'));
       final contenders = await contendersRepository.getContenders();
       emit(ContendersLoaded(contenders));
     } catch (e) {
@@ -76,8 +75,8 @@ class ContendersBloc extends Bloc<ContendersEvent, ContendersState> {
   Future<void> _onUpdateContender(UpdateContender event, Emitter<ContendersState> emit) async {
     emit(ContendersLoading());
     try {
-      final updated = await contendersRepository.updateContender(event.contender);
-      emit(ContenderOperationSuccess('Contender updated: ${updated.fullName}'));
+      await contendersRepository.updateContender(event.contender);
+      emit(ContenderOperationSuccess('contenderUpdated'));
       final contenders = await contendersRepository.getContenders();
       emit(ContendersLoaded(contenders));
     } catch (e) {
@@ -89,7 +88,7 @@ class ContendersBloc extends Bloc<ContendersEvent, ContendersState> {
     emit(ContendersLoading());
     try {
       await contendersRepository.deleteContender(event.contenderId);
-      emit(ContenderOperationSuccess('Contender deleted'));
+      emit(ContenderOperationSuccess('contenderDeleted'));
       final contenders = await contendersRepository.getContenders();
       emit(ContendersLoaded(contenders));
     } catch (e) {

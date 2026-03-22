@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/auth/biometric_auth.dart';
 import '../models/login_request.dart';
-import '../models/user_session.dart';
 import '../repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -70,12 +69,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegisterRequested(RegisterRequested event, Emitter<AuthState> emit) async {
     emit(AuthRegisterLoading());
     try {
-      // TODO: Implement register API call
-      // For now, we'll simulate success
-      await Future.delayed(const Duration(seconds: 2));
+      await authRepository.register({
+        'firstName': event.firstName,
+        'lastName': event.lastName,
+        'email': event.email,
+        'phoneNumber': event.phone,
+        'password': event.password,
+      });
       emit(AuthRegisterSuccess());
-      // Navigate to login screen after successful registration
-      // This would typically be handled in the UI layer
     } catch (e) {
       emit(AuthError(e.toString()));
     }
@@ -84,9 +85,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onForgotPasswordRequested(ForgotPasswordRequested event, Emitter<AuthState> emit) async {
     emit(AuthForgotPasswordLoading());
     try {
-      // TODO: Implement forgot password API call
-      // For now, we'll simulate success
-      await Future.delayed(const Duration(seconds: 2));
+      await authRepository.forgotPassword(event.email);
       emit(AuthForgotPasswordSuccess());
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -96,9 +95,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onResetPasswordRequested(ResetPasswordRequested event, Emitter<AuthState> emit) async {
     emit(AuthResetPasswordLoading());
     try {
-      // TODO: Implement reset password API call
-      // For now, we'll simulate success
-      await Future.delayed(const Duration(seconds: 2));
+      await authRepository.resetPassword(event.email, event.password, event.token);
       emit(AuthResetPasswordSuccess());
     } catch (e) {
       emit(AuthError(e.toString()));

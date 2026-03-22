@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/time_entry.dart';
 import '../repositories/timetracking_repository.dart';
 import 'timetracking_event.dart';
 import 'timetracking_state.dart';
@@ -26,7 +25,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
      }
      try {
        final entries = await timeTrackingRepository.getTimeEntries(
-         status: event.statusFilter,
+         statusFilter: event.statusFilter,
        );
        emit(TimeTrackingLoaded(
          entries: entries,
@@ -36,7 +35,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
          caseOptions: state is TimeTrackingLoaded
              ? (state as TimeTrackingLoaded).caseOptions
              : [],
-         statusFilter: event.statusFilter,
+         statusFilter: event.statusFilter ?? 'All',
          hourlyRate: state is TimeTrackingLoaded
              ? (state as TimeTrackingLoaded).hourlyRate
              : 0,
@@ -78,6 +77,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
           suggestions: currentState.suggestions,
           caseOptions: caseOptions,
           statusFilter: currentState.statusFilter,
+          hourlyRate: currentState.hourlyRate,
         ));
       }
     } catch (e) {

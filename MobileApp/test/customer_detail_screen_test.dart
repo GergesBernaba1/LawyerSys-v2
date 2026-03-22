@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/core/storage/local_database.dart';
-import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
 import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
 import 'package:qadaya_lawyersys/features/customers/repositories/customers_repository.dart';
@@ -83,7 +82,7 @@ void main() {
           value: casesRepository,
           child: BlocProvider.value(
             value: customersBloc,
-            child: const CustomerDetailScreen(customerId: 'C1'),
+            child: CustomerDetailScreen(customerId: 'C1', casesRepository: casesRepository),
           ),
         ),
       ),
@@ -98,7 +97,7 @@ void main() {
     expect(find.text('Property Transfer'), findsOneWidget);
     expect(find.text('DV-100'), findsOneWidget);
     expect(find.text('PT-200'), findsOneWidget);
-    expect(find.textContaining('Assigned to'), findsOneWidget);
+    expect(find.textContaining('Assigned to'), findsNWidgets(2));
 
     customersBloc.close();
   });
@@ -117,7 +116,7 @@ void main() {
           value: casesRepository,
           child: BlocProvider.value(
             value: customersBloc,
-            child: const CustomerDetailScreen(customerId: 'C1'),
+            child: CustomerDetailScreen(customerId: 'C1', casesRepository: casesRepository),
           ),
         ),
       ),

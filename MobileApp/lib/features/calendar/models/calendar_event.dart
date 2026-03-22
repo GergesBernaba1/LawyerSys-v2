@@ -31,7 +31,7 @@ class CalendarEvent {
       notes: json['notes'] as String?,
       caseCode: json['caseCode'] as int?,
       entityId: json['entityId'] as int?,
-      isReminderEvent: json['isReminderEvent'] as bool ?? false,
+      isReminderEvent: json['isReminderEvent'] as bool? ?? false,
     );
   }
 

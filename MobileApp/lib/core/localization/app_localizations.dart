@@ -213,6 +213,10 @@ class AppLocalizations {
       'delete': 'Delete',
       'caseSaved': 'Case saved',
       'caseDeleted': 'Case deleted',
+      'contenderCreated': 'Contender created',
+      'contenderUpdated': 'Contender updated',
+      'contenderDeleted': 'Contender deleted',
+      'contenderNotFound': 'Contender not found',
     },
     'ar': {
       'login': 'تسجيل الدخول',
@@ -398,12 +402,14 @@ class AppLocalizations {
       'delete': 'حذف',
       'caseSaved': 'تم حفظ القضية',
       'caseDeleted': 'تم حذف القضية',
+      'contenderCreated': 'تم إنشاء الطرف المقابل',
+      'contenderUpdated': 'تم تحديث الطرف المقابل',
+      'contenderDeleted': 'تم حذف الطرف المقابل',
+      'contenderNotFound': 'الطرف المقابل غير موجود',
     },
   };
 
   String _translate(String key) => _localizedValues[locale.languageCode]?[key] ?? _localizedValues['en']![key] ?? key;
-
-  String translate(String key) => _translate(key);
 
   String get login => _translate('login');
   String get register => _translate('register');

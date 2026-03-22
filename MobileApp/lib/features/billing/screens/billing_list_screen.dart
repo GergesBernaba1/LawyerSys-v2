@@ -9,6 +9,7 @@ import '../bloc/billing_event.dart';
 import '../bloc/billing_state.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../models/billing.dart';
+import '../../authentication/models/user_session.dart';
 import 'billing_form_screen.dart';
 
 class BillingListScreen extends StatefulWidget {
@@ -59,8 +60,6 @@ class _BillingListScreenState extends State<BillingListScreen> {
           if (state is BillingLoaded) {
             final payments = state.payments;
             final receipts = state.receipts;
-            final customers = state.customers;
-            final employees = state.employees;
             final summary = state.summary;
 
             return Column(
@@ -154,7 +153,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        localizer.accessDenied ?? 'No permission to add billing entries',
+                        localizer.accessDenied,
                         style: const TextStyle(color: Colors.grey),
                       ),
                     ),
@@ -163,8 +162,8 @@ class _BillingListScreenState extends State<BillingListScreen> {
                 // Expanded list
                 Expanded(
                   child: _selectedTab == 0
-                      ? _buildPaymentsList(payments, canDeleteBilling)
-                      : _buildReceiptsList(receipts, canDeleteBilling),
+                      ? _buildPaymentsList(context, payments, canDeleteBilling)
+                      : _buildReceiptsList(context, receipts, canDeleteBilling),
                 ),
               ],
             );
@@ -201,7 +200,8 @@ class _BillingListScreenState extends State<BillingListScreen> {
     );
   }
 
-  Widget _buildPaymentsList(List<BillingPay> payments, bool canDeleteBilling) {
+  Widget _buildPaymentsList(BuildContext context, List<BillingPay> payments, bool canDeleteBilling) {
+    final localizer = AppLocalizations.of(context);
     if (payments.isEmpty) {
       return Center(
         child: Column(
@@ -250,14 +250,15 @@ class _BillingListScreenState extends State<BillingListScreen> {
     );
   }
 
-  Widget _buildReceiptsList(List<BillingReceipt> receipts, bool canDeleteBilling) {
+  Widget _buildReceiptsList(BuildContext context, List<BillingReceipt> receipts, bool canDeleteBilling) {
+    final localizer = AppLocalizations.of(context);
     if (receipts.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.account_balance_wallet, size: 48, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.account_balance_wallet, size: 48, color: Colors.grey),
+            const SizedBox(height: 16),
             Text(localizer.noReceiptsFound),
           ],
         ),

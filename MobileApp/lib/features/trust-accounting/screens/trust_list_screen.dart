@@ -5,6 +5,7 @@ import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../authentication/bloc/auth_bloc.dart';
 import '../../authentication/bloc/auth_state.dart';
+import '../../authentication/models/user_session.dart';
 import '../bloc/trust_accounting_bloc.dart';
 import '../bloc/trust_accounting_event.dart';
 import '../bloc/trust_accounting_state.dart';
@@ -42,7 +43,7 @@ class _TrustListScreenState extends State<TrustListScreen> {
     final canManage = session?.hasPermission(Permissions.createTrustAccounting) ?? false;
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.trustAccounting ?? 'Trust Accounting')),
+      appBar: AppBar(title: Text(localizer.trustAccounting)),
       floatingActionButton: canManage
           ? FloatingActionButton(
               onPressed: () async {
@@ -59,7 +60,7 @@ class _TrustListScreenState extends State<TrustListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: localizer.search ?? 'Search',
+                hintText: localizer.search,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () => context.read<TrustAccountingBloc>().add(SearchTrustTransactions(_searchController.text)),
@@ -88,7 +89,7 @@ class _TrustListScreenState extends State<TrustListScreen> {
                 if (state is TrustAccountingLoaded) {
                   final transactions = state.transactions;
                   if (transactions.isEmpty) {
-                    return Center(child: Text(localizer.noData ?? 'No data available'));
+                    return Center(child: Text(localizer.noData));
                   }
                   return ListView.builder(
                     itemCount: transactions.length,
@@ -115,23 +116,23 @@ class _TrustListScreenState extends State<TrustListScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(localizer.trustTransaction ?? 'Transaction Detail'),
+        title: Text(localizer.trustTransaction),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${localizer.transactionId ?? 'Transaction ID'}: ${transaction.transactionId}'),
-            Text('${localizer.caseCode ?? 'Case'}: ${transaction.caseId}'),
-            Text('${localizer.accountId ?? 'Account'}: ${transaction.accountId}'),
-            Text('${localizer.transactionType ?? 'Type'}: ${transaction.transactionType}'),
-            Text('${localizer.amount ?? 'Amount'}: ${transaction.amount.toStringAsFixed(2)}'),
-            Text('${localizer.status ?? 'Status'}: ${transaction.status}'),
-            Text('${localizer.dateLabel ?? 'Date'}: ${transaction.date.toLocal().toIso8601String()}'),
-            Text('${localizer.notes ?? 'Notes'}: ${transaction.notes}'),
+            Text('${localizer.transactionId}: ${transaction.transactionId}'),
+            Text('${localizer.caseCode}: ${transaction.caseId}'),
+            Text('${localizer.accountId}: ${transaction.accountId}'),
+            Text('${localizer.transactionType}: ${transaction.transactionType}'),
+            Text('${localizer.amount}: ${transaction.amount.toStringAsFixed(2)}'),
+            Text('${localizer.status}: ${transaction.status}'),
+            Text('${localizer.dateLabel}: ${transaction.date.toLocal().toIso8601String()}'),
+            Text('${localizer.notes}: ${transaction.notes}'),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(localizer.cancel ?? 'Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(localizer.cancel)),
         ],
       ),
     );

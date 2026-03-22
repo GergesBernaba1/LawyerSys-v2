@@ -144,7 +144,7 @@ class _FilterBar extends StatelessWidget {
           // Year picker
           Expanded(
             child: DropdownButtonFormField<int>(
-              value: year,
+              initialValue: year,
               decoration: const InputDecoration(
                   labelText: 'Year', isDense: true),
               items: years
@@ -158,7 +158,7 @@ class _FilterBar extends StatelessWidget {
           // Month picker
           Expanded(
             child: DropdownButtonFormField<int>(
-              value: month,
+              initialValue: month,
               decoration: const InputDecoration(
                   labelText: 'Month', isDense: true),
               items: List.generate(

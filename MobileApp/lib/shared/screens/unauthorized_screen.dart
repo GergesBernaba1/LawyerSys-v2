@@ -9,12 +9,12 @@ class UnauthorizedScreen extends StatelessWidget {
     final localizer = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.accessDenied ?? 'Access Denied')),
+      appBar: AppBar(title: Text(localizer.accessDenied)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            localizer.accessDeniedMessage ?? 'You do not have permission to access this section.',
+            localizer.accessDeniedMessage,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium,
           ),

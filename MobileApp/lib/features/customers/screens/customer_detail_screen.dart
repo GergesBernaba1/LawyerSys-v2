@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../cases/repositories/cases_repository.dart';
+import '../models/customer.dart';
 import '../bloc/customers_bloc.dart';
 import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
@@ -10,21 +11,30 @@ import '../../../core/localization/app_localizations.dart';
 
 class CustomerDetailScreen extends StatefulWidget {
   final String customerId;
+  final CasesRepository casesRepository;
 
-  const CustomerDetailScreen({super.key, required this.customerId});
+  const CustomerDetailScreen({super.key, required this.customerId, required this.casesRepository});
 
   @override
   State<CustomerDetailScreen> createState() => _CustomerDetailScreenState();
 }
 
 class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
-  late Future<List<CustomerCaseHistoryItem>> _caseHistoryFuture;
+  Future<List<CustomerCaseHistoryItem>>? _caseHistoryFuture;
+  bool _hasLoaded = false;
 
   @override
-  void initState() {
-    super.initState();
-    context.read<CustomersBloc>().add(LoadCustomerDetail(widget.customerId));
-    _caseHistoryFuture = context.read<CasesRepository>().getCasesByCustomerId(widget.customerId);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasLoaded) {
+      _hasLoaded = true;
+      BlocProvider.of<CustomersBloc>(context).add(LoadCustomerDetail(widget.customerId));
+    }
+  }
+
+  Future<List<CustomerCaseHistoryItem>> get _caseHistory {
+    _caseHistoryFuture ??= widget.casesRepository.getCasesByCustomerId(widget.customerId);
+    return _caseHistoryFuture!;
   }
 
   Future<void> _launchTelecommunication(String phoneNumber, String scheme, String errorMessage) async {
@@ -101,7 +111,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                 Text(localizer.caseHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 FutureBuilder<List<CustomerCaseHistoryItem>>(
-                  future: _caseHistoryFuture,
+                  future: _caseHistory,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -117,7 +127,14 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                       children: history.map((entry) {
                         return ListTile(
                           title: Text(entry.caseName.isNotEmpty ? entry.caseName : entry.caseCode),
-                          subtitle: Text('${localizer.caseCode}: ${entry.caseCode}${entry.assignedEmployeeName.isNotEmpty ? ' • ${localizer.assignedTo}: ${entry.assignedEmployeeName}' : ''}'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(entry.caseCode),
+                              if (entry.assignedEmployeeName.isNotEmpty)
+                                Text('${localizer.assignedTo}: ${entry.assignedEmployeeName}'),
+                            ],
+                          ),
                           onTap: () {
                             // Optionally navigate to case detail if full case data is available.
                           },

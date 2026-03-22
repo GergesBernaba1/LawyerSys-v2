@@ -150,7 +150,93 @@ class SyncService {
 
   Future<void> performFullSync(BuildContext? context) async {
     await syncPendingOperations(context);
-    // TODO: Add full data reconciliation pipeline (cases, hearings, customers, docs, etc.)
+    await _reconcileAll();
+  }
+
+  Future<void> _reconcileAll() async {
+    await Future.wait([
+      _reconcile(
+        label: 'cases',
+        fetch: () => _apiClient.get('/api/cases', queryParameters: {'page': 0, 'size': 200}),
+        upsert: (items) async {
+          for (final item in items) {
+            final id = item['caseId']?.toString() ?? '';
+            if (id.isNotEmpty) await _localDatabase.upsertCase(id, item, tenantId: item['tenantId'] as String?, isDirty: false);
+          }
+        },
+      ),
+      _reconcile(
+        label: 'hearings',
+        fetch: () => _apiClient.get('/api/sitings', queryParameters: {'page': 1, 'pageSize': 200}),
+        upsert: (items) async {
+          for (final item in items) {
+            final id = item['hearingId']?.toString() ?? '';
+            if (id.isNotEmpty) await _localDatabase.upsertHearing(id, item, tenantId: item['tenantId'] as String?, isDirty: false);
+          }
+        },
+      ),
+      _reconcile(
+        label: 'customers',
+        fetch: () => _apiClient.get('/api/customers', queryParameters: {'page': 1, 'pageSize': 200}),
+        upsert: (items) async {
+          for (final item in items) {
+            final id = item['customerId']?.toString() ?? '';
+            if (id.isNotEmpty) await _localDatabase.upsertCustomer(id, item, tenantId: item['tenantId'] as String?);
+          }
+        },
+      ),
+      _reconcile(
+        label: 'documents',
+        fetch: () => _apiClient.get('/api/files'),
+        upsert: (items) async {
+          for (final item in items) {
+            final id = item['id']?.toString() ?? '';
+            if (id.isNotEmpty) await _localDatabase.upsertDocument(id, item, tenantId: item['tenantId'] as String?, isDownloaded: false);
+          }
+        },
+      ),
+      _reconcile(
+        label: 'employees',
+        fetch: () => _apiClient.get('/api/employees', queryParameters: {'page': 0, 'size': 200}),
+        upsert: (items) async {
+          for (final item in items) {
+            final id = item['id']?.toString() ?? '';
+            if (id.isNotEmpty) await _localDatabase.upsertEmployee(id, item, isDirty: false);
+          }
+        },
+      ),
+      _reconcileDashboard(),
+    ]);
+  }
+
+  Future<void> _reconcile({
+    required String label,
+    required Future<dynamic> Function() fetch,
+    required Future<void> Function(List<Map<String, dynamic>>) upsert,
+  }) async {
+    try {
+      final response = await fetch();
+      final raw = response.data;
+      final List<dynamic> list = raw is List ? raw : [];
+      final items = list.whereType<Map<String, dynamic>>().toList();
+      await upsert(items);
+      debugPrint('SyncService: reconciled $label (${items.length} items)');
+    } catch (e) {
+      debugPrint('SyncService: reconcile $label failed: $e');
+    }
+  }
+
+  Future<void> _reconcileDashboard() async {
+    try {
+      final response = await _apiClient.get('/api/dashboard');
+      if (response.data is Map<String, dynamic>) {
+        final data = Map<String, dynamic>.from(response.data as Map);
+        await _localDatabase.upsertDashboard('default', data);
+        debugPrint('SyncService: reconciled dashboard');
+      }
+    } catch (e) {
+      debugPrint('SyncService: reconcile dashboard failed: $e');
+    }
   }
 
   SyncHealth getSyncHealth() {

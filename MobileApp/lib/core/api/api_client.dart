@@ -19,19 +19,26 @@ class ApiClient {
     _dio.interceptors.addAll([AuthInterceptor(), TenantInterceptor()]);
   }
 
+  String _normalizePath(String path) {
+    if (path.startsWith('/api/')) {
+      return path.substring(4); // strip duplicate /api prefix (baseUrl already contains /api)
+    }
+    return path;
+  }
+
   Future<Response<dynamic>> get(String path, {Map<String, dynamic>? queryParameters}) async {
-    return await _dio.get(path, queryParameters: queryParameters);
+    return await _dio.get(_normalizePath(path), queryParameters: queryParameters);
   }
 
   Future<Response<dynamic>> post(String path, {dynamic data}) async {
-    return await _dio.post(path, data: data);
+    return await _dio.post(_normalizePath(path), data: data);
   }
 
   Future<Response<dynamic>> put(String path, {dynamic data}) async {
-    return await _dio.put(path, data: data);
+    return await _dio.put(_normalizePath(path), data: data);
   }
 
   Future<Response<dynamic>> delete(String path, {dynamic data}) async {
-    return await _dio.delete(path, data: data);
+    return await _dio.delete(_normalizePath(path), data: data);
   }
 }

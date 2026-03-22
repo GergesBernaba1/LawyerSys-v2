@@ -136,7 +136,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                             labelText: 'Customer',
                             border: OutlineInputBorder(),
                           ),
-                          value: _selectedCustomerId,
+                          initialValue: _selectedCustomerId,
                           items: [
                             const DropdownMenuItem<int>(
                               value: 0,
@@ -178,7 +178,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                             labelText: 'Employee',
                             border: OutlineInputBorder(),
                           ),
-                          value: _selectedEmployeeId,
+                          initialValue: _selectedEmployeeId,
                           items: [
                             const DropdownMenuItem<int>(
                               value: 0,

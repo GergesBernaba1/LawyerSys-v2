@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/auth/permissions.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../features/authentication/bloc/auth_bloc.dart';
+import '../../features/authentication/bloc/auth_event.dart';
 import '../../features/authentication/bloc/auth_state.dart';
 import '../../features/authentication/models/user_session.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
@@ -77,8 +78,8 @@ class _MainScreenState extends State<MainScreen> {
     if (isCustomer) {
       return [
         _NavItem(Icons.folder, l.cases, const CasesListScreen()),
-        _NavItem(Icons.mail_outline, l.portalMessages ?? 'Messages', const PortalMessagesScreen()),
-        _NavItem(Icons.folder_shared, l.portalDocuments ?? 'Documents', const PortalDocumentsScreen()),
+        _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
+        _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen()),
         _NavItem(Icons.notifications, l.notifications, const NotificationsInboxScreen()),
         _NavItem(Icons.settings, l.settings, const SettingsScreen()),
       ];
@@ -88,17 +89,17 @@ class _MainScreenState extends State<MainScreen> {
       _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen(), permission: Permissions.dashboard),
       _NavItem(Icons.gavel, l.cases, const CasesListScreen(), permission: Permissions.viewCases),
       _NavItem(Icons.people, l.customers, const CustomersListScreen(), permission: Permissions.viewCustomers),
-      if (!isEmployee) _NavItem(Icons.badge, l.employees ?? 'Employees', const EmployeesListScreen()),
-      _NavItem(Icons.account_balance, l.court ?? 'Courts', const CourtsListScreen(), permission: Permissions.viewCourts),
+      if (!isEmployee) _NavItem(Icons.badge, l.employees, const EmployeesListScreen()),
+      _NavItem(Icons.account_balance, l.courts, const CourtsListScreen(), permission: Permissions.viewCourts),
       _NavItem(Icons.event, l.hearings, const HearingsListScreen(), permission: Permissions.viewHearings),
-      _NavItem(Icons.calendar_today, l.calendar ?? 'Calendar', const CalendarScreen(), permission: Permissions.viewHearings),
-      _NavItem(Icons.task_alt, l.tasks ?? 'Tasks', const TasksListScreen()),
-      _NavItem(Icons.receipt, l.billing ?? 'Billing', const BillingListScreen(), permission: Permissions.viewBilling),
-      _NavItem(Icons.savings, l.trustAccounting ?? 'Trust Accounting', const TrustListScreen(), permission: Permissions.viewTrustAccounting),
-      _NavItem(Icons.timer, l.timeTracking ?? 'Time Tracking', const TimeTrackingListScreen()),
-      _NavItem(Icons.chat_bubble_outline, l.consultations ?? 'Consultations', const ConsultationsListScreen()),
-      _NavItem(Icons.description, l.documents ?? 'Documents', const DocumentsListScreen()),
-      _NavItem(Icons.bar_chart, l.reports ?? 'Reports', const ReportsScreen()),
+      _NavItem(Icons.calendar_today, l.calendar, const CalendarScreen(), permission: Permissions.viewHearings),
+      _NavItem(Icons.task_alt, l.tasks, const TasksListScreen()),
+      _NavItem(Icons.receipt, l.billing, const BillingListScreen(), permission: Permissions.viewBilling),
+      _NavItem(Icons.savings, l.trustAccounting, const TrustListScreen(), permission: Permissions.viewTrustAccounting),
+      _NavItem(Icons.timer, l.timeTracking, const TimeTrackingListScreen()),
+      _NavItem(Icons.chat_bubble_outline, l.consultations, const ConsultationsListScreen()),
+      _NavItem(Icons.description, l.documents, const DocumentsListScreen()),
+      _NavItem(Icons.bar_chart, l.reports, const ReportsScreen()),
       _NavItem(Icons.notifications, l.notifications, const NotificationsInboxScreen(), permission: Permissions.viewNotifications),
       _NavItem(Icons.settings, l.settings, const SettingsScreen(), permission: Permissions.manageSettings),
     ];
@@ -120,7 +121,7 @@ class _MainScreenState extends State<MainScreen> {
       return Scaffold(
         backgroundColor: _kBg,
         body: Center(
-          child: Text(localizer.accessDenied ?? 'Access denied',
+          child: Text(localizer.accessDenied,
               style: const TextStyle(color: _kPrimary, fontWeight: FontWeight.w700)),
         ),
       );
@@ -138,7 +139,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.92),
+        backgroundColor: Colors.white.withValues(alpha: 0.92),
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -199,7 +200,7 @@ class _MainScreenState extends State<MainScreen> {
           preferredSize: const Size.fromHeight(1),
           child: Container(
             height: 1,
-            color: _kPrimary.withOpacity(0.08),
+            color: _kPrimary.withValues(alpha: 0.08),
           ),
         ),
       ),
@@ -273,7 +274,7 @@ class _AppDrawer extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.gavel, color: Colors.white, size: 24),
@@ -317,7 +318,7 @@ class _AppDrawer extends StatelessWidget {
                   Text(
                     session!.roles.first,
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.75),
+                        color: Colors.white.withValues(alpha: 0.75),
                         fontSize: 12,
                         fontWeight: FontWeight.w600),
                   ),
@@ -358,7 +359,7 @@ class _AppDrawer extends StatelessWidget {
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: _kPrimary.withOpacity(0.3),
+                                    color: _kPrimary.withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   )
@@ -413,7 +414,7 @@ class _AppDrawer extends StatelessWidget {
                     color: const Color(0xFFFEF2F2),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                        color: Colors.red.withOpacity(0.2), width: 1),
+                        color: Colors.red.withValues(alpha: 0.2), width: 1),
                   ),
                   child: const Row(
                     children: [

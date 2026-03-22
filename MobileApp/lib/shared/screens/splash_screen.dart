@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/localization/app_localizations.dart';
 import '../../features/authentication/bloc/auth_bloc.dart';
 import '../../features/authentication/bloc/auth_event.dart';
 import '../../features/authentication/bloc/auth_state.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
-const _kGold = Color(0xFFB98746);
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -51,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   width: 88,
                   height: 88,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(Icons.gavel, color: Colors.white, size: 48),
@@ -70,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 Text(
                   'Legal Management System',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.75),
+                    color: Colors.white.withValues(alpha: 0.75),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),

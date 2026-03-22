@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/document.dart';
 import '../repositories/documents_repository.dart';
 import 'documents_event.dart';
 import 'documents_state.dart';
@@ -31,7 +30,7 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
   Future<void> _onDownloadDocument(DownloadDocument event, Emitter<DocumentsState> emit) async {
     emit(DocumentsDownloading('Downloading ${event.document.fileName}...'));
     try {
-      final file = await documentsRepository.downloadDocument(event.document);
+      await documentsRepository.downloadDocument(event.document);
       emit(DocumentsLoaded(await documentsRepository.getDocuments()));
       // Keep state as loaded after download; notice Users can open from storage.
       emit(DocumentsLoaded(await documentsRepository.getDocuments()));

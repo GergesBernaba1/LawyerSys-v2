@@ -57,6 +57,14 @@ import 'features/timetracking/repositories/timetracking_repository.dart';
 import 'features/timetracking/screens/timetracking_list_screen.dart';
 import 'features/trust-accounting/bloc/trust_accounting_bloc.dart';
 import 'features/trust-accounting/repositories/trust_accounting_repository.dart';
+import 'features/contenders/bloc/contenders_bloc.dart';
+import 'features/contenders/repositories/contenders_repository.dart';
+import 'features/employees/bloc/employees_bloc.dart';
+import 'features/employees/repositories/employees_repository.dart';
+import 'features/consultations/bloc/consultations_bloc.dart';
+import 'features/consultations/repositories/consultations_repository.dart';
+import 'features/reports/bloc/reports_bloc.dart';
+import 'features/reports/repositories/reports_repository.dart';
 import 'features/trust-accounting/screens/trust_list_screen.dart';
 import 'shared/screens/main_screen.dart';
 import 'shared/screens/splash_screen.dart';
@@ -88,8 +96,10 @@ class _AppState extends State<App> {
 
       final signalRService = SignalRService();
       SecureStorage().read(SecureStorage.keyAccessToken).then((token) {
-        signalRService.init('${ApiConstants.baseUrl}${ApiConstants.signalRHub}',
-            accessToken: token);
+        signalRService.init(
+          '${ApiConstants.baseUrl}${ApiConstants.signalRHub}',
+          tokenFactory: token != null ? () async => token : null,
+        );
       }).catchError((error) {
         signalRService.init('${ApiConstants.baseUrl}${ApiConstants.signalRHub}');
       });
@@ -158,6 +168,10 @@ class _AppState extends State<App> {
         RepositoryProvider(create: (_) => TrustAccountingRepository(apiClient)),
         RepositoryProvider(create: (_) => ClientPortalRepository(apiClient)),
         RepositoryProvider(create: (_) => HearingsRepository(apiClient, localDatabase)),
+        RepositoryProvider(create: (_) => ContendersRepository(apiClient)),
+        RepositoryProvider(create: (_) => ConsultationsRepository(apiClient)),
+        RepositoryProvider(create: (_) => ReportsRepository(apiClient)),
+        RepositoryProvider(create: (_) => EmployeesRepository(apiClient, localDatabase)),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -173,6 +187,10 @@ class _AppState extends State<App> {
           BlocProvider(create: (ctx) => BillingBloc(billingRepository: RepositoryProvider.of<BillingRepository>(ctx))),
           BlocProvider(create: (ctx) => CustomersBloc(customersRepository: RepositoryProvider.of<CustomersRepository>(ctx))),
           BlocProvider(create: (ctx) => HearingsBloc(hearingsRepository: RepositoryProvider.of<HearingsRepository>(ctx))),
+          BlocProvider(create: (ctx) => ContendersBloc(contendersRepository: RepositoryProvider.of<ContendersRepository>(ctx))),
+          BlocProvider(create: (ctx) => ConsultationsBloc(consultationsRepository: RepositoryProvider.of<ConsultationsRepository>(ctx))),
+          BlocProvider(create: (ctx) => ReportsBloc(repository: RepositoryProvider.of<ReportsRepository>(ctx))),
+          BlocProvider(create: (ctx) => EmployeesBloc(employeesRepository: RepositoryProvider.of<EmployeesRepository>(ctx))),
           BlocProvider(create: (_) => NotificationsBloc(notificationsRepository: NotificationsRepository(LocalDatabase.instance))),
         ],
         child: FutureBuilder<String?>(
@@ -203,7 +221,7 @@ class _AppState extends State<App> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                     side: BorderSide(
-                        color: const Color(0xFF14345A).withOpacity(0.08)),
+                        color: const Color(0xFF14345A).withValues(alpha: 0.08)),
                   ),
                   color: Colors.white,
                 ),
@@ -213,7 +231,7 @@ class _AppState extends State<App> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                        color: const Color(0xFF14345A).withOpacity(0.12)),
+                        color: const Color(0xFF14345A).withValues(alpha: 0.12)),
                   ),
                 ),
                 elevatedButtonTheme: ElevatedButtonThemeData(

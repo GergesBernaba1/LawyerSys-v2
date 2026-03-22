@@ -11,7 +11,6 @@ import '../../tasks/screens/tasks_list_screen.dart';
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
 const _kGold = Color(0xFFB98746);
-const _kBg = Color(0xFFEEF4FA);
 const _kText = Color(0xFF0F172A);
 const _kTextSecondary = Color(0xFF5F7085);
 
@@ -151,7 +150,7 @@ class _StatCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: gradient.first.withOpacity(0.35),
+              color: gradient.first.withValues(alpha: 0.35),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -162,7 +161,7 @@ class _StatCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.white.withOpacity(0.85), size: 28),
+            Icon(icon, color: Colors.white.withValues(alpha: 0.85), size: 28),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -178,7 +177,7 @@ class _StatCard extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -206,10 +205,10 @@ class _ActivityTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _kPrimary.withOpacity(0.08)),
+        border: Border.all(color: _kPrimary.withValues(alpha: 0.08)),
         boxShadow: [
           BoxShadow(
-            color: _kText.withOpacity(0.05),
+            color: _kText.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -221,7 +220,7 @@ class _ActivityTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _kPrimary.withOpacity(0.08),
+              color: _kPrimary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.history, color: _kPrimary, size: 20),

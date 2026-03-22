@@ -45,24 +45,6 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
     ));
   }
 
-  Future<bool> _confirm(String message) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            content: Text(message),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancel')),
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Confirm')),
-            ],
-          ),
-        ) ==
-        true;
-  }
-
   void _showLeadActions(IntakeForm lead, List<IntakeAssignmentOption> options) {
     showModalBottomSheet(
       context: context,
@@ -215,7 +197,7 @@ class _LeadTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: CircleAvatar(
-        backgroundColor: statusColor.withOpacity(0.15),
+        backgroundColor: statusColor.withValues(alpha: 0.15),
         child: Icon(Icons.person_outline, color: statusColor, size: 20),
       ),
       title: Text(lead.fullName,
@@ -464,7 +446,7 @@ class _AssignSectionState extends State<_AssignSection> {
         DropdownButtonFormField<int>(
           decoration: const InputDecoration(
               labelText: 'Assign to Employee', isDense: true),
-          value: _selectedEmployeeId,
+          initialValue: _selectedEmployeeId,
           items: widget.options
               .map((o) => DropdownMenuItem(
                   value: o.employeeId, child: Text(o.name)))

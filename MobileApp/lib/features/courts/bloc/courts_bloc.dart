@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/court.dart';
 import '../repositories/courts_repository.dart';
 import 'courts_event.dart';
 import 'courts_state.dart';

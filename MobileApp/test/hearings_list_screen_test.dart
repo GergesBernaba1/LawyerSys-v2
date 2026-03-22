@@ -3,34 +3,41 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
 import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_bloc.dart';
-import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_event.dart';
-import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_state.dart';
 import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
 import 'package:qadaya_lawyersys/features/hearings/repositories/hearings_repository.dart';
 import 'package:qadaya_lawyersys/features/hearings/screens/hearings_list_screen.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
 class FakeHearingsRepository extends HearingsRepository {
-  FakeHearingsRepository() : super(ApiClient());
+  FakeHearingsRepository() : super(ApiClient(), LocalDatabase.instance);
 
   @override
-  Future<List<Hearing>> getHearings({int page = 1, int pageSize = 50}) async {
+  Future<List<Hearing>> getHearings({String? tenantId, int page = 1, int pageSize = 50, DateTime? startDate, DateTime? endDate}) async {
     final now = DateTime.now();
     return [
       Hearing(
         hearingId: 'H1',
+        tenantId: '',
         hearingDate: DateTime(now.year, now.month, now.day, 10, 30),
+        caseId: 'C1',
         caseNumber: 'CASE-001',
         judgeName: 'Judge Smith',
+        courtId: 'CT1',
+        courtName: 'Court A',
         courtLocation: 'Court A',
         notes: 'Initial hearing',
       ),
       Hearing(
         hearingId: 'H2',
+        tenantId: '',
         hearingDate: DateTime(now.year, now.month, now.day + 1, 14, 0),
+        caseId: 'C2',
         caseNumber: 'CASE-002',
         judgeName: 'Judge Ali',
+        courtId: 'CT2',
+        courtName: 'Court B',
         courtLocation: 'Court B',
         notes: 'Follow-up',
       ),
@@ -38,7 +45,7 @@ class FakeHearingsRepository extends HearingsRepository {
   }
 
   @override
-  Future<List<Hearing>> searchHearings(String query) async {
+  Future<List<Hearing>> searchHearings(String query, {String? tenantId}) async {
     final all = await getHearings();
     return all.where((hearing) => hearing.caseNumber.contains(query)).toList();
   }

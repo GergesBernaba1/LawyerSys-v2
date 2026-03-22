@@ -5,7 +5,6 @@ import '../../../core/localization/app_localizations.dart';
 import '../bloc/client_portal_bloc.dart';
 import '../bloc/client_portal_event.dart';
 import '../bloc/client_portal_state.dart';
-import '../models/portal_message.dart';
 
 class PortalDocumentsScreen extends StatefulWidget {
   const PortalDocumentsScreen({super.key});
@@ -26,7 +25,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
     final localizer = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.portalDocuments ?? 'Client Documents')),
+      appBar: AppBar(title: Text(localizer.portalDocuments)),
       body: BlocConsumer<ClientPortalBloc, ClientPortalState>(
         listener: (context, state) {
           if (state is ClientPortalError) {
@@ -43,7 +42,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
           if (state is ClientPortalDocumentsLoaded) {
             final docs = state.documents;
             if (docs.isEmpty) {
-              return Center(child: Text(localizer.noData ?? 'No documents'));
+              return Center(child: Text(localizer.noData));
             }
             return ListView.builder(
               itemCount: docs.length,
@@ -54,7 +53,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                   subtitle: Text('${doc.from} • ${doc.sentAt.toLocal().toIso8601String().split('T').first}'),
                   trailing: const Icon(Icons.download),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizer.downloadStarted ?? 'Download started')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizer.downloadStarted)));
                   },
                 );
               },

@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/portal_message.dart';
 import '../repositories/client_portal_repository.dart';
 import 'client_portal_event.dart';
 import 'client_portal_state.dart';

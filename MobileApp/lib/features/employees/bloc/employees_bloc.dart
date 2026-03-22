@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/employee.dart';
 import '../repositories/employees_repository.dart';
 import 'employees_event.dart';
 import 'employees_state.dart';
@@ -52,6 +51,7 @@ class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
     emit(EmployeesLoading());
     try {
       final employee = await employeesRepository.getEmployeeById(event.employeeId);
+      if (employee == null) throw StateError('Employee not found');
       emit(EmployeeDetailLoaded(employee));
     } catch (e) {
       emit(EmployeesError(e.toString()));
@@ -61,7 +61,7 @@ class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
   Future<void> _onCreateEmployee(CreateEmployee event, Emitter<EmployeesState> emit) async {
     emit(EmployeesLoading());
     try {
-      final employeeId = await employeesRepository.createEmployee(event.employee);
+      await employeesRepository.createEmployee(event.employee);
       emit(EmployeeOperationSuccess('Employee created successfully'));
       // Reload the list after successful creation
       final employees = await employeesRepository.getEmployees();

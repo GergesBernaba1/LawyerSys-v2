@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../models/notification.dart';
 import '../repositories/notifications_repository.dart';
 import 'notifications_event.dart';
 import 'notifications_state.dart';

@@ -18,4 +18,6 @@ class Permissions {
   static const viewClientPortal = 'ViewClientPortal';
   static const manageClientPortal = 'ManageClientPortal';
   static const manageSettings = 'ManageSettings';
+  static const createEmployees = 'CreateEmployees';
+  static const editEmployees = 'EditEmployees';
 }

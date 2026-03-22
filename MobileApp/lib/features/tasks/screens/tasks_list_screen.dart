@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/localization/app_localizations.dart';
+
 import '../bloc/tasks_bloc.dart';
 import '../bloc/tasks_event.dart';
 import '../bloc/tasks_state.dart';
-import '../models/task.dart';
 import 'task_form_screen.dart';
 
 class TasksListScreen extends StatefulWidget {
@@ -62,7 +63,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                 if (state is TasksLoaded) {
                   final tasks = state.tasks;
                   if (tasks.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

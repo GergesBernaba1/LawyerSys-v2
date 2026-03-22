@@ -1,5 +1,3 @@
-import '../models/customer.dart';
-
 abstract class CustomersEvent {}
 
 class LoadCustomers extends CustomersEvent {}

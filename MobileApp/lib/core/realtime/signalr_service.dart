@@ -11,39 +11,50 @@ class SignalRService {
   SignalRService._internal();
 
   HubConnection? _connection;
-  final _events = StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<Map<String, dynamic>> _events =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   Stream<Map<String, dynamic>> get events => _events.stream;
 
-  Future<void> init(String hubUrl, {String? accessToken}) async {
-    if (_connection != null) return;
+  Future<void> init(String hubUrl, {Future<String> Function()? tokenFactory}) async {
+    if (_connection != null) {
+      await stop();
+    }
+
+    _events = StreamController<Map<String, dynamic>>.broadcast();
 
     _connection = HubConnectionBuilder()
         .withUrl(
           hubUrl,
-          HttpConnectionOptions(
-            accessTokenFactory: () async => accessToken ?? '',
-            transport: HttpTransportType.webSockets,
+          options: HttpConnectionOptions(
+            accessTokenFactory: tokenFactory,
+            transport: HttpTransportType.WebSockets,
           ),
         )
+        .withAutomaticReconnect()
         .build();
 
-    _connection!.onclose((error) {
+    _connection!.onclose(({Exception? error}) {
       debugPrint('[SignalR] connection closed: $error');
     });
 
-    _connection!.onreconnecting((error) {
+    _connection!.onreconnecting(({Exception? error}) {
       debugPrint('[SignalR] reconnecting: $error');
     });
 
-    _connection!.onreconnected((id) {
-      debugPrint('[SignalR] reconnected: $id');
+    _connection!.onreconnected(({String? connectionId}) {
+      debugPrint('[SignalR] reconnected: $connectionId');
     });
 
     _connection!.on('ReceiveEvent', _onReceiveEvent);
 
-    await _connection!.start();
-    debugPrint('[SignalR] started at $hubUrl');
+    try {
+      await _connection!.start();
+      debugPrint('[SignalR] started at $hubUrl');
+    } catch (e) {
+      _connection = null;
+      rethrow;
+    }
   }
 
   void _onReceiveEvent(List<Object?>? args) {
@@ -60,14 +71,15 @@ class SignalRService {
     if (_connection != null) {
       await _connection!.stop();
       _connection = null;
+      await _events.close();
       debugPrint('[SignalR] stopped');
     }
   }
 
   Future<void> send(String method, [List<Object?>? args]) async {
-    if (_connection == null || _connection?.state != HubConnectionState.connected) {
+    if (_connection == null || _connection!.state != HubConnectionState.Connected) {
       throw StateError('SignalR connection is not open');
     }
-    await _connection!.invoke(method, args: args);
+    await _connection!.invoke(method, args: args?.whereType<Object>().toList());
   }
 }

@@ -25,9 +25,9 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<TimeTrackingBloc>().add(const LoadTimeEntries());
-    context.read<TimeTrackingBloc>().add(const LoadSuggestions(hourlyRate: 0));
-    context.read<TimeTrackingBloc>().add(const LoadCaseOptions());
+    context.read<TimeTrackingBloc>().add(LoadTimeEntries());
+    context.read<TimeTrackingBloc>().add(LoadSuggestions(0));
+    context.read<TimeTrackingBloc>().add(LoadCaseOptions());
   }
 
   @override
@@ -56,7 +56,6 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
             final entries = state.entries;
             final suggestions = state.suggestions;
             final caseOptions = state.caseOptions;
-            final statusFilter = state.statusFilter;
             final hourlyRate = state.hourlyRate;
 
             if (entries.isEmpty && suggestions.isEmpty) {
@@ -200,6 +199,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
 
   Widget _buildStartForm(
       BuildContext context, List<Map<String, dynamic>> caseOptions, double hourlyRate) {
+    final localizer = AppLocalizations.of(context);
     return Card(
       margin: const EdgeInsets.all(8),
       child: Padding(
@@ -217,7 +217,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                 Expanded(
                   flex: 2,
                   child: DropdownButtonFormField<String>(
-                    value: _selectedCaseCode,
+                    initialValue: _selectedCaseCode,
                     decoration: InputDecoration(
                       labelText: localizer.caseCode,
                       border: const OutlineInputBorder(),
@@ -279,7 +279,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _statusFilter,
+                    initialValue: _statusFilter,
                     decoration: const InputDecoration(
                       labelText: 'Status',
                       border: OutlineInputBorder(),
@@ -372,14 +372,12 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                       ? IconButton(
                           icon: const Icon(Icons.stop),
                           onPressed: () {
-                            // Stop the timer - need entryId
-                            // For now, we'll just show a message
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(localizer.stopTimerFunctionality)),
                             );
                           },
                         )
-                      : const DataCell(Text(''))),
+                      : const Text('')),
                 ]))
             .toList(),
       ),
@@ -387,6 +385,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
   }
 
   Widget _buildSuggestionsTable(List<Suggestion> suggestions) {
+    final localizer = AppLocalizations.of(context);
     if (suggestions.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(8),

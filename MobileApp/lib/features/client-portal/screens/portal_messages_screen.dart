@@ -50,7 +50,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
     final localizer = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizer.portalMessages ?? 'Client Messages')),
+      appBar: AppBar(title: Text(localizer.portalMessages)),
       body: Column(
         children: [
           Padding(
@@ -58,7 +58,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: localizer.search ?? 'Search',
+                hintText: localizer.search,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () => context.read<ClientPortalBloc>().add(SearchPortalMessages(_searchController.text)),
@@ -74,7 +74,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizer.error}: ${state.message}')));
                 }
                 if (state is PortalMessageMarkedAsRead) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizer.markedAsRead ?? 'Marked as read')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizer.markedAsRead)));
                 }
               },
               builder: (context, state) {
@@ -87,7 +87,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
                 if (state is ClientPortalMessagesLoaded) {
                   final messages = state.messages;
                   if (messages.isEmpty) {
-                    return Center(child: Text(localizer.noData ?? 'No messages')); 
+                    return Center(child: Text(localizer.noData));
                   }
                   return ListView.builder(
                     itemCount: messages.length,

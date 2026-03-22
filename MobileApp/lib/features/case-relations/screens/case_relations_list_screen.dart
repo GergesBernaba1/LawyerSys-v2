@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/case_relations_bloc.dart';
 import '../bloc/case_relations_event.dart';
 import '../bloc/case_relations_state.dart';
-import '../models/case_relation.dart';
 
 class CaseRelationsListScreen extends StatefulWidget {
   final int caseCode;
