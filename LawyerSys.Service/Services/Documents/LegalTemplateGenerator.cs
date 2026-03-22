@@ -1,11 +1,12 @@
 using LawyerSys.Services.Reporting;
+using System.Globalization;
 using System.Text;
 
 namespace LawyerSys.Services.Documents;
 
 public static class LegalTemplateGenerator
 {
-    private static readonly Dictionary<string, (string Name, string Description, string Body)> Templates = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, (string Name, string Description, string Body)> TemplatesEn = new(StringComparer.OrdinalIgnoreCase)
     {
         ["power-of-attorney"] = (
             "Power Of Attorney",
@@ -24,14 +25,61 @@ public static class LegalTemplateGenerator
         )
     };
 
-    public static IEnumerable<(string Key, string Name, string Description)> ListTemplates()
-        => Templates.Select(kv => (kv.Key, kv.Value.Name, kv.Value.Description));
-
-    public static bool Exists(string templateType) => Templates.ContainsKey(templateType);
-
-    public static string Render(string templateType, IDictionary<string, string> variables)
+    private static readonly Dictionary<string, (string Name, string Description, string Body)> TemplatesAr = new(StringComparer.OrdinalIgnoreCase)
     {
-        var template = Templates[templateType].Body;
+        ["power-of-attorney"] = (
+            "توكيل",
+            "إنشاء مسودة توكيل مع تفاصيل القضية والعميل.",
+            "توكيل\n\nالعميل: {{CustomerName}}\nرقم القضية: {{CaseCode}}\nنوع القضية: {{CaseType}}\nالتاريخ: {{Today}}\n\nأنا، {{CustomerName}}، أقوم بتعيين {{LawyerName}} كمحامي قانوني لتمثيلني في القضية المذكورة أعلاه.\n\nتوقيع العميل: ____________________\n"
+        ),
+        ["contract"] = (
+            "عقد الخدمات القانونية",
+            "إنشاء مسودة عقد خدمات قانونية.",
+            "عقد الخدمات القانونية\n\nتم إبرام هذا الاتفاق في {{Today}} بين {{LawFirmName}} و {{CustomerName}} بشأن القضية {{CaseCode}} ({{CaseType}}).\n\nالنطاق:\n{{Scope}}\n\nاتفاقية الأتعاب:\n{{FeeTerms}}\n\nتوقيع العميل: ____________________\nتوقيع المحامي: ____________________\n"
+        ),
+        ["court-filing"] = (
+            "مسودة قيد المحكمة",
+            "إنشاء مسودة قيد محكمة مع سياق القضية.",
+            "مسودة قيد المحكمة\n\nإلى: {{CourtName}}\nرقم القضية: {{CaseCode}}\nنوع القضية: {{CaseType}}\nمقدم بواسطة: {{LawyerName}}\nالتاريخ: {{Today}}\n\nالموضوع:\n{{Subject}}\n\nالبيان:\n{{Statement}}\n"
+        )
+    };
+
+    private static Dictionary<string, (string Name, string Description, string Body)> GetTemplates(string? culture)
+    {
+        var normalizedCulture = culture?.ToLowerInvariant() ?? "en";
+        
+        // Check for Arabic variants
+        if (normalizedCulture.StartsWith("ar"))
+        {
+            return TemplatesAr;
+        }
+        
+        return TemplatesEn;
+    }
+
+    public static IEnumerable<(string Key, string Name, string Description)> ListTemplates(string? culture = null)
+    {
+        var templates = GetTemplates(culture);
+        return templates.Select(kv => (kv.Key, kv.Value.Name, kv.Value.Description));
+    }
+
+    public static bool Exists(string templateType)
+    {
+        // Check in both templates since we don't know the culture at this point
+        return TemplatesEn.ContainsKey(templateType) || TemplatesAr.ContainsKey(templateType);
+    }
+
+    public static string Render(string templateType, IDictionary<string, string> variables, string? culture = null)
+    {
+        var templates = GetTemplates(culture);
+        
+        if (!templates.TryGetValue(templateType, out var templateData))
+        {
+            // Fallback to English if template not found
+            templateData = TemplatesEn[templateType];
+        }
+        
+        var template = templateData.Body;
         foreach (var kv in variables)
         {
             template = template.Replace($"{{{{{kv.Key}}}}}", kv.Value ?? string.Empty, StringComparison.OrdinalIgnoreCase);

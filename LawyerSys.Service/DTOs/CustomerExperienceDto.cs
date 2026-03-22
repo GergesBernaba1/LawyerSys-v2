@@ -96,5 +96,6 @@ public class UserNotificationPreferenceDto
     public bool ConversationUpdatesEnabled { get; set; } = true;
     public bool EmailNotificationsEnabled { get; set; }
     public bool SmsNotificationsEnabled { get; set; }
+    public bool PushNotificationsEnabled { get; set; } = true;
     public string PreferredLanguage { get; set; } = "en";
 }

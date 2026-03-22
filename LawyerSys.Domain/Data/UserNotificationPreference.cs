@@ -10,6 +10,7 @@ public class UserNotificationPreference
     public bool ConversationUpdatesEnabled { get; set; } = true;
     public bool EmailNotificationsEnabled { get; set; }
     public bool SmsNotificationsEnabled { get; set; }
+    public bool PushNotificationsEnabled { get; set; } = true;
     public string PreferredLanguage { get; set; } = "en";
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 }

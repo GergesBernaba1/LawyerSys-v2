@@ -18,6 +18,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import i18n from 'i18next'
 import api from '../../src/services/api'
 import { useAuth } from '../../src/services/auth'
 import SearchableSelect from '../../src/components/SearchableSelect'
@@ -99,9 +100,12 @@ export default function ESignPage() {
 
   const loadOptions = async () => {
     try {
+      // Get current language from i18n
+      const lang = i18n.language || 'ar'
+      
       const [filesResponse, templatesResponse] = await Promise.all([
         api.get('/Files'),
-        api.get('/DocumentGeneration/templates'),
+        api.get('/DocumentGeneration/templates', { params: { culture: lang } }),
       ])
 
       const filesData = Array.isArray(filesResponse.data)

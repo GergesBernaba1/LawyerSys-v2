@@ -1,0 +1,106 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+
+import '../../core/storage/local_database.dart';
+import '../../features/authentication/repositories/auth_repository.dart';
+import '../../features/notifications/models/notification.dart';
+import '../../features/notifications/repositories/notifications_repository.dart';
+import 'notification_handler.dart';
+
+class PushNotificationService {
+  static final PushNotificationService _instance = PushNotificationService._internal();
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  factory PushNotificationService() => _instance;
+
+  PushNotificationService._internal();
+
+  FirebaseMessaging? _messaging;
+  AuthRepository? _authRepository;
+  NotificationsRepository? _notificationsRepository;
+
+  FirebaseMessaging get _firebaseMessaging {
+    return _messaging ??= FirebaseMessaging.instance;
+  }
+
+  void configure(AuthRepository authRepository, {NotificationsRepository? notificationsRepository}) {
+    _authRepository = authRepository;
+    _notificationsRepository = notificationsRepository;
+  }
+
+  Future<void> init() async {
+    try {
+      if (Platform.isIOS || Platform.isAndroid) {
+        await _requestPermission();
+      }
+
+      final token = await _firebaseMessaging.getToken();
+      if (token != null && token.isNotEmpty && _authRepository != null) {
+        await _authRepository!.registerDeviceToken(token, platform: Platform.operatingSystem);
+      }
+
+      _firebaseMessaging.onTokenRefresh.listen((newToken) async {
+        if (newToken.isNotEmpty && _authRepository != null) {
+          await _authRepository!.registerDeviceToken(newToken, platform: Platform.operatingSystem);
+        }
+      });
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage event) async {
+        debugPrint('Foreground message: ${event.notification?.title} ${event.notification?.body}');
+        await _persistNotification(event);
+        NotificationHandler.onMessage(event);
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage event) async {
+        debugPrint('Notification opened-app payload: ${event.data}');
+        await _persistNotification(event);
+        NotificationHandler.onMessageOpened(event);
+      });
+
+      FirebaseMessaging.onBackgroundMessage(NotificationHandler.firebaseMessagingBackgroundHandler);
+    } catch (e, st) {
+      debugPrint('PushNotificationService.init failed: $e\n$st');
+    }
+  }
+
+  Future<void> disable() async {
+    try {
+      final token = await _firebaseMessaging.getToken();
+      if (token != null && token.isNotEmpty && _authRepository != null) {
+        await _authRepository!.unregisterDeviceToken(token);
+      }
+    } catch (e, st) {
+      debugPrint('PushNotificationService.disable failed: $e\n$st');
+    }
+  }
+
+  Future<void> _requestPermission() async {
+    final settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+      provisional: false,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.denied) {
+      debugPrint('Push notification permission denied');
+    }
+  }
+
+  Future<void> _persistNotification(RemoteMessage message) async {
+    final title = message.notification?.title ?? message.data['title']?.toString() ?? 'Notification';
+    final body = message.notification?.body ?? message.data['body']?.toString() ?? '';
+    final notificationId = message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+    final repo = _notificationsRepository ?? NotificationsRepository(LocalDatabase.instance);
+
+    try {
+      await repo.addNotification(AppNotification(notificationId: notificationId, title: title, message: body));
+    } catch (e, st) {
+      debugPrint('Failed to store notification: $e\n$st');
+    }
+  }
+}
+

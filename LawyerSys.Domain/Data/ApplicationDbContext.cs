@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TenantBillingTransaction> TenantBillingTransactions => Set<TenantBillingTransaction>();
     public DbSet<DemoRequest> DemoRequests => Set<DemoRequest>();
     public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
+    public DbSet<UserPushToken> UserPushTokens => Set<UserPushToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -168,6 +169,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(preference => preference.UserId).HasMaxLength(450);
             entity.Property(preference => preference.PreferredLanguage).HasMaxLength(12);
             entity.HasIndex(preference => preference.UserId).IsUnique();
+        });
+
+        modelBuilder.Entity<UserPushToken>(entity =>
+        {
+            entity.ToTable("UserPushTokens");
+            entity.Property(token => token.UserId).HasMaxLength(450).IsRequired();
+            entity.Property(token => token.Token).HasMaxLength(512).IsRequired();
+            entity.Property(token => token.Platform).HasMaxLength(50);
+            entity.HasIndex(token => new { token.UserId, token.Token }).IsUnique();
+            entity.HasOne(token => token.User)
+                .WithMany(user => user.PushTokens)
+                .HasForeignKey(token => token.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<LandingPageSettings>(entity =>

@@ -20,9 +20,15 @@ public class DocumentGenerationController : ControllerBase
     }
 
     [HttpGet("templates")]
-    public ActionResult<IEnumerable<DocumentTemplateDto>> GetTemplates()
+    public ActionResult<IEnumerable<DocumentTemplateDto>> GetTemplates([FromQuery] string? culture = null)
     {
-        var templates = LegalTemplateGenerator.ListTemplates()
+        // Try to get culture from Accept-Language header if not provided as query param
+        if (string.IsNullOrEmpty(culture))
+        {
+            culture = Request.Headers.AcceptLanguage.FirstOrDefault();
+        }
+        
+        var templates = LegalTemplateGenerator.ListTemplates(culture)
             .Select(t => new DocumentTemplateDto { Key = t.Key, Name = t.Name, Description = t.Description })
             .ToList();
 

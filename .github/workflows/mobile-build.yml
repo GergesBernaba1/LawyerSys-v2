@@ -1,0 +1,116 @@
+name: Mobile Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "003-flutter-mobile-app" ]
+  pull_request:
+    branches: [ "main", "003-flutter-mobile-app" ]
+
+concurrency:
+  group: mobile-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Print Flutter version
+        run: flutter --version
+
+      - name: Generate Android platform files
+        working-directory: MobileApp
+        run: flutter create . --platforms android
+
+      - name: Install dependencies
+        working-directory: MobileApp
+        run: flutter pub get
+
+      - name: Generate app icons
+        working-directory: MobileApp
+        run: dart run flutter_launcher_icons
+
+      - name: Run tests
+        working-directory: MobileApp
+        run: flutter test
+
+      - name: Build release APK
+        working-directory: MobileApp
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lawyersys-mobile-release-apk
+          path: MobileApp/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Print Flutter version
+        run: flutter --version
+
+      - name: Precache Flutter iOS artifacts
+        run: flutter precache --ios
+
+      - name: Generate iOS platform files
+        working-directory: MobileApp
+        run: flutter create . --platforms ios
+
+      - name: Install dependencies
+        working-directory: MobileApp
+        run: flutter pub get
+
+      - name: Run CocoaPods install
+        working-directory: MobileApp/ios
+        run: pod install
+
+      - name: Run tests
+        working-directory: MobileApp
+        run: flutter test
+
+      - name: Build IPA
+        working-directory: MobileApp
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lawyersys-mobile-release-ipa
+          path: MobileApp/build/ios/iphoneos/Runner.app
+          if-no-files-found: error

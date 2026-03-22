@@ -1,0 +1,50 @@
+﻿name: qadaya_lawyersys
+description: Qadaya LawyerSys mobile application
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_bloc: ^8.1.3
+  dio: ^5.3.0
+  sqflite: ^2.2.7
+  path: ^1.9.0
+  flutter_secure_storage: ^8.0.0
+  firebase_core: ^2.16.0
+  firebase_messaging: ^14.6.6
+  local_auth: ^2.2.1
+  intl: ^0.20.2
+  shared_preferences: ^2.2.0
+  path_provider: ^2.0.17
+  url_launcher: ^6.1.10
+  connectivity_plus: ^6.0.3
+  table_calendar: ^3.0.8
+  flutter_pdfview: ^1.2.3
+  photo_view: ^0.14.0
+  flutter_cache_manager: ^3.3.1
+  signalr_netcore: ^1.3.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.1
+  bloc_test: ^9.1.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.9
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/app_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
