@@ -70,53 +70,8 @@ import 'shared/screens/main_screen.dart';
 import 'shared/screens/splash_screen.dart';
 import 'shared/screens/unauthorized_screen.dart';
 
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({super.key});
-
-  @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  bool _notificationsInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_notificationsInitialized) {
-      _notificationsInitialized = true;
-      final authRepository = RepositoryProvider.of<AuthRepository>(context);
-
-      final pushService = PushNotificationService();
-      pushService.configure(
-        authRepository,
-        notificationsRepository: NotificationsRepository(LocalDatabase.instance),
-      );
-      pushService.init();
-
-      final signalRService = SignalRService();
-      SecureStorage().read(SecureStorage.keyAccessToken).then((token) {
-        signalRService.init(
-          '${ApiConstants.baseUrl}${ApiConstants.signalRHub}',
-          tokenFactory: token != null ? () async => token : null,
-        );
-      }).catchError((error) {
-        signalRService.init('${ApiConstants.baseUrl}${ApiConstants.signalRHub}');
-      });
-
-      SyncService().syncPendingOperations(context).catchError((error) {
-        debugPrint('Startup sync failed: $error');
-      });
-
-      ConnectivityService().startListening();
-    }
-  }
-
-  @override
-  void dispose() {
-    ConnectivityService().stopListening();
-    super.dispose();
-  }
 
   bool _canAccessRoute(String? route, UserSession? session) {
     if (route == null) return false;
@@ -127,7 +82,7 @@ class _AppState extends State<App> {
       '/register': null,
       '/forgot-password': null,
       '/reset-password': null,
-      '/main': null, // MainScreen handles its own permission filtering
+      '/main': null,
       '/dashboard': Permissions.dashboard,
       '/tasks': Permissions.dashboard,
       '/calendar': Permissions.viewHearings,
@@ -152,7 +107,6 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     final apiClient = ApiClient();
     final localDatabase = LocalDatabase.instance;
-    final preferencesStorage = PreferencesStorage();
 
     return MultiRepositoryProvider(
       providers: [
@@ -193,162 +147,200 @@ class _AppState extends State<App> {
           BlocProvider(create: (ctx) => EmployeesBloc(employeesRepository: RepositoryProvider.of<EmployeesRepository>(ctx))),
           BlocProvider(create: (_) => NotificationsBloc(notificationsRepository: NotificationsRepository(LocalDatabase.instance))),
         ],
-        child: FutureBuilder<String?>(
-          future: preferencesStorage.getLanguageCode(),
-          builder: (context, snapshot) {
-            final locale = (snapshot.data?.isNotEmpty == true)
-                ? Locale(snapshot.data!)
-                : const Locale('en');
-            return MaterialApp(
-              title: 'LawyerSys Mobile',
-              navigatorKey: PushNotificationService.navigatorKey,
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color(0xFF14345A),
-                  primary: const Color(0xFF14345A),
-                  secondary: const Color(0xFFB98746),
-                  surface: Colors.white,
-                ),
-                scaffoldBackgroundColor: const Color(0xFFEEF4FA),
-                appBarTheme: const AppBarTheme(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xFF0F172A),
-                  elevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                ),
-                cardTheme: CardThemeData(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    side: BorderSide(
-                        color: const Color(0xFF14345A).withValues(alpha: 0.08)),
-                  ),
-                  color: Colors.white,
-                ),
-                inputDecorationTheme: InputDecorationTheme(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                        color: const Color(0xFF14345A).withValues(alpha: 0.12)),
-                  ),
-                ),
-                elevatedButtonTheme: ElevatedButtonThemeData(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF14345A),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                ),
-                useMaterial3: true,
-              ),
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('en'), Locale('ar')],
-              locale: locale,
-              localeResolutionCallback: (currentLocale, supportedLocales) {
-                if (currentLocale == null) return const Locale('en');
-                for (final supported in supportedLocales) {
-                  if (supported.languageCode == currentLocale.languageCode) {
-                    return supported;
-                  }
-                }
-                return supportedLocales.first;
-              },
-              builder: (context, child) {
-                final loc = Localizations.localeOf(context);
-                final dir = loc.languageCode == 'ar'
-                    ? TextDirection.rtl
-                    : TextDirection.ltr;
-                return Directionality(
-                    textDirection: dir,
-                    child: child ?? const SizedBox.shrink());
-              },
-              initialRoute: '/',
-              onGenerateRoute: (settings) {
-                final authState = context.read<AuthBloc>().state;
-                final session = authState is AuthAuthenticated
-                    ? authState.session
-                    : null;
-
-                if (!_canAccessRoute(settings.name, session)) {
-                  return MaterialPageRoute(
-                      builder: (_) => const UnauthorizedScreen());
-                }
-
-                switch (settings.name) {
-                  case '/':
-                    return MaterialPageRoute(
-                        builder: (_) => const SplashScreen());
-                  case '/login':
-                    return MaterialPageRoute(
-                        builder: (_) => const LoginScreen());
-                  case '/register':
-                    return MaterialPageRoute(
-                        builder: (_) => const RegisterScreen());
-                  case '/forgot-password':
-                    return MaterialPageRoute(
-                        builder: (_) => const ForgotPasswordScreen());
-                  case '/reset-password':
-                    return MaterialPageRoute(
-                        builder: (_) => const _ResetScreen());
-                  case '/main':
-                    return MaterialPageRoute(
-                        builder: (_) => const MainScreen());
-                  case '/dashboard':
-                    return MaterialPageRoute(
-                        builder: (_) => const DashboardScreen());
-                  case '/tasks':
-                    return MaterialPageRoute(
-                        builder: (_) => const TasksListScreen());
-                  case '/calendar':
-                    return MaterialPageRoute(
-                        builder: (_) => const CalendarScreen());
-                  case '/hearings':
-                    return MaterialPageRoute(
-                        builder: (_) => const HearingsListScreen());
-                  case '/courts':
-                    return MaterialPageRoute(
-                        builder: (_) => const CourtsListScreen());
-                  case '/timetracking':
-                    return MaterialPageRoute(
-                        builder: (_) => const TimeTrackingListScreen());
-                  case '/billing':
-                    return MaterialPageRoute(
-                        builder: (_) => const BillingListScreen());
-                  case '/trust-accounting':
-                    return MaterialPageRoute(
-                        builder: (_) => const TrustListScreen());
-                  case '/client-portal-messages':
-                    return MaterialPageRoute(
-                        builder: (_) => const PortalMessagesScreen());
-                  case '/client-portal-documents':
-                    return MaterialPageRoute(
-                        builder: (_) => const PortalDocumentsScreen());
-                  case '/customers':
-                    return MaterialPageRoute(
-                        builder: (_) => const CustomersListScreen());
-                  case '/settings':
-                    return MaterialPageRoute(
-                        builder: (_) => const SettingsScreen());
-                  case '/documents':
-                    return MaterialPageRoute(
-                        builder: (_) => const DocumentsListScreen());
-                  default:
-                    return null;
-                }
-              },
-            );
-          },
-        ),
+        child: _AppInitializer(canAccessRoute: _canAccessRoute),
       ),
+    );
+  }
+}
+
+/// Lives inside the provider tree so it can safely access repositories and blocs.
+class _AppInitializer extends StatefulWidget {
+  final bool Function(String?, UserSession?) canAccessRoute;
+  const _AppInitializer({required this.canAccessRoute});
+
+  @override
+  State<_AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<_AppInitializer> {
+  Locale _locale = const Locale('en');
+  bool _localeLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    // Load saved locale
+    final langCode = await PreferencesStorage().getLanguageCode();
+    if (mounted) {
+      setState(() {
+        _locale = (langCode?.isNotEmpty == true) ? Locale(langCode!) : const Locale('en');
+        _localeLoaded = true;
+      });
+    }
+
+    // Init services that need repository context
+    final authRepository = RepositoryProvider.of<AuthRepository>(context);
+
+    final pushService = PushNotificationService();
+    pushService.configure(
+      authRepository,
+      notificationsRepository: NotificationsRepository(LocalDatabase.instance),
+    );
+    pushService.init();
+
+    final signalRService = SignalRService();
+    try {
+      final token = await SecureStorage().read(SecureStorage.keyAccessToken);
+      signalRService.init(
+        '${ApiConstants.baseUrl}${ApiConstants.signalRHub}',
+        tokenFactory: token != null ? () async => token : null,
+      );
+    } catch (_) {
+      signalRService.init('${ApiConstants.baseUrl}${ApiConstants.signalRHub}');
+    }
+
+    if (mounted) {
+      SyncService().syncPendingOperations(context).catchError((error) {
+        debugPrint('Startup sync failed: $error');
+      });
+    }
+
+    ConnectivityService().startListening();
+  }
+
+  @override
+  void dispose() {
+    ConnectivityService().stopListening();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_localeLoaded) {
+      return const MaterialApp(
+        home: Scaffold(body: SizedBox.shrink()),
+      );
+    }
+
+    return MaterialApp(
+      title: 'Qadaya LawyerSys',
+      navigatorKey: PushNotificationService.navigatorKey,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF14345A),
+          primary: const Color(0xFF14345A),
+          secondary: const Color(0xFFB98746),
+          surface: Colors.white,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFEEF4FA),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF0F172A),
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+        ),
+        cardTheme: CardThemeData(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: BorderSide(color: const Color(0xFF14345A).withValues(alpha: 0.08)),
+          ),
+          color: Colors.white,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: const Color(0xFF14345A).withValues(alpha: 0.12)),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF14345A),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
+        useMaterial3: true,
+      ),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('ar')],
+      locale: _locale,
+      localeResolutionCallback: (currentLocale, supportedLocales) {
+        if (currentLocale == null) return const Locale('en');
+        for (final supported in supportedLocales) {
+          if (supported.languageCode == currentLocale.languageCode) return supported;
+        }
+        return supportedLocales.first;
+      },
+      builder: (context, child) {
+        final loc = Localizations.localeOf(context);
+        final dir = loc.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr;
+        return Directionality(textDirection: dir, child: child ?? const SizedBox.shrink());
+      },
+      initialRoute: '/',
+      onGenerateRoute: (settings) {
+        final authState = context.read<AuthBloc>().state;
+        final session = authState is AuthAuthenticated ? authState.session : null;
+
+        if (!widget.canAccessRoute(settings.name, session)) {
+          return MaterialPageRoute(builder: (_) => const UnauthorizedScreen());
+        }
+
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(builder: (_) => const SplashScreen());
+          case '/login':
+            return MaterialPageRoute(builder: (_) => const LoginScreen());
+          case '/register':
+            return MaterialPageRoute(builder: (_) => const RegisterScreen());
+          case '/forgot-password':
+            return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+          case '/reset-password':
+            return MaterialPageRoute(builder: (_) => const _ResetScreen());
+          case '/main':
+            return MaterialPageRoute(builder: (_) => const MainScreen());
+          case '/dashboard':
+            return MaterialPageRoute(builder: (_) => const DashboardScreen());
+          case '/tasks':
+            return MaterialPageRoute(builder: (_) => const TasksListScreen());
+          case '/calendar':
+            return MaterialPageRoute(builder: (_) => const CalendarScreen());
+          case '/hearings':
+            return MaterialPageRoute(builder: (_) => const HearingsListScreen());
+          case '/courts':
+            return MaterialPageRoute(builder: (_) => const CourtsListScreen());
+          case '/timetracking':
+            return MaterialPageRoute(builder: (_) => const TimeTrackingListScreen());
+          case '/billing':
+            return MaterialPageRoute(builder: (_) => const BillingListScreen());
+          case '/trust-accounting':
+            return MaterialPageRoute(builder: (_) => const TrustListScreen());
+          case '/client-portal-messages':
+            return MaterialPageRoute(builder: (_) => const PortalMessagesScreen());
+          case '/client-portal-documents':
+            return MaterialPageRoute(builder: (_) => const PortalDocumentsScreen());
+          case '/customers':
+            return MaterialPageRoute(builder: (_) => const CustomersListScreen());
+          case '/settings':
+            return MaterialPageRoute(builder: (_) => const SettingsScreen());
+          case '/documents':
+            return MaterialPageRoute(builder: (_) => const DocumentsListScreen());
+          default:
+            return null;
+        }
+      },
     );
   }
 }
@@ -358,11 +350,7 @@ class _ResetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments
-        as Map<String, String>? ?? {};
-    return ResetPasswordScreen(
-      email: args['email'] ?? '',
-      token: args['token'] ?? '',
-    );
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, String>? ?? {};
+    return ResetPasswordScreen(email: args['email'] ?? '', token: args['token'] ?? '');
   }
 }
