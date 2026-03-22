@@ -14,7 +14,6 @@ raise "FLUTTER_ROOT not set. Run `flutter pub get` first." if flutter_root.nil? 
 require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper'))
 
 use_frameworks! :linkage => :static
-use_modular_headers!
 
 target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
