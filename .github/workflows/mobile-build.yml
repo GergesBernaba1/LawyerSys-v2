@@ -92,7 +92,7 @@ jobs:
         working-directory: MobileApp
         run: flutter create . --platforms ios
 
-      - name: Restore custom Podfile
+      - name: Restore custom Podfile and xcconfig
         working-directory: MobileApp/ios
         run: |
           cat > Podfile << 'EOF'
@@ -128,6 +128,8 @@ jobs:
             end
           end
           EOF
+          echo 'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES' >> Flutter/Debug.xcconfig
+          echo 'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES' >> Flutter/Release.xcconfig
 
       - name: Install dependencies
         working-directory: MobileApp
