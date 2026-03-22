@@ -70,7 +70,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => HearingFormScreen(hearing: hearing)),
               );
-              if (result == true) {
+              if (result == true && mounted) {
                 context.read<HearingsBloc>().add(LoadHearings());
               }
             } else if (value == 'delete') {
@@ -85,7 +85,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                   ],
                 ),
               );
-              if (confirmed == true) {
+              if (confirmed == true && mounted) {
                 context.read<HearingsBloc>().add(DeleteHearing(hearing.hearingId));
               }
             }
@@ -117,12 +117,12 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
             context,
             MaterialPageRoute(builder: (_) => const HearingFormScreen()),
           );
-          if (created == true) {
+          if (created == true && context.mounted) {
             context.read<HearingsBloc>().add(LoadHearings());
           }
         },
-        child: const Icon(Icons.add),
         tooltip: localizer.addHearing,
+        child: const Icon(Icons.add),
       ),
       body: Column(
         children: [

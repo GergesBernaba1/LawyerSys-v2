@@ -40,7 +40,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => const ContenderFormScreen()));
-          context.read<ContendersBloc>().add(RefreshContenders());
+          if (context.mounted) context.read<ContendersBloc>().add(RefreshContenders());
         },
         child: const Icon(Icons.add),
       ),

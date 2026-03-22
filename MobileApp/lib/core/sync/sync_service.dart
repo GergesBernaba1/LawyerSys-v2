@@ -1,10 +1,14 @@
 ﻿import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../api/api_client.dart';
 import '../storage/local_database.dart';
 import 'sync_queue_item.dart';
-import 'conflict_resolver.dart';
+
+typedef ConflictResolverCallback = Future<Map<String, dynamic>?> Function(
+  Map<String, dynamic> local,
+  Map<String, dynamic> remote,
+);
 
 class SyncHealth {
   final int attempted;
@@ -31,13 +35,14 @@ class SyncService {
   int _attempted = 0;
   int _succeeded = 0;
   int _failed = 0;
-  int _canceled = 0;
+  final int _canceled = 0;
+
 
   SyncService({ApiClient? apiClient, LocalDatabase? localDatabase})
       : _apiClient = apiClient ?? ApiClient(),
         _localDatabase = localDatabase ?? LocalDatabase.instance;
 
-  Future<void> syncPendingOperations(BuildContext? context) async {
+  Future<void> syncPendingOperations([ConflictResolverCallback? conflictResolver]) async {
     final queue = await _localDatabase.getSyncQueueItems();
     for (final item in queue) {
       if (item.retryCount >= 3) {
@@ -50,7 +55,7 @@ class SyncService {
 
       _attempted += 1;
       try {
-        await _processQueueItem(item, context);
+        await _processQueueItem(item, conflictResolver);
         _succeeded += 1;
         await _localDatabase.removeSyncQueueItem(item.id);
         await _localDatabase.addSyncActivity(item.id, item.id, item.entityType, item.operationType, 'success', 'Synced');
@@ -75,13 +80,13 @@ class SyncService {
     await _persistHealthMetrics();
   }
 
-  Future<void> _processQueueItem(SyncQueueItem item, BuildContext? context) async {
+  Future<void> _processQueueItem(SyncQueueItem item, ConflictResolverCallback? conflictResolver) async {
     switch (item.operationType) {
       case 'create_case':
         await _createCaseSync(item);
         break;
       case 'update_case':
-        await _updateCaseSync(item, context);
+        await _updateCaseSync(item, conflictResolver);
         break;
       case 'delete_case':
         await _deleteCaseSync(item);
@@ -99,13 +104,13 @@ class SyncService {
     }
   }
 
-  Future<void> _updateCaseSync(SyncQueueItem item, BuildContext? context) async {
+  Future<void> _updateCaseSync(SyncQueueItem item, ConflictResolverCallback? conflictResolver) async {
     try {
       await _apiClient.put('/api/cases/${item.entityId}', data: item.payload);
       await _localDatabase.upsertCase(item.entityId, item.payload, tenantId: item.payload['tenantId'] as String? ?? '', isDirty: false);
     } on DioException catch (dioError) {
       if (dioError.response?.statusCode == 409) {
-        await _handleCaseConflict(item, context);
+        await _handleCaseConflict(item, conflictResolver);
       } else {
         rethrow;
       }
@@ -117,7 +122,7 @@ class SyncService {
     await _localDatabase.deleteCase(item.entityId);
   }
 
-  Future<void> _handleCaseConflict(SyncQueueItem item, BuildContext? context) async {
+  Future<void> _handleCaseConflict(SyncQueueItem item, ConflictResolverCallback? conflictResolver) async {
     try {
       final remoteResponse = await _apiClient.get('/api/cases/${item.entityId}');
       if (remoteResponse.data == null || remoteResponse.data is! Map<String, dynamic>) return;
@@ -125,20 +130,9 @@ class SyncService {
       final remote = Map<String, dynamic>.from(remoteResponse.data as Map);
       final local = Map<String, dynamic>.from(item.payload);
 
-      Map<String, dynamic> resolved;
-      if (context != null) {
-        final result = await showDialog<Map<String, dynamic>>(
-          context: context,
-          builder: (_) => ConflictResolverWidget(
-            entityName: 'Case',
-            localData: local,
-            remoteData: remote,
-          ),
-        );
-        resolved = result ?? local;
-      } else {
-        resolved = local;
-      }
+      final resolved = conflictResolver != null
+          ? await conflictResolver(local, remote) ?? local
+          : local;
 
       await _apiClient.put('/api/cases/${item.entityId}', data: resolved);
       await _localDatabase.upsertCase(item.entityId, resolved, tenantId: resolved['tenantId'] as String? ?? '', isDirty: false);
@@ -148,8 +142,8 @@ class SyncService {
     }
   }
 
-  Future<void> performFullSync(BuildContext? context) async {
-    await syncPendingOperations(context);
+  Future<void> performFullSync([ConflictResolverCallback? conflictResolver]) async {
+    await syncPendingOperations(conflictResolver);
     await _reconcileAll();
   }
 

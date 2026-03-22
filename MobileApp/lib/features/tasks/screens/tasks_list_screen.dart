@@ -92,17 +92,14 @@ class _TasksListScreenState extends State<TasksListScreen> {
                         trailing: PopupMenuButton<int>(
                           onSelected: (value) async {
                             if (value == 1) {
-                              // Edit
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => TaskFormScreen(task: task),
                                 ),
                               );
-                              // Refresh after edit
-                              context.read<TasksBloc>().add(LoadTasks());
+                              if (context.mounted) context.read<TasksBloc>().add(LoadTasks());
                             } else if (value == 2) {
-                              // Delete
                               final confirmed = await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
@@ -123,7 +120,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                                   ],
                                 ),
                               );
-                              if (confirmed == true) {
+                              if (confirmed == true && context.mounted) {
                                 context.read<TasksBloc>().add(DeleteTask(task.id ?? 0));
                               }
                             }
@@ -168,11 +165,10 @@ class _TasksListScreenState extends State<TasksListScreen> {
             context,
             MaterialPageRoute(builder: (_) => const TaskFormScreen()),
           );
-          // Refresh after adding
-          context.read<TasksBloc>().add(LoadTasks());
+          if (context.mounted) context.read<TasksBloc>().add(LoadTasks());
         },
-        child: const Icon(Icons.add),
         tooltip: 'Add Task',
+        child: const Icon(Icons.add),
       ),
     );
   }

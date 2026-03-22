@@ -165,8 +165,8 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
           context,
           MaterialPageRoute(builder: (_) => const TimeTrackingFormScreen()),
         ),
-        child: const Icon(Icons.add),
         tooltip: 'Add Time Entry',
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -273,7 +273,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                       labelText: 'Hourly Rate',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   ),
                 ),
                 const SizedBox(width: 8),

@@ -75,13 +75,13 @@ class _ConflictResolverWidgetState extends State<ConflictResolverWidget> {
                             child: RadioGroup<bool>(
                               groupValue: localSelected,
                               onChanged: (value) => _toggleKey(key, value ?? true),
-                              child: Row(
+                              child: const Row(
                                 children: [
                                   Expanded(
                                     child: RadioListTile<bool>(
                                       dense: true,
                                       contentPadding: EdgeInsets.zero,
-                                      title: const Text('Local'),
+                                      title: Text('Local'),
                                       value: true,
                                     ),
                                   ),
@@ -89,7 +89,7 @@ class _ConflictResolverWidgetState extends State<ConflictResolverWidget> {
                                     child: RadioListTile<bool>(
                                       dense: true,
                                       contentPadding: EdgeInsets.zero,
-                                      title: const Text('Remote'),
+                                      title: Text('Remote'),
                                       value: false,
                                     ),
                                   ),

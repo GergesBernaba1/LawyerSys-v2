@@ -16,7 +16,7 @@ void main() {
     expect(initialValue, true);
 
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: SettingsScreen(),
       ),
     );

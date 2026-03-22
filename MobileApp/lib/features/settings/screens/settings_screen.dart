@@ -35,11 +35,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
+    final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final storedLanguage = await _preferences.getLanguageCode();
     final storedPush = await _preferences.getPushNotificationEnabled();
     final biometricService = widget.biometricAuthService ?? BiometricAuthService();
     final biometricAvailable = await biometricService.isBiometricAvailable();
-    final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final session = await authRepository.getStoredSession();
 
     try {
@@ -49,6 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       debugPrint('SettingsScreen: unable to init local persistence for settings: $e');
     }
 
+    if (!mounted) return;
     setState(() {
       _language = storedLanguage ?? 'en';
       _pushNotificationsEnabled = storedPush;
@@ -72,6 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _setLanguage(String languageCode) async {
     await _preferences.setLanguageCode(languageCode);
+    if (!mounted) return;
     setState(() {
       _language = languageCode;
     });
@@ -81,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _setBiometricEnabled(bool enabled) async {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final success = await authRepository.setBiometricEnabled(enabled);
+    if (!mounted) return;
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to update biometric settings')));
       return;
@@ -108,7 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: RadioGroup<String>(
               groupValue: _language,
               onChanged: (value) { if (value != null) _setLanguage(value); },
-              child: Radio<String>(value: 'en'),
+              child: const Radio<String>(value: 'en'),
             ),
             onTap: () => _setLanguage('en'),
           ),
@@ -117,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: RadioGroup<String>(
               groupValue: _language,
               onChanged: (value) { if (value != null) _setLanguage(value); },
-              child: Radio<String>(value: 'ar'),
+              child: const Radio<String>(value: 'ar'),
             ),
             onTap: () => _setLanguage('ar'),
           ),

@@ -82,7 +82,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                       labelText: 'Amount',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter amount';
@@ -127,7 +127,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               .map((customer) => DropdownMenuItem<int>(
                                     value: customer.id ?? 0,
                                     child: Text(
-                                        '${customer.fullName ?? customer.email ?? 'Unknown'}'),
+                                        customer.fullName ?? customer.email ?? 'Unknown'),
                                   ))
                               .toList();
                         }
@@ -169,7 +169,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               .map((employee) => DropdownMenuItem<int>(
                                     value: employee.id ?? 0,
                                     child: Text(
-                                        '${employee.fullName ?? employee.email ?? 'Unknown'}'),
+                                        employee.fullName ?? employee.email ?? 'Unknown'),
                                   ))
                               .toList();
                         }

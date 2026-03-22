@@ -20,7 +20,7 @@ import 'auth_flow_test.mocks.dart';
 void main() {
   // ── Fixtures ────────────────────────────────────────────────────────────────
 
-  UserSession _makeSession({bool biometricEnabled = false}) => UserSession(
+  UserSession makeSession({bool biometricEnabled = false}) => UserSession(
         userId: 'u1',
         email: 'test@example.com',
         fullName: 'Test User',
@@ -38,7 +38,7 @@ void main() {
   // ── Widget helpers ───────────────────────────────────────────────────────────
 
   /// Wraps [child] with the minimal providers the screens need.
-  Widget _buildApp({
+  Widget buildApp({
     required AuthRepository authRepository,
     required BiometricAuthService biometricService,
     required Widget home,
@@ -81,7 +81,7 @@ void main() {
 
     testWidgets('login + persistence + settings toggle + restore',
         (WidgetTester tester) async {
-      final session = _makeSession();
+      final session = makeSession();
 
       // AuthRepository stubs
       when(mockAuthRepo.login(any)).thenAnswer((_) async => session);
@@ -96,7 +96,7 @@ void main() {
       when(mockBiometric.authenticate()).thenAnswer((_) async => true);
 
       // ── Step 1: pump LoginScreen ─────────────────────────────────────────────
-      await tester.pumpWidget(_buildApp(
+      await tester.pumpWidget(buildApp(
         authRepository: mockAuthRepo,
         biometricService: mockBiometric,
         home: const LoginScreen(),
@@ -136,7 +136,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Push SettingsScreen directly (simulates tapping settings from MainScreen)
-      await tester.pumpWidget(_buildApp(
+      await tester.pumpWidget(buildApp(
         authRepository: mockAuthRepo,
         biometricService: mockBiometric,
         home: SettingsScreen(biometricAuthService: mockBiometric),
@@ -156,11 +156,11 @@ void main() {
       }
 
       // ── Step 5: pump SplashScreen and assert biometric path is invoked ────────
-      final sessionWithBiometric = _makeSession(biometricEnabled: true);
+      final sessionWithBiometric = makeSession(biometricEnabled: true);
       when(mockAuthRepo.getStoredSession())
           .thenAnswer((_) async => sessionWithBiometric);
 
-      await tester.pumpWidget(_buildApp(
+      await tester.pumpWidget(buildApp(
         authRepository: mockAuthRepo,
         biometricService: mockBiometric,
         home: const SplashScreen(),

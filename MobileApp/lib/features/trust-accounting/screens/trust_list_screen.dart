@@ -47,8 +47,9 @@ class _TrustListScreenState extends State<TrustListScreen> {
       floatingActionButton: canManage
           ? FloatingActionButton(
               onPressed: () async {
+                final bloc = context.read<TrustAccountingBloc>();
                 await Navigator.push(context, MaterialPageRoute(builder: (_) => const TrustFormScreen()));
-                context.read<TrustAccountingBloc>().add(RefreshTrustTransactions());
+                if (mounted) bloc.add(RefreshTrustTransactions());
               },
               child: const Icon(Icons.add),
             )

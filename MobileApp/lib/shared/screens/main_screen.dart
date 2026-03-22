@@ -53,6 +53,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    final bloc = context.read<NotificationsBloc>();
     SignalRService().events.listen((event) {
       final title = event['title']?.toString() ?? 'Update';
       final message = event['message']?.toString() ?? 'You have a new update';
@@ -60,9 +61,7 @@ class _MainScreenState extends State<MainScreen> {
           DateTime.now().millisecondsSinceEpoch.toString();
       final notification =
           model.AppNotification(notificationId: id, title: title, message: message);
-      if (context.mounted) {
-        context.read<NotificationsBloc>().add(NewNotificationReceived(notification));
-      }
+      if (mounted) bloc.add(NewNotificationReceived(notification));
     });
   }
 

@@ -39,7 +39,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => const CourtFormScreen()));
-          context.read<CourtsBloc>().add(RefreshCourts());
+          if (context.mounted) context.read<CourtsBloc>().add(RefreshCourts());
         },
         child: const Icon(Icons.add),
       ),

@@ -59,7 +59,7 @@ class CaseDetailScreen extends StatelessWidget {
                   ],
                 ),
               );
-              if (confirmed == true) {
+              if (confirmed == true && context.mounted) {
                 context.read<CasesBloc>().add(DeleteCase(caseModel.caseId));
                 Navigator.pop(context);
               }

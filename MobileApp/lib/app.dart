@@ -12,6 +12,7 @@ import 'core/realtime/signalr_service.dart';
 import 'core/storage/local_database.dart';
 import 'core/storage/preferences_storage.dart';
 import 'core/storage/secure_storage.dart';
+import 'core/sync/conflict_resolver.dart';
 import 'core/sync/sync_service.dart';
 import 'features/authentication/bloc/auth_bloc.dart';
 import 'features/authentication/bloc/auth_state.dart';
@@ -173,6 +174,9 @@ class _AppInitializerState extends State<_AppInitializer> {
   }
 
   Future<void> _init() async {
+    // Capture context-dependent values before any await
+    final authRepository = RepositoryProvider.of<AuthRepository>(context);
+
     // Load saved locale
     final langCode = await PreferencesStorage().getLanguageCode();
     if (mounted) {
@@ -181,9 +185,6 @@ class _AppInitializerState extends State<_AppInitializer> {
         _localeLoaded = true;
       });
     }
-
-    // Init services that need repository context
-    final authRepository = RepositoryProvider.of<AuthRepository>(context);
 
     final pushService = PushNotificationService();
     pushService.configure(
@@ -204,7 +205,16 @@ class _AppInitializerState extends State<_AppInitializer> {
     }
 
     if (mounted) {
-      SyncService().syncPendingOperations(context).catchError((error) {
+      SyncService().syncPendingOperations(
+        (local, remote) => showDialog<Map<String, dynamic>>(
+          context: context,
+          builder: (_) => ConflictResolverWidget(
+            entityName: 'Case',
+            localData: local,
+            remoteData: remote,
+          ),
+        ),
+      ).catchError((error) {
         debugPrint('Startup sync failed: $error');
       });
     }

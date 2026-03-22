@@ -81,7 +81,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                     onTap: () async {
                       if (document.isPdf || document.isImage) {
                         final downloaded = await _downloadOrReuse(document);
-                        if (downloaded != null) {
+                        if (downloaded != null && context.mounted) {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => DocumentViewerScreen(documentFile: downloaded, document: document)));
                         }
                       } else {
@@ -122,7 +122,9 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
       await localFile.writeAsBytes(bytes, flush: true);
       return localFile;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+      }
       return null;
     }
   }

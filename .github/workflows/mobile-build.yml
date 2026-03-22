@@ -85,6 +85,9 @@ jobs:
       - name: Print Flutter version
         run: flutter --version
 
+      - name: Precache Flutter iOS artifacts
+        run: flutter precache --ios
+
       - name: Generate iOS platform files
         working-directory: MobileApp
         run: flutter create . --platforms ios
@@ -95,9 +98,7 @@ jobs:
 
       - name: Run CocoaPods install
         working-directory: MobileApp/ios
-        run: |
-          pod repo update
-          pod install
+        run: pod install
 
       - name: Run tests
         working-directory: MobileApp

@@ -28,7 +28,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   final _employeeIdController = TextEditingController();
 
   bool _isLoading = false;
-  bool _isEmployeeOnly = false; // This would come from auth state in a real app
+  final bool _isEmployeeOnly = false; // This would come from auth state in a real app
 
   @override
   void initState() {

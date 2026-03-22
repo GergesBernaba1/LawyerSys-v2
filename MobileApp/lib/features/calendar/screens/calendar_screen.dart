@@ -220,8 +220,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             const SnackBar(content: Text('Add event functionality coming soon')),
           );
         },
-        child: const Icon(Icons.add),
         tooltip: 'Add Event',
+        child: const Icon(Icons.add),
       ),
     );
   }

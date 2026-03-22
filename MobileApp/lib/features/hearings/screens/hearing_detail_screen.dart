@@ -33,7 +33,7 @@ class HearingDetailScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (_) => HearingFormScreen(hearing: hearing)),
               );
-              if (updated == true) {
+              if (updated == true && context.mounted) {
                 context.read<HearingsBloc>().add(LoadHearings());
                 Navigator.of(context).pop(true);
               }
@@ -54,7 +54,7 @@ class HearingDetailScreen extends StatelessWidget {
                   ],
                 ),
               );
-              if (confirmed == true) {
+              if (confirmed == true && context.mounted) {
                 context.read<HearingsBloc>().add(DeleteHearing(hearing.hearingId));
                 Navigator.of(context).pop(true);
               }
