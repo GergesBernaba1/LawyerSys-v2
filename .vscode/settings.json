@@ -10,5 +10,15 @@
         "speckit.plan": true,
         "speckit.tasks": true,
         "speckit.implement": true
-    }
+    },
+    "boost-test-adapter-robaho.tests": [
+        {
+            "testExecutables": [
+                {
+                    "glob": "**/*{_test,_test.exe}"
+                }
+            ],
+            "debugConfig": "Test Config"
+        }
+    ]
 }
