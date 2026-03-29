@@ -1,14 +1,22 @@
 import axios from 'axios'
 import i18n from '../i18n'
 
-const API_BASE =
-  (typeof process !== 'undefined' &&
-    (
+const resolvedApiBase =
+  typeof process !== 'undefined'
+    ? (
       process.env.NEXT_PUBLIC_API_BASE_URL ||
       process.env.NEXT_PUBLIC_BACKEND_URL ||
       process.env.VITE_API_BASE_URL
-    )) ||
-  (process.env.NODE_ENV === 'development' ? 'https://localhost:7001/api' : '/api')
+    )
+    : undefined
+
+if (!resolvedApiBase) {
+  throw new Error(
+    'Missing API base URL env var. Set NEXT_PUBLIC_API_BASE_URL (or NEXT_PUBLIC_BACKEND_URL / VITE_API_BASE_URL).'
+  )
+}
+
+const API_BASE = resolvedApiBase
 
 const instance = axios.create({
   baseURL: API_BASE,
