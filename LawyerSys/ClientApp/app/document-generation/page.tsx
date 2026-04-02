@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
   Card,
@@ -23,6 +24,7 @@ import {
   StepLabel,
   Stepper,
   Stack,
+  Snackbar,
   Tab,
   Table,
   TableBody,
@@ -40,6 +42,7 @@ import { Download, Delete, Visibility, Edit, Print, ExpandMore, ExpandLess, Hist
 import api from '../../src/services/api';
 import { useTranslation } from 'react-i18next';
 import SearchableSelect from '../../src/components/SearchableSelect';
+import HtmlEditor from '../../src/components/HtmlEditor';
 
 type Template = { key: string; name: string; description: string };
 type ClauseItem = { key: string; text: string };
@@ -171,12 +174,17 @@ export default function DocumentGenerationPage() {
   const [comparisonOutput, setComparisonOutput] = useState('');
   const [compareHistoryId, setCompareHistoryId] = useState<number | null>(null);
   const [simpleAiMode, setSimpleAiMode] = useState(true);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [pageLoadingMessage, setPageLoadingMessage] = useState('');
   
   // Version chain dialog
   const [versionChainDialogOpen, setVersionChainDialogOpen] = useState(false);
   const [versionChainData, setVersionChainData] = useState<DocumentVersionChainDto | null>(null);
   const [versionChainLoading, setVersionChainLoading] = useState(false);
   const [restoreInProgress, setRestoreInProgress] = useState<number | null>(null);
+  const previewTabIndex = 1;
+  const metadataTabIndex = simpleAiMode ? -1 : 2;
+  const advancedTabIndex = simpleAiMode ? -1 : 3;
 
   const culture = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
   const steps = [
@@ -185,6 +193,45 @@ export default function DocumentGenerationPage() {
     t('documentGeneration.metadataTab', { defaultValue: 'Metadata' }),
     t('documentGeneration.previewTitle', { defaultValue: 'Preview' }),
   ];
+
+  function escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function toEditorHtml(value: string): string {
+    const trimmed = (value || '').trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    if (/<[a-z][\s\S]*>/i.test(trimmed)) {
+      return value;
+    }
+
+    return value
+      .split(/\r?\n/)
+      .map((line) => (line.trim().length ? `<p>${escapeHtml(line)}</p>` : '<p><br/></p>'))
+      .join('');
+  }
+
+  function toPlainText(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    if (typeof window === 'undefined') {
+      return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    const container = document.createElement('div');
+    container.innerHTML = value;
+    return (container.textContent || container.innerText || '').replace(/\u00A0/g, ' ').trim();
+  }
 
   useEffect(() => {
     (async () => {
@@ -264,6 +311,12 @@ export default function DocumentGenerationPage() {
     }
   }, [mainTab]);
 
+  useEffect(() => {
+    if (simpleAiMode && activeTab > previewTabIndex) {
+      setActiveTab(previewTabIndex);
+    }
+  }, [simpleAiMode, activeTab, previewTabIndex]);
+
   async function loadHistory() {
     setHistoryLoading(true);
     try {
@@ -294,7 +347,7 @@ export default function DocumentGenerationPage() {
     try {
       const response = await api.get(`/DocumentGeneration/history/${id}/content`);
       const content = response.data?.content || '';
-      setPreviewContent(content);
+      setPreviewContent(toEditorHtml(content));
       setBranding(response.data?.branding || { firmName: '', address: '', contactInfo: '', footerText: '', signatureBlock: '' });
       setParties(response.data?.parties?.length ? response.data.parties : [{ name: '', role: 'Client', contactInfo: '' }]);
       setSelectedClauseKeys(response.data?.clauseKeys || []);
@@ -372,7 +425,7 @@ export default function DocumentGenerationPage() {
     setSubject(draft.subject || '');
     setStatement(draft.statement || '');
     setAiInstructions(draft.aiInstructions || '');
-    setPreviewContent(draft.previewContent || '');
+    setPreviewContent(toEditorHtml(draft.previewContent || ''));
     setDocumentTitle(draft.documentTitle || '');
     setDocumentReference(draft.documentReference || '');
     setDocumentCategory(draft.documentCategory || '');
@@ -448,6 +501,8 @@ export default function DocumentGenerationPage() {
     setError('');
     setSuccessMessage('');
     setAiLoading(true);
+    setPageLoading(true);
+    setPageLoadingMessage(t('documentGeneration.loadingAiGeneration', { defaultValue: 'Generating draft...' }));
     try {
       const instructions = [
         aiInstructions.trim(),
@@ -475,19 +530,52 @@ export default function DocumentGenerationPage() {
       });
 
       const draftText = response.data?.draftText || '';
-      setPreviewContent(draftText);
-      setActiveTab(1); // Switch to preview tab
+      const usedAiModel = Boolean(response.data?.usedAiModel);
+      if (usedAiModel) {
+        setPreviewContent(toEditorHtml(draftText));
+      } else {
+        // If AI is unavailable, fall back to the actual template renderer (better than generic fallback prose).
+        const previewResponse = await api.post('/DocumentGeneration/template-preview', {
+          templateType,
+          caseCode: caseCode ? Number(caseCode) : null,
+          customerId: customerId ? Number(customerId) : null,
+          culture,
+          variables: {
+            Scope: scope,
+            FeeTerms: feeTerms,
+            Subject: subject,
+            Statement: statement,
+          },
+          branding,
+          parties: parties.filter((p) => p.name.trim()),
+          clauseKeys: selectedClauseKeys,
+        });
+        setPreviewContent(toEditorHtml(previewResponse.data?.content || draftText));
+      }
+      setActiveTab(previewTabIndex); // Switch to preview tab
       setWorkflowStep(3);
+      if (usedAiModel) {
+        setSuccessMessage(t('documentGeneration.aiGeneratedToPreview', { defaultValue: 'AI draft generated and loaded in preview.' }));
+      } else {
+        setError(t('documentGeneration.aiContactAdmin', { defaultValue: 'AI service is currently unavailable. Please contact your system administrator.' }));
+      }
     } catch (err: any) {
-      setError(err?.response?.data?.message || t('documentGeneration.failedGenerate'));
+      setError(
+        err?.response?.data?.message ||
+        t('documentGeneration.aiContactAdmin', { defaultValue: 'AI service is currently unavailable. Please contact your system administrator.' })
+      );
     } finally {
       setAiLoading(false);
+      setPageLoading(false);
+      setPageLoadingMessage('');
     }
   }
 
   async function previewTemplate() {
     setError('');
     setSuccessMessage('');
+    setPageLoading(true);
+    setPageLoadingMessage(t('documentGeneration.loadingPreview', { defaultValue: 'Loading preview...' }));
     try {
       const response = await api.post('/DocumentGeneration/template-preview', {
         templateType,
@@ -505,11 +593,15 @@ export default function DocumentGenerationPage() {
         clauseKeys: selectedClauseKeys,
       });
 
-      setPreviewContent(response.data?.content || '');
+      setPreviewContent(toEditorHtml(response.data?.content || ''));
+      setActiveTab(previewTabIndex);
       setWorkflowStep(3);
       setSuccessMessage(t('documentGeneration.previewLoaded', { defaultValue: 'Template preview loaded.' }));
     } catch (err: any) {
       setError(err?.response?.data?.message || t('documentGeneration.failedGenerate'));
+    } finally {
+      setPageLoading(false);
+      setPageLoadingMessage('');
     }
   }
 
@@ -532,7 +624,7 @@ export default function DocumentGenerationPage() {
   }
 
   function applyCustomTemplate(template: CustomTemplate) {
-    setPreviewContent(template.body);
+    setPreviewContent(toEditorHtml(template.body));
     setDocumentTitle((prev) => prev || template.name);
     setSuccessMessage(t('documentGeneration.customTemplateApplied', { defaultValue: 'Custom template applied to preview.' }));
   }
@@ -563,13 +655,14 @@ export default function DocumentGenerationPage() {
 
     try {
       for (const code of caseList) {
+        const previewPlainText = toPlainText(previewContent);
         const requestData = {
           templateType,
           caseCode: code,
           customerId: customerId ? Number(customerId) : null,
           format,
           culture,
-          generatedContent: previewContent || undefined,
+          generatedContent: previewPlainText || undefined,
           variables: {
             Scope: scope,
             FeeTerms: feeTerms,
@@ -600,16 +693,17 @@ export default function DocumentGenerationPage() {
   }
 
   function analyzeDraft() {
-    if (!previewContent.trim()) {
+    const previewPlainText = toPlainText(previewContent);
+    if (!previewPlainText.trim()) {
       setError(t('documentGeneration.previewRequired', { defaultValue: 'Generate and review content before saving.' }));
       return;
     }
 
-    const lines = previewContent.split('\n').map((l) => l.trim()).filter(Boolean);
-    const unresolvedVariables = (previewContent.match(/{{[^}]+}}/g) || []).length;
-    const words = previewContent.split(/\s+/).filter(Boolean).length;
-    const hasSignature = /signature|توقيع/i.test(previewContent);
-    const hasDate = /\d{4}-\d{2}-\d{2}/.test(previewContent) || /date|التاريخ/i.test(previewContent);
+    const lines = previewPlainText.split('\n').map((l) => l.trim()).filter(Boolean);
+    const unresolvedVariables = (previewPlainText.match(/{{[^}]+}}/g) || []).length;
+    const words = previewPlainText.split(/\s+/).filter(Boolean).length;
+    const hasSignature = /signature|توقيع/i.test(previewPlainText);
+    const hasDate = /\d{4}-\d{2}-\d{2}/.test(previewPlainText) || /date|التاريخ/i.test(previewPlainText);
 
     const result = [
       `Word count: ${words}`,
@@ -627,7 +721,7 @@ export default function DocumentGenerationPage() {
     try {
       const response = await api.get(`/DocumentGeneration/history/${id}/content`);
       const base = (response.data?.content || '') as string;
-      const currentLines = previewContent.split('\n');
+      const currentLines = toPlainText(previewContent).split('\n');
       const baseLines = base.split('\n');
       const max = Math.max(currentLines.length, baseLines.length);
       const out: string[] = [];
@@ -654,7 +748,8 @@ export default function DocumentGenerationPage() {
   }
 
   function printPreview() {
-    if (!previewContent.trim()) {
+    const previewPlainText = toPlainText(previewContent);
+    if (!previewPlainText.trim()) {
       setError(t('documentGeneration.previewRequired', { defaultValue: 'Generate and review content before saving.' }));
       return;
     }
@@ -665,7 +760,7 @@ export default function DocumentGenerationPage() {
       return;
     }
 
-    const escaped = previewContent
+    const escaped = previewPlainText
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
@@ -693,12 +788,15 @@ export default function DocumentGenerationPage() {
   async function saveAndDownload() {
     setError('');
     setSuccessMessage('');
-    if (!previewContent.trim()) {
+    const previewPlainText = toPlainText(previewContent);
+    if (!previewPlainText.trim()) {
       setError(t('documentGeneration.previewRequired', { defaultValue: 'Generate and review content before saving.' }));
       return;
     }
 
     setSaving(true);
+    setPageLoading(true);
+    setPageLoadingMessage(t('documentGeneration.loadingSave', { defaultValue: 'Saving document...' }));
     try {
       const requestData = {
         templateType,
@@ -706,7 +804,7 @@ export default function DocumentGenerationPage() {
         customerId: customerId ? Number(customerId) : null,
         format,
         culture,
-        generatedContent: previewContent,
+        generatedContent: previewPlainText,
         variables: {
           Scope: scope,
           FeeTerms: feeTerms,
@@ -749,6 +847,8 @@ export default function DocumentGenerationPage() {
       setError(err?.response?.data?.message || t('documentGeneration.failedGenerate'));
     } finally {
       setSaving(false);
+      setPageLoading(false);
+      setPageLoadingMessage('');
     }
   }
 
@@ -760,6 +860,14 @@ export default function DocumentGenerationPage() {
 
   return (
     <Box>
+      <Backdrop
+        open={pageLoading}
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 2000, flexDirection: 'column', gap: 1.5 }}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="body2">{pageLoadingMessage || t('documentGeneration.loading', { defaultValue: 'Loading...' })}</Typography>
+      </Backdrop>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
@@ -788,7 +896,6 @@ export default function DocumentGenerationPage() {
             <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
               <Tab label={t('documentGeneration.contentTab', { defaultValue: 'Content' })} />
               <Tab label={t('documentGeneration.previewTitle', { defaultValue: 'Preview' })} />
-              {!simpleAiMode && <Tab label={t('documentGeneration.detailsTab', { defaultValue: 'Details' })} />}
               {!simpleAiMode && <Tab label={t('documentGeneration.metadataTab', { defaultValue: 'Metadata' })} />}
               {!simpleAiMode && <Tab label={t('documentGeneration.advancedFeatures', { defaultValue: 'Advanced' })} />}
             </Tabs>
@@ -984,7 +1091,7 @@ export default function DocumentGenerationPage() {
             )}
 
             {/* Metadata Tab */}
-            {activeTab === 2 && (
+            {activeTab === metadataTabIndex && (
               <Stack spacing={2.5}>
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, md: 6 }}>
@@ -1105,27 +1212,17 @@ export default function DocumentGenerationPage() {
             )}
 
             {/* Preview Tab */}
-            {activeTab === 3 && (
+            {activeTab === previewTabIndex && (
               <Stack spacing={2.5}>
                 <Typography variant="body2" color="text.secondary">
                   {t('documentGeneration.previewHint', { defaultValue: 'Review and edit the generated content before saving.' })}
                 </Typography>
 
-                <TextField
+                <HtmlEditor
                   value={previewContent}
-                  onChange={(e) => setPreviewContent(e.target.value)}
-                  multiline
-                  minRows={previewContent.trim() ? 18 : 12}
-                  fullWidth
+                  onChange={setPreviewContent}
+                  minHeight={previewContent.trim() ? 420 : 300}
                   placeholder={t('documentGeneration.previewPlaceholder', { defaultValue: 'Generated content will appear here...' })}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'monospace',
-                      fontSize: '0.9rem',
-                      lineHeight: 1.6,
-                      borderRadius: 2,
-                    }
-                  }}
                 />
 
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -1133,7 +1230,7 @@ export default function DocumentGenerationPage() {
                     variant="contained" 
                     color="success" 
                     onClick={() => void saveAndDownload()} 
-                    disabled={saving || !previewContent.trim()}
+                    disabled={saving || !toPlainText(previewContent).trim()}
                     sx={{ borderRadius: 2 }}
                   >
                     {saving ? (
@@ -1158,7 +1255,7 @@ export default function DocumentGenerationPage() {
                     variant="outlined"
                     startIcon={<Print />}
                     onClick={printPreview}
-                    disabled={!previewContent.trim()}
+                    disabled={!toPlainText(previewContent).trim()}
                     sx={{ borderRadius: 2 }}
                   >
                     {t('documentGeneration.print', { defaultValue: 'Print' })}
@@ -1168,7 +1265,7 @@ export default function DocumentGenerationPage() {
             )}
 
             {/* Advanced Tab */}
-            {activeTab === 4 && (
+            {activeTab === advancedTabIndex && (
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Paper elevation={0} sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
