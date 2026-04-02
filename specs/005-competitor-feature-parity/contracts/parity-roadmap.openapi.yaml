@@ -1,0 +1,165 @@
+﻿openapi: 3.0.3
+info:
+  title: Parity Roadmap Governance API
+  version: 1.0.0
+  description: Contract for competitor capability cataloging, coverage assessment, and parity roadmap lifecycle management.
+x-alignment-checklist:
+  - Tenant-scoped responses only (no cross-tenant exposure)
+  - RBAC checks for Admin/Partner/Operations/Analyst/Viewer
+  - Completion transition blocked until outcome metrics are met
+  - Weekly refresh endpoint available for ranking recalculation
+servers:
+  - url: /api
+paths:
+  /parity/capabilities:
+    get:
+      summary: List competitor capabilities for current tenant scope
+      responses:
+        '200':
+          description: Capability list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompetitorCapability'
+    post:
+      summary: Create competitor capability evidence entry
+      responses:
+        '201':
+          description: Capability created
+  /parity/capabilities/{capabilityId}/assessments:
+    post:
+      summary: Add or update coverage assessment for capability
+      parameters:
+        - name: capabilityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Assessment saved
+  /parity/roadmap-items:
+    get:
+      summary: List roadmap items filtered by role visibility
+      responses:
+        '200':
+          description: Roadmap items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoadmapItem'
+    post:
+      summary: Create roadmap item from assessment or workflow improvement input
+      responses:
+        '201':
+          description: Roadmap item created
+  /parity/roadmap-items/{roadmapItemId}/lock:
+    post:
+      summary: Acquire edit lock for roadmap item
+      parameters:
+        - name: roadmapItemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lock acquired
+        '409':
+          description: Lock already held by another user
+  /parity/roadmap-items/{roadmapItemId}/state:
+    patch:
+      summary: Transition roadmap lifecycle state
+      parameters:
+        - name: roadmapItemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StateTransitionRequest'
+      responses:
+        '200':
+          description: State updated
+        '422':
+          description: Completion preconditions not met
+  /parity/roadmap-items/{roadmapItemId}/metrics:
+    post:
+      summary: Record observed outcome metric value
+      parameters:
+        - name: roadmapItemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Metric recorded
+  /parity/refresh:
+    post:
+      summary: Trigger weekly evidence refresh and ranking recalculation
+      responses:
+        '202':
+          description: Refresh accepted
+components:
+  schemas:
+    CompetitorCapability:
+      type: object
+      required: [capabilityId, category, title, tenantScope, evidenceSourceUrl]
+      properties:
+        capabilityId:
+          type: string
+        category:
+          type: string
+          enum: [case_management, client_communication, billing, compliance, reporting, operations]
+        title:
+          type: string
+        description:
+          type: string
+        evidenceSourceUrl:
+          type: string
+        evidenceCapturedAt:
+          type: string
+          format: date-time
+        evidenceConfidence:
+          type: string
+          enum: [low, medium, high]
+        tenantScope:
+          type: string
+    RoadmapItem:
+      type: object
+      required: [roadmapItemId, itemType, priorityTier, lifecycleState, scopeLabel]
+      properties:
+        roadmapItemId:
+          type: string
+        itemType:
+          type: string
+          enum: [parity, improvement, differentiation]
+        priorityTier:
+          type: string
+          enum: [P1, P2, P3]
+        scopeLabel:
+          type: string
+          enum: [in_scope, deferred, out_of_scope]
+        lifecycleState:
+          type: string
+          enum: [draft, approved, in_delivery, released, review_pending, completed]
+        ownerUserId:
+          type: string
+    StateTransitionRequest:
+      type: object
+      required: [targetState]
+      properties:
+        targetState:
+          type: string
+          enum: [approved, in_delivery, released, review_pending, completed]
+        notes:
+          type: string

@@ -131,7 +131,10 @@ export default function DocumentGenerationPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [activeTab, setActiveTab] = useState(0); // Form tabs: 0=Details, 1=Content, 2=Metadata
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [activeTab, setActiveTab] = useState(0); // Form tabs: 0=Content, 1=Preview, 2=Metadata
   const [workflowStep, setWorkflowStep] = useState(0);
   
   // Phase 1: New metadata fields
@@ -230,6 +233,22 @@ export default function DocumentGenerationPage() {
   useEffect(() => {
     localStorage.setItem('documentGeneration.customTemplates', JSON.stringify(customTemplates));
   }, [customTemplates]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setSnackbarMessage(successMessage);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      setSnackbarMessage(error);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  }, [error]);
 
   // Load history when History tab is opened
   useEffect(() => {
@@ -741,8 +760,16 @@ export default function DocumentGenerationPage() {
 
   return (
     <Box>
-      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
-      {successMessage && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccessMessage('')}>{successMessage}</Alert>}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
       <Typography variant="h4" sx={{ mb: 3 }}>
         {t('documentGeneration.title', { defaultValue: 'Generate Legal Document' })}

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "next lint",
+    "test": "npm run test:e2e",
     "test:e2e": "npx playwright test --project=chromium --retries=0"
   },
   "dependencies": {
@@ -34,6 +35,8 @@
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "autoprefixer": "^10.4.16",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.33",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.6.0"

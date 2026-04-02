@@ -1,12 +1,14 @@
 ﻿# LawyerSys-v2 Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-20
+Auto-generated from all feature plans. Last updated: 2026-04-02
 
 ## Active Technologies
 - C# 12 on .NET 8, TypeScript 5.x for the existing client context + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, xUnit, Moq, Next.js 14.2, React 18 (002-service-layer-refactor)
 - PostgreSQL via `ApplicationDbContext` and `LegacyDbContext` in `LawyerSys.Domain`/`LawyerSys.Infrastructure` (002-service-layer-refactor)
 - TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming + Next.js, React, Material UI, Emotion, i18next, axios (001-clientapp-ui-refresh)
 - Flutter 3.x, Dart 3.x for mobile (iOS/Android) + flutter_bloc/riverpod, dio/http, shared_preferences, flutter_secure_storage, flutter_localizations (planned)
+- C# 12 on .NET 8 (backend), TypeScript 5.x (Next.js 14.2 / React 18 web client) + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, Material UI, i18next, axios (005-competitor-feature-parity)
+- PostgreSQL through `ApplicationDbContext` and `LegacyDbContext` (005-competitor-feature-parity)
 
 ## Project Structure
 
@@ -33,6 +35,7 @@ tests/
 TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming: Follow standard conventions
 
 ## Recent Changes
+- 005-competitor-feature-parity: Added C# 12 on .NET 8 (backend), TypeScript 5.x (Next.js 14.2 / React 18 web client) + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, Material UI, i18next, axios
 - 002-service-layer-refactor: Added C# 12 on .NET 8, TypeScript 5.x for the existing client context + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, xUnit, Moq, Next.js 14.2, React 18
 
 - 001-clientapp-ui-refresh: Added TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming + Next.js, React, Material UI, Emotion, i18next, axios

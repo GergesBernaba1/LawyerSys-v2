@@ -141,5 +141,10 @@ instance.interceptors.request.use((config) => {
 })
 
 export const REALTIME_BASE = API_BASE.replace(/\/api\/?$/, '')
+export const PARITY_API_ROUTES = {
+  capabilities: '/parity/capabilities',
+  roadmapItems: '/parity/roadmap-items',
+  refresh: '/parity/refresh',
+} as const
 
 export default instance

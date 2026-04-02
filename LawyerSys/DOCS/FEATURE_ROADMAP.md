@@ -110,3 +110,9 @@ Phase 5: 25 → 23 → 21 → 22 → 24
 
 
 
+
+## Competitor Parity Governance (005)
+
+- Added parity governance API surface for capability cataloging, coverage assessments, roadmap lifecycle, lock control, metrics capture, and refresh trigger endpoints.
+- Added initial parity roadmap UI route at `/parity-roadmap` with ranking table, action toolbar, and metrics editor placeholders.
+- Added Saudi-first compliance and role-based policy alignment hooks for upcoming parity delivery iterations.

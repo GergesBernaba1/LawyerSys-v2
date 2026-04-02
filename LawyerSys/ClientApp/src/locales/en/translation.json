@@ -1745,6 +1745,17 @@
                    "yes":  "Yes",
                    "no":  "No"
                },
+    "parityRoadmap":  {
+                          "title":  "Parity Roadmap",
+                          "subtitle":  "Track competitor gaps, improvements, and differentiation priorities",
+                          "capabilities":  "Capabilities",
+                          "assessments":  "Assessments",
+                          "roadmapItems":  "Roadmap items",
+                          "metrics":  "Metrics",
+                          "lock":  "Lock",
+                          "refresh":  "Refresh",
+                          "noItems":  "No roadmap items yet"
+                      },
     "health":  {
                    "healthy":  "System is healthy"
                },

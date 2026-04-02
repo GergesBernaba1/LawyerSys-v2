@@ -19,6 +19,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<DemoRequest> DemoRequests => Set<DemoRequest>();
     public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
     public DbSet<UserPushToken> UserPushTokens => Set<UserPushToken>();
+    public DbSet<CompetitorCapability> CompetitorCapabilities => Set<CompetitorCapability>();
+    public DbSet<CoverageAssessment> CoverageAssessments => Set<CoverageAssessment>();
+    public DbSet<RoadmapItem> RoadmapItems => Set<RoadmapItem>();
+    public DbSet<OutcomeMetric> OutcomeMetrics => Set<OutcomeMetric>();
+    public DbSet<RoadmapChangeLog> RoadmapChangeLogs => Set<RoadmapChangeLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -284,6 +289,63 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany()
                 .HasForeignKey(notification => notification.TenantId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<CompetitorCapability>(entity =>
+        {
+            entity.ToTable("ParityCompetitorCapabilities");
+            entity.HasKey(x => x.CapabilityId);
+            entity.Property(x => x.Category).HasMaxLength(64);
+            entity.Property(x => x.Title).HasMaxLength(200);
+            entity.Property(x => x.EvidenceSourceUrl).HasMaxLength(500);
+            entity.HasIndex(x => new { x.TenantId, x.Category });
+        });
+
+        modelBuilder.Entity<CoverageAssessment>(entity =>
+        {
+            entity.ToTable("ParityCoverageAssessments");
+            entity.HasKey(x => x.AssessmentId);
+            entity.Property(x => x.CoverageStatus).HasMaxLength(32);
+            entity.HasOne(x => x.Capability)
+                .WithMany(x => x.Assessments)
+                .HasForeignKey(x => x.CapabilityId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RoadmapItem>(entity =>
+        {
+            entity.ToTable("ParityRoadmapItems");
+            entity.HasKey(x => x.RoadmapItemId);
+            entity.Property(x => x.ItemType).HasMaxLength(32);
+            entity.Property(x => x.PriorityTier).HasMaxLength(8);
+            entity.Property(x => x.ScopeLabel).HasMaxLength(32);
+            entity.Property(x => x.LifecycleState).HasMaxLength(32);
+            entity.HasIndex(x => new { x.TenantId, x.PriorityTier, x.LifecycleState });
+        });
+
+        modelBuilder.Entity<OutcomeMetric>(entity =>
+        {
+            entity.ToTable("ParityOutcomeMetrics");
+            entity.HasKey(x => x.MetricId);
+            entity.Property(x => x.MetricName).HasMaxLength(150);
+            entity.Property(x => x.MeasurementStatus).HasMaxLength(32);
+            entity.HasOne(x => x.RoadmapItem)
+                .WithMany(x => x.OutcomeMetrics)
+                .HasForeignKey(x => x.RoadmapItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RoadmapChangeLog>(entity =>
+        {
+            entity.ToTable("ParityRoadmapChangeLogs");
+            entity.HasKey(x => x.ChangeLogId);
+            entity.Property(x => x.ChangedByRole).HasMaxLength(64);
+            entity.Property(x => x.ChangeType).HasMaxLength(64);
+            entity.Property(x => x.ChangeSummary).HasMaxLength(1000);
+            entity.HasOne(x => x.RoadmapItem)
+                .WithMany(x => x.ChangeLogs)
+                .HasForeignKey(x => x.RoadmapItemId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

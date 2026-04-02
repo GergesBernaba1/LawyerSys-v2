@@ -14,7 +14,10 @@ using LawyerSys.Services.Subscriptions;
 using LawyerSys.Services.TrustAccounting;
 using LawyerSys.Services.Governments;
 using LawyerSys.Services.CaseRelations;
+using LawyerSys.Services.Parity;
+using LawyerSys.Infrastructure.Repositories.Parity;
 using LawyerSys.Realtime;
+using LawyerSys.Extensions.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -209,6 +212,10 @@ builder.Services.AddControllerRefactorCoreServices();
 builder.Services.AddScoped<IGovernmentsService, GovernmentsService>();
 builder.Services.AddScoped<ICaseRelationsService, CaseRelationsService>();
 builder.Services.AddScoped<ITenantSubscriptionService, TenantSubscriptionService>();
+builder.Services.AddScoped<IParityRoadmapService, ParityRoadmapService>();
+builder.Services.AddScoped<ParityChangeLogWriter>();
+builder.Services.AddScoped<ParityRepository>();
+builder.Services.AddScoped<ParityWeeklyRefreshService>();
 
 builder.Services.Configure<FirebaseOptions>(builder.Configuration.GetSection("Firebase"));
 builder.Services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
@@ -312,6 +319,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("SuperAdmin", "Admin"));
     options.AddPolicy("EmployeeOrAdmin", policy => policy.RequireRole("SuperAdmin", "Admin", "Employee"));
     options.AddPolicy("CustomerAccess", policy => policy.RequireRole("SuperAdmin", "Admin", "Employee", "Customer"));
+    options.AddPolicy(ParityPolicies.ParityRead, policy => policy.RequireRole("SuperAdmin", "Admin", "Partner", "Operations", "Analyst", "Viewer"));
+    options.AddPolicy(ParityPolicies.ParityWrite, policy => policy.RequireRole("SuperAdmin", "Admin", "Partner", "Operations", "Analyst"));
+    options.AddPolicy(ParityPolicies.ParityAdmin, policy => policy.RequireRole("SuperAdmin", "Admin"));
+    options.AddPolicy(ParityPolicies.ParityPartner, policy => policy.RequireRole("SuperAdmin", "Admin", "Partner"));
+    options.AddPolicy(ParityPolicies.ParityOperations, policy => policy.RequireRole("SuperAdmin", "Admin", "Operations"));
+    options.AddPolicy(ParityPolicies.ParityAnalyst, policy => policy.RequireRole("SuperAdmin", "Admin", "Analyst"));
+    options.AddPolicy(ParityPolicies.ParityViewer, policy => policy.RequireRole("SuperAdmin", "Admin", "Viewer"));
 });
 
 var app = builder.Build();
