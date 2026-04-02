@@ -48,7 +48,7 @@ public class GovernmentsServiceTests
         var service = new GovernmentsService(
             legacyDb,
             appDb,
-            new ServiceOperationContextFactory(new TestUserContext("user-1", "tenant.user", email: null, tenantId: 5, roles: new[] { "Admin" })));
+            new ServiceOperationContextFactory(new LawyerSys.Tests.Infrastructure.TestUserContext("user-1", "tenant.user", tenantId: 5, roles: new[] { "Admin" })));
 
         var result = await service.GetLocationCatalogAsync(2);
 

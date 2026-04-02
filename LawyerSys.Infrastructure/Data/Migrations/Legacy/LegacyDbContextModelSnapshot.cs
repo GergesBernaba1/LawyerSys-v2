@@ -284,6 +284,64 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
                     b.ToTable("Cases");
                 });
 
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.CaseConversationMessage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("AttachmentFileId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CaseCode")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("FirmId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTime?>("ReadByCustomerAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("ReadByOfficeAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("SenderRole")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SenderUserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("VisibleToCustomer")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirmId");
+
+                    b.ToTable("CaseConversationMessages", (string)null);
+                });
+
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.CaseStatusHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -1103,6 +1161,302 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.CustomerCaseNotificationSetting", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("CaseCode")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FirmId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<bool>("NotificationsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirmId");
+
+                    b.HasIndex("CaseCode", "CustomerId")
+                        .IsUnique();
+
+                    b.ToTable("CustomerCaseNotificationSettings", (string)null);
+                });
+
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.CustomerPaymentProof", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("BillingPaymentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CaseCode")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FirmId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateOnly>("PaymentDate")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("ProofFileId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReviewNotes")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ReviewedByName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ReviewedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("SubmittedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirmId");
+
+                    b.ToTable("CustomerPaymentProofs", (string)null);
+                });
+
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.CustomerRequestedDocument", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("CaseCode")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CustomerNotes")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateOnly?>("DueDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("FirmId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("RequestedByName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("RequestedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ReviewNotes")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime?>("SubmittedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("UploadedFileId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirmId");
+
+                    b.ToTable("CustomerRequestedDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.DocumentDraft", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AiInstructions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("BrandingJson")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CaseCode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ClauseKeysJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DocumentCategory")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DocumentNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DocumentTitle")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("DraftName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("FeeTerms")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("FirmId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("PartiesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreviewContent")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("SaveToCase")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Scope")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Statement")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TemplateType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseCode");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("FirmId");
+
+                    b.ToTable("DocumentDrafts", (string)null);
+                });
+
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.ESignatureRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -1250,6 +1604,105 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
                     b.HasIndex("FirmId");
 
                     b.ToTable("Files");
+                });
+
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.GeneratedDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BrandingJson")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CaseCode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ClauseKeysJson")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DocumentCategory")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DocumentNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DocumentTitle")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int?>("FileId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FirmId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime>("GeneratedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("GeneratedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("GeneratedContent")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ParentDocumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PartiesJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TemplateType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseCode");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("FirmId");
+
+                    b.HasIndex("GeneratedAt");
+
+                    b.HasIndex("GeneratedBy");
+
+                    b.HasIndex("ParentDocumentId");
+
+                    b.ToTable("GeneratedDocuments", (string)null);
                 });
 
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.Governament", b =>
@@ -1976,6 +2429,25 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.DocumentDraft", b =>
+                {
+                    b.HasOne("LawyerSys.Data.ScaffoldedModels.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseCode")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_DocumentDrafts_Cases");
+
+                    b.HasOne("LawyerSys.Data.ScaffoldedModels.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_DocumentDrafts_Customers");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.Employee", b =>
                 {
                     b.HasOne("LawyerSys.Data.ScaffoldedModels.User", "Users")
@@ -1985,6 +2457,41 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
                         .HasConstraintName("FK_Employees_Users");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.GeneratedDocument", b =>
+                {
+                    b.HasOne("LawyerSys.Data.ScaffoldedModels.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseCode")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_GeneratedDocuments_Cases");
+
+                    b.HasOne("LawyerSys.Data.ScaffoldedModels.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_GeneratedDocuments_Customers");
+
+                    b.HasOne("LawyerSys.Data.ScaffoldedModels.File", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_GeneratedDocuments_Files");
+
+                    b.HasOne("LawyerSys.Data.ScaffoldedModels.GeneratedDocument", "ParentDocument")
+                        .WithMany("ChildDocuments")
+                        .HasForeignKey("ParentDocumentId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_GeneratedDocuments_ParentDocument");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("File");
+
+                    b.Navigation("ParentDocument");
                 });
 
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.Judicial_Document", b =>
@@ -2098,6 +2605,11 @@ namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.File", b =>
                 {
                     b.Navigation("Cases_Files");
+                });
+
+            modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.GeneratedDocument", b =>
+                {
+                    b.Navigation("ChildDocuments");
                 });
 
             modelBuilder.Entity("LawyerSys.Data.ScaffoldedModels.Governament", b =>

@@ -1,10 +1,39 @@
 import axios from 'axios'
 import i18n from '../i18n'
 
-const API_BASE =
-  (typeof process !== 'undefined' &&
-    (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL)) ||
-  'https://localhost:7001/api'
+const envApiBase =
+  typeof process !== 'undefined'
+    ? (
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      process.env.VITE_API_BASE_URL ||
+      (process.env.NEXT_PUBLIC_BACKEND_HOST ? `http://${process.env.NEXT_PUBLIC_BACKEND_HOST}/api` : undefined)
+    )
+    : undefined
+
+let fallbackApiBase: string
+
+if (typeof window !== 'undefined') {
+  const { origin, hostname } = window.location
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // Frontend dev server often runs on 3000/3002 while backend runs on 5000
+    fallbackApiBase = 'http://localhost:5000/api'
+  } else {
+    fallbackApiBase = `${origin}/api`
+  }
+} else {
+  fallbackApiBase = 'http://localhost:5000/api'
+}
+
+const API_BASE = envApiBase || fallbackApiBase
+
+if (!envApiBase) {
+  console.warn(
+    'API base URL env var missing; using fallback:',
+    API_BASE,
+    'Set NEXT_PUBLIC_API_BASE_URL (or NEXT_PUBLIC_BACKEND_URL / VITE_API_BASE_URL) to silence this warning.'
+  )
+}
 
 const instance = axios.create({
   baseURL: API_BASE,
@@ -112,5 +141,10 @@ instance.interceptors.request.use((config) => {
 })
 
 export const REALTIME_BASE = API_BASE.replace(/\/api\/?$/, '')
+export const PARITY_API_ROUTES = {
+  capabilities: '/parity/capabilities',
+  roadmapItems: '/parity/roadmap-items',
+  refresh: '/parity/refresh',
+} as const
 
 export default instance

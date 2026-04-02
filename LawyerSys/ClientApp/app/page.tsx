@@ -239,7 +239,13 @@ export default function LandingPage() {
     [t],
   );
 
-  const activePartner = partners.length > 0 ? partners[partnerPage % partners.length] : null;
+  const cardsPerPage = 3;
+  const startIndex = partners.length > 0 ? partnerPage % partners.length : 0;
+  const visiblePartners = partners.length > 0
+    ? Array.from({ length: Math.min(cardsPerPage, partners.length) }, (_, i) => 
+        partners[(startIndex + i) % partners.length]
+      )
+    : [];
 
   const navigateTo = (target?: string) => {
     if (!target) {
@@ -807,124 +813,172 @@ export default function LandingPage() {
             {t("landing.partners.subtitle", { defaultValue: "Law firms already operating with our platform" })}
           </Typography>
 
-          {activePartner ? (
+          {visiblePartners.length > 0 ? (
             <Box>
-              <Card
-                key={activePartner.id}
-                elevation={0}
+              <Box
                 sx={{
-                  borderRadius: 999,
-                  border: "1px solid",
-                  borderColor: alpha(theme.palette.primary.main, 0.12),
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,251,0.98) 100%)",
-                  boxShadow: "0 20px 42px -36px rgba(18,58,99,0.3)",
-                  position: "relative",
-                  overflow: "hidden",
-                  maxWidth: 520,
-                  mx: "auto",
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    insetInlineStart: 0,
-                    insetInlineEnd: 0,
-                    top: 0,
-                    height: 4,
-                    background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(2, 1fr)",
+                    md: "repeat(3, 1fr)",
                   },
+                  gap: 2.5,
+                  mb: 2,
                 }}
               >
-                <CardContent
-                  sx={{
-                    p: { xs: 2.5, md: 3 },
-                    minHeight: { xs: 160, md: 180 },
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.25 }}>
-                    <Box
+                {visiblePartners.map((partner, index) => {
+                  const globalIndex = (startIndex + index) % partners.length;
+                  return (
+                    <Card
+                      key={partner.id}
+                      elevation={0}
                       sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "primary.main",
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        borderRadius: 4,
                         border: "1px solid",
-                        borderColor: alpha(theme.palette.primary.main, 0.1),
-                        flexShrink: 0,
+                        borderColor: alpha(theme.palette.primary.main, 0.12),
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,251,0.98) 100%)",
+                        boxShadow: "0 20px 42px -36px rgba(18,58,99,0.3)",
+                        position: "relative",
+                        overflow: "hidden",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 24px 48px -32px rgba(18,58,99,0.4)",
+                          borderColor: alpha(theme.palette.primary.main, 0.24),
+                          background: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(240,247,252,1) 100%)",
+                        },
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          insetInlineStart: 0,
+                          insetInlineEnd: 0,
+                          top: 0,
+                          height: 4,
+                          background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                          transition: "height 0.3s ease",
+                        },
+                        "&:hover::before": {
+                          height: 5,
+                        },
                       }}
                     >
-                      <Box sx={{ transform: "scale(0.8)", display: "grid", placeItems: "center" }}>
-                        {getPartnerIcon(partnerPage)}
-                      </Box>
-                    </Box>
-                    <Chip
-                      size="small"
-                      label={activePartner.countryName || t("landing.partners.countryFallback", { defaultValue: "Regional partner" })}
-                      sx={{
-                        borderRadius: 999,
-                        fontWeight: 700,
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
-                        color: "primary.main",
-                      }}
-                    />
-                  </Stack>
-                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
-                    {activePartner.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      display: "block",
-                      color: "text.secondary",
-                      lineHeight: 1.7,
-                    }}
+                      <CardContent
+                        sx={{
+                          p: { xs: 2.5, md: 3 },
+                          minHeight: { xs: 160, md: 180 },
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.25 }}>
+                          <Box
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: "50%",
+                              display: "grid",
+                              placeItems: "center",
+                              color: "primary.main",
+                              bgcolor: alpha(theme.palette.primary.main, 0.08),
+                              border: "1px solid",
+                              borderColor: alpha(theme.palette.primary.main, 0.1),
+                              flexShrink: 0,
+                              transition: "all 0.3s ease",
+                              ".MuiCard-root:hover &": {
+                                bgcolor: alpha(theme.palette.primary.main, 0.12),
+                                borderColor: alpha(theme.palette.primary.main, 0.2),
+                                transform: "scale(1.05)",
+                              },
+                            }}
+                          >
+                            <Box sx={{ transform: "scale(0.8)", display: "grid", placeItems: "center" }}>
+                              {getPartnerIcon(globalIndex)}
+                            </Box>
+                          </Box>
+                          <Chip
+                            size="small"
+                            label={partner.countryName || t("landing.partners.countryFallback", { defaultValue: "Regional partner" })}
+                            sx={{
+                              borderRadius: 999,
+                              fontWeight: 700,
+                              bgcolor: alpha(theme.palette.primary.main, 0.08),
+                              color: "primary.main",
+                              transition: "all 0.3s ease",
+                              ".MuiCard-root:hover &": {
+                                bgcolor: alpha(theme.palette.primary.main, 0.14),
+                                transform: "scale(1.02)",
+                              },
+                            }}
+                          />
+                        </Stack>
+                        <Typography variant="h6" sx={{ 
+                          fontWeight: 800, 
+                          mb: 0.5,
+                          transition: "color 0.3s ease",
+                          ".MuiCard-root:hover &": {
+                            color: "primary.main",
+                          },
+                        }}>
+                          {partner.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: "block",
+                            color: "text.secondary",
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {data.systemName}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </Box>
+              {partners.length > cardsPerPage && (
+                <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
+                  <Button
+                    size="small"
+                    variant="text"
+                    aria-label={t("app.previous")}
+                    onClick={() => setPartnerPage((current) => (current - 1 + partners.length) % partners.length)}
+                    sx={{ minWidth: 0, width: 36, height: 36, borderRadius: "50%" }}
                   >
-                    {data.systemName}
-                  </Typography>
-                </CardContent>
-              </Card>
-              <Stack direction="row" justifyContent="center" alignItems="center" spacing={1} sx={{ mt: 2 }}>
-                <Button
-                  size="small"
-                  variant="text"
-                  aria-label={t("app.previous")}
-                  onClick={() => setPartnerPage((current) => (current - 1 + partners.length) % partners.length)}
-                  sx={{ minWidth: 0, width: 36, height: 36, borderRadius: "50%" }}
-                >
-                  {isRTL ? <ArrowForwardIosIcon sx={{ fontSize: 16 }} /> : <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />}
-                </Button>
-                <Stack direction="row" spacing={0.75} alignItems="center">
-                  {partners.map((partner, index) => (
-                    <Box
-                      key={partner.id}
-                      component="button"
-                      onClick={() => setPartnerPage(index)}
-                      sx={{
-                        width: index === partnerPage ? 26 : 8,
-                        height: 8,
-                        borderRadius: 999,
-                        border: "none",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                        background: index === partnerPage ? "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)" : alpha(theme.palette.primary.main, 0.22),
-                      }}
-                    />
-                  ))}
+                    {isRTL ? <ArrowForwardIosIcon sx={{ fontSize: 16 }} /> : <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />}
+                  </Button>
+                  <Stack direction="row" spacing={0.75} alignItems="center">
+                    {partners.map((_, index) => (
+                      <Box
+                        key={index}
+                        component="button"
+                        onClick={() => setPartnerPage(index)}
+                        sx={{
+                          width: index === startIndex ? 26 : 8,
+                          height: 8,
+                          borderRadius: 999,
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          background: index === startIndex ? "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)" : alpha(theme.palette.primary.main, 0.22),
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                  <Button
+                    size="small"
+                    variant="text"
+                    aria-label={t("app.next")}
+                    onClick={() => setPartnerPage((current) => (current + 1) % partners.length)}
+                    sx={{ minWidth: 0, width: 36, height: 36, borderRadius: "50%" }}
+                  >
+                    {isRTL ? <ArrowBackIosNewIcon sx={{ fontSize: 16 }} /> : <ArrowForwardIosIcon sx={{ fontSize: 16 }} />}
+                  </Button>
                 </Stack>
-                <Button
-                  size="small"
-                  variant="text"
-                  aria-label={t("app.next")}
-                  onClick={() => setPartnerPage((current) => (current + 1) % partners.length)}
-                  sx={{ minWidth: 0, width: 36, height: 36, borderRadius: "50%" }}
-                >
-                  {isRTL ? <ArrowBackIosNewIcon sx={{ fontSize: 16 }} /> : <ArrowForwardIosIcon sx={{ fontSize: 16 }} />}
-                </Button>
-              </Stack>
+              )}
             </Box>
           ) : null}
         </Paper>

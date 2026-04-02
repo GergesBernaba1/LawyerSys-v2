@@ -124,6 +124,10 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<DocumentDraft> DocumentDrafts { get; set; }
+
+    public virtual DbSet<GeneratedDocument> GeneratedDocuments { get; set; }
+
     public virtual DbSet<ESignatureRequest> ESignatureRequests { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
@@ -500,6 +504,88 @@ public partial class LegacyDbContext : DbContext
                 .HasConstraintName("FK_Customers_Customers");
         });
 
+        modelBuilder.Entity<DocumentDraft>(entity =>
+        {
+            entity.ToTable("DocumentDrafts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TemplateType).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Format).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.Scope).HasMaxLength(2000);
+            entity.Property(e => e.FeeTerms).HasMaxLength(2000);
+            entity.Property(e => e.Subject).HasMaxLength(500);
+            entity.Property(e => e.Statement).HasMaxLength(4000);
+            entity.Property(e => e.AiInstructions).HasMaxLength(2000);
+            entity.Property(e => e.PreviewContent);
+            entity.Property(e => e.DocumentTitle).HasMaxLength(300);
+            entity.Property(e => e.DocumentReference).HasMaxLength(100);
+            entity.Property(e => e.DocumentCategory).HasMaxLength(100);
+            entity.Property(e => e.DocumentNotes).HasMaxLength(1000);
+            entity.Property(e => e.BrandingJson);
+            entity.Property(e => e.PartiesJson);
+            entity.Property(e => e.ClauseKeysJson);
+            entity.Property(e => e.CreatedBy).HasMaxLength(256).IsRequired();
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.LastModifiedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.DraftName).HasMaxLength(300);
+            
+            entity.HasOne(d => d.Case).WithMany()
+                .HasForeignKey(d => d.CaseCode)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_DocumentDrafts_Cases");
+                
+            entity.HasOne(d => d.Customer).WithMany()
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_DocumentDrafts_Customers");
+                
+            entity.HasIndex(e => e.CreatedBy);
+            entity.HasIndex(e => e.CaseCode);
+            entity.HasIndex(e => e.CreatedAt);
+        });
+
+        modelBuilder.Entity<GeneratedDocument>(entity =>
+        {
+            entity.ToTable("GeneratedDocuments");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TemplateType).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Format).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.DocumentTitle).HasMaxLength(300);
+            entity.Property(e => e.DocumentReference).HasMaxLength(100);
+            entity.Property(e => e.DocumentCategory).HasMaxLength(100);
+            entity.Property(e => e.DocumentNotes).HasMaxLength(1000);
+            entity.Property(e => e.BrandingJson);
+            entity.Property(e => e.PartiesJson);
+            entity.Property(e => e.ClauseKeysJson);
+            entity.Property(e => e.GeneratedContent);
+            entity.Property(e => e.GeneratedBy).HasMaxLength(256).IsRequired();
+            entity.Property(e => e.GeneratedAt).HasColumnType("timestamp without time zone");
+            
+            entity.HasOne(d => d.Case).WithMany()
+                .HasForeignKey(d => d.CaseCode)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_GeneratedDocuments_Cases");
+                
+            entity.HasOne(d => d.Customer).WithMany()
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_GeneratedDocuments_Customers");
+                
+            entity.HasOne(d => d.File).WithMany()
+                .HasForeignKey(d => d.FileId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_GeneratedDocuments_Files");
+            
+            entity.HasOne(d => d.ParentDocument).WithMany(p => p.ChildDocuments)
+                .HasForeignKey(d => d.ParentDocumentId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_GeneratedDocuments_ParentDocument");
+                
+            entity.HasIndex(e => e.CaseCode);
+            entity.HasIndex(e => e.GeneratedBy);
+            entity.HasIndex(e => e.GeneratedAt);
+            entity.HasIndex(e => e.FileId);
+        });
+
         modelBuilder.Entity<ESignatureRequest>(entity =>
         {
             entity.ToTable("ESignatureRequests");
@@ -758,6 +844,8 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<CustomerCaseNotificationSetting>(modelBuilder);
         ConfigureTenantEntity<CustomerPaymentProof>(modelBuilder);
         ConfigureTenantEntity<CustomerRequestedDocument>(modelBuilder);
+        ConfigureTenantEntity<DocumentDraft>(modelBuilder);
+        ConfigureTenantEntity<GeneratedDocument>(modelBuilder);
         ConfigureTenantEntity<ESignatureRequest>(modelBuilder);
         ConfigureTenantEntity<Employee>(modelBuilder);
         ConfigureTenantEntity<FileEntity>(modelBuilder);

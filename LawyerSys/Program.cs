@@ -14,7 +14,10 @@ using LawyerSys.Services.Subscriptions;
 using LawyerSys.Services.TrustAccounting;
 using LawyerSys.Services.Governments;
 using LawyerSys.Services.CaseRelations;
+using LawyerSys.Services.Parity;
+using LawyerSys.Infrastructure.Repositories.Parity;
 using LawyerSys.Realtime;
+using LawyerSys.Extensions.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -132,14 +135,43 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContext<LegacyDbContext>(options =>
     options.UseNpgsql(conn, b => b.MigrationsAssembly("LawyerSys.Infrastructure")));
 
+var configuredCorsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? Array.Empty<string>();
+
+var corsOrigins = configuredCorsOrigins
+    .Select(o => o?.Trim())
+    .Where(o => !string.IsNullOrWhiteSpace(o))
+    .Select(o => o!)
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
+if (corsOrigins.Length == 0 && builder.Environment.IsDevelopment())
+{
+    corsOrigins = new[]
+    {
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:5173",
+        "https://localhost:5173"
+    };
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactClient", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:5173", "https://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        if (corsOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+            return;
+        }
+
+        // No configured origins means no cross-origin access.
+        policy.DisallowCredentials();
     });
 });
 
@@ -180,6 +212,10 @@ builder.Services.AddControllerRefactorCoreServices();
 builder.Services.AddScoped<IGovernmentsService, GovernmentsService>();
 builder.Services.AddScoped<ICaseRelationsService, CaseRelationsService>();
 builder.Services.AddScoped<ITenantSubscriptionService, TenantSubscriptionService>();
+builder.Services.AddScoped<IParityRoadmapService, ParityRoadmapService>();
+builder.Services.AddScoped<ParityChangeLogWriter>();
+builder.Services.AddScoped<ParityRepository>();
+builder.Services.AddScoped<ParityWeeklyRefreshService>();
 
 builder.Services.Configure<FirebaseOptions>(builder.Configuration.GetSection("Firebase"));
 builder.Services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
@@ -283,6 +319,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("SuperAdmin", "Admin"));
     options.AddPolicy("EmployeeOrAdmin", policy => policy.RequireRole("SuperAdmin", "Admin", "Employee"));
     options.AddPolicy("CustomerAccess", policy => policy.RequireRole("SuperAdmin", "Admin", "Employee", "Customer"));
+    options.AddPolicy(ParityPolicies.ParityRead, policy => policy.RequireRole("SuperAdmin", "Admin", "Partner", "Operations", "Analyst", "Viewer"));
+    options.AddPolicy(ParityPolicies.ParityWrite, policy => policy.RequireRole("SuperAdmin", "Admin", "Partner", "Operations", "Analyst"));
+    options.AddPolicy(ParityPolicies.ParityAdmin, policy => policy.RequireRole("SuperAdmin", "Admin"));
+    options.AddPolicy(ParityPolicies.ParityPartner, policy => policy.RequireRole("SuperAdmin", "Admin", "Partner"));
+    options.AddPolicy(ParityPolicies.ParityOperations, policy => policy.RequireRole("SuperAdmin", "Admin", "Operations"));
+    options.AddPolicy(ParityPolicies.ParityAnalyst, policy => policy.RequireRole("SuperAdmin", "Admin", "Analyst"));
+    options.AddPolicy(ParityPolicies.ParityViewer, policy => policy.RequireRole("SuperAdmin", "Admin", "Viewer"));
 });
 
 var app = builder.Build();
