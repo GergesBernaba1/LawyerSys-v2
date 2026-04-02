@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
-using LawyerSys.Data;
-using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
 using LawyerSys.Extensions;
 using LawyerSys.Resources;
+using LawyerSys.Services.Contenders;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace LawyerSys.Controllers;
 
@@ -15,104 +13,77 @@ namespace LawyerSys.Controllers;
 [Route("api/[controller]")]
 public class ContendersController : ControllerBase
 {
-    private readonly LegacyDbContext _context;
+    private readonly IContendersService _contendersService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ContendersController(LegacyDbContext context, IStringLocalizer<SharedResource> localizer)
+    public ContendersController(IContendersService contendersService, IStringLocalizer<SharedResource> localizer)
     {
-        _context = context;
+        _contendersService = contendersService;
         _localizer = localizer;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ContenderDto>>> GetContenders([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null)
+    public async Task<ActionResult<IEnumerable<ContenderDto>>> GetContenders([FromQuery] int? page = null, [FromQuery] int? pageSize = null, [FromQuery] string? search = null, CancellationToken cancellationToken = default)
     {
-        IQueryable<Contender> query = _context.Contenders;
+        var result = await _contendersService.GetContendersAsync(page, pageSize, search, cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(search))
+        if (result.Page.HasValue && result.PageSize.HasValue && result.TotalCount.HasValue)
         {
-            var s = search.Trim();
-            query = query.Where(c => c.Full_Name.Contains(s) || c.SSN.ToString().Contains(s));
+            return Ok(new PagedResult<ContenderDto>
+            {
+                Items = result.Items,
+                TotalCount = result.TotalCount.Value,
+                Page = result.Page.Value,
+                PageSize = result.PageSize.Value
+            });
         }
 
-        if (page.HasValue && pageSize.HasValue)
-        {
-            var p = Math.Max(1, page.Value);
-            var ps = Math.Clamp(pageSize.Value, 1, 200);
-            var total = await query.CountAsync();
-            var items = await query.OrderBy(c => c.Id).Skip((p - 1) * ps).Take(ps).ToListAsync();
-            return Ok(new PagedResult<ContenderDto> { Items = items.Select(MapToDto), TotalCount = total, Page = p, PageSize = ps });
-        }
-
-        var contenders = await query.OrderBy(c => c.Id).ToListAsync();
-        return Ok(contenders.Select(MapToDto));
+        return Ok(result.Items);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ContenderDto>> GetContender(int id)
+    public async Task<ActionResult<ContenderDto>> GetContender(int id, CancellationToken cancellationToken)
     {
-        var contender = await _context.Contenders.FindAsync(id);
+        var contender = await _contendersService.GetContenderAsync(id, cancellationToken);
         if (contender == null)
+        {
             return this.EntityNotFound<ContenderDto>(_localizer, "Contender");
-        return Ok(MapToDto(contender));
+        }
+
+        return Ok(contender);
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPost]
-    public async Task<ActionResult<ContenderDto>> CreateContender([FromBody] CreateContenderDto dto)
+    public async Task<ActionResult<ContenderDto>> CreateContender([FromBody] CreateContenderDto dto, CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var contender = new Contender
-        {
-            Full_Name = dto.FullName,
-            SSN = int.TryParse(dto.SSN, out var ssn) ? ssn : 0,
-            BirthDate = dto.BirthDate,
-            Type = dto.Type
-        };
-
-        _context.Contenders.Add(contender);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetContender), new { id = contender.Id }, MapToDto(contender));
+        var contender = await _contendersService.CreateContenderAsync(dto, cancellationToken);
+        return CreatedAtAction(nameof(GetContender), new { id = contender.Id }, contender);
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateContender(int id, [FromBody] UpdateContenderDto dto)
+    public async Task<IActionResult> UpdateContender(int id, [FromBody] UpdateContenderDto dto, CancellationToken cancellationToken)
     {
-        var contender = await _context.Contenders.FindAsync(id);
+        var contender = await _contendersService.UpdateContenderAsync(id, dto, cancellationToken);
         if (contender == null)
+        {
             return this.EntityNotFound(_localizer, "Contender");
+        }
 
-        if (dto.FullName != null) contender.Full_Name = dto.FullName;
-        if (dto.SSN != null && int.TryParse(dto.SSN, out var ssn)) contender.SSN = ssn;
-        if (dto.BirthDate.HasValue) contender.BirthDate = dto.BirthDate.Value;
-        if (dto.Type.HasValue) contender.Type = dto.Type;
-
-        await _context.SaveChangesAsync();
-        return Ok(MapToDto(contender));
+        return Ok(contender);
     }
 
     [Authorize(Policy = "EmployeeOrAdmin")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteContender(int id)
+    public async Task<IActionResult> DeleteContender(int id, CancellationToken cancellationToken)
     {
-        var contender = await _context.Contenders.FindAsync(id);
-        if (contender == null)
+        var deleted = await _contendersService.DeleteContenderAsync(id, cancellationToken);
+        if (!deleted)
+        {
             return this.EntityNotFound(_localizer, "Contender");
+        }
 
-        _context.Contenders.Remove(contender);
-        await _context.SaveChangesAsync();
         return Ok(new { message = _localizer["ContenderDeleted"].Value });
     }
-
-    private static ContenderDto MapToDto(Contender c) => new()
-    {
-        Id = c.Id,
-        FullName = c.Full_Name,
-        SSN = c.SSN.ToString(),
-        BirthDate = c.BirthDate,
-        Type = c.Type
-    };
 }
