@@ -226,7 +226,8 @@ export default function CaseDetailsPage() {
   const params = useParams() as { code?: string } | undefined;
   const code = Number(params?.code);
   const router = useRouter();
-  const locale = (i18n.resolvedLanguage || i18n.language || 'en').toLowerCase().startsWith('ar') ? 'ar-EG' : 'en-US';
+  const isRtl = (i18n.resolvedLanguage || i18n.language || 'en').toLowerCase().startsWith('ar');
+  const locale = isRtl ? 'ar-EG' : 'en-US';
 
   const { hasAnyRole, user } = useAuth();
   const translateText = (key: string, defaultValue: string) => {
@@ -315,7 +316,7 @@ export default function CaseDetailsPage() {
       setConversation(conversationResponse.data || []);
       setCaseNotificationsEnabled(notificationResponse?.data?.notificationsEnabled ?? true);
     } catch (err: any) {
-      setSnackbar({ open: true, message: err?.response?.data?.message ?? 'Failed to load case', severity: 'error' });
+      setSnackbar({ open: true, message: err?.response?.data?.message ?? t('cases.failedLoadCase', { defaultValue: 'Failed to load case' }), severity: 'error' });
     } finally { setLoading(false); }
   }
 
@@ -345,17 +346,17 @@ export default function CaseDetailsPage() {
   }, [caseInfo, caseCourts]);
 
   async function removeCustomer(customerId:number){
-    try{ await api.delete(`/cases/${code}/customers/${customerId}`); setSnackbar({ open: true, message: t('customers.customerDeleted'), severity: 'success' }); await load(); }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? 'Failed', severity: 'error' }); }
+    try{ await api.delete(`/cases/${code}/customers/${customerId}`); setSnackbar({ open: true, message: t('customers.customerDeleted'), severity: 'success' }); await load(); }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('cases.failedRemoveCustomer', { defaultValue: 'Failed to remove customer' }), severity: 'error' }); }
   }
 
   async function openAddCustomer(){
-    try{ const r = await api.get('/Customers'); setCustomersList(r.data || []);}catch(e){ setSnackbar({ open: true, message: 'Failed to load customers', severity: 'error' }); }
+    try{ const r = await api.get('/Customers'); setCustomersList(r.data || []);}catch(e){ setSnackbar({ open: true, message: t('cases.failedLoadCustomers', { defaultValue: 'Failed to load customers' }), severity: 'error' }); }
     setAddCustomerOpen(true);
   }
 
   async function addCustomer(){
-    if(!selectedCustomerToAdd) return setSnackbar({ open:true, message: 'Choose customer', severity: 'error' });
-    try{ await api.post(`/cases/${code}/customers/${selectedCustomerToAdd}`); setAddCustomerOpen(false); setSelectedCustomerToAdd(''); await load(); setSnackbar({ open:true, message: 'Customer added', severity: 'success' }); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to add', severity: 'error' }); }
+    if(!selectedCustomerToAdd) return setSnackbar({ open:true, message: t('cases.chooseCustomer', { defaultValue: 'Choose customer' }), severity: 'error' });
+    try{ await api.post(`/cases/${code}/customers/${selectedCustomerToAdd}`); setAddCustomerOpen(false); setSelectedCustomerToAdd(''); await load(); setSnackbar({ open:true, message: t('cases.customerAdded', { defaultValue: 'Customer added' }), severity: 'success' }); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedAddCustomer', { defaultValue: 'Failed to add customer' }), severity: 'error' }); }
   }
 
   // Edit case general info
@@ -384,7 +385,7 @@ export default function CaseDetailsPage() {
       setSnackbar({ open:true, message: t('cases.caseUpdated', { defaultValue: 'Case updated' }), severity: 'success' });
       setEditing(false);
       await load();
-    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update', severity: 'error' }); }
+    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedUpdate', { defaultValue: 'Failed to update case' }), severity: 'error' }); }
   }
 
   // Sitings: create and link
@@ -398,7 +399,7 @@ export default function CaseDetailsPage() {
       setNewSiting({ date:'', time:'', judgeName:'', notes:'' });
       setSnackbar({ open:true, message: t('cases.sitingCreated', { defaultValue: 'Hearing created' }), severity: 'success' });
       await load();
-    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to create siting', severity: 'error' }); }
+    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('sitings.failedCreate', { defaultValue: 'Failed to create hearing' }), severity: 'error' }); }
   }
 
   // Edit siting
@@ -409,7 +410,7 @@ export default function CaseDetailsPage() {
       const sit = r.data;
       setEditingSiting({ id: sit.Id, date: sit.SitingDate ?? sit.Siting_Date ?? '', time: sit.SitingTime ? new Date(sit.SitingTime).toISOString().slice(11,19) : '', judgeName: sit.JudgeName ?? sit.Judge_Name, notes: sit.Notes });
       setEditSitingOpen(true);
-    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to load siting', severity:'error' }); }
+    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('sitings.failedLoad', { defaultValue: 'Failed to load hearings data' }), severity:'error' }); }
   }
 
   async function saveSitingEdit(){
@@ -425,7 +426,7 @@ export default function CaseDetailsPage() {
       setEditingSiting(null);
       setSnackbar({ open:true, message: t('cases.sitingUpdated', { defaultValue: 'Hearing updated' }), severity:'success' });
       await load();
-    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update siting', severity:'error' }); }
+    }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('sitings.failedUpdate', { defaultValue: 'Failed to update hearing' }), severity:'error' }); }
   }
 
   // Contender edit
@@ -436,12 +437,12 @@ export default function CaseDetailsPage() {
   }
 
   // Employees assign
-  async function openAssignEmployee(){ try{ const r = await api.get('/Employees'); setEmployeesList(r.data || []); setAssignEmployeeOpen(true); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to load employees', severity:'error' }); } }
+  async function openAssignEmployee(){ try{ const r = await api.get('/Employees'); setEmployeesList(r.data || []); setAssignEmployeeOpen(true); }catch(err:any){ setSnackbar({ open:true, message: t('cases.failedLoadEmployees', { defaultValue: 'Failed to load employees' }), severity:'error' }); } }
   async function assignEmployee(){ if(!selectedEmployeeToAdd) return; try{ await api.post(`/cases/${code}/employees/${selectedEmployeeToAdd}`); setAssignEmployeeOpen(false); setSelectedEmployeeToAdd(''); setSnackbar({ open:true, message: t('cases.employeeAssigned', { defaultValue: 'Employee assigned' }), severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedUpdate', { defaultValue: 'Failed to update case' }), severity:'error' }); } }
 
-  async function removeContender(id:number){ try{ await api.delete(`/cases/${code}/contenders/${id}`); await load(); setSnackbar({ open:true, message: 'Contender removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed', severity:'error' }); } }
+  async function removeContender(id:number){ try{ await api.delete(`/cases/${code}/contenders/${id}`); await load(); setSnackbar({ open:true, message: t('cases.contenderRemoved', { defaultValue: 'Contender removed' }), severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('contenders.failedDelete', { defaultValue: 'Failed to delete contender' }), severity:'error' }); } }
 
-  async function removeSiting(sitingId:number){ try{ await api.delete(`/cases/${code}/sitings/${sitingId}`); await load(); setSnackbar({ open:true, message: 'Siting removed', severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove siting', severity:'error' }); } }
+  async function removeSiting(sitingId:number){ try{ await api.delete(`/cases/${code}/sitings/${sitingId}`); await load(); setSnackbar({ open:true, message: t('cases.sitingRemoved', { defaultValue: 'Hearing removed' }), severity:'success' }); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('sitings.failedDelete', { defaultValue: 'Failed to delete hearing' }), severity:'error' }); } }
 
   async function uploadFileArray(files:File[]){
     if(files.length === 0) return;
@@ -461,9 +462,9 @@ export default function CaseDetailsPage() {
       }
     }
     setFileInputKey(k=>k+1);
-    setSnackbar({ open:true, message: 'Files uploaded', severity:'success' });
+    setSnackbar({ open:true, message: t('files.fileUploaded', { defaultValue: 'File uploaded successfully' }), severity:'success' });
     await load();
-  }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to upload', severity:'error' }); } }
+  }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('files.failedUpload', { defaultValue: 'Failed to upload file' }), severity:'error' }); } }
 
   async function uploadFiles(files:FileList | null){
     if(!files) return;
@@ -476,7 +477,7 @@ export default function CaseDetailsPage() {
     await uploadFileArray(Array.from(e.dataTransfer.files || []));
   }
 
-  async function removeFile(fileId:number){ try{ await api.delete(`/cases/${code}/files/${fileId}`); setSnackbar({ open:true, message: 'File removed', severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: 'Failed to remove file', severity:'error' }); } }
+  async function removeFile(fileId:number){ try{ await api.delete(`/cases/${code}/files/${fileId}`); setSnackbar({ open:true, message: t('files.fileDeleted', { defaultValue: 'File deleted successfully' }), severity:'success' }); await load(); }catch(err:any){ setSnackbar({ open:true, message: err?.response?.data?.message ?? t('files.failedDelete', { defaultValue: 'Failed to delete file' }), severity:'error' }); } }
 
   async function sendConversationMessage(){
     const message = conversationMessage.trim();
@@ -638,6 +639,17 @@ export default function CaseDetailsPage() {
         { value: 'employees', label: translateText('cases.employees', 'Employees') },
       ];
   const isTabActive = (tab: CaseTabKey) => activeTab === tab;
+  const isPrimaryGroupTabActive = isTabActive('overview') || (!isCustomerOnly && isTabActive('parties'));
+  const isSecondaryGroupTabActive =
+    isTabActive('sitings') ||
+    isTabActive('files') ||
+    isTabActive('documents') ||
+    isTabActive('payments') ||
+    isTabActive('requestedDocuments') ||
+    isTabActive('paymentProofs') ||
+    isTabActive('conversation') ||
+    isTabActive('history') ||
+    (!isCustomerOnly && (isTabActive('courts') || isTabActive('employees')));
 
   useEffect(() => {
     if (!tabs.some((tab) => tab.value === activeTab)) {
@@ -646,7 +658,7 @@ export default function CaseDetailsPage() {
   }, [activeTab, tabs]);
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box dir={isRtl ? 'rtl' : 'ltr'} sx={{ p: 2 }}>
       <Box sx={{ display:'flex', alignItems:'center', gap:2, mb:2 }}>
         <Tooltip title={t('app.back') || 'Back'}>
           <IconButton onClick={()=>router.push(isCustomerOnly ? '/client-portal' : '/cases')}><ArrowBack/></IconButton>
@@ -659,6 +671,7 @@ export default function CaseDetailsPage() {
         <Card sx={{ mb: 2 }}>
           <CardContent sx={{ pb: '16px !important' }}>
             <Tabs
+              dir={isRtl ? 'rtl' : 'ltr'}
               value={activeTab}
               onChange={(_, value) => setActiveTab(value)}
               variant="scrollable"
@@ -674,8 +687,8 @@ export default function CaseDetailsPage() {
       ) : null}
 
       {caseInfo ? (
-        <Box sx={{ display: 'grid', gridTemplateColumns: isCustomerOnly ? '1fr' : { xs: '1fr', md: '1fr 1fr' }, gap: 2, alignItems: 'start' }}>
-          <Box>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2, alignItems: 'start' }}>
+          {isPrimaryGroupTabActive && <Box>
             {isTabActive('overview') && <Card><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{t('cases.general') || 'General'}</Typography>
@@ -695,9 +708,9 @@ export default function CaseDetailsPage() {
                         const newStatus = Number(value ?? 0);
                         try {
                           await api.post(`/Cases/${code}/status`, { status: ['New','InProgress','AwaitingHearing','Closed','Won','Lost'][newStatus] });
-                          setSnackbar({ open: true, message: 'Status updated', severity: 'success' });
+                          setSnackbar({ open: true, message: t('cases.statusUpdated', { defaultValue: 'Status updated' }), severity: 'success' });
                           await load();
-                        } catch (err:any) { setSnackbar({ open:true, message: err?.response?.data?.message ?? 'Failed to update status', severity:'error' }); }
+                        } catch (err:any) { setSnackbar({ open:true, message: err?.response?.data?.message ?? t('cases.failedStatusUpdate', { defaultValue: 'Failed to update status' }), severity:'error' }); }
                     }}
                     options={[
                       { value: 0, label: translateText('cases.statuses.new', 'New'), disabled: !allowedNextValues.has(0) },
@@ -708,7 +721,7 @@ export default function CaseDetailsPage() {
                       { value: 5, label: translateText('cases.statuses.lost', 'Lost'), disabled: !allowedNextValues.has(5) },
                     ]}
                     disableClearable
-                    sx={{ ml: 1, minWidth: 160 }}
+                    sx={{ ...(isRtl ? { mr: 1 } : { ml: 1 }), minWidth: 160 }}
                   />
                 )}
               </Box>
@@ -790,9 +803,9 @@ export default function CaseDetailsPage() {
               </List>
             </CardContent></Card>}
 
-          </Box>
+          </Box>}
 
-          <Box>
+          {isSecondaryGroupTabActive && <Box>
             {isTabActive('sitings') && <Card><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{translateText('sitings.title', 'Sitings')}</Typography>
@@ -1067,17 +1080,17 @@ export default function CaseDetailsPage() {
               </List>
             </CardContent></Card>}
 
-          </Box>
+          </Box>}
         </Box>
       ) : (
         <Box sx={{ minHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Typography color="text.secondary">{loading ? 'Loading...' : 'No data found'}</Typography>
+          <Typography color="text.secondary">{loading ? t('app.loading', { defaultValue: 'Loading...' }) : t('cases.noDataFound', { defaultValue: 'No data found' })}</Typography>
         </Box>
       )}
 
       {/* Add Customer Dialog */}
       <Dialog open={addCustomerOpen} onClose={()=>setAddCustomerOpen(false)}>
-        <DialogTitle>{t('customers.add') || 'Add Customer to Case'}</DialogTitle>
+        <DialogTitle>{t('cases.addCustomerToCase', { defaultValue: 'Add customer to case' })}</DialogTitle>
         <DialogContent>
           <SearchableSelect<number>
             label={t('customers.customer')}
@@ -1102,8 +1115,8 @@ export default function CaseDetailsPage() {
         <DialogContent>
           <Box sx={{ display:'grid', gap:1, gridTemplateColumns:{ xs:'1fr', sm:'1fr 1fr' } }}>
             <TextField label={t('cases.date')} type="date" InputLabelProps={{ shrink:true }} value={newSiting.date} onChange={(e)=>setNewSiting({...newSiting, date: e.target.value})} />
-            <TextField label={t('time') || 'Time'} type="time" value={newSiting.time} onChange={(e)=>setNewSiting({...newSiting, time: e.target.value})} />
-            <TextField label={t('judge') || 'Judge'} value={newSiting.judgeName} onChange={(e)=>setNewSiting({...newSiting, judgeName: e.target.value})} />
+            <TextField label={t('cases.time', { defaultValue: 'Time' })} type="time" value={newSiting.time} onChange={(e)=>setNewSiting({...newSiting, time: e.target.value})} />
+            <TextField label={t('cases.judge', { defaultValue: 'Judge' })} value={newSiting.judgeName} onChange={(e)=>setNewSiting({...newSiting, judgeName: e.target.value})} />
             <TextField label={t('cases.notes')} value={newSiting.notes} onChange={(e)=>setNewSiting({...newSiting, notes: e.target.value})} />
           </Box>
         </DialogContent>
@@ -1135,8 +1148,8 @@ export default function CaseDetailsPage() {
         <DialogContent>
           <Box sx={{ display:'grid', gap:1, gridTemplateColumns:{ xs:'1fr', sm:'1fr 1fr' } }}>
             <TextField label={t('cases.date')} type="date" InputLabelProps={{ shrink:true }} value={editingSiting?.date ?? ''} onChange={(e)=>setEditingSiting({...editingSiting, date: e.target.value})} />
-            <TextField label={t('time') || 'Time'} type="time" value={editingSiting?.time ?? ''} onChange={(e)=>setEditingSiting({...editingSiting, time: e.target.value})} />
-            <TextField label={t('judge') || 'Judge'} value={editingSiting?.judgeName ?? ''} onChange={(e)=>setEditingSiting({...editingSiting, judgeName: e.target.value})} />
+            <TextField label={t('cases.time', { defaultValue: 'Time' })} type="time" value={editingSiting?.time ?? ''} onChange={(e)=>setEditingSiting({...editingSiting, time: e.target.value})} />
+            <TextField label={t('cases.judge', { defaultValue: 'Judge' })} value={editingSiting?.judgeName ?? ''} onChange={(e)=>setEditingSiting({...editingSiting, judgeName: e.target.value})} />
             <TextField label={t('cases.notes')} value={editingSiting?.notes ?? ''} onChange={(e)=>setEditingSiting({...editingSiting, notes: e.target.value})} />
           </Box>
         </DialogContent>
