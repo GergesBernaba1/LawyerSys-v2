@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'deploy')
     runs-on: [self-hosted, windows]
 
     steps:
