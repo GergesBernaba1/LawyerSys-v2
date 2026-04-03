@@ -72,6 +72,34 @@ function normalizeCaseItem(raw: any): CaseItem {
   };
 }
 
+const CASE_TYPE_VALUES = [
+  'Civil',
+  'Criminal',
+  'Labor',
+  'Commercial',
+  'Family',
+  'Administrative',
+  'PersonalStatus',
+  'Enforcement',
+  'Appeal',
+  'Other',
+] as const;
+
+const MIN_STATEMENT_LENGTH = 30;
+const MAX_CASE_DATE_FUTURE_DAYS = 365;
+const MAX_TOTAL_AMOUNT = 1_000_000_000;
+
+function sanitizeAmountInput(value: string) {
+  return value.replace(/[^\d]/g, '');
+}
+
+function formatAmountInput(value: string) {
+  if (!value) return '';
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '';
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(numeric);
+}
+
 export default function CasesPageClient() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -90,6 +118,10 @@ export default function CasesPageClient() {
   const [items, setItems] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState<number>(0);
+  const [invitionsStatment, setInvitionsStatment] = useState('');
+  const [invitionType, setInvitionType] = useState('');
+  const [invitionDate, setInvitionDate] = useState('');
+  const [totalAmountInput, setTotalAmountInput] = useState<string>('');
   const [notes, setNotes] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
@@ -118,25 +150,69 @@ export default function CasesPageClient() {
   const [newContender, setNewContender] = useState({ fullName: '', ssn: '', birthDate: '' });
   const [pendingSitings, setPendingSitings] = useState<any[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [creationOptionsLoaded, setCreationOptionsLoaded] = useState(false);
+  const totalAmount = Number(totalAmountInput || '0');
+
+  const caseTypeOptions = CASE_TYPE_VALUES.map((value) => ({
+    value,
+    label: t(`cases.caseTypes.${value}`, {
+      defaultValue:
+        value === 'PersonalStatus'
+          ? 'Personal Status'
+          : value,
+    }),
+  }));
+
+  function validateCaseForm() {
+    if (code <= 0) {
+      return t('cases.validation.invalidCode', { defaultValue: 'Case code must be greater than 0.' });
+    }
+    if (!invitionType.trim()) {
+      return t('cases.validation.typeRequired', { defaultValue: 'Case type is required.' });
+    }
+    if (!CASE_TYPE_VALUES.includes(invitionType as any)) {
+      return t('cases.validation.typeInvalid', { defaultValue: 'Please select a valid case type.' });
+    }
+    const statementLength = invitionsStatment.trim().length;
+    if (statementLength < MIN_STATEMENT_LENGTH) {
+      return t('cases.validation.statementTooShort', {
+        defaultValue: `Case statement must be at least ${MIN_STATEMENT_LENGTH} characters.`,
+        min: MIN_STATEMENT_LENGTH,
+      });
+    }
+    if (!invitionDate) {
+      return t('cases.validation.dateRequired', { defaultValue: 'Case date is required.' });
+    }
+    const enteredDate = new Date(`${invitionDate}T00:00:00`);
+    if (Number.isNaN(enteredDate.getTime())) {
+      return t('cases.validation.dateInvalid', { defaultValue: 'Case date is invalid.' });
+    }
+    const maxAllowedDate = new Date();
+    maxAllowedDate.setDate(maxAllowedDate.getDate() + MAX_CASE_DATE_FUTURE_DAYS);
+    if (enteredDate > maxAllowedDate) {
+      return t('cases.validation.dateTooFar', {
+        defaultValue: `Case date cannot be more than ${MAX_CASE_DATE_FUTURE_DAYS} days in the future.`,
+        days: MAX_CASE_DATE_FUTURE_DAYS,
+      });
+    }
+    if (totalAmount < 0 || totalAmount > MAX_TOTAL_AMOUNT) {
+      return t('cases.validation.amountInvalid', {
+        defaultValue: `Amount must be between 0 and ${MAX_TOTAL_AMOUNT.toLocaleString()}.`,
+        max: MAX_TOTAL_AMOUNT,
+      });
+    }
+    return '';
+  }
 
   async function load(p = page) {
     setLoading(true);
     try {
-      const [r, courtsRes, customersRes, contendersRes] = await Promise.all([
-        api.get(`/Cases?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`),
-        api.get('/Courts'),
-        api.get('/Customers'),
-        api.get('/Contenders')
-      ]);
+      const r = await api.get(`/Cases?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`);
 
       // support legacy array response OR new paged response
       const casesData = r.data?.items ? r.data.items : r.data;
       setItems((casesData || []).map(normalizeCaseItem));
       if (r.data?.totalCount) setTotalCount(r.data.totalCount);
-
-      setCourts(courtsRes.data || []);
-      setCustomers(customersRes.data || []);
-      setContenders(contendersRes.data || []);
     } catch (err) {
       setSnackbar({ open: true, message: t('cases.failedLoad'), severity: 'error' });
     } finally {
@@ -144,12 +220,52 @@ export default function CasesPageClient() {
     }
   }
 
+  async function loadCreateOptions() {
+    if (creationOptionsLoaded) return;
+    try {
+      const [courtsRes, customersRes, contendersRes] = await Promise.all([
+        api.get('/Courts'),
+        api.get('/Customers'),
+        api.get('/Contenders'),
+      ]);
+
+      setCourts(courtsRes.data || []);
+      setCustomers(customersRes.data || []);
+      setContenders(contendersRes.data || []);
+      setCreationOptionsLoaded(true);
+    } catch {
+      setSnackbar({ open: true, message: t('cases.failedLoad', { defaultValue: 'Failed to load data' }), severity: 'error' });
+    }
+  }
+
+  async function openCreateDialog() {
+    await loadCreateOptions();
+    setOpenDialog(true);
+  }
+
   useEffect(() => { load(); }, []);
 
   async function create() {
+    const validationMessage = validateCaseForm();
+    if (validationMessage) {
+      setSnackbar({
+        open: true,
+        message: validationMessage,
+        severity: 'error',
+      });
+      return;
+    }
+
     try {
       // 1) Create case
-      const created = await api.post('/Cases', { code, notes });
+      const created = await api.post('/Cases', {
+        Code: code,
+        InvitionsStatment: invitionsStatment.trim(),
+        InvitionType: invitionType.trim(),
+        InvitionDate: invitionDate,
+        TotalAmount: Math.max(0, Number(totalAmount || 0)),
+        Notes: notes?.trim() || '',
+      });
       const createdCase = created.data;
       const caseCode = createdCase.code ?? createdCase.Code ?? code;
 
@@ -199,6 +315,10 @@ export default function CasesPageClient() {
 
       await load();
       setCode(0);
+      setInvitionsStatment('');
+      setInvitionType('');
+      setInvitionDate('');
+      setTotalAmountInput('');
       setNotes('');
       setSelectedCourt('');
       setPrimaryCustomer('');
@@ -214,10 +334,10 @@ export default function CasesPageClient() {
     }
   }
 
-  async function remove(id: number) {
+  async function remove(caseCode: number) {
     if (!(await confirm(t('cases.confirmDelete')))) return;
     try {
-      await api.delete(`/Cases/${id}`);
+      await api.delete(`/Cases/${caseCode}`);
       await load();
       setSnackbar({ open: true, message: t('cases.caseDeleted'), severity: 'success' });
     } catch (err) {
@@ -303,7 +423,7 @@ export default function CasesPageClient() {
               variant="contained"
               startIcon={!isRTL ? <AddIcon /> : undefined}
               endIcon={isRTL ? <AddIcon /> : undefined}
-              onClick={() => setOpenDialog(true)}
+              onClick={() => { void openCreateDialog(); }}
               sx={{ 
                 borderRadius: 2.5, 
                 px: 3,
@@ -366,7 +486,7 @@ export default function CasesPageClient() {
                       </Box>
                       <Typography variant="h6" gutterBottom>{t('cases.noCases')}</Typography>
                       {hasAnyRole('Admin', 'Employee') && (
-                        <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => setOpenDialog(true)}>
+                        <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: 2 }} onClick={() => { void openCreateDialog(); }}>
                           {t('cases.createFirst')}
                         </Button>
                       )}
@@ -432,7 +552,7 @@ export default function CasesPageClient() {
                           <Tooltip title={t('app.delete')}>
                             <IconButton 
                               color="error" 
-                              onClick={() => remove(item.id)}
+                              onClick={() => remove(item.code)}
                               sx={{ 
                                 '&:hover': { bgcolor: 'error.light', color: 'white' },
                                 transition: 'all 0.2s ease'
@@ -499,7 +619,57 @@ export default function CasesPageClient() {
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField fullWidth label={t('cases.code')} type="number" value={code || ''} onChange={(e) => setCode(Number(e.target.value))} />
+              <TextField
+                fullWidth
+                required
+                label={t('cases.code')}
+                type="number"
+                value={code || ''}
+                onChange={(e) => setCode(Number(e.target.value))}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <SearchableSelect<string>
+                label={t('cases.type')}
+                value={invitionType || null}
+                onChange={(value) => setInvitionType(value ?? '')}
+                options={caseTypeOptions}
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                required
+                label={t('cases.statement', { defaultValue: 'Statement' })}
+                multiline
+                minRows={3}
+                value={invitionsStatment}
+                onChange={(e) => setInvitionsStatment(e.target.value)}
+                placeholder={t('cases.statementHint', { defaultValue: 'Case summary, allegations, and legal context' })}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                required
+                label={t('cases.date')}
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={invitionDate}
+                onChange={(e) => setInvitionDate(e.target.value)}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label={t('cases.amount')}
+                inputMode="numeric"
+                value={formatAmountInput(totalAmountInput)}
+                onChange={(e) => setTotalAmountInput(sanitizeAmountInput(e.target.value))}
+              />
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
+                {t('cases.amountPreview', { defaultValue: 'Formatted amount' })}: {formatCurrency(totalAmount || 0)}
+              </Typography>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <SearchableSelect<number>
@@ -654,7 +824,7 @@ export default function CasesPageClient() {
           <Button 
             variant="contained" 
             onClick={create} 
-            disabled={!code}
+            disabled={!code || !invitionsStatment.trim() || !invitionType.trim() || !invitionDate}
             sx={{ 
               borderRadius: 2.5, 
               px: 4,

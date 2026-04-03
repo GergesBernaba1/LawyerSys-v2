@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../src/services/api';
 import SearchableSelect from '../../src/components/SearchableSelect';
 import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout';
+import { formatCurrencyValue } from '../../src/hooks/useCurrency';
 
 type CountryOption = {
   id: number;
@@ -74,6 +75,8 @@ export default function RegisterPage() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === 'rtl' || (i18n.resolvedLanguage || i18n.language || '').startsWith('ar');
+  const resolvedCountryId = typeof countryId === 'number' ? countryId : undefined;
+  const formatAmount = (value: number) => formatCurrencyValue(value, resolvedCountryId, i18n.language);
   const fieldSx = isRTL ? { '& .MuiInputBase-input': { textAlign: 'right' } } : {};
 
   useEffect(() => {
@@ -297,7 +300,7 @@ export default function RegisterPage() {
                             setSelectedOfficeSize(pkg.officeSize);
                             setSelectedBillingCycle("Monthly");
                           }}
-                          label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${pkg.monthlyOption.price.toFixed(0)} ${pkg.monthlyOption.currency}`}
+                          label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${formatAmount(pkg.monthlyOption.price)}`}
                         />
                       ) : null}
                       {pkg.annualOption ? (
@@ -310,7 +313,7 @@ export default function RegisterPage() {
                             setSelectedOfficeSize(pkg.officeSize);
                             setSelectedBillingCycle("Annual");
                           }}
-                          label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${pkg.annualOption.price.toFixed(0)} ${pkg.annualOption.currency}`}
+                          label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${formatAmount(pkg.annualOption.price)}`}
                         />
                       ) : null}
                     </Stack>

@@ -30,7 +30,25 @@ import {
 import { ArrowBack, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import api from '../../../src/services/api';
 import { useAuth } from '../../../src/services/auth';
+import { useCurrency } from '../../../src/hooks/useCurrency';
 import SearchableSelect from '../../../src/components/SearchableSelect';
+
+const CASE_TYPE_VALUES = [
+  'Civil',
+  'Criminal',
+  'Labor',
+  'Commercial',
+  'Family',
+  'Administrative',
+  'PersonalStatus',
+  'Enforcement',
+  'Appeal',
+  'Other',
+] as const;
+
+const MIN_STATEMENT_LENGTH = 30;
+const MAX_CASE_DATE_FUTURE_DAYS = 365;
+const MAX_TOTAL_AMOUNT = 1_000_000_000;
 
 function pickValue<T = any>(source: any, keys: string[], fallback?: T): T | undefined {
   for (const key of keys) {
@@ -230,12 +248,20 @@ export default function CaseDetailsPage() {
   const locale = isRtl ? 'ar-EG' : 'en-US';
 
   const { hasAnyRole, user } = useAuth();
+  const { formatCurrency } = useCurrency();
   const translateText = (key: string, defaultValue: string) => {
     const translated = t(key, { defaultValue });
     return translated === key ? defaultValue : translated;
   };
   const canManageCase = hasAnyRole('Admin', 'Employee');
   const isCustomerOnly = Boolean(user?.roles?.includes('Customer') && !hasAnyRole('SuperAdmin', 'Admin', 'Employee'));
+  const caseTypeOptions = CASE_TYPE_VALUES.map((value) => ({
+    value,
+    label: translateText(
+      `cases.caseTypes.${value}`,
+      value === 'PersonalStatus' ? 'Personal Status' : value,
+    ),
+  }));
   const [data, setData] = useState<any | null>(null);
   const [conversation, setConversation] = useState<any[]>([]);
   const [conversationMessage, setConversationMessage] = useState('');
@@ -253,7 +279,7 @@ export default function CaseDetailsPage() {
 
   // edit state
   const [editing, setEditing] = useState(false);
-  const [editFields, setEditFields] = useState({ invitionType: '', invitionDate: '', totalAmount: 0, notes: '' });
+  const [editFields, setEditFields] = useState({ invitionsStatment: '', invitionType: '', invitionDate: '', totalAmount: 0, notes: '' });
 
   // dialogs
   const [addCustomerOpen, setAddCustomerOpen] = useState(false);
@@ -301,6 +327,41 @@ export default function CaseDetailsPage() {
   const caseRequestedDocuments = (data?.RequestedDocuments ?? data?.requestedDocuments ?? []).map(normalizeRequestedDocument);
   const casePaymentProofs = (data?.PaymentProofs ?? data?.paymentProofs ?? []).map(normalizePaymentProof);
 
+  function validateCaseEditForm() {
+    if (!editFields.invitionType.trim() || !CASE_TYPE_VALUES.includes(editFields.invitionType as any)) {
+      return t('cases.validation.typeInvalid', { defaultValue: 'Please select a valid case type.' });
+    }
+    if ((editFields.invitionsStatment ?? '').trim().length < MIN_STATEMENT_LENGTH) {
+      return t('cases.validation.statementTooShort', {
+        defaultValue: `Case statement must be at least ${MIN_STATEMENT_LENGTH} characters.`,
+        min: MIN_STATEMENT_LENGTH,
+      });
+    }
+    if (!editFields.invitionDate) {
+      return t('cases.validation.dateRequired', { defaultValue: 'Case date is required.' });
+    }
+    const enteredDate = new Date(`${editFields.invitionDate}T00:00:00`);
+    if (Number.isNaN(enteredDate.getTime())) {
+      return t('cases.validation.dateInvalid', { defaultValue: 'Case date is invalid.' });
+    }
+    const maxAllowedDate = new Date();
+    maxAllowedDate.setDate(maxAllowedDate.getDate() + MAX_CASE_DATE_FUTURE_DAYS);
+    if (enteredDate > maxAllowedDate) {
+      return t('cases.validation.dateTooFar', {
+        defaultValue: `Case date cannot be more than ${MAX_CASE_DATE_FUTURE_DAYS} days in the future.`,
+        days: MAX_CASE_DATE_FUTURE_DAYS,
+      });
+    }
+    const amount = Number(editFields.totalAmount || 0);
+    if (!Number.isFinite(amount) || amount < 0 || amount > MAX_TOTAL_AMOUNT) {
+      return t('cases.validation.amountInvalid', {
+        defaultValue: `Amount must be between 0 and ${MAX_TOTAL_AMOUNT.toLocaleString()}.`,
+        max: MAX_TOTAL_AMOUNT,
+      });
+    }
+    return '';
+  }
+
   async function load() {
     setLoading(true);
     try {
@@ -340,7 +401,13 @@ export default function CaseDetailsPage() {
   // initialize edit fields when data loads
   useEffect(() => {
     if (!caseInfo) return;
-    setEditFields({ invitionType: caseInfo.InvitionType ?? '', invitionDate: caseInfo.InvitionDate ?? '', totalAmount: caseInfo.TotalAmount ?? 0, notes: caseInfo.Notes ?? '' });
+    setEditFields({
+      invitionsStatment: caseInfo.InvitionsStatment ?? '',
+      invitionType: caseInfo.InvitionType ?? '',
+      invitionDate: caseInfo.InvitionDate ?? '',
+      totalAmount: caseInfo.TotalAmount ?? 0,
+      notes: caseInfo.Notes ?? '',
+    });
     // set selected court if present
     if (caseCourts.length > 0) setSelectedCourtToSet(caseCourts[0].CourtId || caseCourts[0].Id);
   }, [caseInfo, caseCourts]);
@@ -361,12 +428,29 @@ export default function CaseDetailsPage() {
 
   // Edit case general info
   function startEditing(){ setEditing(true); }
-  function cancelEditing(){ setEditing(false); setEditFields({ invitionType: caseInfo?.InvitionType ?? '', invitionDate: caseInfo?.InvitionDate ?? '', totalAmount: caseInfo?.TotalAmount ?? 0, notes: caseInfo?.Notes ?? '' }); setSelectedCourtToSet(caseCourts?.[0]?.CourtId || caseCourts?.[0]?.Id || ''); }
+  function cancelEditing(){
+    setEditing(false);
+    setEditFields({
+      invitionsStatment: caseInfo?.InvitionsStatment ?? '',
+      invitionType: caseInfo?.InvitionType ?? '',
+      invitionDate: caseInfo?.InvitionDate ?? '',
+      totalAmount: caseInfo?.TotalAmount ?? 0,
+      notes: caseInfo?.Notes ?? '',
+    });
+    setSelectedCourtToSet(caseCourts?.[0]?.CourtId || caseCourts?.[0]?.Id || '');
+  }
 
   async function saveCaseEdits(){
+    const validationMessage = validateCaseEditForm();
+    if (validationMessage) {
+      setSnackbar({ open:true, message: validationMessage, severity: 'error' });
+      return;
+    }
+
     try{
       // Update basic case
       const payload:any = {};
+      if (editFields.invitionsStatment != null) payload.InvitionsStatment = editFields.invitionsStatment;
       if (editFields.invitionType != null) payload.InvitionType = editFields.invitionType;
       if (editFields.invitionDate) payload.InvitionDate = editFields.invitionDate;
       if (editFields.totalAmount != null) payload.TotalAmount = Number(editFields.totalAmount);
@@ -614,6 +698,10 @@ export default function CaseDetailsPage() {
     const numeric = Number(value ?? 0);
     return Number.isFinite(numeric) ? numeric.toLocaleString(locale) : '-';
   };
+  const formatMoney = (value?: number | string | null) => {
+    const numeric = Number(value ?? 0);
+    return Number.isFinite(numeric) ? formatCurrency(numeric) : '-';
+  };
   const tabs: Array<{ value: CaseTabKey; label: string }> = isCustomerOnly
     ? [
         { value: 'overview', label: translateText('cases.general', 'General') },
@@ -731,7 +819,7 @@ export default function CaseDetailsPage() {
                   <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('cases.status')}</Typography><Typography variant="subtitle1">{getStatusLabel(caseInfo.Status)}</Typography></CardContent></Card>
                   <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.caseSessions', { defaultValue: 'Case Sessions' })}</Typography><Typography variant="subtitle1">{nextSiting ? `${formatDate(nextSiting.SitingDate)} - ${nextSiting.JudgeName}` : '-'}</Typography></CardContent></Card>
                   <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{translateText('cases.employees', 'Employees')}</Typography><Typography variant="subtitle1">{caseEmployees?.map((e:any)=>e.Full_Name || e.fullName).filter(Boolean).join(', ') || '-'}</Typography></CardContent></Card>
-                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.totalPaid', { defaultValue: 'Total Paid' })}</Typography><Typography variant="subtitle1">{formatNumber(totalPaid)}</Typography></CardContent></Card>
+                  <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">{t('clientPortal.totalPaid', { defaultValue: 'Total Paid' })}</Typography><Typography variant="subtitle1">{formatMoney(totalPaid)}</Typography></CardContent></Card>
                 </Box>
               )}
               {isCustomerOnly && (
@@ -744,9 +832,10 @@ export default function CaseDetailsPage() {
 
               {!editing || !canManageCase ? (
                 <>
+                  <Typography>{t('cases.statement', { defaultValue: 'Statement' })}: {caseInfo.InvitionsStatment || '-'}</Typography>
                   <Typography>{t('cases.type')}: {caseInfo.InvitionType}</Typography>
                   <Typography>{t('cases.date')}: {formatDate(caseInfo.InvitionDate)}</Typography>
-                  <Typography>{t('cases.amount')}: {formatNumber(caseInfo.TotalAmount)}</Typography>
+                  <Typography>{t('cases.amount')}: {formatMoney(caseInfo.TotalAmount)}</Typography>
                   <Typography>{t('cases.notes')}: {caseInfo.Notes}</Typography>
                   {isCustomerOnly && (
                     <>
@@ -757,9 +846,27 @@ export default function CaseDetailsPage() {
                 </>
               ) : (
                 <Box sx={{ mt:1, display:'grid', gridTemplateColumns:{ xs:'1fr', sm:'1fr 1fr'}, gap:1 }}>
-                  <TextField label={t('cases.type')} value={editFields.invitionType} onChange={(e)=>setEditFields({...editFields, invitionType: e.target.value})} />
+                  <TextField
+                    label={t('cases.statement', { defaultValue: 'Statement' })}
+                    value={editFields.invitionsStatment}
+                    onChange={(e)=>setEditFields({...editFields, invitionsStatment: e.target.value})}
+                    multiline
+                    minRows={2}
+                    sx={{ gridColumn: { xs: '1 / -1', sm: '1 / -1' } }}
+                  />
+                  <SearchableSelect<string>
+                    label={t('cases.type')}
+                    value={editFields.invitionType || null}
+                    onChange={(value)=>setEditFields({ ...editFields, invitionType: value ?? '' })}
+                    options={caseTypeOptions}
+                  />
                   <TextField label={t('cases.date')} type="date" InputLabelProps={{ shrink:true }} value={editFields.invitionDate?.slice(0,10) ?? ''} onChange={(e)=>setEditFields({...editFields, invitionDate: e.target.value})} />
-                  <TextField label={t('cases.amount')} type="number" value={editFields.totalAmount ?? ''} onChange={(e)=>setEditFields({...editFields, totalAmount: Number(e.target.value)})} />
+                  <Box>
+                    <TextField label={t('cases.amount')} type="number" value={editFields.totalAmount ?? ''} onChange={(e)=>setEditFields({...editFields, totalAmount: Number(e.target.value)})} />
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                      {t('cases.amountPreview', { defaultValue: 'Formatted amount' })}: {formatMoney(editFields.totalAmount)}
+                    </Typography>
+                  </Box>
                   <TextField label={t('cases.notes')} value={editFields.notes} onChange={(e)=>setEditFields({...editFields, notes: e.target.value})} multiline rows={2} />
 
                   <SearchableSelect<number>
@@ -889,7 +996,7 @@ export default function CaseDetailsPage() {
               <List>
                 {caseBillingPayments.map((item:any) => (
                   <ListItem key={item.Id}>
-                    <ListItemText primary={`${formatNumber(item.Amount)} - ${formatDate(item.DateOfOperation)}`} secondary={item.Notes || ''} />
+                    <ListItemText primary={`${formatMoney(item.Amount)} - ${formatDate(item.DateOfOperation)}`} secondary={item.Notes || ''} />
                   </ListItem>
                 ))}
                 {caseBillingPayments.length === 0 && <ListItem><ListItemText primary={t('clientPortal.noData', { defaultValue: 'No data available' })} /></ListItem>}
@@ -961,7 +1068,7 @@ export default function CaseDetailsPage() {
                 {casePaymentProofs.map((item:any) => (
                   <ListItem key={item.Id} alignItems="flex-start">
                     <ListItemText
-                      primary={`${formatNumber(item.Amount)} - ${item.Status}`}
+                      primary={`${formatMoney(item.Amount)} - ${item.Status}`}
                       secondary={
                         <Box sx={{ display:'grid', gap:1, mt:0.5 }}>
                           <Typography variant="caption" color="text.secondary">

@@ -25,6 +25,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import api from "../../../../src/services/api";
 import { useAuth } from "../../../../src/services/auth";
+import { useCurrency } from "../../../../src/hooks/useCurrency";
 
 type PackageCycleOption = {
   subscriptionPackageId: number;
@@ -110,6 +111,7 @@ export default function TenantSubscriptionAdminPage() {
   const router = useRouter();
   const params = useParams() as { tenantId?: string } | undefined;
   const { user, isAuthenticated, hasRole } = useAuth();
+  const { formatCurrency: formatProfileCurrency } = useCurrency();
   const isRTL = theme.direction === "rtl";
   const isSuperAdmin = hasRole("SuperAdmin");
   const tenantId = Number(params?.tenantId || 0);
@@ -128,17 +130,7 @@ export default function TenantSubscriptionAdminPage() {
     return value ? new Intl.DateTimeFormat(locale).format(new Date(value)) : "-";
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    if (!currency) {
-      return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(amount);
-    }
-
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => formatProfileCurrency(amount);
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -245,7 +237,7 @@ export default function TenantSubscriptionAdminPage() {
     }
 
     return [
-      { key: "price", value: formatCurrency(data.price, data.currency) },
+      { key: "price", value: formatCurrency(data.price) },
       { key: "status", value: t(`subscription.status.${data.status.toLowerCase()}`, { defaultValue: data.status }) },
       { key: "nextBilling", value: formatDate(data.nextBillingDateUtc) },
       { key: "endDate", value: formatDate(data.endDateUtc) },
@@ -391,7 +383,7 @@ export default function TenantSubscriptionAdminPage() {
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
                       <Chip label={t(`subscription.billingCycle.${data.billingCycle.toLowerCase()}`, { defaultValue: data.billingCycle })} />
-                      <Chip color="primary" label={formatCurrency(data.price, data.currency)} />
+                      <Chip color="primary" label={formatCurrency(data.price)} />
                     </Box>
                     <Box sx={{ display: "grid", gap: 0.75, mb: 2 }}>
                       {(data.packageFeatures || []).map((feature) => (
@@ -433,7 +425,7 @@ export default function TenantSubscriptionAdminPage() {
                         <Chip
                           size="small"
                           color={pkg.subscriptionPackageId === data.packageId ? "primary" : "default"}
-                          label={formatCurrency(pkg.price, pkg.currency)}
+                          label={formatCurrency(pkg.price)}
                         />
                         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1.25 }}>
                           {pkg.subscriptionPackageId !== data.packageId && (
@@ -480,7 +472,7 @@ export default function TenantSubscriptionAdminPage() {
                       <TableRow key={transaction.id} hover>
                         <TableCell>{transaction.packageName}</TableCell>
                         <TableCell>{t(`subscription.billingCycle.${transaction.billingCycle.toLowerCase()}`, { defaultValue: transaction.billingCycle })}</TableCell>
-                        <TableCell>{formatCurrency(transaction.amount, transaction.currency)}</TableCell>
+                        <TableCell>{formatCurrency(transaction.amount)}</TableCell>
                         <TableCell>{formatDate(transaction.dueDateUtc)}</TableCell>
                         <TableCell>
                           <Chip

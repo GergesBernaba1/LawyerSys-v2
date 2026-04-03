@@ -40,6 +40,7 @@ import {
 import { useRouter } from 'next/navigation';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
+import { useCurrency } from '../../src/hooks/useCurrency';
 
 function StatCard({ title, value, icon, color, loading, onClick, trend, trendLabel, animationDelay = 0 }: any) {
   const { t } = useTranslation();
@@ -113,6 +114,7 @@ export default function DashboardPageClient() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { isAuthenticated, user, hasRole } = useAuth();
+  const { formatCurrency } = useCurrency();
   const theme = useTheme();
   const currentLanguage = i18n.resolvedLanguage || i18n.language || 'ar';
   const isRTL = theme.direction === 'rtl' || currentLanguage.startsWith('ar');
@@ -500,7 +502,7 @@ export default function DashboardPageClient() {
           <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{isEmployeeOnly ? t('dashboard.openCases', { defaultValue: 'Open Cases' }) : (t('billing.title') || 'Billing')}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
-              {isEmployeeOnly ? employeeMetrics.openCases.toLocaleString(locale) : stats.revenueThisMonth.toLocaleString(locale, { maximumFractionDigits: 2 })}
+              {isEmployeeOnly ? employeeMetrics.openCases.toLocaleString(locale) : formatCurrency(stats.revenueThisMonth)}
             </Typography>
             {!isEmployeeOnly && (
               <Typography variant="caption" color={stats.revenueTrend >= 0 ? 'success.main' : 'error.main'} fontWeight={700}>

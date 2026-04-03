@@ -82,7 +82,7 @@ export default function ProfilePage() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isRTL = theme.direction === "rtl";
-  const { isAuthenticated, setAuthToken, hasAnyRole } = useAuth();
+  const { isAuthenticated, setAuthToken, hasAnyRole, syncUserProfile } = useAuth();
   const canEditTenant = hasAnyRole("Admin", "SuperAdmin");
 
   const [profile, setProfile] = useState<MyProfile>(emptyProfile);
@@ -206,6 +206,12 @@ export default function ProfilePage() {
       if (typeof res.data?.token === "string" && res.data.token.length > 0) {
         setAuthToken(res.data.token);
       }
+
+      syncUserProfile({
+        countryId: updatedProfile.countryId,
+        countryName: countries.find((item) => item.id === updatedProfile.countryId)?.name ?? "",
+        tenantName: updatedProfile.tenantName,
+      });
 
       setProfile(updatedProfile);
       setInitialProfile(updatedProfile);

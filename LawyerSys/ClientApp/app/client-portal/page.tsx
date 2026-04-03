@@ -24,6 +24,7 @@ import {
   useTheme,
 } from "@mui/material";
 import api from "../../src/services/api";
+import { useCurrency } from "../../src/hooks/useCurrency";
 
 type RequestedDocument = {
   id: number;
@@ -101,6 +102,7 @@ export default function ClientPortalPage() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
+  const { formatCurrency } = useCurrency();
   const isRTL = theme.direction === "rtl";
   const locale = isRTL ? "ar" : (i18n.resolvedLanguage || "en");
   const statusLabels = t("clientPortal.statuses", { returnObjects: true }) as string[];
@@ -151,6 +153,7 @@ export default function ClientPortalPage() {
   }, [data, selectedCaseCode]);
 
   const formatNumber = (value: number) => value.toLocaleString(locale);
+  const formatMoney = (value: number) => formatCurrency(Number(value || 0));
   const formatDate = (value?: string | null) => {
     if (!value) return "-";
     const parsed = new Date(value);
@@ -354,7 +357,7 @@ export default function ClientPortalPage() {
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">{t("clientPortal.totalCaseValue")}</Typography>
-              <Typography variant="h6">{formatNumber(data?.billing?.casesTotalAmount ?? 0)}</Typography>
+              <Typography variant="h6">{formatMoney(data?.billing?.casesTotalAmount ?? 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -362,7 +365,7 @@ export default function ClientPortalPage() {
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">{t("clientPortal.totalPaid")}</Typography>
-              <Typography variant="h6">{formatNumber(data?.billing?.totalPayments ?? 0)}</Typography>
+              <Typography variant="h6">{formatMoney(data?.billing?.totalPayments ?? 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -370,7 +373,7 @@ export default function ClientPortalPage() {
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">{t("clientPortal.outstanding")}</Typography>
-              <Typography variant="h6">{formatNumber(data?.billing?.outstandingBalance ?? 0)}</Typography>
+              <Typography variant="h6">{formatMoney(data?.billing?.outstandingBalance ?? 0)}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -591,7 +594,7 @@ export default function ClientPortalPage() {
                     ? data?.payments.map((item) => (
                         <TableRow key={item.id}>
                           <TableCell>{formatDate(item.date)}</TableCell>
-                          <TableCell>{formatNumber(item.amount)}</TableCell>
+                          <TableCell>{formatMoney(item.amount)}</TableCell>
                           <TableCell>{item.notes || "-"}</TableCell>
                           <TableCell>
                             <Button
@@ -680,7 +683,7 @@ export default function ClientPortalPage() {
                     ? data?.paymentProofs.slice(0, 5).map((item) => (
                         <TableRow key={item.id}>
                           <TableCell>{formatDate(item.paymentDate)}</TableCell>
-                          <TableCell>{formatNumber(item.amount)}</TableCell>
+                          <TableCell>{formatMoney(item.amount)}</TableCell>
                           <TableCell>{formatRequestStatus(item.status)}</TableCell>
                         </TableRow>
                       ))

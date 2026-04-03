@@ -36,6 +36,7 @@ import {
 } from "@mui/icons-material";
 import api from "../src/services/api";
 import { useAuth } from "../src/services/auth";
+import { useCurrency } from "../src/hooks/useCurrency";
 import PublicSiteShell from "../src/components/public/PublicSiteShell";
 import {
   buildLandingData,
@@ -124,6 +125,7 @@ export default function LandingPage() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const { isAuthenticated, isAuthInitialized } = useAuth();
+  const { formatCurrency } = useCurrency();
   const currentLanguage = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar") ? "ar" : "en";
   const isRTL = currentLanguage === "ar";
   const fallbackData = useMemo(() => getDefaultLandingPage(t), [t]);
@@ -873,7 +875,7 @@ export default function LandingPage() {
                       {t("subscription.public.startsFrom", { defaultValue: "Starts from" })}
                     </Typography>
                     <Typography variant="subtitle1" sx={{ fontWeight: 900, mt: 0.5 }}>
-                      {card.price.toFixed(0)} {card.currency}
+                      {formatCurrency(card.price)}
                     </Typography>
                   </Paper>
 

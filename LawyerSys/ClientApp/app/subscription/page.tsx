@@ -22,6 +22,7 @@ import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import { useTranslation } from "react-i18next";
 import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
+import { useCurrency } from "../../src/hooks/useCurrency";
 
 type PackageCycleOption = {
   subscriptionPackageId: number;
@@ -78,6 +79,7 @@ type CurrentSubscription = {
 export default function SubscriptionPage() {
   const { t } = useTranslation();
   const { hasRole } = useAuth();
+  const { formatCurrency } = useCurrency();
   const [data, setData] = useState<CurrentSubscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -116,12 +118,12 @@ export default function SubscriptionPage() {
     if (!data) return [];
 
     return [
-      { key: "price", value: `${data.price.toFixed(0)} ${data.currency}` },
+      { key: "price", value: formatCurrency(data.price) },
       { key: "status", value: t(`subscription.status.${data.status.toLowerCase()}`, { defaultValue: data.status }) },
       { key: "nextBilling", value: new Date(data.nextBillingDateUtc).toLocaleDateString() },
       { key: "endDate", value: new Date(data.endDateUtc).toLocaleDateString() },
     ];
-  }, [data, t]);
+  }, [data, formatCurrency, t]);
 
   const changePackage = async (packageId: number) => {
     setPendingPackageId(packageId);
@@ -215,7 +217,7 @@ export default function SubscriptionPage() {
                   </Typography>
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
                     <Chip label={t(`subscription.billingCycle.${data.billingCycle.toLowerCase()}`, { defaultValue: data.billingCycle })} />
-                    <Chip color="primary" label={`${data.price.toFixed(0)} ${data.currency}`} />
+                    <Chip color="primary" label={formatCurrency(data.price)} />
                   </Box>
                   <Box sx={{ display: "grid", gap: 0.75, mb: 2 }}>
                     {(data.packageFeatures || []).map((feature) => (
@@ -254,14 +256,14 @@ export default function SubscriptionPage() {
                             <Chip
                               size="small"
                               color={pkg.monthlyOption.subscriptionPackageId === data.packageId ? "primary" : "default"}
-                              label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${pkg.monthlyOption.price.toFixed(0)} ${pkg.monthlyOption.currency}`}
+                              label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${formatCurrency(pkg.monthlyOption.price)}`}
                             />
                           )}
                           {pkg.annualOption && (
                             <Chip
                               size="small"
                               color={pkg.annualOption.subscriptionPackageId === data.packageId ? "primary" : "default"}
-                              label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${pkg.annualOption.price.toFixed(0)} ${pkg.annualOption.currency}`}
+                              label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${formatCurrency(pkg.annualOption.price)}`}
                             />
                           )}
                         </Box>
@@ -315,7 +317,7 @@ export default function SubscriptionPage() {
                   <TableRow key={transaction.id} hover>
                     <TableCell>{transaction.packageName}</TableCell>
                     <TableCell>{t(`subscription.billingCycle.${transaction.billingCycle.toLowerCase()}`, { defaultValue: transaction.billingCycle })}</TableCell>
-                    <TableCell>{transaction.amount.toFixed(2)} {transaction.currency}</TableCell>
+                    <TableCell>{formatCurrency(transaction.amount)}</TableCell>
                     <TableCell>{new Date(transaction.dueDateUtc).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Chip

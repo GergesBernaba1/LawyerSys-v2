@@ -28,6 +28,7 @@ import { Grid } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import api from "../../src/services/api";
 import { useAuth } from "../../src/services/auth";
+import { useCurrency } from "../../src/hooks/useCurrency";
 import SearchableMultiSelect from "../../src/components/SearchableMultiSelect";
 import type { SearchableOption } from "../../src/components/SearchableSelect";
 
@@ -327,6 +328,7 @@ export default function AdministrationPage() {
   const theme = useTheme();
   const router = useRouter();
   const { user, isAuthenticated, hasRole } = useAuth();
+  const { formatCurrency } = useCurrency();
   const isRTL = theme.direction === "rtl";
   const isAdmin = hasRole("Admin");
   const isSuperAdmin = hasRole("SuperAdmin");
@@ -864,8 +866,8 @@ export default function AdministrationPage() {
                               <Typography variant="caption" color="text.secondary">{pkg.nameAr}</Typography>
                             </TableCell>
                             <TableCell>{t(`subscription.officeSize.${pkg.officeSize.toLowerCase()}`, { defaultValue: pkg.officeSize })}</TableCell>
-                            <TableCell>{pkg.monthlyPrice.toFixed(2)} {pkg.currency}</TableCell>
-                            <TableCell>{pkg.annualPrice.toFixed(2)} {pkg.currency}</TableCell>
+                            <TableCell>{formatCurrency(pkg.monthlyPrice)}</TableCell>
+                            <TableCell>{formatCurrency(pkg.annualPrice)}</TableCell>
                             <TableCell>
                               <Chip
                                 size="small"
@@ -1000,7 +1002,7 @@ export default function AdministrationPage() {
                             {t(`subscription.billingCycle.${transaction.billingCycle.toLowerCase()}`, { defaultValue: transaction.billingCycle })}
                           </Typography>
                         </TableCell>
-                        <TableCell>{transaction.amount.toFixed(2)} {transaction.currency}</TableCell>
+                        <TableCell>{formatCurrency(transaction.amount)}</TableCell>
                         <TableCell>{new Date(transaction.dueDateUtc).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Chip

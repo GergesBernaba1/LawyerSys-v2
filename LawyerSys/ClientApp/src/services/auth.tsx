@@ -34,6 +34,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   hasRole: (role: string) => boolean;
   hasAnyRole: (...roles: string[]) => boolean;
+  syncUserProfile: (profile: Partial<Pick<User, 'countryId' | 'countryName' | 'tenantId' | 'tenantName'>>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -237,10 +238,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return roles.some(role => user?.roles?.includes(role)) ?? false;
   }
 
+  function syncUserProfile(profile: Partial<Pick<User, 'countryId' | 'countryName' | 'tenantId' | 'tenantName'>>) {
+    setUser((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        countryId: profile.countryId ?? current.countryId,
+        countryName: profile.countryName ?? current.countryName,
+        tenantId: profile.tenantId ?? current.tenantId,
+        tenantName: profile.tenantName ?? current.tenantName,
+      };
+    });
+  }
+
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, user, isAuthInitialized, login, register, setAuthToken, logout, isAuthenticated, hasRole, hasAnyRole }}>
+    <AuthContext.Provider value={{ token, user, isAuthInitialized, login, register, setAuthToken, logout, isAuthenticated, hasRole, hasAnyRole, syncUserProfile }}>
       {children}
     </AuthContext.Provider>
   )
