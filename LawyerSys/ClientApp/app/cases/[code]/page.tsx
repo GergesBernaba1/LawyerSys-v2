@@ -1,5 +1,5 @@
 ﻿"use client"
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
@@ -249,10 +249,10 @@ export default function CaseDetailsPage() {
 
   const { hasAnyRole, user } = useAuth();
   const { formatCurrency } = useCurrency();
-  const translateText = (key: string, defaultValue: string) => {
+  const translateText = useCallback((key: string, defaultValue: string) => {
     const translated = t(key, { defaultValue });
     return translated === key ? defaultValue : translated;
-  };
+  }, [t]);
   const canManageCase = hasAnyRole('Admin', 'Employee');
   const isCustomerOnly = Boolean(user?.roles?.includes('Customer') && !hasAnyRole('SuperAdmin', 'Admin', 'Employee'));
   const caseTypeOptions = CASE_TYPE_VALUES.map((value) => ({
@@ -362,7 +362,7 @@ export default function CaseDetailsPage() {
     return '';
   }
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const requests = [
@@ -379,9 +379,9 @@ export default function CaseDetailsPage() {
     } catch (err: any) {
       setSnackbar({ open: true, message: err?.response?.data?.message ?? t('cases.failedLoadCase', { defaultValue: 'Failed to load case' }), severity: 'error' });
     } finally { setLoading(false); }
-  }
+  }, [code, isCustomerOnly, t]);
 
-  useEffect(() => { if (code) load(); }, [code, isCustomerOnly]);
+  useEffect(() => { if (code) void load(); }, [code, load]);
   useEffect(() => {
     if (!canManageCase) {
       setStatusOptions([]);
@@ -398,19 +398,26 @@ export default function CaseDetailsPage() {
     })();
   }, [canManageCase]);
 
-  // initialize edit fields when data loads
+  // initialize edit fields when API payload changes
   useEffect(() => {
-    if (!caseInfo) return;
+    const normalizedCase = normalizeCaseInfo(data?.Case ?? data?.case);
+    if (!normalizedCase) return;
+
     setEditFields({
-      invitionsStatment: caseInfo.InvitionsStatment ?? '',
-      invitionType: caseInfo.InvitionType ?? '',
-      invitionDate: caseInfo.InvitionDate ?? '',
-      totalAmount: caseInfo.TotalAmount ?? 0,
-      notes: caseInfo.Notes ?? '',
+      invitionsStatment: normalizedCase.InvitionsStatment ?? '',
+      invitionType: normalizedCase.InvitionType ?? '',
+      invitionDate: normalizedCase.InvitionDate ?? '',
+      totalAmount: normalizedCase.TotalAmount ?? 0,
+      notes: normalizedCase.Notes ?? '',
     });
-    // set selected court if present
-    if (caseCourts.length > 0) setSelectedCourtToSet(caseCourts[0].CourtId || caseCourts[0].Id);
-  }, [caseInfo, caseCourts]);
+
+    const normalizedCourts = (data?.Courts ?? data?.courts ?? []).map(normalizeCourt);
+    if (normalizedCourts.length > 0) {
+      setSelectedCourtToSet(normalizedCourts[0].CourtId || normalizedCourts[0].Id);
+    } else {
+      setSelectedCourtToSet('');
+    }
+  }, [data]);
 
   async function removeCustomer(customerId:number){
     try{ await api.delete(`/cases/${code}/customers/${customerId}`); setSnackbar({ open: true, message: t('customers.customerDeleted'), severity: 'success' }); await load(); }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('cases.failedRemoveCustomer', { defaultValue: 'Failed to remove customer' }), severity: 'error' }); }
@@ -457,13 +464,32 @@ export default function CaseDetailsPage() {
       if (editFields.notes != null) payload.Notes = editFields.notes;
       await api.put(`/Cases/${code}`, payload);
 
-      // Update court: remove existing courts and add selected if provided
+      // Update court with optimal history semantics:
+      // - replace old->new via dedicated change endpoint (single "Changed" history record)
+      // - otherwise keep add/remove behavior for multi-court edge cases
+      const existingCourtIds = Array.from(new Set((caseCourts || [])
+        .map((c:any) => Number(c.CourtId || c.Id))
+        .filter((id:number) => Number.isFinite(id) && id > 0)));
+
       if (selectedCourtToSet !== ''){
-        // remove all current
-        for (const c of caseCourts || []){
-          try{ await api.delete(`/cases/${code}/courts/${c.CourtId || c.Id}`); }catch(e){}
+        const targetCourtId = Number(selectedCourtToSet);
+        if (existingCourtIds.length === 1 && existingCourtIds[0] !== targetCourtId){
+          await api.put(`/cases/${code}/courts/${existingCourtIds[0]}/change/${targetCourtId}`);
+        } else {
+          for (const existingId of existingCourtIds){
+            if (existingId !== targetCourtId){
+              try{ await api.delete(`/cases/${code}/courts/${existingId}`); }catch(e){}
+            }
+          }
+
+          if (!existingCourtIds.includes(targetCourtId)){
+            try{ await api.post(`/cases/${code}/courts/${targetCourtId}`); }catch(e){}
+          }
         }
-        try{ await api.post(`/cases/${code}/courts/${selectedCourtToSet}`); }catch(e){}
+      } else {
+        for (const existingId of existingCourtIds){
+          try{ await api.delete(`/cases/${code}/courts/${existingId}`); }catch(e){}
+        }
       }
 
       setSnackbar({ open:true, message: t('cases.caseUpdated', { defaultValue: 'Case updated' }), severity: 'success' });
@@ -702,30 +728,33 @@ export default function CaseDetailsPage() {
     const numeric = Number(value ?? 0);
     return Number.isFinite(numeric) ? formatCurrency(numeric) : '-';
   };
-  const tabs: Array<{ value: CaseTabKey; label: string }> = isCustomerOnly
-    ? [
-        { value: 'overview', label: translateText('cases.general', 'General') },
-        { value: 'sitings', label: translateText('cases.sitings', 'Hearings') },
-        { value: 'files', label: translateText('files.title', 'Files') },
-        { value: 'documents', label: translateText('clientPortal.myDocuments', 'My Documents') },
-        { value: 'payments', label: translateText('clientPortal.myPayments', 'My Payments') },
-        { value: 'requestedDocuments', label: translateText('cases.requestedDocuments.title', 'Requested Documents') },
-        { value: 'paymentProofs', label: translateText('cases.paymentProofs.title', 'Payment Proofs') },
-        { value: 'conversation', label: translateText('cases.conversation.title', 'Case Conversation') },
-        { value: 'history', label: translateText('cases.history', 'History') },
-      ]
-    : [
-        { value: 'overview', label: translateText('cases.general', 'General') },
-        { value: 'parties', label: translateText('cases.relatedCustomers', 'Related Parties') },
-        { value: 'sitings', label: translateText('cases.sitings', 'Hearings') },
-        { value: 'files', label: translateText('files.title', 'Files') },
-        { value: 'requestedDocuments', label: translateText('cases.requestedDocuments.title', 'Requested Documents') },
-        { value: 'paymentProofs', label: translateText('cases.paymentProofs.title', 'Payment Proofs') },
-        { value: 'conversation', label: translateText('cases.conversation.title', 'Case Conversation') },
-        { value: 'history', label: translateText('cases.history', 'History') },
-        { value: 'courts', label: translateText('cases.courts', 'Courts') },
-        { value: 'employees', label: translateText('cases.employees', 'Employees') },
-      ];
+  const tabs: Array<{ value: CaseTabKey; label: string }> = useMemo(
+    () => (isCustomerOnly
+      ? [
+          { value: 'overview', label: translateText('cases.general', 'General') },
+          { value: 'sitings', label: translateText('cases.sitings', 'Hearings') },
+          { value: 'files', label: translateText('files.title', 'Files') },
+          { value: 'documents', label: translateText('clientPortal.myDocuments', 'My Documents') },
+          { value: 'payments', label: translateText('clientPortal.myPayments', 'My Payments') },
+          { value: 'requestedDocuments', label: translateText('cases.requestedDocuments.title', 'Requested Documents') },
+          { value: 'paymentProofs', label: translateText('cases.paymentProofs.title', 'Payment Proofs') },
+          { value: 'conversation', label: translateText('cases.conversation.title', 'Case Conversation') },
+          { value: 'history', label: translateText('cases.history', 'History') },
+        ]
+      : [
+          { value: 'overview', label: translateText('cases.general', 'General') },
+          { value: 'parties', label: translateText('cases.relatedCustomers', 'Related Parties') },
+          { value: 'sitings', label: translateText('cases.sitings', 'Hearings') },
+          { value: 'files', label: translateText('files.title', 'Files') },
+          { value: 'requestedDocuments', label: translateText('cases.requestedDocuments.title', 'Requested Documents') },
+          { value: 'paymentProofs', label: translateText('cases.paymentProofs.title', 'Payment Proofs') },
+          { value: 'conversation', label: translateText('cases.conversation.title', 'Case Conversation') },
+          { value: 'history', label: translateText('cases.history', 'History') },
+          { value: 'courts', label: translateText('cases.courts', 'Courts') },
+          { value: 'employees', label: translateText('cases.employees', 'Employees') },
+        ]),
+    [isCustomerOnly, translateText]
+  );
   const isTabActive = (tab: CaseTabKey) => activeTab === tab;
   const isPrimaryGroupTabActive = isTabActive('overview') || (!isCustomerOnly && isTabActive('parties'));
   const isSecondaryGroupTabActive =
@@ -874,7 +903,9 @@ export default function CaseDetailsPage() {
                     value={typeof selectedCourtToSet === 'number' ? selectedCourtToSet : null}
                     onOpen={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []); } }}
                     onChange={(value)=>setSelectedCourtToSet(value ?? '')}
-                    options={courtsList.map((c)=> ({ value: c.id, label: c.name }))}
+                    options={courtsList
+                      .map((c:any)=> ({ value: Number(c.id ?? c.Id), label: c.name ?? c.Name }))
+                      .filter((o)=> Number.isFinite(o.value) && !!o.label)}
                   />
                 </Box>
               )}
@@ -1170,8 +1201,40 @@ export default function CaseDetailsPage() {
             {!isCustomerOnly && isTabActive('courts') && <Card sx={{ mt:2 }}><CardContent>
               <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <Typography variant="h6">{translateText('cases.courts', 'Courts')}</Typography>
-                {canManageCase && <Button size="small" onClick={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []);} setSelectedCourtToSet(caseCourts?.[0]?.CourtId || caseCourts?.[0]?.Id || ''); setEditing(true); }}>{t('app.edit') || 'Edit'}</Button>}
+                {canManageCase && (!editing ? (
+                  <Button
+                    size="small"
+                    onClick={async ()=>{
+                      if(courtsList.length===0){
+                        const r = await api.get('/Courts');
+                        setCourtsList(r.data || []);
+                      }
+                      setSelectedCourtToSet(caseCourts?.[0]?.CourtId || caseCourts?.[0]?.Id || '');
+                      setEditing(true);
+                    }}
+                  >
+                    {t('app.edit') || 'Edit'}
+                  </Button>
+                ) : (
+                  <Box sx={{ display:'flex', gap:1 }}>
+                    <Button size="small" onClick={cancelEditing}>{t('app.cancel') || 'Cancel'}</Button>
+                    <Button size="small" variant="contained" onClick={saveCaseEdits}>{t('app.save') || 'Save'}</Button>
+                  </Box>
+                ))}
               </Box>
+              {canManageCase && editing && (
+                <Box sx={{ mt: 1.5, mb: 1.5, maxWidth: 420 }}>
+                  <SearchableSelect<number>
+                    label={t('courts.name')}
+                    value={typeof selectedCourtToSet === 'number' ? selectedCourtToSet : null}
+                    onOpen={async ()=>{ if(courtsList.length===0){ const r = await api.get('/Courts'); setCourtsList(r.data || []); } }}
+                    onChange={(value)=>setSelectedCourtToSet(value ?? '')}
+                    options={courtsList
+                      .map((c:any)=> ({ value: Number(c.id ?? c.Id), label: c.name ?? c.Name }))
+                      .filter((o)=> Number.isFinite(o.value) && !!o.label)}
+                  />
+                </Box>
+              )}
               <List>
                 {caseCourts.map((c:any)=> (<ListItem key={c.Id}><ListItemText primary={c.CourtName || c.Name} /></ListItem>))}
               </List>

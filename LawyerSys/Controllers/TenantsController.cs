@@ -18,17 +18,20 @@ public class TenantsController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IInAppNotificationService _inAppNotificationService;
     private readonly ITenantSubscriptionService _tenantSubscriptionService;
+    private readonly IWebHostEnvironment _env;
 
     public TenantsController(
         ApplicationDbContext applicationDbContext,
         UserManager<ApplicationUser> userManager,
         IInAppNotificationService inAppNotificationService,
-        ITenantSubscriptionService tenantSubscriptionService)
+        ITenantSubscriptionService tenantSubscriptionService,
+        IWebHostEnvironment env)
     {
         _applicationDbContext = applicationDbContext;
         _userManager = userManager;
         _inAppNotificationService = inAppNotificationService;
         _tenantSubscriptionService = tenantSubscriptionService;
+        _env = env;
     }
 
     [AllowAnonymous]
@@ -49,10 +52,35 @@ public class TenantsController : ControllerBase
                     ? tenant.Country.NameAr
                     : tenant.Country != null ? tenant.Country.Name : string.Empty,
                 UserCount = tenant.Users.Count,
+                LogoUrl = string.IsNullOrWhiteSpace(tenant.LogoPath) ? string.Empty : $"/api/Tenants/{tenant.Id}/logo",
             })
             .ToListAsync();
 
         return Ok(items);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id:int}/logo")]
+    public async Task<IActionResult> GetPublicTenantLogo(int id)
+    {
+        var logoPath = await _applicationDbContext.Tenants
+            .AsNoTracking()
+            .Where(tenant => tenant.Id == id && tenant.IsActive && tenant.Name != DefaultFirmName)
+            .Select(tenant => tenant.LogoPath)
+            .SingleOrDefaultAsync();
+
+        if (string.IsNullOrWhiteSpace(logoPath))
+        {
+            return NotFound();
+        }
+
+        if (!TryResolveTrustedFilePath(logoPath, out var fullPath) || !System.IO.File.Exists(fullPath))
+        {
+            return NotFound();
+        }
+
+        var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(stream, GetContentType(fullPath));
     }
 
     [HttpGet("available")]
@@ -237,6 +265,32 @@ public class TenantsController : ControllerBase
             .AsNoTracking()
             .SingleOrDefaultAsync(user => user.Id == currentUserId);
     }
+
+    private bool TryResolveTrustedFilePath(string? path, out string fullPath)
+    {
+        fullPath = string.Empty;
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        var normalized = path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        var uploadsRoot = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "Uploads"));
+        var resolved = Path.GetFullPath(Path.Combine(_env.ContentRootPath, normalized));
+        if (!resolved.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        fullPath = resolved;
+        return true;
+    }
+
+    private static string GetContentType(string path) => Path.GetExtension(path).ToLowerInvariant() switch
+    {
+        ".png" => "image/png",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".gif" => "image/gif",
+        ".bmp" => "image/bmp",
+        ".webp" => "image/webp",
+        _ => "application/octet-stream"
+    };
 }
 
 public class TenantSelectionDto
@@ -272,4 +326,5 @@ public class PublicTenantPartnerDto
     public string Name { get; set; } = string.Empty;
     public string CountryName { get; set; } = string.Empty;
     public int UserCount { get; set; }
+    public string LogoUrl { get; set; } = string.Empty;
 }

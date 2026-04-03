@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.DTOs;
+using LawyerSys.Resources;
+using Microsoft.Extensions.Localization;
 using Microsoft.EntityFrameworkCore;
 using LawyerSys.Services.Notifications;
 
@@ -15,6 +17,7 @@ namespace LawyerSys.Services
         private readonly LegacyDbContext _context;
         private readonly IUserContext _userContext;
         private readonly IInAppNotificationService _inAppNotificationService;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         private static readonly Dictionary<CaseStatus, CaseStatus[]> AllowedStatusTransitions = new()
         {
@@ -29,11 +32,13 @@ namespace LawyerSys.Services
         public CaseService(
             LegacyDbContext context,
             IUserContext userContext,
-            IInAppNotificationService inAppNotificationService)
+            IInAppNotificationService inAppNotificationService,
+            IStringLocalizer<SharedResource> localizer)
         {
             _context = context;
             _userContext = userContext;
             _inAppNotificationService = inAppNotificationService;
+            _localizer = localizer;
         }
 
         public async Task<IEnumerable<CaseDto>> GetCasesAsync(string? search = null)
@@ -264,6 +269,7 @@ namespace LawyerSys.Services
             var assign = new Cases_Employee { Case_Code = caseCode, Employee_Id = employee.id };
             _context.Cases_Employees.Add(assign);
             await _context.SaveChangesAsync();
+            await _inAppNotificationService.NotifyEmployeeCaseAssignedAsync(employee.id, caseCode);
         }
 
         public async Task UnassignEmployeeAsync(int caseCode)
@@ -377,6 +383,37 @@ namespace LawyerSys.Services
             return list;
         }
 
+        public async Task<IEnumerable<CaseCourtHistoryDto>> GetCourtHistoryAsync(int code)
+        {
+            var exists = await _context.Cases.AnyAsync(c => c.Code == code);
+            if (!exists)
+                throw new ArgumentException("Case not found");
+
+            var list = await _context.CaseCourtHistories
+                .AsNoTracking()
+                .Where(h => h.Case_Id == code)
+                .OrderByDescending(h => h.ChangedAt)
+                .Select(h => new CaseCourtHistoryDto
+                {
+                    Id = h.Id,
+                    CaseId = h.Case_Id,
+                    OldCourtId = h.OldCourt_Id,
+                    NewCourtId = h.NewCourt_Id,
+                    OldCourtName = h.OldCourt_Name,
+                    NewCourtName = h.NewCourt_Name,
+                    ChangeType = h.ChangeType == "Removed"
+                        ? CaseCourtChangeType.Removed
+                        : h.ChangeType == "Changed"
+                            ? CaseCourtChangeType.Changed
+                            : CaseCourtChangeType.Added,
+                    ChangedBy = h.ChangedBy,
+                    ChangedAt = h.ChangedAt
+                })
+                .ToListAsync();
+
+            return list;
+        }
+
         public async Task<CaseTimelineDto> GetCaseTimelineAsync(int code)
         {
             var caseEntity = await _context.Cases.FirstOrDefaultAsync(c => c.Code == code);
@@ -452,6 +489,29 @@ namespace LawyerSys.Services
                 Title = "Status Changed",
                 Description = $"{MapStatusLabel((CaseStatus)s.OldStatus)} → {MapStatusLabel((CaseStatus)s.NewStatus)} by {s.ChangedBy ?? "Unknown"}",
                 EntityId = s.Id
+            }));
+
+            var courtChanges = await _context.CaseCourtHistories
+                .AsNoTracking()
+                .Where(h => h.Case_Id == code)
+                .OrderBy(h => h.ChangedAt)
+                .ToListAsync();
+
+            events.AddRange(courtChanges.Select(change => new CaseTimelineEventDto
+            {
+                Category = "Court",
+                OccurredAt = change.ChangedAt,
+                Title = change.ChangeType == "Removed"
+                    ? _localizer["Timeline_CourtRemoved"].Value
+                    : change.ChangeType == "Changed"
+                        ? _localizer["Timeline_CourtChanged"].Value
+                        : _localizer["Timeline_CourtAdded"].Value,
+                Description = change.ChangeType == "Removed"
+                    ? _localizer["Timeline_CourtRemovedDesc", change.OldCourt_Name ?? "-", change.ChangedBy ?? _localizer["Timeline_UnknownActor"].Value].Value
+                    : change.ChangeType == "Changed"
+                        ? _localizer["Timeline_CourtChangedDesc", change.OldCourt_Name ?? "-", change.NewCourt_Name ?? "-", change.ChangedBy ?? _localizer["Timeline_UnknownActor"].Value].Value
+                        : _localizer["Timeline_CourtAddedDesc", change.NewCourt_Name ?? "-", change.ChangedBy ?? _localizer["Timeline_UnknownActor"].Value].Value,
+                EntityId = change.Id
             }));
 
             var billingEvents = await _context.Billing_Pays

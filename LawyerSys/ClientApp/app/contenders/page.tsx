@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -32,7 +32,7 @@ export default function ContendersPage() {
   const [form, setForm] = useState({ fullName: '', ssn: '', birthDate: '', type: false });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get('/Contenders');
@@ -42,9 +42,9 @@ export default function ContendersPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   function openCreate() {
     setEditItem(null);

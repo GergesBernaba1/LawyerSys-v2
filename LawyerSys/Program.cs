@@ -9,6 +9,7 @@ using LawyerSys.Services.TimeTracking;
 using LawyerSys.Services.Intake;
 using LawyerSys.Services.AIAssistant;
 using LawyerSys.Services.CaseConversation;
+using LawyerSys.Services.CaseCourtHistory;
 using LawyerSys.Services.CustomerExperience;
 using LawyerSys.Services.Subscriptions;
 using LawyerSys.Services.TrustAccounting;
@@ -455,6 +456,16 @@ try
     catch (Exception ex)
     {
         Log.Error(ex, "Error during case conversation schema initialization");
+    }
+
+    try
+    {
+        var caseCourtHistoryInitializer = new CaseCourtHistorySchemaInitializer(scopedLegacy);
+        await caseCourtHistoryInitializer.EnsureCreatedAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during case court history schema initialization");
     }
 
     try

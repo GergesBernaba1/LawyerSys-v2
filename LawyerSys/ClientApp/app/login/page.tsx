@@ -149,11 +149,6 @@ export default function LoginPage() {
           </MuiLink>
         </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 2.5, lineHeight: 1.8 }}>
-          {isRTL
-            ? 'بعد تسجيل الدخول ستبقى نفس المسارات والإجراءات الأساسية متاحة داخل لوحة التحكم.'
-            : 'After signing in, the same routes and business-critical actions remain available inside the dashboard.'}
-        </Typography>
       </Box>
     </AuthSplitLayout>
   );

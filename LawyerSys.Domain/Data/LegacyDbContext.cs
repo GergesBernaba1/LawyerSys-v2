@@ -94,6 +94,8 @@ public partial class LegacyDbContext : DbContext
 
     public virtual DbSet<CaseStatusHistory> CaseStatusHistories { get; set; }
 
+    public virtual DbSet<CaseCourtHistory> CaseCourtHistories { get; set; }
+
     public virtual DbSet<Con_Lawyers_Custmor> Con_Lawyers_Custmors { get; set; }
 
     public virtual DbSet<Consltitions_Custmor> Consltitions_Custmors { get; set; }
@@ -342,6 +344,32 @@ public partial class LegacyDbContext : DbContext
                 .HasForeignKey(d => d.Case_Id)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_CaseStatusHistory_Cases");
+        });
+
+        modelBuilder.Entity<CaseCourtHistory>(entity =>
+        {
+            entity.ToTable("CaseCourtHistory");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OldCourt_Name).HasMaxLength(100);
+            entity.Property(e => e.NewCourt_Name).HasMaxLength(100);
+            entity.Property(e => e.ChangeType).HasMaxLength(24);
+            entity.Property(e => e.ChangedBy).HasMaxLength(256);
+            entity.Property(e => e.ChangedAt).HasColumnType("timestamp without time zone");
+
+            entity.HasOne(d => d.Case).WithMany(p => p.CaseCourtHistories)
+                .HasForeignKey(d => d.Case_Id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CaseCourtHistory_Cases");
+
+            entity.HasOne(d => d.OldCourt).WithMany(p => p.CaseCourtHistoryOldCourts)
+                .HasForeignKey(d => d.OldCourt_Id)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_CaseCourtHistory_OldCourt");
+
+            entity.HasOne(d => d.NewCourt).WithMany(p => p.CaseCourtHistoryNewCourts)
+                .HasForeignKey(d => d.NewCourt_Id)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_CaseCourtHistory_NewCourt");
         });
 
         modelBuilder.Entity<Cases_Contender>(entity =>
@@ -822,6 +850,7 @@ public partial class LegacyDbContext : DbContext
         ConfigureTenantEntity<Case>(modelBuilder);
         ConfigureTenantEntity<CaseConversationMessage>(modelBuilder);
         ConfigureTenantEntity<CaseStatusHistory>(modelBuilder);
+        ConfigureTenantEntity<CaseCourtHistory>(modelBuilder);
         ConfigureTenantEntity<Cases_Contender>(modelBuilder);
         ConfigureTenantEntity<Cases_Court>(modelBuilder);
         ConfigureTenantEntity<Cases_Employee>(modelBuilder);

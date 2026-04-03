@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -92,7 +92,7 @@ export default function CourtAutomationPage() {
   const [filingNotes, setFilingNotes] = useState("");
   const [filings, setFilings] = useState<FilingItem[]>([]);
 
-  async function loadPacks() {
+  const loadPacks = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -107,9 +107,9 @@ export default function CourtAutomationPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [language, packKey, t]);
 
-  async function loadPackDetails(key: string) {
+  const loadPackDetails = useCallback(async (key: string) => {
     if (!key) return;
     setError("");
     try {
@@ -129,7 +129,7 @@ export default function CourtAutomationPage() {
     } catch (err: any) {
       setError(err?.response?.data?.message || t("courtAutomation.failedLoadPack"));
     }
-  }
+  }, [caseCode, filingChannel, formKey, language, t]);
 
   async function calculateDeadlines() {
     if (!packKey) return;
@@ -215,13 +215,13 @@ export default function CourtAutomationPage() {
 
   useEffect(() => {
     void loadPacks();
-  }, [language]);
+  }, [loadPacks]);
 
   useEffect(() => {
     if (packKey) {
       void loadPackDetails(packKey);
     }
-  }, [packKey]);
+  }, [packKey, loadPackDetails]);
 
   const statusColor = (status: string): "default" | "success" | "warning" | "error" => {
     if (status === "Accepted") return "success";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
@@ -62,7 +62,7 @@ export default function CustomerMessagesPage() {
   const [threadFilter, setThreadFilter] = useState<ThreadFilter>("all");
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
-  async function loadOverview() {
+  const loadOverview = useCallback(async () => {
     const response = await api.get<PortalOverview>("/ClientPortal/overview");
     const nextCases = Array.isArray(response.data?.cases) ? response.data.cases : [];
     const nextThreads = Array.isArray(response.data?.conversationThreads) ? response.data.conversationThreads : [];
@@ -81,16 +81,16 @@ export default function CustomerMessagesPage() {
 
       return preferredCaseCode;
     });
-  }
+  }, [searchParams]);
 
-  async function loadConversation(caseCode: number) {
+  const loadConversation = useCallback(async (caseCode: number) => {
     const response = await api.get(`/cases/${caseCode}/conversation`);
     setConversation(Array.isArray(response.data) ? response.data : []);
-  }
+  }, []);
 
   useEffect(() => {
     void loadOverview().catch(() => setStatus({ type: "error", message: t("clientPortal.failedLoad") }));
-  }, [searchParams, t]);
+  }, [loadOverview, t]);
 
   useEffect(() => {
     if (!selectedCaseCode) {
@@ -101,7 +101,7 @@ export default function CustomerMessagesPage() {
     void loadConversation(Number(selectedCaseCode)).catch(() =>
       setStatus({ type: "error", message: t("cases.conversation.failedLoad", { defaultValue: "Failed to load conversation" }) })
     );
-  }, [selectedCaseCode, t]);
+  }, [selectedCaseCode, loadConversation, t]);
 
   const filteredThreads = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();

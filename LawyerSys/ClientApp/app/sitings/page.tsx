@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -41,7 +41,7 @@ export default function SitingsPage() {
   const [form, setForm] = useState({ sitingDate: '', sitingTime: '', sitingNotification: '', judgeName: '', notes: '' });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [sitingsRes, casesRes] = await Promise.all([
@@ -62,9 +62,9 @@ export default function SitingsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   function openCreate() {
     setEditItem(null);

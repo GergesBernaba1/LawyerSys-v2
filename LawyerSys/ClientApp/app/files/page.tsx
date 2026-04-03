@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -101,7 +101,7 @@ export default function FilesPageClient() {
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const r = await api.get('/Files');
@@ -111,9 +111,9 @@ export default function FilesPageClient() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   async function submitUpload() {
     if (!file) {

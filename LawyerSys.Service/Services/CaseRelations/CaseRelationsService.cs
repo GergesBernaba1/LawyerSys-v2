@@ -106,9 +106,25 @@ public sealed class CaseRelationsService : ICaseRelationsService
         if (await _legacyDbContext.Cases_Courts.AnyAsync(item => item.Case_Code == caseCode && item.Court_Id == courtId, cancellationToken))
             return ServiceResult<int>.Conflict("AlreadyLinked", "Court", "case");
 
+        var courtName = await _legacyDbContext.Courts
+            .Where(court => court.Id == courtId)
+            .Select(court => court.Name)
+            .FirstOrDefaultAsync(cancellationToken) ?? string.Empty;
+
         var relation = new Cases_Court { Case_Code = caseCode, Court_Id = courtId };
         _legacyDbContext.Cases_Courts.Add(relation);
         await _legacyDbContext.SaveChangesAsync(cancellationToken);
+
+        await RecordCaseCourtHistoryAsync(
+            caseCode,
+            oldCourtId: null,
+            oldCourtName: null,
+            newCourtId: courtId,
+            newCourtName: courtName,
+            changeType: "Added",
+            cancellationToken);
+
+        await _notificationService.NotifyCaseCourtAddedAsync(caseCode, courtId, courtName, cancellationToken);
         return ServiceResult<int>.Success(relation.Id);
     }
 
@@ -120,6 +136,74 @@ public sealed class CaseRelationsService : ICaseRelationsService
 
         _legacyDbContext.Cases_Courts.Remove(relation);
         await _legacyDbContext.SaveChangesAsync(cancellationToken);
+
+        var courtName = await _legacyDbContext.Courts
+            .Where(court => court.Id == courtId)
+            .Select(court => court.Name)
+            .FirstOrDefaultAsync(cancellationToken) ?? string.Empty;
+
+        await RecordCaseCourtHistoryAsync(
+            caseCode,
+            oldCourtId: courtId,
+            oldCourtName: courtName,
+            newCourtId: null,
+            newCourtName: null,
+            changeType: "Removed",
+            cancellationToken);
+
+        await _notificationService.NotifyCaseCourtRemovedAsync(caseCode, courtId, courtName, cancellationToken);
+        return ServiceResult<bool>.Success(true);
+    }
+
+    public async Task<ServiceResult<bool>> ChangeCourtForCaseAsync(int caseCode, int oldCourtId, int newCourtId, CancellationToken cancellationToken = default)
+    {
+        if (oldCourtId == newCourtId)
+            return ServiceResult<bool>.Validation("CourtChangeSame");
+
+        var oldRelation = await _legacyDbContext.Cases_Courts
+            .FirstOrDefaultAsync(item => item.Case_Code == caseCode && item.Court_Id == oldCourtId, cancellationToken);
+        if (oldRelation == null)
+            return ServiceResult<bool>.NotFound("Relation");
+
+        var alreadyLinked = await _legacyDbContext.Cases_Courts
+            .AnyAsync(item => item.Case_Code == caseCode && item.Court_Id == newCourtId, cancellationToken);
+        if (alreadyLinked)
+            return ServiceResult<bool>.Conflict("AlreadyLinked", "Court", "case");
+
+        var oldCourtName = await _legacyDbContext.Courts
+            .Where(court => court.Id == oldCourtId)
+            .Select(court => court.Name)
+            .FirstOrDefaultAsync(cancellationToken) ?? string.Empty;
+
+        var newCourtName = await _legacyDbContext.Courts
+            .Where(court => court.Id == newCourtId)
+            .Select(court => court.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(newCourtName))
+            return ServiceResult<bool>.NotFound("Court");
+
+        _legacyDbContext.Cases_Courts.Remove(oldRelation);
+        _legacyDbContext.Cases_Courts.Add(new Cases_Court { Case_Code = caseCode, Court_Id = newCourtId });
+        await _legacyDbContext.SaveChangesAsync(cancellationToken);
+
+        await RecordCaseCourtHistoryAsync(
+            caseCode,
+            oldCourtId: oldCourtId,
+            oldCourtName: oldCourtName,
+            newCourtId: newCourtId,
+            newCourtName: newCourtName,
+            changeType: "Changed",
+            cancellationToken);
+
+        await _notificationService.NotifyCaseCourtChangedAsync(
+            caseCode,
+            oldCourtId,
+            oldCourtName,
+            newCourtId,
+            newCourtName,
+            cancellationToken);
+
         return ServiceResult<bool>.Success(true);
     }
 
@@ -138,6 +222,7 @@ public sealed class CaseRelationsService : ICaseRelationsService
         var relation = new Cases_Employee { Case_Code = caseCode, Employee_Id = employeeId };
         _legacyDbContext.Cases_Employees.Add(relation);
         await _legacyDbContext.SaveChangesAsync(cancellationToken);
+        await _notificationService.NotifyEmployeeCaseAssignedAsync(employeeId, caseCode, cancellationToken);
         return ServiceResult<int>.Success(relation.Id);
     }
 
@@ -285,5 +370,31 @@ public sealed class CaseRelationsService : ICaseRelationsService
         }
 
         return false;
+    }
+
+    private async Task RecordCaseCourtHistoryAsync(
+        int caseCode,
+        int? oldCourtId,
+        string? oldCourtName,
+        int? newCourtId,
+        string? newCourtName,
+        string changeType,
+        CancellationToken cancellationToken)
+    {
+        var operationContext = await _operationContextFactory.CreateAsync(cancellationToken);
+        var history = new LawyerSys.Data.ScaffoldedModels.CaseCourtHistory
+        {
+            Case_Id = caseCode,
+            OldCourt_Id = oldCourtId,
+            NewCourt_Id = newCourtId,
+            OldCourt_Name = oldCourtName,
+            NewCourt_Name = newCourtName,
+            ChangeType = changeType,
+            ChangedBy = operationContext.UserName ?? "System",
+            ChangedAt = DateTime.UtcNow
+        };
+
+        _legacyDbContext.CaseCourtHistories.Add(history);
+        await _legacyDbContext.SaveChangesAsync(cancellationToken);
     }
 }

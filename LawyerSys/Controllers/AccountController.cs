@@ -359,6 +359,7 @@ public class AccountController : ControllerBase
     {
         var user = await GetCurrentUserAsync();
         if (user == null) return Unauthorized(new { message = "User not found" });
+        var previousUserName = user.UserName;
 
         var requestedUserName = (model.UserName ?? string.Empty).Trim();
         var requestedEmail = (model.Email ?? string.Empty).Trim();
@@ -413,7 +414,7 @@ public class AccountController : ControllerBase
         user.PhoneNumber = string.IsNullOrWhiteSpace(requestedPhoneNumber) ? null : requestedPhoneNumber;
         user.CountryId = requestedCountryId;
 
-        var legacyUser = await FindLegacyUserAsync(user.UserName);
+        var legacyUser = await EnsureLegacyUserProfileAsync(user, previousUserName);
         if (legacyUser != null)
         {
             legacyUser.Address = string.IsNullOrWhiteSpace(requestedAddress) ? null : requestedAddress;
@@ -426,6 +427,8 @@ public class AccountController : ControllerBase
             {
                 legacyUser.Date_Of_Birth = model.DateOfBirth.Value;
             }
+
+            await _legacyDbContext.SaveChangesAsync();
         }
 
         if (await UserCanManageTenantAsync(user))
@@ -522,8 +525,8 @@ public class AccountController : ControllerBase
         var user = await GetCurrentUserAsync();
         if (user == null) return Unauthorized(new { message = "User not found" });
 
-        var legacyUser = await FindLegacyUserAsync(user.UserName);
-        if (legacyUser == null) return BadRequest(new { message = "Legacy user profile not found." });
+        var legacyUser = await EnsureLegacyUserProfileAsync(user);
+        if (legacyUser == null) return BadRequest(new { message = "Unable to create legacy user profile." });
 
         var storedPath = await SaveImageAsync(file, "profiles/users", extension);
         var previousPath = legacyUser.Profile_Image_Path;
@@ -928,7 +931,97 @@ public class AccountController : ControllerBase
             return null;
         }
 
-        return await _legacyDbContext.Users.SingleOrDefaultAsync(item => item.User_Name == userName);
+        var normalized = userName.Trim();
+        return await _legacyDbContext.Users
+            .FirstOrDefaultAsync(item => item.User_Name == normalized)
+            ?? await _legacyDbContext.Users
+                .FirstOrDefaultAsync(item => item.User_Name.ToLower() == normalized.ToLower());
+    }
+
+    private async Task<LawyerSys.Data.ScaffoldedModels.User?> EnsureLegacyUserProfileAsync(ApplicationUser user, string? previousUserName = null)
+    {
+        if (string.IsNullOrWhiteSpace(user.UserName))
+        {
+            return null;
+        }
+
+        var legacyUser = await FindLegacyUserAsync(user.UserName);
+        if (legacyUser == null && !string.IsNullOrWhiteSpace(previousUserName))
+        {
+            legacyUser = await FindLegacyUserAsync(previousUserName);
+        }
+
+        if (legacyUser != null)
+        {
+            if (!string.Equals(legacyUser.User_Name, user.UserName, StringComparison.Ordinal))
+            {
+                legacyUser.User_Name = TruncateLegacyValue(user.UserName, 50);
+            }
+
+            if (string.IsNullOrWhiteSpace(legacyUser.Full_Name))
+            {
+                legacyUser.Full_Name = TruncateLegacyValue(user.FullName ?? user.UserName, 50);
+            }
+
+            if (string.IsNullOrWhiteSpace(legacyUser.Job))
+            {
+                legacyUser.Job = "User";
+            }
+
+            if (string.IsNullOrWhiteSpace(legacyUser.Password))
+            {
+                legacyUser.Password = "N/A";
+            }
+
+            return legacyUser;
+        }
+
+        var nextId = (await _legacyDbContext.Users.MaxAsync(item => (int?)item.Id) ?? 0) + 1;
+        legacyUser = new LawyerSys.Data.ScaffoldedModels.User
+        {
+            Id = nextId,
+            Full_Name = TruncateLegacyValue(user.FullName ?? user.UserName, 50),
+            Address = null,
+            Job = "User",
+            Phon_Number = ParseLegacyPhoneNumber(user.PhoneNumber),
+            Date_Of_Birth = DateOnly.FromDateTime(DateTime.UtcNow),
+            SSN = 0,
+            User_Name = TruncateLegacyValue(user.UserName, 50),
+            Password = "N/A",
+            Profile_Image_Path = null
+        };
+
+        _legacyDbContext.Users.Add(legacyUser);
+        return legacyUser;
+    }
+
+    private static int ParseLegacyPhoneNumber(string? phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            return 0;
+        }
+
+        var digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+        if (int.TryParse(digitsOnly, out var parsed))
+        {
+            return parsed;
+        }
+
+        return 0;
+    }
+
+    private static string TruncateLegacyValue(string? value, int maxLength)
+    {
+        var normalized = (value ?? string.Empty).Trim();
+        if (normalized.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        return normalized.Length <= maxLength
+            ? normalized
+            : normalized[..maxLength];
     }
 
     private async Task<UserNotificationPreference> GetOrCreateNotificationPreferenceAsync(string userId)

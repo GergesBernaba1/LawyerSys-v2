@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -42,7 +42,7 @@ export default function AuditLogsPage() {
   const [search, setSearch] = useState('');
   const [action, setAction] = useState('');
 
-  async function load(p = page) {
+  const load = useCallback(async (p = 1) => {
     setLoading(true);
     setError('');
 
@@ -63,12 +63,12 @@ export default function AuditLogsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [pageSize, search, action]);
 
   useEffect(() => {
     void load(1);
     setPage(1);
-  }, [pageSize, action]);
+  }, [pageSize, action, load]);
 
   return (
     <Box>

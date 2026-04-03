@@ -17,6 +17,9 @@ public interface IInAppNotificationService
     Task NotifyCaseSitingCancelledAsync(int caseCode, int sitingId, CancellationToken cancellationToken = default);
     Task NotifyCaseDocumentAddedAsync(int caseCode, int documentId, string documentType, CancellationToken cancellationToken = default);
     Task NotifyCaseFileAddedAsync(int caseCode, int fileId, string fileCode, CancellationToken cancellationToken = default);
+    Task NotifyCaseCourtAddedAsync(int caseCode, int courtId, string courtName, CancellationToken cancellationToken = default);
+    Task NotifyCaseCourtRemovedAsync(int caseCode, int courtId, string courtName, CancellationToken cancellationToken = default);
+    Task NotifyCaseCourtChangedAsync(int caseCode, int? oldCourtId, string? oldCourtName, int? newCourtId, string? newCourtName, CancellationToken cancellationToken = default);
     Task NotifyCustomerPaymentRecordedAsync(int customerId, int paymentId, double amount, DateOnly paymentDate, CancellationToken cancellationToken = default);
     Task NotifyCaseConversationMessageAsync(int caseCode, string messagePreview, bool fromCustomer, bool visibleToCustomer, CancellationToken cancellationToken = default);
     Task NotifyRequestedDocumentCreatedAsync(int caseCode, long requestId, string title, CancellationToken cancellationToken = default);
@@ -24,6 +27,7 @@ public interface IInAppNotificationService
     Task NotifyRequestedDocumentReviewedAsync(int caseCode, long requestId, string title, bool approved, CancellationToken cancellationToken = default);
     Task NotifyPaymentProofSubmittedAsync(int caseCode, long proofId, double amount, CancellationToken cancellationToken = default);
     Task NotifyPaymentProofReviewedAsync(int caseCode, long proofId, double amount, bool approved, CancellationToken cancellationToken = default);
+    Task NotifyEmployeeCaseAssignedAsync(int employeeId, int caseCode, CancellationToken cancellationToken = default);
     Task NotifyEmployeeTaskAssignedAsync(int employeeId, int taskId, string taskName, DateTime reminderDate, CancellationToken cancellationToken = default);
     Task NotifyEmployeeLeadAssignedAsync(int employeeId, int leadId, string subject, DateTime? nextFollowUpAt, CancellationToken cancellationToken = default);
     Task NotifyEmployeeConsultationAssignedAsync(int employeeId, int consultationId, string subject, DateTime consultationDate, CancellationToken cancellationToken = default);

@@ -101,6 +101,16 @@ public class CaseRelationsController : ControllerBase
         return Ok(new { message = _localizer["RemovedFrom", "Court", "case"].Value });
     }
 
+    [Authorize(Policy = "EmployeeOrAdmin")]
+    [HttpPut("{caseCode}/courts/{oldCourtId}/change/{newCourtId}")]
+    public async Task<ActionResult> ChangeCourtForCase(int caseCode, int oldCourtId, int newCourtId)
+    {
+        var result = await _caseRelationsService.ChangeCourtForCaseAsync(caseCode, oldCourtId, newCourtId, HttpContext.RequestAborted);
+        if (!result.IsSuccess)
+            return MapServiceResult(result);
+        return Ok(new { message = _localizer["Updated"].Value });
+    }
+
     // ========== CASE - EMPLOYEE RELATIONS ==========
 
     [HttpGet("{caseCode}/employees")]

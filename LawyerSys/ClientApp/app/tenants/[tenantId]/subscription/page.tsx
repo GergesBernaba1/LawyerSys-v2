@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
@@ -126,11 +126,11 @@ export default function TenantSubscriptionAdminPage() {
   const [pendingAction, setPendingAction] = useState<Record<string, boolean>>({});
   const [pendingPackageId, setPendingPackageId] = useState<number | null>(null);
 
-  const formatDate = (value?: string | null) => {
+  const formatDate = useCallback((value?: string | null) => {
     return value ? new Intl.DateTimeFormat(locale).format(new Date(value)) : "-";
-  };
+  }, [locale]);
 
-  const formatCurrency = (amount: number) => formatProfileCurrency(amount);
+  const formatCurrency = useCallback((amount: number) => formatProfileCurrency(amount), [formatProfileCurrency]);
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -142,7 +142,7 @@ export default function TenantSubscriptionAdminPage() {
     }
   }, [isAuthenticated, user, isSuperAdmin, router]);
 
-  const loadSubscription = async () => {
+  const loadSubscription = useCallback(async () => {
     if (!tenantId) {
       setLoading(false);
       setError(t("tenantsPage.subscriptionLoadFailed", { defaultValue: "Failed to load tenant subscription." }));
@@ -166,7 +166,7 @@ export default function TenantSubscriptionAdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId, locale, t]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -179,7 +179,7 @@ export default function TenantSubscriptionAdminPage() {
     }
 
     void loadSubscription();
-  }, [isAuthenticated, user, isSuperAdmin, tenantId, locale]);
+  }, [isAuthenticated, user, isSuperAdmin, loadSubscription]);
 
   const changePackage = async (packageId: number) => {
     if (!tenantId) {
@@ -242,7 +242,7 @@ export default function TenantSubscriptionAdminPage() {
       { key: "nextBilling", value: formatDate(data.nextBillingDateUtc) },
       { key: "endDate", value: formatDate(data.endDateUtc) },
     ];
-  }, [data, locale, t]);
+  }, [data, t, formatCurrency, formatDate]);
 
   const packageCycleCards = useMemo(() => {
     if (!data) {

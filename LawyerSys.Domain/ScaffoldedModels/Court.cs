@@ -19,5 +19,9 @@ public partial class Court
 
     public virtual ICollection<Cases_Court> Cases_Courts { get; set; } = new List<Cases_Court>();
 
+    public virtual ICollection<CaseCourtHistory> CaseCourtHistoryOldCourts { get; set; } = new List<CaseCourtHistory>();
+
+    public virtual ICollection<CaseCourtHistory> CaseCourtHistoryNewCourts { get; set; } = new List<CaseCourtHistory>();
+
     public virtual Governament Gov { get; set; } = null!;
 }

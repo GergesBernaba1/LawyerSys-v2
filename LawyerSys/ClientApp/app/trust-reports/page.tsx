@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -172,7 +172,7 @@ export default function TrustReportsPage() {
 
   const monthsOptions = useMemo(() => [6, 12, 18, 24], []);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -191,11 +191,11 @@ export default function TrustReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [months, customerId, t]);
 
   useEffect(() => {
     void load();
-  }, [months, customerId]);
+  }, [load]);
 
   return (
     <Box>

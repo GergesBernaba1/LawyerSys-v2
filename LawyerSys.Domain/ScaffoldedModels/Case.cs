@@ -33,4 +33,6 @@ public partial class Case
     public virtual ICollection<Custmors_Case> Custmors_Cases { get; set; } = new List<Custmors_Case>();
 
     public virtual ICollection<CaseStatusHistory> CaseStatusHistories { get; set; } = new List<CaseStatusHistory>();
+
+    public virtual ICollection<CaseCourtHistory> CaseCourtHistories { get; set; } = new List<CaseCourtHistory>();
 }

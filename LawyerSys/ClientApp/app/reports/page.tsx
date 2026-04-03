@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -38,9 +38,10 @@ type CustomerOption = { id: number; user?: { fullName?: string } };
 export default function ReportsPage() {
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(currentMonth);
   const [customerId, setCustomerId] = useState<string>('');
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [summary, setSummary] = useState<FinancialSummaryResponse | null>(null);
@@ -48,9 +49,9 @@ export default function ReportsPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const yearOptions = useMemo(() => [now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1], [now]);
+  const yearOptions = useMemo(() => [currentYear - 1, currentYear, currentYear + 1], [currentYear]);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -72,11 +73,11 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [year, month, customerId, t]);
 
   useEffect(() => {
     void loadData();
-  }, [year, month, customerId]);
+  }, [loadData]);
 
   async function download(format: 'csv' | 'pdf') {
     try {
@@ -110,7 +111,7 @@ export default function ReportsPage() {
               size="small"
               label={t('app.year')}
               value={year}
-              onChange={(value) => setYear(value ?? now.getFullYear())}
+              onChange={(value) => setYear(value ?? currentYear)}
               options={yearOptions.map((y) => ({ value: y, label: String(y) }))}
               disableClearable
               sx={{ minWidth: 140 }}
@@ -120,7 +121,7 @@ export default function ReportsPage() {
               size="small"
               label={t('app.month')}
               value={month}
-              onChange={(value) => setMonth(value ?? now.getMonth() + 1)}
+              onChange={(value) => setMonth(value ?? currentMonth)}
               options={Array.from({ length: 12 }, (_, i) => i + 1).map((m) => ({ value: m, label: String(m) }))}
               disableClearable
               sx={{ minWidth: 140 }}

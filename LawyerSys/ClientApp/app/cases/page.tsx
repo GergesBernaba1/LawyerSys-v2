@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -204,7 +204,7 @@ export default function CasesPageClient() {
     return '';
   }
 
-  async function load(p = page) {
+  const load = useCallback(async (p = page) => {
     setLoading(true);
     try {
       const r = await api.get(`/Cases?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`);
@@ -218,7 +218,7 @@ export default function CasesPageClient() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, pageSize, search, t]);
 
   async function loadCreateOptions() {
     if (creationOptionsLoaded) return;
@@ -243,7 +243,7 @@ export default function CasesPageClient() {
     setOpenDialog(true);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   async function create() {
     const validationMessage = validateCaseForm();

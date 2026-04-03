@@ -27,6 +27,7 @@ namespace LawyerSys.Services
         Task<CaseDto> ChangeCaseStatusAsync(int code, string status);
         Task<IEnumerable<object>> GetStatusOptionsAsync();
         Task<IEnumerable<CaseStatusHistoryDto>> GetStatusHistoryAsync(int code);
+        Task<IEnumerable<CaseCourtHistoryDto>> GetCourtHistoryAsync(int code);
 
         // Timeline
         Task<CaseTimelineDto> GetCaseTimelineAsync(int code);

@@ -34,6 +34,26 @@ public class CaseStatusHistoryDto
     public DateTime ChangedAt { get; set; }
 }
 
+public enum CaseCourtChangeType
+{
+    Added = 0,
+    Removed = 1,
+    Changed = 2
+}
+
+public class CaseCourtHistoryDto
+{
+    public int Id { get; set; }
+    public int CaseId { get; set; }
+    public int? OldCourtId { get; set; }
+    public int? NewCourtId { get; set; }
+    public string? OldCourtName { get; set; }
+    public string? NewCourtName { get; set; }
+    public CaseCourtChangeType ChangeType { get; set; }
+    public string? ChangedBy { get; set; }
+    public DateTime ChangedAt { get; set; }
+}
+
 public class ChangeCaseStatusDto
 {
     // Accept either status name (e.g. "InProgress") or numeric value

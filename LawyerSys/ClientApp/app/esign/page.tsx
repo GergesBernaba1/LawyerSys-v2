@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Box,
@@ -75,7 +75,7 @@ export default function ESignPage() {
   const [fileId, setFileId] = useState('')
   const [templateType, setTemplateType] = useState('')
 
-  const loadRequests = async () => {
+  const loadRequests = useCallback(async () => {
     if (!isAuthenticated || !canUseESign) {
       setLoading(false)
       return
@@ -96,7 +96,7 @@ export default function ESignPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isAuthenticated, canUseESign, statusFilter, search, t])
 
   const loadOptions = async () => {
     try {
@@ -121,8 +121,8 @@ export default function ESignPage() {
   }
 
   useEffect(() => {
-    loadRequests()
-  }, [isAuthenticated, canUseESign])
+    void loadRequests()
+  }, [loadRequests])
 
   useEffect(() => {
     if (!isAuthenticated || !canUseESign) return

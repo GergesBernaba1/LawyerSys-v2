@@ -453,4 +453,31 @@
   <data name="DemoRequestSubmitted" xml:space="preserve">
     <value>تم إرسال طلب العرض التجريبي بنجاح.</value>
   </data>
+  <data name="CourtChangeSame" xml:space="preserve">
+    <value>لا يمكن أن تكون المحكمة الحالية نفسها المحكمة الجديدة.</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>تم التحديث بنجاح</value>
+  </data>
+  <data name="Timeline_CourtAdded" xml:space="preserve">
+    <value>تمت إضافة محكمة</value>
+  </data>
+  <data name="Timeline_CourtRemoved" xml:space="preserve">
+    <value>تمت إزالة محكمة</value>
+  </data>
+  <data name="Timeline_CourtChanged" xml:space="preserve">
+    <value>تم تغيير المحكمة</value>
+  </data>
+  <data name="Timeline_CourtAddedDesc" xml:space="preserve">
+    <value>تمت إضافة المحكمة: {0} (بواسطة {1})</value>
+  </data>
+  <data name="Timeline_CourtRemovedDesc" xml:space="preserve">
+    <value>تمت إزالة المحكمة: {0} (بواسطة {1})</value>
+  </data>
+  <data name="Timeline_CourtChangedDesc" xml:space="preserve">
+    <value>تم تغيير المحكمة من {0} إلى {1} (بواسطة {2})</value>
+  </data>
+  <data name="Timeline_UnknownActor" xml:space="preserve">
+    <value>غير معروف</value>
+  </data>
 </root>

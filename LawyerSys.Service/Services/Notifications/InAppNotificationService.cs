@@ -455,6 +455,50 @@ public class InAppNotificationService : IInAppNotificationService
             cancellationToken);
     }
 
+    public Task NotifyCaseCourtAddedAsync(int caseCode, int courtId, string courtName, CancellationToken cancellationToken = default)
+    {
+        var safeCourtName = string.IsNullOrWhiteSpace(courtName) ? $"court #{courtId}" : courtName.Trim();
+        return NotifyCaseCourtUpdateAsync(
+            caseCode,
+            "CaseCourtAdded",
+            "Court added to case",
+            "تمت إضافة محكمة إلى القضية",
+            caseContext => $"{safeCourtName} was added to {caseContext.Label}.",
+            caseContext => $"تمت إضافة المحكمة {safeCourtName} إلى {caseContext.LabelAr}.",
+            courtId.ToString(),
+            cancellationToken);
+    }
+
+    public Task NotifyCaseCourtRemovedAsync(int caseCode, int courtId, string courtName, CancellationToken cancellationToken = default)
+    {
+        var safeCourtName = string.IsNullOrWhiteSpace(courtName) ? $"court #{courtId}" : courtName.Trim();
+        return NotifyCaseCourtUpdateAsync(
+            caseCode,
+            "CaseCourtRemoved",
+            "Court removed from case",
+            "تمت إزالة محكمة من القضية",
+            caseContext => $"{safeCourtName} was removed from {caseContext.Label}.",
+            caseContext => $"تمت إزالة المحكمة {safeCourtName} من {caseContext.LabelAr}.",
+            courtId.ToString(),
+            cancellationToken);
+    }
+
+    public Task NotifyCaseCourtChangedAsync(int caseCode, int? oldCourtId, string? oldCourtName, int? newCourtId, string? newCourtName, CancellationToken cancellationToken = default)
+    {
+        var oldCourtLabel = string.IsNullOrWhiteSpace(oldCourtName) ? (oldCourtId.HasValue ? $"court #{oldCourtId.Value}" : "unspecified court") : oldCourtName.Trim();
+        var newCourtLabel = string.IsNullOrWhiteSpace(newCourtName) ? (newCourtId.HasValue ? $"court #{newCourtId.Value}" : "unspecified court") : newCourtName.Trim();
+
+        return NotifyCaseCourtUpdateAsync(
+            caseCode,
+            "CaseCourtChanged",
+            "Case court changed",
+            "تم تغيير محكمة القضية",
+            caseContext => $"{caseContext.Label} moved from {oldCourtLabel} to {newCourtLabel}.",
+            caseContext => $"تم نقل {caseContext.LabelAr} من المحكمة {oldCourtLabel} إلى المحكمة {newCourtLabel}.",
+            newCourtId?.ToString() ?? oldCourtId?.ToString() ?? caseCode.ToString(),
+            cancellationToken);
+    }
+
     public async Task NotifyCustomerPaymentRecordedAsync(int customerId, int paymentId, double amount, DateOnly paymentDate, CancellationToken cancellationToken = default)
     {
         var customer = await GetCustomerContextAsync(customerId, cancellationToken);
@@ -693,6 +737,39 @@ public class InAppNotificationService : IInAppNotificationService
                 ? $"تم اعتماد إثبات الدفع الخاص بـ {caseContext.LabelAr} بقيمة {amount:F2}."
                 : $"تم رفض إثبات الدفع الخاص بـ {caseContext.LabelAr}. يرجى مراجعة ملاحظة المكتب.",
             proofId.ToString(),
+            cancellationToken);
+    }
+
+    public async Task NotifyEmployeeCaseAssignedAsync(int employeeId, int caseCode, CancellationToken cancellationToken = default)
+    {
+        var actor = await GetCurrentActorAsync(cancellationToken);
+        var recipientUserId = await GetEmployeeUserIdAsync(employeeId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(recipientUserId) || string.Equals(recipientUserId, actor.UserId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var caseContext = await GetCaseContextAsync(caseCode, cancellationToken);
+        if (caseContext == null)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            new[] { recipientUserId },
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = caseContext.TenantId,
+                Type = "CaseAssignment",
+                Title = "Case assigned",
+                TitleAr = "تم إسناد قضية",
+                Message = $"{actor.DisplayName} assigned you {caseContext.Label}.",
+                MessageAr = $"قام {actor.DisplayName} بإسناد {caseContext.LabelAr} إليك.",
+                Route = caseContext.Route,
+                RelatedEntityType = "Case",
+                RelatedEntityId = caseCode.ToString()
+            },
             cancellationToken);
     }
 
@@ -1146,6 +1223,84 @@ public class InAppNotificationService : IInAppNotificationService
             cancellationToken);
     }
 
+    private async Task NotifyCaseCourtUpdateAsync(
+        int caseCode,
+        string type,
+        string title,
+        string titleAr,
+        Func<CaseContext, string> buildMessage,
+        Func<CaseContext, string> buildMessageAr,
+        string relatedEntityId,
+        CancellationToken cancellationToken)
+    {
+        var caseContext = await GetCaseContextAsync(caseCode, cancellationToken);
+        if (caseContext == null)
+        {
+            return;
+        }
+
+        var actor = await GetCurrentActorAsync(cancellationToken);
+
+        var customerRecipientIds = await GetCustomerUserIdsForCaseAsync(caseCode, cancellationToken);
+        customerRecipientIds = customerRecipientIds
+            .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (customerRecipientIds.Count > 0)
+        {
+            await CreateNotificationsAsync(
+                customerRecipientIds,
+                new NotificationContent
+                {
+                    SenderUserId = actor.UserId,
+                    TenantId = caseContext.TenantId,
+                    Type = type,
+                    Title = title,
+                    TitleAr = titleAr,
+                    Message = buildMessage(caseContext),
+                    MessageAr = buildMessageAr(caseContext),
+                    Route = $"{caseContext.Route}/timeline",
+                    RelatedEntityType = "Case",
+                    RelatedEntityId = relatedEntityId
+                },
+                cancellationToken);
+        }
+
+        if (!caseContext.TenantId.HasValue)
+        {
+            return;
+        }
+
+        var staffRecipientIds = await GetUserIdsInRolesAsync(new[] { "ADMIN", "EMPLOYEE" }, caseContext.TenantId.Value, cancellationToken);
+        staffRecipientIds = staffRecipientIds
+            .Where(id => !string.Equals(id, actor.UserId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (staffRecipientIds.Count == 0)
+        {
+            return;
+        }
+
+        await CreateNotificationsAsync(
+            staffRecipientIds,
+            new NotificationContent
+            {
+                SenderUserId = actor.UserId,
+                TenantId = caseContext.TenantId,
+                Type = type,
+                Title = title,
+                TitleAr = titleAr,
+                Message = buildMessage(caseContext),
+                MessageAr = buildMessageAr(caseContext),
+                Route = caseContext.Route,
+                RelatedEntityType = "Case",
+                RelatedEntityId = relatedEntityId
+            },
+            cancellationToken);
+    }
+
     private static string GetDisplayName(string? fullName, string? userName)
     {
         if (!string.IsNullOrWhiteSpace(fullName))
@@ -1224,7 +1379,7 @@ public class InAppNotificationService : IInAppNotificationService
             "CustomerPaymentRecorded" or "PaymentProofReviewed" => preference.BillingUpdatesEnabled,
             "RequestedDocumentCreated" or "RequestedDocumentReviewed" => preference.DocumentRequestsEnabled,
             "CaseConversationMessage" => preference.ConversationUpdatesEnabled,
-            "CaseStatusChanged" or "CaseSitingScheduled" or "CaseSitingUpdated" or "CaseSitingCancelled" or "CaseDocumentAdded" or "CaseFileAdded" => preference.CaseUpdatesEnabled,
+            "CaseAssignment" or "CaseStatusChanged" or "CaseSitingScheduled" or "CaseSitingUpdated" or "CaseSitingCancelled" or "CaseDocumentAdded" or "CaseFileAdded" or "CaseCourtAdded" or "CaseCourtRemoved" or "CaseCourtChanged" => preference.CaseUpdatesEnabled,
             _ => true
         };
     }

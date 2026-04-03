@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -181,7 +181,7 @@ export default function EmployeesPageClient() {
     setSalary('');
   }
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [employeesRes, usersRes] = await Promise.all([api.get('/Employees'), api.get('/Users')]);
@@ -192,15 +192,15 @@ export default function EmployeesPageClient() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  async function loadUsersForTenant(tenantId?: number | '') {
+  const loadUsersForTenant = useCallback(async (tenantId?: number | '') => {
     const requestConfig = isSuperAdmin && tenantId ? { headers: { 'X-Firm-Id': String(tenantId) } } : undefined;
     const usersRes = await api.get('/Users', requestConfig);
     setUsers(asArray<any>(usersRes.data).map(normalizeUser));
-  }
+  }, [isSuperAdmin]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
     if (!isSuperAdmin) return;
@@ -230,7 +230,7 @@ export default function EmployeesPageClient() {
   useEffect(() => {
     if (!openDialog) return;
     void loadUsersForTenant(selectedTenantId);
-  }, [openDialog, selectedTenantId]);
+  }, [openDialog, selectedTenantId, loadUsersForTenant]);
 
   async function saveEmployee() {
     if (salary === '') {

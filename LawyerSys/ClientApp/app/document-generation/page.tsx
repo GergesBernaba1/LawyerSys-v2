@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Backdrop,
@@ -297,27 +297,13 @@ export default function DocumentGenerationPage() {
     }
   }, [error]);
 
-  // Load history when History tab is opened
-  useEffect(() => {
-    if (mainTab === 1) {
-      loadHistory();
-    }
-  }, [mainTab]);
-
-  // Load drafts when Drafts tab is opened
-  useEffect(() => {
-    if (mainTab === 2) {
-      loadDrafts();
-    }
-  }, [mainTab]);
-
   useEffect(() => {
     if (simpleAiMode && activeTab > previewTabIndex) {
       setActiveTab(previewTabIndex);
     }
   }, [simpleAiMode, activeTab, previewTabIndex]);
 
-  async function loadHistory() {
+  const loadHistory = useCallback(async () => {
     setHistoryLoading(true);
     try {
       const response = await api.get('/DocumentGeneration/history', {
@@ -329,9 +315,9 @@ export default function DocumentGenerationPage() {
     } finally {
       setHistoryLoading(false);
     }
-  }
+  }, [caseCode, t]);
 
-  async function loadDrafts() {
+  const loadDrafts = useCallback(async () => {
     setDraftsLoading(true);
     try {
       const response = await api.get('/DocumentGeneration/drafts');
@@ -341,7 +327,21 @@ export default function DocumentGenerationPage() {
     } finally {
       setDraftsLoading(false);
     }
-  }
+  }, [t]);
+
+  // Load history when History tab is opened
+  useEffect(() => {
+    if (mainTab === 1) {
+      void loadHistory();
+    }
+  }, [mainTab, loadHistory]);
+
+  // Load drafts when Drafts tab is opened
+  useEffect(() => {
+    if (mainTab === 2) {
+      void loadDrafts();
+    }
+  }, [mainTab, loadDrafts]);
 
   async function viewHistoryDocument(id: number) {
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
@@ -36,17 +36,17 @@ export default function CustomerDocumentsPage() {
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
-  async function load() {
+  const load = useCallback(async () => {
     const response = await api.get("/ClientPortal/overview");
     setData(response.data);
     if (!selectedCaseCode && Array.isArray(response.data?.cases) && response.data.cases.length > 0) {
       setSelectedCaseCode(response.data.cases[0].code);
     }
-  }
+  }, [selectedCaseCode]);
 
   useEffect(() => {
     void load().catch(() => setStatus({ type: "error", message: t("clientPortal.failedLoad") }));
-  }, [t]);
+  }, [load, t]);
 
   async function uploadFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];

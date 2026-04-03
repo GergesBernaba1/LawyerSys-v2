@@ -190,6 +190,21 @@ public class CasesController : ControllerBase
         }
     }
 
+    // GET: api/cases/{code}/court-history
+    [HttpGet("{code}/court-history")]
+    public async Task<ActionResult<IEnumerable<CaseCourtHistoryDto>>> GetCourtHistory(int code)
+    {
+        try
+        {
+            var history = await _caseService.GetCourtHistoryAsync(code);
+            return Ok(history);
+        }
+        catch (ArgumentException)
+        {
+            return this.EntityNotFound(_localizer, "Case");
+        }
+    }
+
     // GET: api/cases/{code}/timeline
     [HttpGet("{code}/timeline")]
     public async Task<ActionResult<CaseTimelineDto>> GetCaseTimeline(int code)

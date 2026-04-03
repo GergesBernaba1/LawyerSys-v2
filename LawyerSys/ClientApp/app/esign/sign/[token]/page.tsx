@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   Alert,
   Box,
@@ -40,7 +40,7 @@ export default function PublicESignPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!token) return
     setLoading(true)
     setError('')
@@ -53,11 +53,11 @@ export default function PublicESignPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token, t])
 
   useEffect(() => {
-    load()
-  }, [token])
+    void load()
+  }, [load])
 
   const sign = async () => {
     if (!token) return

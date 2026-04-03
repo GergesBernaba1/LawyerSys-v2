@@ -291,6 +291,27 @@
   <data name="Timeline_PaymentDesc" xml:space="preserve">
     <value>Amount: {0:F2}. {1}</value>
   </data>
+  <data name="Timeline_CourtAdded" xml:space="preserve">
+    <value>Court added</value>
+  </data>
+  <data name="Timeline_CourtRemoved" xml:space="preserve">
+    <value>Court removed</value>
+  </data>
+  <data name="Timeline_CourtChanged" xml:space="preserve">
+    <value>Court changed</value>
+  </data>
+  <data name="Timeline_CourtAddedDesc" xml:space="preserve">
+    <value>Added court: {0} (by {1})</value>
+  </data>
+  <data name="Timeline_CourtRemovedDesc" xml:space="preserve">
+    <value>Removed court: {0} (by {1})</value>
+  </data>
+  <data name="Timeline_CourtChangedDesc" xml:space="preserve">
+    <value>Changed court from {0} to {1} (by {2})</value>
+  </data>
+  <data name="Timeline_UnknownActor" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
   <data name="CaseAlreadyInStatus" xml:space="preserve">
     <value>Case already in requested status</value>
   </data>
@@ -473,5 +494,11 @@
   </data>
   <data name="DemoRequestSubmitted" xml:space="preserve">
     <value>Demo request submitted successfully.</value>
+  </data>
+  <data name="CourtChangeSame" xml:space="preserve">
+    <value>Old and new court cannot be the same.</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>Updated successfully</value>
   </data>
 </root>

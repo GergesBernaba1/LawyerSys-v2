@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -48,7 +48,7 @@ export default function BillingPage() {
   const [summary, setSummary] = useState<any>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [payRes, recRes, custRes, empRes, sumRes] = await Promise.all([
@@ -68,9 +68,9 @@ export default function BillingPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   async function submitPayment() {
     try {

@@ -11,6 +11,7 @@ public interface ICaseRelationsService
     Task<ServiceResult<object>> GetCaseCourtsAsync(int caseCode, CancellationToken cancellationToken = default);
     Task<ServiceResult<int>> AddCourtToCaseAsync(int caseCode, int courtId, CancellationToken cancellationToken = default);
     Task<ServiceResult<bool>> RemoveCourtFromCaseAsync(int caseCode, int courtId, CancellationToken cancellationToken = default);
+    Task<ServiceResult<bool>> ChangeCourtForCaseAsync(int caseCode, int oldCourtId, int newCourtId, CancellationToken cancellationToken = default);
     Task<ServiceResult<object>> GetCaseEmployeesAsync(int caseCode, CancellationToken cancellationToken = default);
     Task<ServiceResult<int>> AddEmployeeToCaseAsync(int caseCode, int employeeId, CancellationToken cancellationToken = default);
     Task<ServiceResult<bool>> RemoveEmployeeFromCaseAsync(int caseCode, int employeeId, CancellationToken cancellationToken = default);

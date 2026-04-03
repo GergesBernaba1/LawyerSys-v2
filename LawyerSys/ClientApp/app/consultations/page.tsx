@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -38,7 +38,7 @@ export default function ConsultationsPage() {
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get('/Consulations');
@@ -48,9 +48,9 @@ export default function ConsultationsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
     async function loadRelationsSource() {
@@ -189,8 +189,8 @@ export default function ConsultationsPage() {
             <ChatIcon fontSize="medium" />
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{isEmployeeOnly ? t('consultations.myConsultations', { defaultValue: 'My Consultations' }) : t('consultations.management')}</Typography>
-            <Typography variant="body2" color="text.secondary">{(isEmployeeOnly ? t('consultations.totalAssigned', { defaultValue: 'Assigned consultations' }) : t('consultations.totalConsultations'))}: <strong>{items.length}</strong></Typography>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>{isEmployeeOnly ? t('consultations.myConsultations') : t('consultations.management')}</Typography>
+            <Typography variant="body2" color="text.secondary">{(isEmployeeOnly ? t('consultations.totalAssigned') : t('consultations.totalConsultations'))}: <strong>{items.length}</strong></Typography>
           </Box>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -201,15 +201,15 @@ export default function ConsultationsPage() {
           </Tooltip>
           <Button variant="contained" startIcon={!isRTL ? <AddIcon /> : undefined} endIcon={isRTL ? <AddIcon /> : undefined} onClick={openCreate}
             sx={{ borderRadius: 2.5, px: 3, fontWeight: 700, boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)' }}>
-            {isEmployeeOnly ? t('consultations.createMyConsultation', { defaultValue: 'Create consultation' }) : t('consultations.createNew')}
+            {isEmployeeOnly ? t('consultations.createMyConsultation') : t('consultations.createNew')}
           </Button>
         </Box>
       </Box>
 
       <Alert severity={isEmployeeOnly ? 'info' : 'warning'} sx={{ mb: 2 }}>
         {isEmployeeOnly
-          ? t('consultations.employeeHint', { defaultValue: 'Only consultations assigned to you appear here.' })
-          : t('consultations.assignmentHint', { defaultValue: 'Assign consultations to employees so they appear in their work queue and notifications.' })}
+          ? t('consultations.employeeHint')
+          : t('consultations.assignmentHint')}
       </Alert>
 
       {/* Table */}
@@ -298,7 +298,7 @@ export default function ConsultationsPage() {
                 value={allCustomers.filter(c => selectedCustomerIds.includes(c.id))}
                 getOptionLabel={(option) => option.name}
                 onChange={(_, value) => setSelectedCustomerIds(value.map(v => v.id))}
-                renderInput={(params) => <TextField {...params} label={t('customers.customers') || 'Customers'} />}
+                renderInput={(params) => <TextField {...params} label={t('customers.title')} />}
               />
             </Box>
             {!isEmployeeOnly && (
@@ -309,7 +309,7 @@ export default function ConsultationsPage() {
                   value={allEmployees.filter(e => selectedEmployeeIds.includes(e.id))}
                   getOptionLabel={(option) => option.name}
                   onChange={(_, value) => setSelectedEmployeeIds(value.map(v => v.id))}
-                  renderInput={(params) => <TextField {...params} label={t('employees.employees') || 'Employees'} />}
+                  renderInput={(params) => <TextField {...params} label={t('employees.title')} />}
                 />
               </Box>
             )}

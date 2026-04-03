@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -257,7 +257,7 @@ export default function CustomersPageClient() {
   const imageInputRef = React.useRef<HTMLInputElement | null>(null);
   const customerItems = Array.isArray(items) ? items : [];
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const customersRes = await api.get('/Customers');
@@ -269,9 +269,9 @@ export default function CustomersPageClient() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
     if (!isSuperAdmin) return;

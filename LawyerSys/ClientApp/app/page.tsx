@@ -78,6 +78,7 @@ type PartnerTenant = {
   name: string;
   countryName: string;
   userCount: number;
+  logoUrl?: string;
 };
 
 type DemoRequestForm = {
@@ -118,6 +119,16 @@ function getPartnerIcon(index: number) {
     default:
       return <BusinessOutlinedIcon sx={{ fontSize: 28 }} />;
   }
+}
+
+function toPublicMediaUrl(path: string | undefined): string | undefined {
+  if (!path) return undefined;
+  if (/^https?:\/\//i.test(path)) return path;
+
+  const apiBase = String(api.defaults.baseURL || "");
+  const apiRoot = apiBase.replace(/\/api\/?$/, "") || "";
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${apiRoot}${normalizedPath}`;
 }
 
 export default function LandingPage() {
@@ -956,6 +967,7 @@ export default function LandingPage() {
               >
                 {visiblePartners.map((partner, index) => {
                   const globalIndex = (startIndex + index) % partners.length;
+                  const partnerLogoUrl = toPublicMediaUrl(partner.logoUrl);
                   return (
                     <Card
                       key={partner.id}
@@ -1022,7 +1034,22 @@ export default function LandingPage() {
                             }}
                           >
                             <Box sx={{ transform: "scale(0.8)", display: "grid", placeItems: "center" }}>
-                              {getPartnerIcon(globalIndex)}
+                              {partnerLogoUrl ? (
+                                <Box
+                                  component="img"
+                                  src={partnerLogoUrl}
+                                  alt={partner.name}
+                                  loading="lazy"
+                                  sx={{
+                                    width: 36,
+                                    height: 36,
+                                    objectFit: "contain",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                              ) : (
+                                getPartnerIcon(globalIndex)
+                              )}
                             </Box>
                           </Box>
                           <Chip

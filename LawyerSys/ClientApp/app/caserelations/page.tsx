@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Paper, IconButton, Skeleton, Chip,
@@ -61,7 +61,7 @@ export default function CaseRelationsPage() {
 
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function loadCases() {
+  const loadCases = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get('/Cases');
@@ -71,7 +71,7 @@ export default function CaseRelationsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
   async function loadAllEntities() {
     try {
@@ -88,7 +88,7 @@ export default function CaseRelationsPage() {
     } catch { /* silently fail - items won't be available for linking */ }
   }
 
-  async function loadRelations(caseCode: number) {
+  const loadRelations = useCallback(async (caseCode: number) => {
     setLoadingRelations(true);
     try {
       const res = await api.get(`/cases/${caseCode}/full`);
@@ -104,14 +104,14 @@ export default function CaseRelationsPage() {
     } finally {
       setLoadingRelations(false);
     }
-  }
+  }, [t]);
 
-  useEffect(() => { loadCases(); loadAllEntities(); }, []);
+  useEffect(() => { void loadCases(); void loadAllEntities(); }, [loadCases]);
 
   useEffect(() => {
     if (selectedCase) loadRelations(selectedCase.code);
     else { setCustomers([]); setContenders([]); setCourts([]); setEmployees([]); setSitings([]); setFiles([]); }
-  }, [selectedCase]);
+  }, [selectedCase, loadRelations]);
 
   async function linkItem() {
     if (!selectedCase || !linkItemId) return;

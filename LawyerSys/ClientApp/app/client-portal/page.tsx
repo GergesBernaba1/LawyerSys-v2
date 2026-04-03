@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
@@ -120,7 +120,7 @@ export default function ClientPortalPage() {
   const requestedDocumentInputRef = useRef<HTMLInputElement | null>(null);
   const apiBase = typeof api.defaults.baseURL === "string" ? api.defaults.baseURL : "";
 
-  async function loadOverview() {
+  const loadOverview = useCallback(async () => {
     try {
       setError("");
       const response = await api.get("/ClientPortal/overview");
@@ -128,11 +128,11 @@ export default function ClientPortalPage() {
     } catch (err: any) {
       setError(err?.response?.data?.message || t("clientPortal.failedLoad"));
     }
-  }
+  }, [t]);
 
   useEffect(() => {
     void loadOverview();
-  }, [t]);
+  }, [loadOverview]);
 
   useEffect(() => {
     if (!data?.cases?.length) {

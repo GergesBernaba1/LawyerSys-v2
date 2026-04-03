@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -161,7 +161,7 @@ export default function TrustAccountingPage() {
     [accounts]
   );
 
-  async function loadOverview() {
+  const loadOverview = useCallback(async () => {
     setLoading(true);
     try {
       const [accountsRes, summaryRes] = await Promise.all([
@@ -189,9 +189,9 @@ export default function TrustAccountingPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [search, selectedCustomerId, t]);
 
-  async function loadLedger(customerId: number) {
+  const loadLedger = useCallback(async (customerId: number) => {
     if (!customerId) {
       setLedgerRows([]);
       return;
@@ -211,9 +211,9 @@ export default function TrustAccountingPage() {
         message: error?.response?.data?.message || t("trust.failedLoadLedger"),
       });
     }
-  }
+  }, [ledgerFromDate, ledgerToDate, t]);
 
-  async function loadReconciliations(page = reconciliationPage) {
+  const loadReconciliations = useCallback(async (page = reconciliationPage) => {
     try {
       const params: Record<string, string | number> = { page, pageSize: 10 };
       if (reconciliationFromDate) params.fromDate = reconciliationFromDate;
@@ -228,23 +228,23 @@ export default function TrustAccountingPage() {
         message: error?.response?.data?.message || t("trust.failedLoadReconciliations"),
       });
     }
-  }
+  }, [reconciliationPage, reconciliationFromDate, reconciliationToDate, t]);
 
   useEffect(() => {
     void loadOverview();
-  }, [search]);
+  }, [loadOverview]);
 
   useEffect(() => {
     if (selectedCustomerId) {
       void loadLedger(selectedCustomerId);
     }
-  }, [selectedCustomerId]);
+  }, [selectedCustomerId, loadLedger]);
 
   useEffect(() => {
     if (canManageTrust) {
       void loadReconciliations(1);
     }
-  }, [reconciliationFromDate, reconciliationToDate, canManageTrust]);
+  }, [canManageTrust, loadReconciliations]);
 
   useEffect(() => {
     if (!canManageTrust && tab === 2) {

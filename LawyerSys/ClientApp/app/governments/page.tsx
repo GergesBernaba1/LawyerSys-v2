@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -105,7 +105,7 @@ export default function GovernmentsPage() {
 
   const isArabic = (i18n.resolvedLanguage || i18n.language || "").startsWith("ar");
 
-  async function load(countryId?: number | "") {
+  const load = useCallback(async (countryId?: number | "") => {
     setLoading(true);
     try {
       const params = isSuperAdmin && countryId ? { countryId } : undefined;
@@ -125,7 +125,7 @@ export default function GovernmentsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [isSuperAdmin, t]);
 
   async function loadCountryOptions() {
     try {
@@ -138,7 +138,7 @@ export default function GovernmentsPage() {
 
   useEffect(() => {
     void load(selectedCountryId);
-  }, [isSuperAdmin, selectedCountryId]);
+  }, [selectedCountryId, load]);
 
   useEffect(() => {
     if (isSuperAdmin) {

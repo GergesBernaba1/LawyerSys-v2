@@ -17,6 +17,7 @@ public class MultiTenancySchemaInitializer
         "Cases",
         "CaseConversationMessages",
         "CaseStatusHistory",
+        "CaseCourtHistory",
         "Cases_Contenders",
         "Cases_Courts",
         "Cases_Employees",

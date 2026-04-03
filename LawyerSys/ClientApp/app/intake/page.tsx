@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Box,
@@ -88,7 +88,7 @@ export default function IntakePage() {
     }
   }
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!isAuthenticated || !canUseIntake) {
       setLoading(false)
       return
@@ -111,11 +111,11 @@ export default function IntakePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isAuthenticated, canUseIntake, status, search, t])
 
   useEffect(() => {
-    load()
-  }, [isAuthenticated, canUseIntake])
+    void load()
+  }, [load])
 
   useEffect(() => {
     if (!isAuthenticated || !canUseIntake) return

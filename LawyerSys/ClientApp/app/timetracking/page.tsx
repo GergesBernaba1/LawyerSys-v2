@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Box,
@@ -70,7 +70,7 @@ export default function TimeTrackingPage() {
   const stoppedEntries = useMemo(() => entries.filter((x) => x.status === 'Stopped'), [entries])
   const totalTrackedMinutes = useMemo(() => stoppedEntries.reduce((sum, entry) => sum + (entry.durationMinutes || 0), 0), [stoppedEntries])
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setError('')
     try {
       const [entriesResp, suggestionsResp, casesResp] = await Promise.all([
@@ -98,11 +98,11 @@ export default function TimeTrackingPage() {
     } catch (e: any) {
       setError(e?.response?.data?.message || t('timetracking.failedLoad'))
     }
-  }
+  }, [statusFilter, hourlyRate, t])
 
   useEffect(() => {
-    load()
-  }, [statusFilter])
+    void load()
+  }, [load])
 
   const start = async () => {
     setError('')

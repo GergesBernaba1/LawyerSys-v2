@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
@@ -82,7 +82,7 @@ export default function TenantsPage() {
     }
   }, [isAuthenticated, user, isSuperAdmin, router]);
 
-  const loadTenants = async () => {
+  const loadTenants = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -95,7 +95,7 @@ export default function TenantsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [i18n.language, i18n.resolvedLanguage, t]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -113,7 +113,7 @@ export default function TenantsPage() {
     }
 
     void loadTenants();
-  }, [isAuthenticated, user, isSuperAdmin, i18n.language, i18n.resolvedLanguage]);
+  }, [isAuthenticated, user, isSuperAdmin, loadTenants]);
 
   const toggleTenantStatus = async (tenant: TenantManagement) => {
     setPendingAction((prev) => ({ ...prev, [`tenant-${tenant.id}`]: true }));

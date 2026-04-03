@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -35,7 +35,7 @@ export default function CourtsPage() {
   const [form, setForm] = useState({ name: '', address: '', telephone: '', notes: '', govId: 0 });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
@@ -51,12 +51,12 @@ export default function CourtsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [i18n.language, i18n.resolvedLanguage, t]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
     void load();
-  }, [isAuthenticated, i18n.language, i18n.resolvedLanguage]);
+  }, [isAuthenticated, load]);
 
   function openCreate() {
     setEditItem(null);

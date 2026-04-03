@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Typography, Button, Table, TableBody, TableCell,
@@ -41,7 +41,7 @@ export default function JudicialDocumentsPage() {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [search, setSearch] = useState<string>('');
 
-  async function load(p = page) {
+  const load = useCallback(async (p = page) => {
     setLoading(true);
     try {
       const [docsRes, custRes] = await Promise.all([
@@ -60,9 +60,9 @@ export default function JudicialDocumentsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, pageSize, search, t]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   function openCreate() {
     setEditItem(null);
