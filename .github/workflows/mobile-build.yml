@@ -4,8 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches: [ "main", "003-flutter-mobile-app" ]
+    paths:
+      - "MobileApp/**"
   pull_request:
     branches: [ "main", "003-flutter-mobile-app" ]
+    paths:
+      - "MobileApp/**"
 
 concurrency:
   group: mobile-build-${{ github.ref }}
