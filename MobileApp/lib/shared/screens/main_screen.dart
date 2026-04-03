@@ -54,13 +54,21 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     final bloc = context.read<NotificationsBloc>();
+    bloc.add(LoadNotifications());
     SignalRService().events.listen((event) {
+      if ((event['event']?.toString() ?? '') == 'NotificationsChanged') {
+        if (mounted) {
+          bloc.add(LoadNotifications());
+        }
+        return;
+      }
+
       final title = event['title']?.toString() ?? 'Update';
       final message = event['message']?.toString() ?? 'You have a new update';
       final id = event['notificationId']?.toString() ??
           DateTime.now().millisecondsSinceEpoch.toString();
-      final notification =
-          model.AppNotification(notificationId: id, title: title, message: message);
+      final notification = model.AppNotification(
+          notificationId: id, title: title, message: message);
       if (mounted) bloc.add(NewNotificationReceived(notification));
     });
   }
@@ -77,30 +85,46 @@ class _MainScreenState extends State<MainScreen> {
     if (isCustomer) {
       return [
         _NavItem(Icons.folder, l.cases, const CasesListScreen()),
-        _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
-        _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen()),
-        _NavItem(Icons.notifications, l.notifications, const NotificationsInboxScreen()),
+        _NavItem(
+            Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
+        _NavItem(Icons.folder_shared, l.portalDocuments,
+            const PortalDocumentsScreen()),
+        _NavItem(Icons.notifications, l.notifications,
+            const NotificationsInboxScreen()),
         _NavItem(Icons.settings, l.settings, const SettingsScreen()),
       ];
     }
 
     final all = <_NavItem>[
-      _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen(), permission: Permissions.dashboard),
-      _NavItem(Icons.gavel, l.cases, const CasesListScreen(), permission: Permissions.viewCases),
-      _NavItem(Icons.people, l.customers, const CustomersListScreen(), permission: Permissions.viewCustomers),
-      if (!isEmployee) _NavItem(Icons.badge, l.employees, const EmployeesListScreen()),
-      _NavItem(Icons.account_balance, l.courts, const CourtsListScreen(), permission: Permissions.viewCourts),
-      _NavItem(Icons.event, l.hearings, const HearingsListScreen(), permission: Permissions.viewHearings),
-      _NavItem(Icons.calendar_today, l.calendar, const CalendarScreen(), permission: Permissions.viewHearings),
+      _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen(),
+          permission: Permissions.dashboard),
+      _NavItem(Icons.gavel, l.cases, const CasesListScreen(),
+          permission: Permissions.viewCases),
+      _NavItem(Icons.people, l.customers, const CustomersListScreen(),
+          permission: Permissions.viewCustomers),
+      if (!isEmployee)
+        _NavItem(Icons.badge, l.employees, const EmployeesListScreen()),
+      _NavItem(Icons.account_balance, l.courts, const CourtsListScreen(),
+          permission: Permissions.viewCourts),
+      _NavItem(Icons.event, l.hearings, const HearingsListScreen(),
+          permission: Permissions.viewHearings),
+      _NavItem(Icons.calendar_today, l.calendar, const CalendarScreen(),
+          permission: Permissions.viewHearings),
       _NavItem(Icons.task_alt, l.tasks, const TasksListScreen()),
-      _NavItem(Icons.receipt, l.billing, const BillingListScreen(), permission: Permissions.viewBilling),
-      _NavItem(Icons.savings, l.trustAccounting, const TrustListScreen(), permission: Permissions.viewTrustAccounting),
+      _NavItem(Icons.receipt, l.billing, const BillingListScreen(),
+          permission: Permissions.viewBilling),
+      _NavItem(Icons.savings, l.trustAccounting, const TrustListScreen(),
+          permission: Permissions.viewTrustAccounting),
       _NavItem(Icons.timer, l.timeTracking, const TimeTrackingListScreen()),
-      _NavItem(Icons.chat_bubble_outline, l.consultations, const ConsultationsListScreen()),
+      _NavItem(Icons.chat_bubble_outline, l.consultations,
+          const ConsultationsListScreen()),
       _NavItem(Icons.description, l.documents, const DocumentsListScreen()),
       _NavItem(Icons.bar_chart, l.reports, const ReportsScreen()),
-      _NavItem(Icons.notifications, l.notifications, const NotificationsInboxScreen(), permission: Permissions.viewNotifications),
-      _NavItem(Icons.settings, l.settings, const SettingsScreen(), permission: Permissions.manageSettings),
+      _NavItem(Icons.notifications, l.notifications,
+          const NotificationsInboxScreen(),
+          permission: Permissions.viewNotifications),
+      _NavItem(Icons.settings, l.settings, const SettingsScreen(),
+          permission: Permissions.manageSettings),
     ];
 
     return all.where((item) {
@@ -121,7 +145,8 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: _kBg,
         body: Center(
           child: Text(localizer.accessDenied,
-              style: const TextStyle(color: _kPrimary, fontWeight: FontWeight.w700)),
+              style: const TextStyle(
+                  color: _kPrimary, fontWeight: FontWeight.w700)),
         ),
       );
     }
@@ -276,7 +301,8 @@ class _AppDrawer extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.gavel, color: Colors.white, size: 24),
+                      child: const Icon(Icons.gavel,
+                          color: Colors.white, size: 24),
                     ),
                     const SizedBox(width: 12),
                     const Text(
@@ -370,9 +396,8 @@ class _AppDrawer extends StatelessWidget {
                             Icon(
                               item.icon,
                               size: 22,
-                              color: isSelected
-                                  ? Colors.white
-                                  : _kTextSecondary,
+                              color:
+                                  isSelected ? Colors.white : _kTextSecondary,
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -407,8 +432,8 @@ class _AppDrawer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 onTap: onLogout,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 13),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFEF2F2),
                     borderRadius: BorderRadius.circular(14),

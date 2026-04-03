@@ -16,7 +16,8 @@ class SignalRService {
 
   Stream<Map<String, dynamic>> get events => _events.stream;
 
-  Future<void> init(String hubUrl, {Future<String> Function()? tokenFactory}) async {
+  Future<void> init(String hubUrl,
+      {Future<String> Function()? tokenFactory}) async {
     if (_connection != null) {
       await stop();
     }
@@ -47,6 +48,7 @@ class SignalRService {
     });
 
     _connection!.on('ReceiveEvent', _onReceiveEvent);
+    _connection!.on('NotificationsChanged', _onNotificationsChanged);
 
     try {
       await _connection!.start();
@@ -67,6 +69,13 @@ class SignalRService {
     }
   }
 
+  void _onNotificationsChanged(List<Object?>? args) {
+    _events.add({
+      'event': 'NotificationsChanged',
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+  }
+
   Future<void> stop() async {
     if (_connection != null) {
       await _connection!.stop();
@@ -77,7 +86,8 @@ class SignalRService {
   }
 
   Future<void> send(String method, [List<Object?>? args]) async {
-    if (_connection == null || _connection!.state != HubConnectionState.Connected) {
+    if (_connection == null ||
+        _connection!.state != HubConnectionState.Connected) {
       throw StateError('SignalR connection is not open');
     }
     await _connection!.invoke(method, args: args?.whereType<Object>().toList());

@@ -198,8 +198,8 @@ class App extends StatelessWidget {
                       RepositoryProvider.of<EmployeesRepository>(ctx))),
           BlocProvider(
               create: (_) => NotificationsBloc(
-                  notificationsRepository:
-                      NotificationsRepository(LocalDatabase.instance))),
+                  notificationsRepository: NotificationsRepository(
+                      LocalDatabase.instance, apiClient))),
         ],
         child: _AppInitializer(canAccessRoute: _canAccessRoute),
       ),
@@ -229,6 +229,7 @@ class _AppInitializerState extends State<_AppInitializer> {
   Future<void> _init() async {
     // Capture context-dependent values before any await
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
+    final apiClient = ApiClient();
 
     // Load saved locale
     final langCode = await PreferencesStorage().getLanguageCode();
@@ -244,7 +245,8 @@ class _AppInitializerState extends State<_AppInitializer> {
     final pushService = PushNotificationService();
     pushService.configure(
       authRepository,
-      notificationsRepository: NotificationsRepository(LocalDatabase.instance),
+      notificationsRepository:
+          NotificationsRepository(LocalDatabase.instance, apiClient),
     );
     pushService.init();
 

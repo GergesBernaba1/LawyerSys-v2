@@ -1,0 +1,58 @@
+name: Deploy To IIS (Windows)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: LawyerSys/ClientApp/package-lock.json
+
+      - name: Publish API
+        shell: powershell
+        run: |
+          dotnet restore LawyerSys/LawyerSys.csproj
+          dotnet publish LawyerSys/LawyerSys.csproj -c Release -o "$env:RUNNER_TEMP\api-publish"
+
+      - name: Build ClientApp
+        shell: powershell
+        env:
+          NEXT_PUBLIC_API_BASE_URL: https://qadayaapi.naqreo.com/api
+          NEXT_PUBLIC_BACKEND_URL: https://qadayaapi.naqreo.com/api
+          NEXT_PUBLIC_BACKEND_HOST: qadayaapi.naqreo.com
+          NEXT_PUBLIC_SITE_URL: https://qadaya.naqreo.com
+          NEXT_PUBLIC_APP_ENV: production
+        run: |
+          npm ci --prefix LawyerSys/ClientApp
+          npm run build --prefix LawyerSys/ClientApp
+
+      - name: Deploy API + ClientApp To IIS
+        shell: powershell
+        run: |
+          .\scripts\deploy-iis.ps1 `
+            -ApiPublishDir "$env:RUNNER_TEMP\api-publish" `
+            -ApiDeployPath "C:\inetpub\Qadaya-LawyerSys\API" `
+            -ApiIisName "Lawyer-sys-api" `
+            -ClientSourceRoot "$pwd\LawyerSys\ClientApp" `
+            -ClientDeployPath "C:\inetpub\Qadaya-LawyerSys\ClientApp" `
+            -ClientIisName "lawyer-clientApp" `
+            -ClientStartRelativePath "start.bat" `
+            -ClientBackendUrl "https://qadayaapi.naqreo.com/api" `
+            -ClientSiteUrl "https://qadaya.naqreo.com"
