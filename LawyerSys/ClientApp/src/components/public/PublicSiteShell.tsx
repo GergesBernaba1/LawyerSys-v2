@@ -78,6 +78,16 @@ export default function PublicSiteShell({
           borderBottom: "1px solid",
           borderColor: alpha(theme.palette.primary.main, 0.12),
           boxShadow: "0 10px 32px -28px rgba(18,58,99,0.35)",
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            insetInlineStart: 0,
+            insetInlineEnd: 0,
+            bottom: 0,
+            height: 2,
+            background: "linear-gradient(90deg, rgba(18,58,99,0) 0%, rgba(28,123,130,0.34) 35%, rgba(18,58,99,0) 100%)",
+            pointerEvents: "none",
+          },
         }}
       >
         <Container maxWidth="lg">
@@ -162,12 +172,25 @@ export default function PublicSiteShell({
                   onClick={() => onNavigate(link.path)}
                   sx={{
                     px: 1.5,
-                    py: 0.75,
+                    py: 0.85,
                     borderRadius: 999,
                     fontWeight: 800,
                     textDecoration: "none",
                     backgroundColor: isActivePath(link.path) ? alpha(theme.palette.primary.main, 0.12) : "transparent",
                     color: isActivePath(link.path) ? "primary.main" : "text.primary",
+                    position: "relative",
+                    "&::after": isActivePath(link.path)
+                      ? {
+                          content: '""',
+                          position: "absolute",
+                          insetInlineStart: 12,
+                          insetInlineEnd: 12,
+                          bottom: 4,
+                          height: 2,
+                          borderRadius: 2,
+                          background: "linear-gradient(90deg, #14345a 0%, #2d6a87 100%)",
+                        }
+                      : undefined,
                     "&:hover": {
                       backgroundColor: alpha(theme.palette.primary.main, 0.08),
                     },
@@ -233,6 +256,7 @@ export default function PublicSiteShell({
           background: "linear-gradient(180deg, rgba(14,43,73,1) 0%, rgba(18,58,99,1) 100%)",
           color: "common.white",
           py: 5,
+          mt: { xs: 6, md: 8 },
         }}
       >
         <Container maxWidth="lg">

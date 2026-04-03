@@ -38,7 +38,7 @@ const base = {
     divider: '#e2e8f0',
   },
   typography: {
-    fontFamily: '"Inter", "Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Manrope", "Inter", "Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: 14,
     h1: {
       fontWeight: 800,
@@ -53,9 +53,10 @@ const base = {
       letterSpacing: '-0.01em',
     },
     h3: {
-      fontWeight: 700,
+      fontWeight: 800,
       fontSize: '1.5rem',
-      lineHeight: 1.4,
+      lineHeight: 1.3,
+      letterSpacing: '-0.02em',
     },
     h4: {
       fontWeight: 600,
@@ -117,6 +118,8 @@ const base = {
           padding: '10px 18px',
           boxShadow: 'none',
           fontWeight: 700,
+          letterSpacing: '-0.01em',
+          borderWidth: 1.5,
           '&:hover': {
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
           },
@@ -125,6 +128,14 @@ const base = {
           background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
           '&:hover': {
             background: 'linear-gradient(135deg, #112b4b 0%, #255a74 100%)',
+          },
+        },
+        outlinedPrimary: {
+          borderColor: 'rgba(20, 52, 90, 0.24)',
+          backgroundColor: 'rgba(255,255,255,0.78)',
+          '&:hover': {
+            borderColor: 'rgba(20, 52, 90, 0.38)',
+            backgroundColor: 'rgba(20, 52, 90, 0.05)',
           },
         },
       },
@@ -138,8 +149,9 @@ const base = {
           '&:hover': {
             boxShadow: '0 26px 52px -34px rgba(15, 23, 42, 0.34)',
             borderColor: 'rgba(20, 52, 90, 0.18)',
+            transform: 'translateY(-2px)',
           },
-          transition: 'all 0.2s ease-in-out',
+          transition: 'all 0.24s ease-in-out',
         },
       },
     },
@@ -160,6 +172,7 @@ const base = {
           '& .MuiOutlinedInput-root': {
             borderRadius: 14,
             backgroundColor: 'rgba(255,255,255,0.92)',
+            transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
             '& fieldset': {
               borderColor: 'rgba(20, 52, 90, 0.12)',
             },
@@ -169,6 +182,9 @@ const base = {
             '&.Mui-focused fieldset': {
               borderWidth: '2px',
             },
+            '&.Mui-focused': {
+              boxShadow: '0 0 0 4px rgba(20, 52, 90, 0.12)',
+            },
           },
         },
       },
@@ -177,8 +193,8 @@ const base = {
       styleOverrides: {
         head: {
           fontWeight: 700,
-          backgroundColor: '#f8fafc',
-          color: '#475569',
+          backgroundColor: '#f4f8fb',
+          color: '#34485f',
           borderBottom: '2px solid #e2e8f0',
         },
         root: {
@@ -219,6 +235,7 @@ const base = {
             background: 'linear-gradient(135deg, rgba(20, 52, 90, 0.1) 0%, rgba(45, 106, 135, 0.12) 100%)',
             color: '#14345a',
             fontWeight: 600,
+            boxShadow: 'inset 0 0 0 1px rgba(20, 52, 90, 0.14)',
             '& .MuiListItemIcon-root': {
               color: '#14345a',
             },
@@ -253,7 +270,7 @@ const getTheme = (direction: 'ltr' | 'rtl' = 'ltr') => {
       ...base.typography,
       fontFamily: isRTL 
         ? '"Cairo", "Tajawal", "Noto Sans Arabic", "Arial", sans-serif'
-        : '"Inter", "Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+        : '"Manrope", "Inter", "Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
     },
     components: {
       ...base.components,

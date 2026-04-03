@@ -41,7 +41,7 @@ import { useRouter } from 'next/navigation';
 import api from '../../src/services/api';
 import { useAuth } from '../../src/services/auth';
 
-function StatCard({ title, value, icon, color, loading, onClick, trend, trendLabel }: any) {
+function StatCard({ title, value, icon, color, loading, onClick, trend, trendLabel, animationDelay = 0 }: any) {
   const { t } = useTranslation();
   const theme = useTheme();
   return (
@@ -54,6 +54,8 @@ function StatCard({ title, value, icon, color, loading, onClick, trend, trendLab
         borderRadius: 4,
         border: '1px solid',
         borderColor: 'divider',
+        animation: 'scale-in 0.35s ease-out both',
+        animationDelay: `${animationDelay}ms`,
         '&:hover': onClick
           ? {
               transform: 'translateY(-4px)',
@@ -488,10 +490,10 @@ export default function DashboardPageClient() {
         </Typography>
         {/* Stats Grid */}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
-          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myCases', { defaultValue: 'My Cases' }) : t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color={theme.palette.primary.main} loading={loading} onClick={() => navigate('/cases')} trend={isEmployeeOnly ? undefined : stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
-          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myTasks', { defaultValue: 'My Tasks' }) : t('dashboard.customers')} value={isEmployeeOnly ? employeeMetrics.assignedTasks : stats.customers} icon={<PeopleIcon />} color={theme.palette.primary.light} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/tasks' : '/customers')} /></Box>
-          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myLeads', { defaultValue: 'My Leads' }) : t('dashboard.employees')} value={isEmployeeOnly ? employeeMetrics.assignedLeads : stats.employees} icon={<BadgeIcon />} color={theme.palette.secondary.main} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/intake' : '/employees')} /></Box>
-          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myConsultations', { defaultValue: 'My Consultations' }) : t('dashboard.files')} value={isEmployeeOnly ? employeeMetrics.assignedConsultations : stats.files} icon={<FolderIcon />} color={theme.palette.warning.main} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/consultations' : '/files')} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myCases', { defaultValue: 'My Cases' }) : t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color={theme.palette.primary.main} loading={loading} onClick={() => navigate('/cases')} trend={isEmployeeOnly ? undefined : stats.casesTrend} trendLabel={t('dashboard.thisMonth')} animationDelay={40} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myTasks', { defaultValue: 'My Tasks' }) : t('dashboard.customers')} value={isEmployeeOnly ? employeeMetrics.assignedTasks : stats.customers} icon={<PeopleIcon />} color={theme.palette.primary.light} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/tasks' : '/customers')} animationDelay={90} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myLeads', { defaultValue: 'My Leads' }) : t('dashboard.employees')} value={isEmployeeOnly ? employeeMetrics.assignedLeads : stats.employees} icon={<BadgeIcon />} color={theme.palette.secondary.main} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/intake' : '/employees')} animationDelay={140} /></Box>
+          <Box><StatCard title={isEmployeeOnly ? t('dashboard.myConsultations', { defaultValue: 'My Consultations' }) : t('dashboard.files')} value={isEmployeeOnly ? employeeMetrics.assignedConsultations : stats.files} icon={<FolderIcon />} color={theme.palette.warning.main} loading={loading} onClick={() => navigate(isEmployeeOnly ? '/consultations' : '/files')} animationDelay={190} /></Box>
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>

@@ -29,7 +29,10 @@ import {
   BusinessOutlined as BusinessOutlinedIcon,
   Bolt as BoltIcon,
   Insights as InsightsIcon,
+  PeopleAltOutlined as PeopleAltOutlinedIcon,
   Security as SecurityIcon,
+  SupportAgent as SupportAgentIcon,
+  WorkspacePremium as WorkspacePremiumIcon,
 } from "@mui/icons-material";
 import api from "../src/services/api";
 import { useAuth } from "../src/services/auth";
@@ -239,6 +242,27 @@ export default function LandingPage() {
     [t],
   );
 
+  const heroHighlights = useMemo(
+    () => [
+      {
+        icon: <WorkspacePremiumIcon sx={{ fontSize: 18 }} />,
+        title: t("landing.heroHighlights.trusted", { defaultValue: isRTL ? "منصة موثوقة" : "Trusted platform" }),
+        subtitle: t("landing.heroHighlights.trustedDesc", { defaultValue: isRTL ? "مستخدمة من فرق قانونية متنامية" : "Used by growing legal teams" }),
+      },
+      {
+        icon: <PeopleAltOutlinedIcon sx={{ fontSize: 18 }} />,
+        title: t("landing.heroHighlights.collaboration", { defaultValue: isRTL ? "تعاون الفريق" : "Team collaboration" }),
+        subtitle: t("landing.heroHighlights.collaborationDesc", { defaultValue: isRTL ? "توحيد القضايا والعملاء والعمليات" : "Unified cases, clients, and operations" }),
+      },
+      {
+        icon: <SupportAgentIcon sx={{ fontSize: 18 }} />,
+        title: t("landing.heroHighlights.support", { defaultValue: isRTL ? "تهيئة موجهة" : "Guided onboarding" }),
+        subtitle: t("landing.heroHighlights.supportDesc", { defaultValue: isRTL ? "مساعدة من الإعداد حتى الانطلاق" : "Assistance from setup to launch" }),
+      },
+    ],
+    [isRTL, t],
+  );
+
   const cardsPerPage = 3;
   const startIndex = partners.length > 0 ? partnerPage % partners.length : 0;
   const visiblePartners = partners.length > 0
@@ -311,14 +335,36 @@ export default function LandingPage() {
         </Button>
       }
     >
-      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 }, animation: "fade-in-up 0.45s ease-out" }}>
+      <Container
+        maxWidth="xl"
+        sx={{
+          py: { xs: 5, md: 8 },
+          animation: "fade-in-up 0.45s ease-out",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         {error && (
           <Alert severity="warning" sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
 
-        <Box sx={{ position: "relative", mb: 5 }}>
+        <Box
+          sx={{
+            position: "relative",
+            mb: 5,
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              insetInlineStart: 0,
+              insetInlineEnd: 0,
+              bottom: -18,
+              height: 1,
+              background: `linear-gradient(90deg, ${alpha(theme.palette.primary.main, 0)} 0%, ${alpha(theme.palette.primary.main, 0.2)} 35%, ${alpha(theme.palette.secondary.main, 0.3)} 65%, ${alpha(theme.palette.secondary.main, 0)} 100%)`,
+            },
+          }}
+        >
           <Box
             sx={{
               position: "absolute",
@@ -346,265 +392,289 @@ export default function LandingPage() {
           <Box
             sx={{
               position: "relative",
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1.12fr) minmax(340px, 0.88fr)" },
-              gap: 3,
+              display: "block",
               alignItems: "stretch",
             }}
           >
             <Paper
               elevation={0}
               sx={{
-                p: { xs: 2.5, md: 4 },
-                borderRadius: 7,
-                minHeight: { xs: 360, md: 400 },
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              color: "common.white",
-              border: "1px solid",
-              borderColor: alpha("#ffffff", 0.16),
-              background:
-                "linear-gradient(135deg, rgba(10,40,79,1) 0%, rgba(18,58,99,0.98) 40%, rgba(28,123,130,0.94) 100%)",
-              boxShadow: "0 38px 78px -34px rgba(18,58,99,0.62)",
-              position: "relative",
-              overflow: "hidden",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                insetInlineEnd: -80,
-                top: -60,
-                width: 220,
-                height: 220,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.08)",
-              },
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                insetInlineStart: -40,
-                bottom: -90,
-                width: 260,
-                height: 260,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.08)",
-              },
-            }}
-          >
-            <Box sx={{ position: "relative", zIndex: 1 }}>
-              <Chip
-                label={t("landing.badge")}
-                sx={{
-                  mb: 2.5,
-                  color: "common.white",
-                  backgroundColor: alpha("#ffffff", 0.14),
-                  borderRadius: 999,
-                  fontWeight: 800,
-                  backdropFilter: "blur(10px)",
-                }}
-              />
-              <Typography
-                variant="h2"
-                sx={{
-                  fontWeight: 900,
-                  letterSpacing: "-0.06em",
-                  maxWidth: 700,
-                  mb: 1.5,
-                  lineHeight: 1.12,
-                  fontSize: { xs: "2rem", md: "3.25rem" },
-                }}
-              >
-                {data.heroTitle}
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  maxWidth: 620,
-                  opacity: 0.84,
-                  lineHeight: 1.75,
-                  fontWeight: 500,
-                  fontSize: { xs: "1rem", md: "1.1rem" },
-                }}
-              >
-                {data.heroSubtitle}
-              </Typography>
-            </Box>
-
-              <Stack spacing={2.25} sx={{ mt: 3, position: "relative", zIndex: 1 }}>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-                <Button
-                  size="large"
-                  variant="contained"
-                  endIcon={<ArrowOutwardIcon />}
-                  onClick={() => navigateTo(data.primaryButtonUrl || "/register")}
-                  sx={{
-                    px: 3,
-                    py: 1.1,
-                    borderRadius: 999,
-                    color: "primary.dark",
-                    backgroundColor: "common.white",
-                    fontWeight: 800,
-                    "&:hover": { backgroundColor: alpha("#ffffff", 0.92) },
-                  }}
-                >
-                  {data.primaryButtonText || t("landing.actions.register")}
-                </Button>
-                <Button
-                  size="large"
-                  variant="outlined"
-                  onClick={() => document.getElementById("landing-demo-section")?.scrollIntoView({ behavior: "smooth" })}
-                  sx={{
-                    px: 3,
-                    py: 1.1,
-                    borderRadius: 999,
-                    color: "common.white",
-                    borderColor: alpha("#ffffff", 0.45),
-                    fontWeight: 800,
-                    "&:hover": {
-                      borderColor: "common.white",
-                      backgroundColor: alpha("#ffffff", 0.08),
-                    },
-                  }}
-                >
-                  {t("landing.demo.bookButton", { defaultValue: "Book a demo" })}
-                </Button>
-              </Stack>
-
+                p: { xs: 1.1, md: 1.35 },
+                borderRadius: 6,
+                border: "1px solid",
+                borderColor: alpha(theme.palette.primary.main, 0.12),
+                boxShadow: "0 36px 76px -48px rgba(18,58,99,0.52)",
+                bgcolor: alpha("#ffffff", 0.78),
+                backdropFilter: "blur(9px)",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "repeat(3, minmax(0, 1fr))" },
-                  gap: 1,
+                  gridTemplateColumns: { xs: "1fr", lg: "minmax(0,1.2fr) minmax(320px,0.8fr)" },
+                  gap: 1.1,
                 }}
               >
-                {stats.map((item) => (
-                  <Paper
-                    key={item.label}
-                    elevation={0}
-                    sx={{
-                      p: 1.4,
-                      borderRadius: 4,
-                      border: "1px solid",
-                      borderColor: alpha("#ffffff", 0.12),
-                      backgroundColor: alpha("#ffffff", 0.08),
-                      backdropFilter: "blur(12px)",
-                    }}
-                  >
-                    <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mb: 0.25 }}>
-                      {item.value}
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.82, lineHeight: 1.5 }}>
-                      {item.label}
-                    </Typography>
-                  </Paper>
-                ))}
-              </Box>
-            </Stack>
-          </Paper>
-
-          <Stack spacing={3}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 2.5, md: 3 },
-              borderRadius: 6,
-              border: "1px solid",
-              borderColor: alpha(theme.palette.primary.main, 0.12),
-              background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(241,247,250,0.98) 100%)",
-              boxShadow: "0 24px 56px -42px rgba(18,58,99,0.4)",
-            }}
-          >
-            {loading ? (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 220 }}>
-                <CircularProgress />
-              </Box>
-            ) : (
-              <Stack spacing={2.5}>
-                <Box>
-                  <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
-                    {t("landing.highlights")}
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mb: 1.25 }}>
-                    {data.aboutTitle}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.85 }}>
-                    {data.aboutDescription}
-                  </Typography>
-                </Box>
-
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {(data.features || []).slice(0, 3).map((feature) => (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: { xs: 2.5, md: 4 },
+                    borderRadius: 5,
+                    color: "common.white",
+                    border: "1px solid",
+                    borderColor: alpha("#ffffff", 0.16),
+                    background:
+                      "linear-gradient(135deg, rgba(10,40,79,1) 0%, rgba(18,58,99,0.98) 40%, rgba(28,123,130,0.94) 100%)",
+                    boxShadow: "0 30px 62px -36px rgba(18,58,99,0.56)",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box sx={{ position: "relative", zIndex: 1 }}>
                     <Chip
-                      key={feature.title}
-                      label={feature.title}
+                      label={t("landing.badge")}
                       sx={{
+                        mb: 2.25,
+                        color: "common.white",
+                        backgroundColor: alpha("#ffffff", 0.14),
                         borderRadius: 999,
-                        fontWeight: 700,
-                        backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                        color: "primary.main",
+                        fontWeight: 800,
+                        backdropFilter: "blur(10px)",
                       }}
                     />
-                  ))}
-                </Stack>
-              </Stack>
-            )}
-          </Paper>
+                    <Typography
+                      variant="h2"
+                      sx={{
+                        fontWeight: 900,
+                        letterSpacing: "-0.03em",
+                        maxWidth: 680,
+                        mb: 1.25,
+                        lineHeight: 1.16,
+                        fontSize: { xs: "1.95rem", md: "2.7rem" },
+                      }}
+                    >
+                      {data.heroTitle}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        maxWidth: 620,
+                        opacity: 0.86,
+                        lineHeight: 1.72,
+                        fontWeight: 500,
+                        fontSize: { xs: "1rem", md: "1.1rem" },
+                      }}
+                    >
+                      {data.heroSubtitle}
+                    </Typography>
+                  </Box>
 
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 2.5, md: 3 },
-              borderRadius: 6,
-              color: "common.white",
-              border: "1px solid",
-              borderColor: alpha(theme.palette.primary.main, 0.08),
-              background: "linear-gradient(135deg, rgba(21,78,108,1) 0%, rgba(20,101,119,0.98) 100%)",
-              boxShadow: "0 28px 62px -40px rgba(18,58,99,0.55)",
-            }}
-          >
-            <Typography variant="overline" sx={{ opacity: 0.78, letterSpacing: "0.18em", fontWeight: 800 }}>
-              {t("landing.contactTitle")}
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mt: 1, mb: 1 }}>
-              {t("landing.contactSubtitle")}
-            </Typography>
+                  <Stack spacing={1.8} sx={{ mt: 2.5, position: "relative", zIndex: 1 }}>
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2}>
+                      <Button
+                        size="large"
+                        variant="contained"
+                        endIcon={<ArrowOutwardIcon />}
+                        onClick={() => navigateTo(data.primaryButtonUrl || "/register")}
+                        sx={{
+                          px: 3,
+                          py: 1.05,
+                          borderRadius: 999,
+                          color: "primary.dark",
+                          backgroundColor: "common.white",
+                          fontWeight: 800,
+                          "&:hover": { backgroundColor: alpha("#ffffff", 0.92) },
+                        }}
+                      >
+                        {data.primaryButtonText || t("landing.actions.register")}
+                      </Button>
+                      <Button
+                        size="large"
+                        variant="outlined"
+                        onClick={() => document.getElementById("landing-demo-section")?.scrollIntoView({ behavior: "smooth" })}
+                        sx={{
+                          px: 3,
+                          py: 1.05,
+                          borderRadius: 999,
+                          color: "common.white",
+                          borderColor: alpha("#ffffff", 0.45),
+                          fontWeight: 800,
+                          "&:hover": {
+                            borderColor: "common.white",
+                            backgroundColor: alpha("#ffffff", 0.08),
+                          },
+                        }}
+                      >
+                        {t("landing.demo.bookButton", { defaultValue: "Book a demo" })}
+                      </Button>
+                    </Stack>
 
-            <Stack spacing={1} sx={{ mt: 2 }}>
-              <Chip label={`${t("landing.contact.email")}: ${data.contactEmail || "-"}`} sx={{ justifyContent: "flex-start", bgcolor: alpha("#ffffff", 0.12), color: "common.white" }} />
-              <Chip label={`${t("landing.contact.phone")}: ${data.contactPhone || "-"}`} sx={{ justifyContent: "flex-start", bgcolor: alpha("#ffffff", 0.12), color: "common.white" }} />
-              <Chip label={`${t("landing.contact.address")}: ${data.contactAddress || "-"}`} sx={{ justifyContent: "flex-start", bgcolor: alpha("#ffffff", 0.12), color: "common.white" }} />
-            </Stack>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: { xs: "repeat(3, minmax(0, 1fr))" },
+                        gap: 1,
+                      }}
+                    >
+                      {stats.map((item) => (
+                        <Paper
+                          key={item.label}
+                          elevation={0}
+                          sx={{
+                            p: 1.15,
+                            borderRadius: 3,
+                            border: "1px solid",
+                            borderColor: alpha("#ffffff", 0.14),
+                            backgroundColor: alpha("#ffffff", 0.08),
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: "-0.03em", mb: 0.1 }}>
+                            {item.value}
+                          </Typography>
+                          <Typography variant="caption" sx={{ opacity: 0.83, lineHeight: 1.4 }}>
+                            {item.label}
+                          </Typography>
+                        </Paper>
+                      ))}
+                    </Box>
+                  </Stack>
+                </Paper>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2 }}>
-              <Button
-                variant="contained"
-                onClick={() => navigateTo("/about-us")}
-                sx={{
-                  borderRadius: 999,
-                  bgcolor: "common.white",
-                  color: "primary.dark",
-                  fontWeight: 800,
-                  "&:hover": { bgcolor: alpha("#ffffff", 0.92) },
-                }}
-              >
-                {t("landing.footer.links.aboutUs")}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => navigateTo("/contact-us")}
-                sx={{
-                  borderRadius: 999,
-                  borderColor: alpha("#ffffff", 0.38),
-                  color: "common.white",
-                  fontWeight: 800,
-                  "&:hover": { borderColor: "common.white", backgroundColor: alpha("#ffffff", 0.08) },
-                }}
-              >
-                {t("landing.footer.links.contactUs")}
-              </Button>
-            </Stack>
-          </Paper>
-          </Stack>
+                <Box sx={{ display: "grid", gap: 1.1 }}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: { xs: 2.2, md: 2.6 },
+                      borderRadius: 5,
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.primary.main, 0.12),
+                      background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(241,247,250,0.98) 100%)",
+                    }}
+                  >
+                    <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
+                      {t("landing.highlights")}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: "-0.03em", mb: 1 }}>
+                      {data.aboutTitle}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8, mb: 1.4 }}>
+                      {data.aboutDescription}
+                    </Typography>
+
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 1.25 }}>
+                      {(data.features || []).slice(0, 3).map((feature) => (
+                        <Chip
+                          key={feature.title}
+                          label={feature.title}
+                          size="small"
+                          sx={{
+                            borderRadius: 999,
+                            fontWeight: 700,
+                            backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                            color: "primary.main",
+                          }}
+                        />
+                      ))}
+                    </Stack>
+
+                    <Stack spacing={0.8}>
+                      {heroHighlights.map((item) => (
+                        <Box
+                          key={item.title}
+                          sx={{
+                            p: 1,
+                            borderRadius: 2.5,
+                            border: "1px solid",
+                            borderColor: alpha(theme.palette.primary.main, 0.1),
+                            bgcolor: alpha(theme.palette.primary.main, 0.03),
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: 1.7,
+                              display: "grid",
+                              placeItems: "center",
+                              color: "primary.main",
+                              bgcolor: alpha(theme.palette.primary.main, 0.1),
+                              flexShrink: 0,
+                            }}
+                          >
+                            {item.icon}
+                          </Box>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", lineHeight: 1.3 }}>
+                              {item.title}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {item.subtitle}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </Paper>
+
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: { xs: 2.2, md: 2.5 },
+                      borderRadius: 5,
+                      color: "common.white",
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.primary.main, 0.08),
+                      background: "linear-gradient(135deg, rgba(21,78,108,1) 0%, rgba(20,101,119,0.98) 100%)",
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ opacity: 0.84, fontWeight: 800 }}>
+                      {t("landing.contactTitle")}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 0.45, mb: 1.1, lineHeight: 1.75, opacity: 0.9 }}>
+                      {t("landing.contactSubtitle")}
+                    </Typography>
+                    <Stack spacing={0.75}>
+                      <Typography variant="caption">{`${t("landing.contact.email")}: ${data.contactEmail || "-"}`}</Typography>
+                      <Typography variant="caption">{`${t("landing.contact.phone")}: ${data.contactPhone || "-"}`}</Typography>
+                    </Stack>
+                    <Stack direction="row" spacing={1} sx={{ mt: 1.2 }}>
+                      <Button
+                        variant="contained"
+                        onClick={() => navigateTo("/contact-us")}
+                        sx={{
+                          borderRadius: 999,
+                          bgcolor: "common.white",
+                          color: "primary.dark",
+                          fontWeight: 800,
+                          px: 2.2,
+                          "&:hover": { bgcolor: alpha("#ffffff", 0.92) },
+                        }}
+                      >
+                        {t("landing.footer.links.contactUs")}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => navigateTo("/about-us")}
+                        sx={{
+                          borderRadius: 999,
+                          borderColor: alpha("#ffffff", 0.38),
+                          color: "common.white",
+                          fontWeight: 800,
+                          "&:hover": { borderColor: "common.white", backgroundColor: alpha("#ffffff", 0.08) },
+                        }}
+                      >
+                        {t("landing.footer.links.aboutUs")}
+                      </Button>
+                    </Stack>
+                  </Paper>
+                </Box>
+              </Box>
+            </Paper>
           </Box>
         </Box>
 
@@ -617,6 +687,7 @@ export default function LandingPage() {
             border: "1px solid",
             borderColor: alpha(theme.palette.primary.main, 0.1),
             background: "linear-gradient(180deg, rgba(255,255,255,0.84) 0%, rgba(247,250,252,0.96) 100%)",
+            boxShadow: "0 24px 56px -44px rgba(18,58,99,0.26)",
           }}
         >
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
@@ -649,6 +720,14 @@ export default function LandingPage() {
                   color: index === 1 ? "common.white" : "text.primary",
                   transform: "none",
                   boxShadow: index === 1 ? "0 28px 60px -34px rgba(18,58,99,0.46)" : "none",
+                  transition: "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
+                  animation: "scale-in 0.42s ease-out both",
+                  animationDelay: `${index * 90}ms`,
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    borderColor: alpha(theme.palette.primary.main, 0.24),
+                    boxShadow: index === 1 ? "0 30px 64px -32px rgba(18,58,99,0.54)" : "0 26px 52px -38px rgba(18,58,99,0.3)",
+                  },
                 }}
               >
                 <CardContent sx={{ p: 2.5 }}>
@@ -691,6 +770,7 @@ export default function LandingPage() {
             border: "1px solid",
             borderColor: alpha(theme.palette.primary.main, 0.1),
             background: "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(243,248,251,0.98) 100%)",
+            boxShadow: "0 24px 56px -42px rgba(18,58,99,0.22)",
           }}
         >
           <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
@@ -707,7 +787,7 @@ export default function LandingPage() {
               gap: 2,
             }}
           >
-            {pricingCycleCards.map((card) => (
+            {pricingCycleCards.map((card, index) => (
               <Card
                 key={card.billingCycle}
                 elevation={0}
@@ -724,6 +804,16 @@ export default function LandingPage() {
                     card.billingCycle === "Annual"
                       ? "0 30px 62px -36px rgba(18,58,99,0.48)"
                       : "0 20px 42px -36px rgba(18,58,99,0.32)",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  animation: "scale-in 0.42s ease-out both",
+                  animationDelay: `${index * 80}ms`,
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow:
+                      card.billingCycle === "Annual"
+                        ? "0 34px 66px -32px rgba(18,58,99,0.6)"
+                        : "0 28px 56px -34px rgba(18,58,99,0.4)",
+                  },
                 }}
               >
                 <CardContent sx={{ p: 2.5 }}>
@@ -742,6 +832,20 @@ export default function LandingPage() {
                       }}
                     />
                   </Stack>
+                  {card.billingCycle === "Annual" && (
+                    <Chip
+                      size="small"
+                      label={t("subscription.bestValue", { defaultValue: "Best value" })}
+                      sx={{
+                        mb: 1.25,
+                        borderRadius: 999,
+                        fontWeight: 800,
+                        color: "common.white",
+                        bgcolor: alpha("#ffffff", 0.16),
+                        border: `1px solid ${alpha("#ffffff", 0.28)}`,
+                      }}
+                    />
+                  )}
                   <Typography variant="body2" color={card.billingCycle === "Annual" ? "inherit" : "text.secondary"} sx={{ mb: 1.25, opacity: card.billingCycle === "Annual" ? 0.84 : 1, lineHeight: 1.75 }}>
                     {card.description}
                   </Typography>
@@ -804,14 +908,35 @@ export default function LandingPage() {
             border: "1px solid",
             borderColor: alpha(theme.palette.primary.main, 0.1),
             background: "linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(246,250,252,0.96) 100%)",
+            boxShadow: "0 24px 56px -42px rgba(18,58,99,0.2)",
           }}
         >
-          <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
-            {t("landing.partners.title", { defaultValue: "Our partners" })}
-          </Typography>
-          <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.04em", mb: 2.5 }}>
-            {t("landing.partners.subtitle", { defaultValue: "Law firms already operating with our platform" })}
-          </Typography>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1}
+            alignItems={{ xs: "flex-start", sm: "center" }}
+            justifyContent="space-between"
+            sx={{ mb: 2.5 }}
+          >
+            <Box>
+              <Typography variant="overline" color="primary.main" sx={{ fontWeight: 800, letterSpacing: "0.18em" }}>
+                {t("landing.partners.title", { defaultValue: "Our partners" })}
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.04em" }}>
+                {t("landing.partners.subtitle", { defaultValue: "Law firms already operating with our platform" })}
+              </Typography>
+            </Box>
+            <Chip
+              label={`${partners.length.toLocaleString(currentLanguage === "ar" ? "ar-SA" : "en-US")} ${t("landing.partners.count", { defaultValue: "partners" })}`}
+              sx={{
+                borderRadius: 999,
+                fontWeight: 800,
+                color: "primary.main",
+                bgcolor: alpha(theme.palette.primary.main, 0.08),
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.16)}`,
+              }}
+            />
+          </Stack>
 
           {visiblePartners.length > 0 ? (
             <Box>
@@ -994,6 +1119,20 @@ export default function LandingPage() {
             background: "linear-gradient(135deg, rgba(18,58,99,0.08) 0%, rgba(28,123,130,0.12) 100%)",
             mb: 4,
             boxShadow: "0 28px 60px -44px rgba(18,58,99,0.34)",
+            position: "relative",
+            overflow: "hidden",
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              insetInlineEnd: -60,
+              top: -80,
+              width: 190,
+              height: 190,
+              borderRadius: "50%",
+              background: alpha(theme.palette.secondary.main, 0.2),
+              filter: "blur(16px)",
+              pointerEvents: "none",
+            },
           }}
         >
           <Box
@@ -1035,6 +1174,8 @@ export default function LandingPage() {
                 backgroundColor: alpha("#ffffff", 0.96),
                 display: "grid",
                 gap: 1.5,
+                position: "relative",
+                zIndex: 1,
               }}
             >
               <TextField label={t("landing.demo.fields.fullName", { defaultValue: "Full name" })} value={demoForm.fullName} onChange={(e) => updateDemoField("fullName", e.target.value)} fullWidth />
@@ -1051,7 +1192,16 @@ export default function LandingPage() {
                 variant="contained"
                 onClick={submitDemoRequest}
                 disabled={demoSubmitting}
-                sx={{ borderRadius: 999, fontWeight: 800, background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)" }}
+                sx={{
+                  borderRadius: 999,
+                  fontWeight: 800,
+                  background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                  py: 1.15,
+                  boxShadow: "0 14px 30px -16px rgba(18,58,99,0.45)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #0f3358 0%, #1a7279 100%)",
+                  },
+                }}
               >
                 {t("landing.demo.submit", { defaultValue: "Send demo request" })}
               </Button>

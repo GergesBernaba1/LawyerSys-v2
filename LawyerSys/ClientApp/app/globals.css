@@ -10,6 +10,7 @@
   --app-panel-border: rgba(20, 52, 90, 0.1);
   --app-shadow-soft: 0 20px 45px -28px rgba(15, 23, 42, 0.24);
   --app-shadow-strong: 0 30px 70px -40px rgba(20, 52, 90, 0.4);
+  --app-focus-ring: rgba(45, 106, 135, 0.34);
 }
 
 html {
@@ -22,6 +23,11 @@ body {
   background:
     radial-gradient(circle at top, rgba(45, 106, 135, 0.08) 0%, rgba(45, 106, 135, 0) 28%),
     linear-gradient(180deg, #eef4fa 0%, #f8fbfd 100%);
+}
+
+::selection {
+  color: #ffffff;
+  background: #1f5c7a;
 }
 
 a {
@@ -40,6 +46,35 @@ button,
     background-color 0.18s ease;
 }
 
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(31, 92, 122, 0.45) rgba(15, 23, 42, 0.08);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, rgba(20, 52, 90, 0.8) 0%, rgba(45, 106, 135, 0.78) 100%);
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -51,8 +86,38 @@ button,
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   @keyframes fade-in-up {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes scale-in {
     from {
       opacity: 1;
       transform: none;
