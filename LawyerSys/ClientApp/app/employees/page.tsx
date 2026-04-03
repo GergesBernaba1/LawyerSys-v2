@@ -129,11 +129,11 @@ function normalizeEmployee(raw: any): Employee {
 }
 
 export default function EmployeesPageClient() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const params = useParams() as { locale?: string } | undefined;
   const locale = params?.locale || 'ar';
-  const isRTL = theme.direction === 'rtl' || locale.startsWith('ar');
+  const isRTL = i18n.dir(i18n.language) === 'rtl' || theme.direction === 'rtl' || locale.startsWith('ar');
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
   const { formatCurrency, currencyCode } = useCurrency();
@@ -150,8 +150,21 @@ export default function EmployeesPageClient() {
   const [salary, setSalary] = useState<number | ''>('');
   const [openDialog, setOpenDialog] = useState(false);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [createProfileImageFile, setCreateProfileImageFile] = useState<File | null>(null);
+  const [createProfileImagePreview, setCreateProfileImagePreview] = useState<string>('');
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
   const imageInputRef = React.useRef<HTMLInputElement | null>(null);
+  const createImageInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!createProfileImageFile) {
+      setCreateProfileImagePreview('');
+      return;
+    }
+    const objectUrl = URL.createObjectURL(createProfileImageFile);
+    setCreateProfileImagePreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [createProfileImageFile]);
 
   function parseSalaryInput(value: string): number | '' {
     if (value.trim() === '') return '';
@@ -164,6 +177,7 @@ export default function EmployeesPageClient() {
     setEditItem(null);
     setSelectedUser('');
     setSalary('');
+    setCreateProfileImageFile(null);
     setOpenDialog(true);
   }
 
@@ -179,6 +193,7 @@ export default function EmployeesPageClient() {
     setEditItem(null);
     setSelectedUser('');
     setSalary('');
+    setCreateProfileImageFile(null);
   }
 
   const load = useCallback(async () => {
@@ -256,14 +271,64 @@ export default function EmployeesPageClient() {
     }
 
     try {
-      await api.post(
+      const response = await api.post(
         '/Employees',
         { usersId: selectedUser, salary: Number(salary) },
         isSuperAdmin && selectedTenantId ? { headers: { 'X-Firm-Id': String(selectedTenantId) } } : undefined
       );
+      let imageUploadFailed = false;
+      if (createProfileImageFile) {
+        const idCandidates = [
+          response.data?.id,
+          response.data?.Id,
+          response.data?.employeeId,
+          response.data?.EmployeeId,
+          response.data?.employee?.id,
+          response.data?.employee?.Id,
+          response.data?.data?.id,
+          response.data?.data?.Id,
+          response.data?.result?.id,
+          response.data?.result?.Id,
+        ];
+        let createdEmployeeId: number | undefined;
+        for (const candidate of idCandidates) {
+          const value = Number(candidate);
+          if (Number.isFinite(value) && value > 0) {
+            createdEmployeeId = value;
+            break;
+          }
+        }
+
+        if (!createdEmployeeId) {
+          const listResponse = await api.get('/Employees');
+          const source = asArray<any>(listResponse.data).map(normalizeEmployee);
+          const employee = source.find((item) => Number(item.usersId) === Number(selectedUser));
+          createdEmployeeId = employee?.id;
+        }
+
+        if (createdEmployeeId) {
+          try {
+            const formData = new FormData();
+            formData.append('file', createProfileImageFile);
+            await api.post(`/Employees/${createdEmployeeId}/profile-image`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+          } catch {
+            imageUploadFailed = true;
+          }
+        } else {
+          imageUploadFailed = true;
+        }
+      }
       await load();
       closeDialog();
-      setSnackbar({ open: true, message: t('employees.employeeCreated'), severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: imageUploadFailed
+          ? `${t('employees.employeeCreated')}. ${t('employees.profileImageUploadFailedAfterCreate', { defaultValue: 'Employee created, but image upload failed.' })}`
+          : t('employees.employeeCreated'),
+        severity: imageUploadFailed ? 'error' : 'success'
+      });
     } catch (err: any) {
       setSnackbar({ open: true, message: err?.response?.data?.message ?? t('employees.failedCreate'), severity: 'error' });
     }
@@ -505,6 +570,7 @@ export default function EmployeesPageClient() {
 
       {/* Create Dialog */}
       <Dialog 
+        dir={isRTL ? 'rtl' : 'ltr'}
         open={openDialog} 
         onClose={() => setOpenDialog(false)} 
         maxWidth="sm" 
@@ -539,45 +605,81 @@ export default function EmployeesPageClient() {
                   InputProps={{ readOnly: true }}
                   variant="outlined"
                 />
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                  <Avatar src={editItem.profileImageUrl} sx={{ width: 56, height: 56, bgcolor: 'secondary.main' }}>
-                    <PersonIcon fontSize="small" />
-                  </Avatar>
-                  <Button
-                    variant="outlined"
-                    onClick={() => imageInputRef.current?.click()}
-                    disabled={uploadingProfileImage}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    {uploadingProfileImage ? t('employees.loading', { defaultValue: 'Loading...' }) : t('files.upload', { defaultValue: 'Upload' })}
-                  </Button>
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={(event) => {
-                      const selected = event.target.files?.[0];
-                      event.currentTarget.value = '';
-                      if (selected) {
-                        void uploadEmployeeProfileImage(selected);
-                      }
-                    }}
-                  />
+                <Box sx={{ direction: 'inherit', textAlign: 'start' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, textAlign: 'start' }}>
+                    {t('profile.profileImageSection', { defaultValue: 'Profile Image' })}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, direction: 'inherit', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                    <Avatar src={editItem.profileImageUrl} sx={{ width: 56, height: 56, bgcolor: 'secondary.main' }}>
+                      <PersonIcon fontSize="small" />
+                    </Avatar>
+                    <Button
+                      variant="outlined"
+                      onClick={() => imageInputRef.current?.click()}
+                      disabled={uploadingProfileImage}
+                      sx={{ borderRadius: 2 }}
+                    >
+                      {uploadingProfileImage ? t('employees.loading', { defaultValue: 'Loading...' }) : t('files.upload', { defaultValue: 'Upload' })}
+                    </Button>
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(event) => {
+                        const selected = event.target.files?.[0];
+                        event.currentTarget.value = '';
+                        if (selected) {
+                          void uploadEmployeeProfileImage(selected);
+                        }
+                      }}
+                    />
+                  </Box>
                 </Box>
               </>
             ) : (
-              <SearchableSelect<number>
-                label={t('employees.selectUser')}
-                value={typeof selectedUser === 'number' ? selectedUser : null}
-                onChange={(value) => setSelectedUser(value ?? '')}
-                options={users.map((u) => ({
-                  value: u.id,
-                  label: u.fullName || u.userName || u.email || `#${u.id}`,
-                  keywords: [u.userName || '', u.email || ''],
-                }))}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-              />
+              <>
+                <Box sx={{ direction: 'inherit', textAlign: 'start' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, textAlign: 'start' }}>
+                    {t('profile.profileImageSection', { defaultValue: 'Profile Image' })}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, direction: 'inherit', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                    <Avatar src={createProfileImagePreview || undefined} sx={{ width: 56, height: 56, bgcolor: 'secondary.main' }}>
+                      <PersonIcon fontSize="small" />
+                    </Avatar>
+                    <Button
+                      variant="outlined"
+                      onClick={() => createImageInputRef.current?.click()}
+                      sx={{ borderRadius: 2 }}
+                    >
+                      {t('files.upload', { defaultValue: 'Upload' })}
+                    </Button>
+                    <input
+                      ref={createImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(event) => {
+                        const selected = event.target.files?.[0] ?? null;
+                        event.currentTarget.value = '';
+                        setCreateProfileImageFile(selected);
+                      }}
+                    />
+                  </Box>
+
+                </Box>
+                <SearchableSelect<number>
+                  label={t('employees.selectUser')}
+                  value={typeof selectedUser === 'number' ? selectedUser : null}
+                  onChange={(value) => setSelectedUser(value ?? '')}
+                  options={users.map((u) => ({
+                    value: u.id,
+                    label: u.fullName || u.userName || u.email || `#${u.id}`,
+                    keywords: [u.userName || '', u.email || ''],
+                  }))}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                />
+              </>
             )}
             
             <TextField 

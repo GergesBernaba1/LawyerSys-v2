@@ -575,7 +575,10 @@
                       "sendResetEmail":  "إرسال بريد إعادة التعيين",
                       "confirmSendResetEmail":  "هل تريد إرسال بريد إعادة تعيين كلمة المرور لهذا العميل؟",
                       "resetEmailSent":  "تم إرسال بريد إعادة تعيين كلمة المرور بنجاح",
-                      "failedSendResetEmail":  "فشل إرسال بريد إعادة تعيين كلمة المرور"
+                      "failedSendResetEmail":  "فشل إرسال بريد إعادة تعيين كلمة المرور",
+                      "profileImageAfterCreate":  "يمكنك رفع صورة الملف الشخصي بعد إنشاء العميل.",
+                      "profileImageCreateHint":  "اختر الصورة الآن وسيتم رفعها بعد إنشاء العميل.",
+                      "profileImageUploadFailedAfterCreate":  "تم إنشاء العميل ولكن فشل رفع الصورة."
                   },
     "employees":  {
                       "title":  "الموظفين",
@@ -609,7 +612,10 @@
                       "address":  "العنوان",
                       "phoneNumber":  "رقم الهاتف",
                       "ssn":  "رقم الهوية",
-                      "dateOfBirth":  "تاريخ الميلاد"
+                      "dateOfBirth":  "تاريخ الميلاد",
+                      "profileImageAfterCreate":  "يمكنك رفع صورة الملف الشخصي بعد إنشاء الموظف.",
+                      "profileImageCreateHint":  "اختر الصورة الآن وسيتم رفعها بعد إنشاء الموظف.",
+                      "profileImageUploadFailedAfterCreate":  "تم إنشاء الموظف ولكن فشل رفع الصورة."
                   },
     "files":  {
                   "title":  "الملفات",

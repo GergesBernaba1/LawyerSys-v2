@@ -215,9 +215,9 @@ function normalizeProfile(raw: any) {
 }
 
 export default function CustomersPageClient() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const isRTL = theme.direction === 'rtl';
+  const isRTL = i18n.dir(i18n.language) === 'rtl' || theme.direction === 'rtl';
   const router = useRouter();
   const { isAuthenticated, hasRole } = useAuth();
   const isSuperAdmin = hasRole('SuperAdmin');
@@ -234,6 +234,8 @@ export default function CustomersPageClient() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [createProfileImageFile, setCreateProfileImageFile] = useState<File | null>(null);
+  const [createProfileImagePreview, setCreateProfileImagePreview] = useState<string>('');
   const [sendingResetForId, setSendingResetForId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<EditCustomerForm>({
     fullName: '',
@@ -255,7 +257,18 @@ export default function CustomersPageClient() {
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
   const [assignmentUndo, setAssignmentUndo] = useState<{ caseCode: number; prevEmployeeId?: number | null } | null>(null);
   const imageInputRef = React.useRef<HTMLInputElement | null>(null);
+  const createImageInputRef = React.useRef<HTMLInputElement | null>(null);
   const customerItems = Array.isArray(items) ? items : [];
+
+  useEffect(() => {
+    if (!createProfileImageFile) {
+      setCreateProfileImagePreview('');
+      return;
+    }
+    const objectUrl = URL.createObjectURL(createProfileImageFile);
+    setCreateProfileImagePreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [createProfileImageFile]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -387,6 +400,34 @@ export default function CustomersPageClient() {
     } finally {
       setUploadingProfileImage(false);
     }
+  }
+
+  async function uploadCustomerProfileImageById(customerId: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    await api.post(`/Customers/${customerId}/profile-image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
+
+  function getCreatedCustomerId(payload: any): number | undefined {
+    const candidates = [
+      payload?.id,
+      payload?.Id,
+      payload?.customerId,
+      payload?.CustomerId,
+      payload?.customer?.id,
+      payload?.customer?.Id,
+      payload?.data?.id,
+      payload?.data?.Id,
+      payload?.result?.id,
+      payload?.result?.Id,
+    ];
+    for (const candidate of candidates) {
+      const value = Number(candidate);
+      if (Number.isFinite(value) && value > 0) return value;
+    }
+    return undefined;
   }
 
   async function handleUpdateCustomer() {
@@ -660,8 +701,9 @@ export default function CustomersPageClient() {
 
       {/* Create with user dialog */}
       <Dialog 
+        dir={isRTL ? 'rtl' : 'ltr'}
         open={openCreateWithUser} 
-        onClose={() => setOpenCreateWithUser(false)} 
+        onClose={() => { setOpenCreateWithUser(false); setCreateProfileImageFile(null); }} 
         maxWidth="md" 
         fullWidth
         PaperProps={{
@@ -672,6 +714,34 @@ export default function CustomersPageClient() {
           {t('customers.createNewWithUser')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
+          <Box sx={{ mt: 2, mb: 2.5, direction: 'inherit', textAlign: 'start' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, textAlign: 'start' }}>
+              {t('profile.profileImageSection', { defaultValue: 'Profile Image' })}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, direction: 'inherit', flexDirection: 'row', justifyContent: 'flex-start' }}>
+              <Avatar src={createProfileImagePreview || undefined} sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
+                <PersonIcon fontSize="small" />
+              </Avatar>
+              <Button
+                variant="outlined"
+                onClick={() => createImageInputRef.current?.click()}
+                sx={{ borderRadius: 2 }}
+              >
+                {t('files.upload', { defaultValue: 'Upload' })}
+              </Button>
+              <input
+                ref={createImageInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(event) => {
+                  const selected = event.target.files?.[0] ?? null;
+                  event.currentTarget.value = '';
+                  setCreateProfileImageFile(selected);
+                }}
+              />
+            </Box>
+          </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
             {isSuperAdmin && (
               <SearchableSelect<number>
@@ -780,7 +850,7 @@ export default function CustomersPageClient() {
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button 
-            onClick={() => setOpenCreateWithUser(false)}
+            onClick={() => { setOpenCreateWithUser(false); setCreateProfileImageFile(null); }}
             sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}
           >
             {t('app.cancel')}
@@ -814,13 +884,37 @@ export default function CustomersPageClient() {
                   payload,
                   isSuperAdmin && selectedTenantId ? { headers: { 'X-Firm-Id': String(selectedTenantId) } } : undefined
                 );
+                let imageUploadFailed = false;
+                if (createProfileImageFile) {
+                  let createdId = getCreatedCustomerId(r.data);
+                  if (!createdId) {
+                    const listResponse = await api.get('/Customers');
+                    const source = Array.isArray(listResponse.data) ? listResponse.data : (Array.isArray(listResponse.data?.items) ? listResponse.data.items : []);
+                    const byUserName = source.map(normalizeCustomer).find((item) => item.userName?.toLowerCase() === createForm.userName.trim().toLowerCase());
+                    createdId = byUserName?.id;
+                  }
+                  if (createdId) {
+                    try {
+                      await uploadCustomerProfileImageById(createdId, createProfileImageFile);
+                    } catch {
+                      imageUploadFailed = true;
+                    }
+                  } else {
+                    imageUploadFailed = true;
+                  }
+                }
                 const credentials = r.data?.tempCredentials;
                 const successMessage = credentials?.userName
                   ? `${t('customers.customerCreated')} - ${t('customers.userName')}: ${credentials.userName}`
                   : t('customers.customerCreated');
-                setSnackbar({ open: true, message: successMessage, severity: 'success' });
+                setSnackbar({
+                  open: true,
+                  message: imageUploadFailed ? `${successMessage}. ${t('customers.profileImageUploadFailedAfterCreate', { defaultValue: 'Customer created, but image upload failed.' })}` : successMessage,
+                  severity: imageUploadFailed ? 'error' : 'success'
+                });
                 setOpenCreateWithUser(false);
                 setCreateForm({ fullName: '', email: '', address: '', job: '', phoneNumber: '', dateOfBirth: '', ssn: '', userName: '', password: '', confirmPassword: '' });
+                setCreateProfileImageFile(null);
                 setShowCreatePassword(false);
                 setShowCreateConfirmPassword(false);
                 load();
@@ -836,6 +930,7 @@ export default function CustomersPageClient() {
 
       {/* Edit customer dialog */}
       <Dialog
+        dir={isRTL ? 'rtl' : 'ltr'}
         open={openEditDialog}
         onClose={() => setOpenEditDialog(false)}
         maxWidth="sm"
@@ -848,31 +943,36 @@ export default function CustomersPageClient() {
           {t('common.edit')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-            <Avatar src={editItem?.profileImageUrl} sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
-              <PersonIcon fontSize="small" />
-            </Avatar>
-            <Button
-              variant="outlined"
-              onClick={() => imageInputRef.current?.click()}
-              disabled={!editItem || uploadingProfileImage}
-              sx={{ borderRadius: 2 }}
-            >
-              {uploadingProfileImage ? t('customers.loading', { defaultValue: 'Loading...' }) : t('files.upload', { defaultValue: 'Upload' })}
-            </Button>
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(event) => {
-                const selected = event.target.files?.[0];
-                event.currentTarget.value = '';
-                if (selected) {
-                  void uploadCustomerProfileImage(selected);
-                }
-              }}
-            />
+          <Box sx={{ mt: 2, mb: 2.5, direction: 'inherit', textAlign: 'start' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, textAlign: 'start' }}>
+              {t('profile.profileImageSection', { defaultValue: 'Profile Image' })}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, direction: 'inherit', flexDirection: 'row', justifyContent: 'flex-start' }}>
+              <Avatar src={editItem?.profileImageUrl} sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
+                <PersonIcon fontSize="small" />
+              </Avatar>
+              <Button
+                variant="outlined"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={!editItem || uploadingProfileImage}
+                sx={{ borderRadius: 2 }}
+              >
+                {uploadingProfileImage ? t('customers.loading', { defaultValue: 'Loading...' }) : t('files.upload', { defaultValue: 'Upload' })}
+              </Button>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(event) => {
+                  const selected = event.target.files?.[0];
+                  event.currentTarget.value = '';
+                  if (selected) {
+                    void uploadCustomerProfileImage(selected);
+                  }
+                }}
+              />
+            </Box>
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
             <TextField
@@ -961,6 +1061,7 @@ export default function CustomersPageClient() {
 
       {/* Profile dialog */}
       <Dialog 
+        dir={isRTL ? 'rtl' : 'ltr'}
         open={profileOpen} 
         onClose={()=>setProfileOpen(false)} 
         maxWidth="md" 

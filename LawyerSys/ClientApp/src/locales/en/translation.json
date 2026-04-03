@@ -575,7 +575,10 @@
                       "sendResetEmail":  "Send Reset Email",
                       "confirmSendResetEmail":  "Send password reset email to this customer?",
                       "resetEmailSent":  "Password reset email sent successfully",
-                      "failedSendResetEmail":  "Failed to send password reset email"
+                      "failedSendResetEmail":  "Failed to send password reset email",
+                      "profileImageAfterCreate":  "You can upload a profile image after creating the customer.",
+                      "profileImageCreateHint":  "Choose an image now; it will be uploaded after the customer is created.",
+                      "profileImageUploadFailedAfterCreate":  "Customer created, but image upload failed."
                   },
     "employees":  {
                       "title":  "Employees",
@@ -609,7 +612,10 @@
                       "address":  "Address",
                       "phoneNumber":  "Phone Number",
                       "ssn":  "National ID",
-                      "dateOfBirth":  "Date of Birth"
+                      "dateOfBirth":  "Date of Birth",
+                      "profileImageAfterCreate":  "You can upload a profile image after creating the employee.",
+                      "profileImageCreateHint":  "Choose an image now; it will be uploaded after the employee is created.",
+                      "profileImageUploadFailedAfterCreate":  "Employee created, but image upload failed."
                   },
     "files":  {
                   "title":  "Files",
