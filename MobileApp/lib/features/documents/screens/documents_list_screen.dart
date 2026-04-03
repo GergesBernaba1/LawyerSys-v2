@@ -29,7 +29,9 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
   @override
   void initState() {
     super.initState();
-    _bloc = DocumentsBloc(documentsRepository: DocumentsRepository(ApiClient(), LocalDatabase.instance));
+    _bloc = DocumentsBloc(
+        documentsRepository:
+            DocumentsRepository(ApiClient(), LocalDatabase.instance));
     _bloc.add(LoadDocuments());
   }
 
@@ -71,8 +73,12 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                 itemBuilder: (context, index) {
                   final document = docs[index];
                   return ListTile(
-                    leading: Icon(document.isPdf ? Icons.picture_as_pdf : Icons.insert_drive_file),
-                    title: Text(document.code.isNotEmpty ? document.code : document.fileName),
+                    leading: Icon(document.isPdf
+                        ? Icons.picture_as_pdf
+                        : Icons.insert_drive_file),
+                    title: Text(document.code.isNotEmpty
+                        ? document.code
+                        : document.fileName),
                     subtitle: Text(document.fileName),
                     trailing: IconButton(
                       icon: const Icon(Icons.download),
@@ -82,10 +88,16 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                       if (document.isPdf || document.isImage) {
                         final downloaded = await _downloadOrReuse(document);
                         if (downloaded != null && context.mounted) {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => DocumentViewerScreen(documentFile: downloaded, document: document)));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => DocumentViewerScreen(
+                                      documentFile: downloaded,
+                                      document: document)));
                         }
                       } else {
-                        final url = '${ApiConstants.baseUrl}/api/files/${document.id}/download';
+                        final url =
+                            '${ApiConstants.apiRoot}/api/files/${document.id}/download';
                         if (await canLaunchUrl(Uri.parse(url))) {
                           await launchUrl(Uri.parse(url));
                         }
@@ -110,9 +122,11 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     }
 
     try {
-      final dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl, headers: {'Content-Type': 'application/octet-stream'}));
+      final dio = Dio(BaseOptions(
+          baseUrl: ApiConstants.baseUrl,
+          headers: {'Content-Type': 'application/octet-stream'}));
       final response = await dio.get<List<int>>(
-        '/api/files/${document.id}/download',
+        '/files/${document.id}/download',
         options: Options(responseType: ResponseType.bytes),
       );
       if (response.statusCode != 200 || response.data == null) {
@@ -123,7 +137,8 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
       return localFile;
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Download failed: $e')));
       }
       return null;
     }

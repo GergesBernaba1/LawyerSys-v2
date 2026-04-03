@@ -17,39 +17,38 @@ class CaseFormScreen extends StatefulWidget {
 
 class _CaseFormScreenState extends State<CaseFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _caseNumberController = TextEditingController();
-  final _caseTypeController = TextEditingController();
-  final _statusController = TextEditingController();
-  final _customerController = TextEditingController();
-  final _courtController = TextEditingController();
-  final _filingDateController = TextEditingController();
-  final _closingDateController = TextEditingController();
+  final _codeController = TextEditingController();
+  final _typeController = TextEditingController();
+  final _statementController = TextEditingController();
+  final _dateController = TextEditingController();
+  final _amountController = TextEditingController();
+  final _notesController = TextEditingController();
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.caseModel != null) {
-      _caseNumberController.text = widget.caseModel!.caseNumber;
-      _caseTypeController.text = widget.caseModel!.caseType;
-      _statusController.text = widget.caseModel!.caseStatus;
-      _customerController.text = widget.caseModel!.customerFullName;
-      _courtController.text = widget.caseModel!.courtName;
-      _filingDateController.text = widget.caseModel!.filingDate?.toIso8601String().split('T').first ?? '';
-      _closingDateController.text = widget.caseModel!.closingDate?.toIso8601String().split('T').first ?? '';
+    final model = widget.caseModel;
+    if (model != null) {
+      _codeController.text = model.code.toString();
+      _typeController.text = model.invitionType;
+      _statementController.text = model.invitionsStatment;
+      _dateController.text =
+          model.invitionDate?.toIso8601String().split('T').first ?? '';
+      _amountController.text = model.totalAmount.toString();
+      _notesController.text = model.notes;
     }
   }
 
   @override
   void dispose() {
-    _caseNumberController.dispose();
-    _caseTypeController.dispose();
-    _statusController.dispose();
-    _customerController.dispose();
-    _courtController.dispose();
-    _filingDateController.dispose();
-    _closingDateController.dispose();
+    _codeController.dispose();
+    _typeController.dispose();
+    _statementController.dispose();
+    _dateController.dispose();
+    _amountController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -61,37 +60,46 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
       lastDate: DateTime(2100),
     );
     if (picked != null && mounted) {
-      controller.text = '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      controller.text =
+          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
     }
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    final code = int.tryParse(_codeController.text.trim());
+    final amount = int.tryParse(_amountController.text.trim()) ?? 0;
+    if (code == null || code <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Case code must be a positive number')));
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    final caseModel = CaseModel(
-      caseId: widget.caseModel?.caseId ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      tenantId: widget.caseModel?.tenantId ?? '',
-      caseNumber: _caseNumberController.text,
-      invitationType: widget.caseModel?.invitationType ?? 'Standard',
-      caseStatus: _statusController.text,
-      caseType: _caseTypeController.text,
-      filingDate: _filingDateController.text.isEmpty ? null : DateTime.tryParse(_filingDateController.text),
-      closingDate: _closingDateController.text.isEmpty ? null : DateTime.tryParse(_closingDateController.text),
-      customerId: widget.caseModel?.customerId ?? '',
-      customerFullName: _customerController.text,
-      courtId: widget.caseModel?.courtId ?? '',
-      courtName: _courtController.text,
-      assignedEmployees: widget.caseModel?.assignedEmployees ?? [],
-      lastSyncedAt: widget.caseModel?.lastSyncedAt,
+    final existing = widget.caseModel;
+    final model = CaseModel(
+      id: existing?.id ?? 0,
+      code: code,
+      invitionsStatment: _statementController.text.trim(),
+      invitionType: _typeController.text.trim(),
+      invitionDate: _dateController.text.isEmpty
+          ? null
+          : DateTime.tryParse(_dateController.text),
+      totalAmount: amount,
+      notes: _notesController.text.trim(),
+      status: existing?.status ?? 0,
+      tenantId: existing?.tenantId ?? '',
+      assignedEmployees: existing?.assignedEmployees ?? const [],
+      lastSyncedAt: DateTime.now(),
       isDirty: true,
     );
 
-    if (widget.caseModel == null) {
-      context.read<CasesBloc>().add(CreateCase(caseModel));
+    if (existing == null) {
+      context.read<CasesBloc>().add(CreateCase(model));
     } else {
-      context.read<CasesBloc>().add(UpdateCase(caseModel));
+      context.read<CasesBloc>().add(UpdateCase(model));
     }
 
     Navigator.pop(context);
@@ -104,7 +112,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? localizer.edit : localizer.create),
+        title: Text(isEdit ? localizer.edit : localizer.createCase),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -115,52 +123,78 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                 child: Column(
                   children: [
                     TextFormField(
-                      controller: _caseNumberController,
-                      decoration: InputDecoration(labelText: localizer.caseNumber, border: const OutlineInputBorder()),
-                      validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
+                      controller: _codeController,
+                      decoration: InputDecoration(
+                          labelText: localizer.caseNumber,
+                          border: const OutlineInputBorder()),
+                      keyboardType: TextInputType.number,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? localizer.allFieldsAreRequired
+                              : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: _caseTypeController,
-                      decoration: InputDecoration(labelText: localizer.caseType, border: const OutlineInputBorder()),
-                      validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
+                      controller: _typeController,
+                      decoration: InputDecoration(
+                          labelText: localizer.caseType,
+                          border: const OutlineInputBorder()),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? localizer.allFieldsAreRequired
+                              : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: _statusController,
-                      decoration: InputDecoration(labelText: localizer.status, border: const OutlineInputBorder()),
-                      validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
+                      controller: _statementController,
+                      decoration: const InputDecoration(
+                          labelText: 'Statement', border: OutlineInputBorder()),
+                      minLines: 3,
+                      maxLines: 5,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? localizer.allFieldsAreRequired
+                              : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: _customerController,
-                      decoration: InputDecoration(labelText: localizer.customer, border: const OutlineInputBorder()),
-                      validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _courtController,
-                      decoration: InputDecoration(labelText: localizer.court, border: const OutlineInputBorder()),
-                      validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _filingDateController,
+                      controller: _dateController,
                       readOnly: true,
-                      decoration: InputDecoration(labelText: localizer.filingDate, border: const OutlineInputBorder()),
-                      onTap: () => _pickDate(_filingDateController),
+                      decoration: InputDecoration(
+                          labelText: localizer.dateLabel,
+                          border: const OutlineInputBorder()),
+                      onTap: () => _pickDate(_dateController),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? localizer.allFieldsAreRequired
+                              : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: _closingDateController,
-                      readOnly: true,
-                      decoration: InputDecoration(labelText: localizer.closingDate, border: const OutlineInputBorder()),
-                      onTap: () => _pickDate(_closingDateController),
+                      controller: _amountController,
+                      decoration: InputDecoration(
+                          labelText: localizer.amount,
+                          border: const OutlineInputBorder()),
+                      keyboardType: TextInputType.number,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? localizer.allFieldsAreRequired
+                              : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesController,
+                      decoration: InputDecoration(
+                          labelText: localizer.notes,
+                          border: const OutlineInputBorder()),
+                      minLines: 2,
+                      maxLines: 4,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: _submit,
-                      child: Text(isEdit ? localizer.save : localizer.create),
+                      child:
+                          Text(isEdit ? localizer.save : localizer.createCase),
                     ),
                   ],
                 ),

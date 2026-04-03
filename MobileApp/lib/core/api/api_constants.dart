@@ -1,5 +1,6 @@
 class ApiConstants {
   static const baseUrl = 'https://qadayaapi.naqreo.com/api';
+  static const apiRoot = 'https://qadayaapi.naqreo.com';
 
   // Authentication endpoints
   static const login = '/auth/login';

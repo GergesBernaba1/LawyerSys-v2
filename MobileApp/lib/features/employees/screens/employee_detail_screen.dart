@@ -37,12 +37,18 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _fullNameController = TextEditingController(text: widget.employeeModel.user?.fullName ?? '');
-    _jobController = TextEditingController(text: widget.employeeModel.user?.job ?? '');
-    _phoneNumberController = TextEditingController(text: widget.employeeModel.user?.phoneNumber ?? '');
-    _ssnController = TextEditingController(text: widget.employeeModel.user?.ssn ?? '');
-    _addressController = TextEditingController(text: widget.employeeModel.user?.address ?? '');
-    _salaryController = TextEditingController(text: widget.employeeModel.salary.toString());
+    _fullNameController =
+        TextEditingController(text: widget.employeeModel.user?.fullName ?? '');
+    _jobController =
+        TextEditingController(text: widget.employeeModel.user?.job ?? '');
+    _phoneNumberController = TextEditingController(
+        text: widget.employeeModel.user?.phoneNumber ?? '');
+    _ssnController =
+        TextEditingController(text: widget.employeeModel.user?.ssn ?? '');
+    _addressController =
+        TextEditingController(text: widget.employeeModel.user?.address ?? '');
+    _salaryController =
+        TextEditingController(text: widget.employeeModel.salary.toString());
   }
 
   @override
@@ -62,19 +68,23 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     try {
       final updatedEmployee = EmployeeModel(
         id: widget.employeeModel.id,
-        salary: int.tryParse(_salaryController.text) ?? widget.employeeModel.salary,
+        salary:
+            int.tryParse(_salaryController.text) ?? widget.employeeModel.salary,
         usersId: widget.employeeModel.usersId,
         user: UserModel(
           id: widget.employeeModel.user?.id ?? 0,
           fullName: _fullNameController.text,
-          address: _addressController.text.isEmpty ? null : _addressController.text,
+          address:
+              _addressController.text.isEmpty ? null : _addressController.text,
           job: _jobController.text,
           phoneNumber: _phoneNumberController.text,
           dateOfBirth: widget.employeeModel.user?.dateOfBirth,
           ssn: _ssnController.text,
           userName: widget.employeeModel.user?.userName ?? '',
+          profileImagePath: widget.employeeModel.user?.profileImagePath,
         ),
         identity: widget.employeeModel.identity,
+        profileImagePath: widget.employeeModel.profileImagePath,
         lastSyncedAt: DateTime.now(),
         isDirty: true,
       );
@@ -105,22 +115,26 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           if (canEdit)
             IconButton(
               icon: Icon(_isEditing ? Icons.save : Icons.edit),
-              onPressed: _isLoading ? null : () {
-                setState(() => _isEditing = !_isEditing);
-                if (!_isEditing) {
-                  _saveEmployee();
-                }
-              },
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                      setState(() => _isEditing = !_isEditing);
+                      if (!_isEditing) {
+                        _saveEmployee();
+                      }
+                    },
             ),
         ],
       ),
       body: BlocConsumer<EmployeesBloc, EmployeesState>(
         listener: (context, state) {
           if (state is EmployeeOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
           }
           if (state is EmployeesError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizer.error}: ${state.message}')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('${localizer.error}: ${state.message}')));
           }
         },
         builder: (context, state) {

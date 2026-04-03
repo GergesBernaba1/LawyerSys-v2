@@ -1,73 +1,116 @@
-﻿class CaseModel {
-  final String caseId;
+class CaseModel {
+  final int id;
+  final int code;
+  final String invitionsStatment;
+  final String invitionType;
+  final DateTime? invitionDate;
+  final int totalAmount;
+  final String notes;
+  final int status;
   final String tenantId;
-  final String caseNumber;
-  final String invitationType;
-  final String caseStatus;
-  final String caseType;
-  final DateTime? filingDate;
-  final DateTime? closingDate;
-  final String customerId;
-  final String customerFullName;
-  final String courtId;
-  final String courtName;
   final List<EmployeeAssignment> assignedEmployees;
   final DateTime? lastSyncedAt;
   final bool isDirty;
 
   CaseModel({
-    required this.caseId,
-    required this.tenantId,
-    required this.caseNumber,
-    required this.invitationType,
-    required this.caseStatus,
-    required this.caseType,
-    this.filingDate,
-    this.closingDate,
-    required this.customerId,
-    required this.customerFullName,
-    required this.courtId,
-    required this.courtName,
+    required this.id,
+    required this.code,
+    required this.invitionsStatment,
+    required this.invitionType,
+    this.invitionDate,
+    required this.totalAmount,
+    required this.notes,
+    required this.status,
+    this.tenantId = '',
     required this.assignedEmployees,
     this.lastSyncedAt,
     this.isDirty = false,
   });
 
+  // Backward-compatible aliases for existing UI code.
+  String get caseId => code.toString();
+  String get caseNumber => code.toString();
+  String get caseStatus => statusLabel;
+  String get caseType => invitionType;
+  DateTime? get filingDate => invitionDate;
+  DateTime? get closingDate => null;
+  String get customerId => '';
+  String get customerFullName => '';
+  String get courtId => '';
+  String get courtName => '';
+
+  String get statusLabel {
+    switch (status) {
+      case 0:
+        return 'New';
+      case 1:
+        return 'In Progress';
+      case 2:
+        return 'Awaiting Hearing';
+      case 3:
+        return 'Closed';
+      case 4:
+        return 'Won';
+      case 5:
+        return 'Lost';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  static int _asInt(dynamic value, [int fallback = 0]) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is String && value.trim().isNotEmpty) {
+      return DateTime.tryParse(value);
+    }
+    return null;
+  }
+
   factory CaseModel.fromJson(Map<String, dynamic> json) => CaseModel(
-    caseId: json['caseId'] ?? '',
-    tenantId: json['tenantId'] ?? '',
-    caseNumber: json['caseNumber'] ?? '',
-    invitationType: json['invitationType'] ?? '',
-    caseStatus: json['caseStatus'] ?? '',
-    caseType: json['caseType'] ?? '',
-    filingDate: json['filingDate'] != null ? DateTime.tryParse(json['filingDate']) : null,
-    closingDate: json['closingDate'] != null ? DateTime.tryParse(json['closingDate']) : null,
-    customerId: json['customerId'] ?? '',
-    customerFullName: json['customerFullName'] ?? '',
-    courtId: json['courtId'] ?? '',
-    courtName: json['courtName'] ?? '',
-    assignedEmployees: (json['assignedEmployees'] as List<dynamic>?)?.map((e) => EmployeeAssignment.fromJson(e as Map<String, dynamic>)).toList() ?? [],
-    lastSyncedAt: json['lastSyncedAt'] != null ? DateTime.tryParse(json['lastSyncedAt']) : null,
-    isDirty: json['isDirty'] ?? false,
-  );
+        id: _asInt(json['id'] ?? json['Id']),
+        code: _asInt(
+            json['code'] ?? json['Code'] ?? json['caseId'] ?? json['caseCode']),
+        invitionsStatment:
+            (json['invitionsStatment'] ?? json['InvitionsStatment'] ?? '')
+                .toString(),
+        invitionType:
+            (json['invitionType'] ?? json['InvitionType'] ?? '').toString(),
+        invitionDate: _parseDate(
+            json['invitionDate'] ?? json['InvitionDate'] ?? json['filingDate']),
+        totalAmount: _asInt(json['totalAmount'] ?? json['TotalAmount']),
+        notes: (json['notes'] ?? json['Notes'] ?? '').toString(),
+        status: _asInt(json['status'] ?? json['Status']),
+        tenantId: (json['tenantId'] ?? json['TenantId'] ?? '').toString(),
+        assignedEmployees: (json['assignedEmployees'] as List<dynamic>?)
+                ?.map((e) =>
+                    EmployeeAssignment.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        lastSyncedAt: _parseDate(json['lastSyncedAt']),
+        isDirty: json['isDirty'] ?? false,
+      );
 
   Map<String, dynamic> toJson() => {
-    'caseId': caseId,
-    'tenantId': tenantId,
-    'caseNumber': caseNumber,
-    'invitationType': invitationType,
-    'caseStatus': caseStatus,
-    'caseType': caseType,
-    'filingDate': filingDate?.toIso8601String(),
-    'closingDate': closingDate?.toIso8601String(),
-    'customerId': customerId,
-    'customerFullName': customerFullName,
-    'courtId': courtId,
-    'courtName': courtName,
-    'assignedEmployees': assignedEmployees.map((e) => e.toJson()).toList(),
-    'lastSyncedAt': lastSyncedAt?.toIso8601String(),
-    'isDirty': isDirty,
-  };
+        'id': id,
+        'code': code,
+        'invitionsStatment': invitionsStatment,
+        'invitionType': invitionType,
+        'invitionDate': invitionDate?.toIso8601String(),
+        'totalAmount': totalAmount,
+        'notes': notes,
+        'status': status,
+        'tenantId': tenantId,
+        'assignedEmployees': assignedEmployees.map((e) => e.toJson()).toList(),
+        'lastSyncedAt': lastSyncedAt?.toIso8601String(),
+        'isDirty': isDirty,
+      };
 }
 
 class EmployeeAssignment {
@@ -75,17 +118,21 @@ class EmployeeAssignment {
   final String employeeName;
   final String role;
 
-  EmployeeAssignment({required this.employeeId, required this.employeeName, required this.role});
+  EmployeeAssignment(
+      {required this.employeeId,
+      required this.employeeName,
+      required this.role});
 
-  factory EmployeeAssignment.fromJson(Map<String, dynamic> json) => EmployeeAssignment(
-    employeeId: json['employeeId'] ?? '',
-    employeeName: json['employeeName'] ?? '',
-    role: json['role'] ?? '',
-  );
+  factory EmployeeAssignment.fromJson(Map<String, dynamic> json) =>
+      EmployeeAssignment(
+        employeeId: (json['employeeId'] ?? '').toString(),
+        employeeName: (json['employeeName'] ?? '').toString(),
+        role: (json['role'] ?? '').toString(),
+      );
 
   Map<String, dynamic> toJson() => {
-    'employeeId': employeeId,
-    'employeeName': employeeName,
-    'role': role,
-  };
+        'employeeId': employeeId,
+        'employeeName': employeeName,
+        'role': role,
+      };
 }

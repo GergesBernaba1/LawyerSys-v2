@@ -112,8 +112,10 @@ class App extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (_) => AuthRepository(apiClient)),
-        RepositoryProvider(create: (_) => DashboardRepository(apiClient, localDatabase)),
-        RepositoryProvider(create: (_) => CasesRepository(apiClient, localDatabase)),
+        RepositoryProvider(
+            create: (_) => DashboardRepository(apiClient, localDatabase)),
+        RepositoryProvider(
+            create: (_) => CasesRepository(apiClient, localDatabase)),
         RepositoryProvider(create: (_) => TasksRepository(apiClient)),
         RepositoryProvider(create: (_) => CalendarRepository(apiClient)),
         RepositoryProvider(create: (_) => TimeTrackingRepository(apiClient)),
@@ -122,31 +124,82 @@ class App extends StatelessWidget {
         RepositoryProvider(create: (_) => CustomersRepository(apiClient)),
         RepositoryProvider(create: (_) => TrustAccountingRepository(apiClient)),
         RepositoryProvider(create: (_) => ClientPortalRepository(apiClient)),
-        RepositoryProvider(create: (_) => HearingsRepository(apiClient, localDatabase)),
+        RepositoryProvider(
+            create: (_) => HearingsRepository(apiClient, localDatabase)),
         RepositoryProvider(create: (_) => ContendersRepository(apiClient)),
         RepositoryProvider(create: (_) => ConsultationsRepository(apiClient)),
         RepositoryProvider(create: (_) => ReportsRepository(apiClient)),
-        RepositoryProvider(create: (_) => EmployeesRepository(apiClient, localDatabase)),
+        RepositoryProvider(
+            create: (_) => EmployeesRepository(apiClient, localDatabase)),
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (ctx) => AuthBloc(authRepository: RepositoryProvider.of<AuthRepository>(ctx))),
-          BlocProvider(create: (ctx) => DashboardBloc(dashboardRepository: RepositoryProvider.of<DashboardRepository>(ctx))),
-          BlocProvider(create: (ctx) => CasesBloc(casesRepository: RepositoryProvider.of<CasesRepository>(ctx))),
-          BlocProvider(create: (ctx) => TrustAccountingBloc(trustAccountingRepository: RepositoryProvider.of<TrustAccountingRepository>(ctx))),
-          BlocProvider(create: (ctx) => ClientPortalBloc(clientPortalRepository: RepositoryProvider.of<ClientPortalRepository>(ctx))),
-          BlocProvider(create: (ctx) => TasksBloc(tasksRepository: RepositoryProvider.of<TasksRepository>(ctx))),
-          BlocProvider(create: (ctx) => CalendarBloc(calendarRepository: RepositoryProvider.of<CalendarRepository>(ctx))),
-          BlocProvider(create: (ctx) => TimeTrackingBloc(timeTrackingRepository: RepositoryProvider.of<TimeTrackingRepository>(ctx))),
-          BlocProvider(create: (ctx) => CourtsBloc(courtsRepository: RepositoryProvider.of<CourtsRepository>(ctx))),
-          BlocProvider(create: (ctx) => BillingBloc(billingRepository: RepositoryProvider.of<BillingRepository>(ctx))),
-          BlocProvider(create: (ctx) => CustomersBloc(customersRepository: RepositoryProvider.of<CustomersRepository>(ctx))),
-          BlocProvider(create: (ctx) => HearingsBloc(hearingsRepository: RepositoryProvider.of<HearingsRepository>(ctx))),
-          BlocProvider(create: (ctx) => ContendersBloc(contendersRepository: RepositoryProvider.of<ContendersRepository>(ctx))),
-          BlocProvider(create: (ctx) => ConsultationsBloc(consultationsRepository: RepositoryProvider.of<ConsultationsRepository>(ctx))),
-          BlocProvider(create: (ctx) => ReportsBloc(repository: RepositoryProvider.of<ReportsRepository>(ctx))),
-          BlocProvider(create: (ctx) => EmployeesBloc(employeesRepository: RepositoryProvider.of<EmployeesRepository>(ctx))),
-          BlocProvider(create: (_) => NotificationsBloc(notificationsRepository: NotificationsRepository(LocalDatabase.instance))),
+          BlocProvider(
+              create: (ctx) => AuthBloc(
+                  authRepository: RepositoryProvider.of<AuthRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => DashboardBloc(
+                  dashboardRepository:
+                      RepositoryProvider.of<DashboardRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => CasesBloc(
+                  casesRepository:
+                      RepositoryProvider.of<CasesRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => TrustAccountingBloc(
+                  trustAccountingRepository:
+                      RepositoryProvider.of<TrustAccountingRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => ClientPortalBloc(
+                  clientPortalRepository:
+                      RepositoryProvider.of<ClientPortalRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => TasksBloc(
+                  tasksRepository:
+                      RepositoryProvider.of<TasksRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => CalendarBloc(
+                  calendarRepository:
+                      RepositoryProvider.of<CalendarRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => TimeTrackingBloc(
+                  timeTrackingRepository:
+                      RepositoryProvider.of<TimeTrackingRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => CourtsBloc(
+                  courtsRepository:
+                      RepositoryProvider.of<CourtsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => BillingBloc(
+                  billingRepository:
+                      RepositoryProvider.of<BillingRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => CustomersBloc(
+                  customersRepository:
+                      RepositoryProvider.of<CustomersRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => HearingsBloc(
+                  hearingsRepository:
+                      RepositoryProvider.of<HearingsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => ContendersBloc(
+                  contendersRepository:
+                      RepositoryProvider.of<ContendersRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => ConsultationsBloc(
+                  consultationsRepository:
+                      RepositoryProvider.of<ConsultationsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => ReportsBloc(
+                  repository: RepositoryProvider.of<ReportsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => EmployeesBloc(
+                  employeesRepository:
+                      RepositoryProvider.of<EmployeesRepository>(ctx))),
+          BlocProvider(
+              create: (_) => NotificationsBloc(
+                  notificationsRepository:
+                      NotificationsRepository(LocalDatabase.instance))),
         ],
         child: _AppInitializer(canAccessRoute: _canAccessRoute),
       ),
@@ -181,7 +234,9 @@ class _AppInitializerState extends State<_AppInitializer> {
     final langCode = await PreferencesStorage().getLanguageCode();
     if (mounted) {
       setState(() {
-        _locale = (langCode?.isNotEmpty == true) ? Locale(langCode!) : const Locale('en');
+        _locale = (langCode?.isNotEmpty == true)
+            ? Locale(langCode!)
+            : const Locale('en');
         _localeLoaded = true;
       });
     }
@@ -197,15 +252,16 @@ class _AppInitializerState extends State<_AppInitializer> {
     try {
       final token = await SecureStorage().read(SecureStorage.keyAccessToken);
       signalRService.init(
-        '${ApiConstants.baseUrl}${ApiConstants.signalRHub}',
+        '${ApiConstants.apiRoot}${ApiConstants.signalRHub}',
         tokenFactory: token != null ? () async => token : null,
       );
     } catch (_) {
-      signalRService.init('${ApiConstants.baseUrl}${ApiConstants.signalRHub}');
+      signalRService.init('${ApiConstants.apiRoot}${ApiConstants.signalRHub}');
     }
 
     if (mounted) {
-      SyncService().syncPendingOperations(
+      SyncService()
+          .syncPendingOperations(
         (local, remote) => showDialog<Map<String, dynamic>>(
           context: context,
           builder: (_) => ConflictResolverWidget(
@@ -214,7 +270,8 @@ class _AppInitializerState extends State<_AppInitializer> {
             remoteData: remote,
           ),
         ),
-      ).catchError((error) {
+      )
+          .catchError((error) {
         debugPrint('Startup sync failed: $error');
       });
     }
@@ -257,7 +314,8 @@ class _AppInitializerState extends State<_AppInitializer> {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
-            side: BorderSide(color: const Color(0xFF14345A).withValues(alpha: 0.08)),
+            side: BorderSide(
+                color: const Color(0xFF14345A).withValues(alpha: 0.08)),
           ),
           color: Colors.white,
         ),
@@ -266,14 +324,16 @@ class _AppInitializerState extends State<_AppInitializer> {
           fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: const Color(0xFF14345A).withValues(alpha: 0.12)),
+            borderSide: BorderSide(
+                color: const Color(0xFF14345A).withValues(alpha: 0.12)),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF14345A),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
         ),
@@ -290,19 +350,24 @@ class _AppInitializerState extends State<_AppInitializer> {
       localeResolutionCallback: (currentLocale, supportedLocales) {
         if (currentLocale == null) return const Locale('en');
         for (final supported in supportedLocales) {
-          if (supported.languageCode == currentLocale.languageCode) return supported;
+          if (supported.languageCode == currentLocale.languageCode) {
+            return supported;
+          }
         }
         return supportedLocales.first;
       },
       builder: (context, child) {
         final loc = Localizations.localeOf(context);
-        final dir = loc.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr;
-        return Directionality(textDirection: dir, child: child ?? const SizedBox.shrink());
+        final dir =
+            loc.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr;
+        return Directionality(
+            textDirection: dir, child: child ?? const SizedBox.shrink());
       },
       initialRoute: '/',
       onGenerateRoute: (settings) {
         final authState = context.read<AuthBloc>().state;
-        final session = authState is AuthAuthenticated ? authState.session : null;
+        final session =
+            authState is AuthAuthenticated ? authState.session : null;
 
         if (!widget.canAccessRoute(settings.name, session)) {
           return MaterialPageRoute(builder: (_) => const UnauthorizedScreen());
@@ -316,7 +381,8 @@ class _AppInitializerState extends State<_AppInitializer> {
           case '/register':
             return MaterialPageRoute(builder: (_) => const RegisterScreen());
           case '/forgot-password':
-            return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+            return MaterialPageRoute(
+                builder: (_) => const ForgotPasswordScreen());
           case '/reset-password':
             return MaterialPageRoute(builder: (_) => const _ResetScreen());
           case '/main':
@@ -328,25 +394,31 @@ class _AppInitializerState extends State<_AppInitializer> {
           case '/calendar':
             return MaterialPageRoute(builder: (_) => const CalendarScreen());
           case '/hearings':
-            return MaterialPageRoute(builder: (_) => const HearingsListScreen());
+            return MaterialPageRoute(
+                builder: (_) => const HearingsListScreen());
           case '/courts':
             return MaterialPageRoute(builder: (_) => const CourtsListScreen());
           case '/timetracking':
-            return MaterialPageRoute(builder: (_) => const TimeTrackingListScreen());
+            return MaterialPageRoute(
+                builder: (_) => const TimeTrackingListScreen());
           case '/billing':
             return MaterialPageRoute(builder: (_) => const BillingListScreen());
           case '/trust-accounting':
             return MaterialPageRoute(builder: (_) => const TrustListScreen());
           case '/client-portal-messages':
-            return MaterialPageRoute(builder: (_) => const PortalMessagesScreen());
+            return MaterialPageRoute(
+                builder: (_) => const PortalMessagesScreen());
           case '/client-portal-documents':
-            return MaterialPageRoute(builder: (_) => const PortalDocumentsScreen());
+            return MaterialPageRoute(
+                builder: (_) => const PortalDocumentsScreen());
           case '/customers':
-            return MaterialPageRoute(builder: (_) => const CustomersListScreen());
+            return MaterialPageRoute(
+                builder: (_) => const CustomersListScreen());
           case '/settings':
             return MaterialPageRoute(builder: (_) => const SettingsScreen());
           case '/documents':
-            return MaterialPageRoute(builder: (_) => const DocumentsListScreen());
+            return MaterialPageRoute(
+                builder: (_) => const DocumentsListScreen());
           default:
             return null;
         }
@@ -360,7 +432,10 @@ class _ResetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, String>? ?? {};
-    return ResetPasswordScreen(email: args['email'] ?? '', token: args['token'] ?? '');
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, String>? ??
+            {};
+    return ResetPasswordScreen(
+        email: args['email'] ?? '', token: args['token'] ?? '');
   }
 }

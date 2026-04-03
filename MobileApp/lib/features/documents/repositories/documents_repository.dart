@@ -27,14 +27,13 @@ class DocumentsRepository {
       return [];
     }
 
-    final docs = data
-        .whereType<Map<String, dynamic>>()
-        .map(Document.fromJson)
-        .toList();
+    final docs =
+        data.whereType<Map<String, dynamic>>().map(Document.fromJson).toList();
 
     // Cache locally for offline access
     for (final doc in docs) {
-      await localDatabase.upsertDocument(doc.id.toString(), doc.toJson(), tenantId: null, isDownloaded: false);
+      await localDatabase.upsertDocument(doc.id.toString(), doc.toJson(),
+          tenantId: null, isDownloaded: false);
     }
 
     return docs;
@@ -43,7 +42,7 @@ class DocumentsRepository {
   Future<File> downloadDocument(Document document) async {
     final dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
     final response = await dio.get<List<int>>(
-      '/api/files/${document.id}/download',
+      '/files/${document.id}/download',
       options: Options(responseType: ResponseType.bytes),
     );
 
@@ -56,14 +55,19 @@ class DocumentsRepository {
     final file = File('${directory.path}/${document.fileName}');
 
     await file.writeAsBytes(bytes, flush: true);
-    await localDatabase.upsertDocument(document.id.toString(), document.toJson(), tenantId: null, isDownloaded: true);
+    await localDatabase.upsertDocument(
+        document.id.toString(), document.toJson(),
+        tenantId: null, isDownloaded: true);
     return file;
   }
 
-  Future<List<Document>> getCachedDocuments({String? tenantId, int limit = 100}) async {
-    final rows = await localDatabase.getDocuments(tenantId: tenantId, limit: limit);
+  Future<List<Document>> getCachedDocuments(
+      {String? tenantId, int limit = 100}) async {
+    final rows =
+        await localDatabase.getDocuments(tenantId: tenantId, limit: limit);
     return rows.map((row) {
-      final json = Map<String, dynamic>.from(row['data'] as Map<String, dynamic>);
+      final json =
+          Map<String, dynamic>.from(row['data'] as Map<String, dynamic>);
       return Document.fromJson(json);
     }).toList();
   }

@@ -13,7 +13,8 @@ class FakeCasesRepository extends CasesRepository {
   FakeCasesRepository(this._items) : super(ApiClient(), LocalDatabase.instance);
 
   @override
-  Future<List<CaseModel>> getCases({String? tenantId, int page = 0, int pageSize = 20}) async {
+  Future<List<CaseModel>> getCases(
+      {String? tenantId, int page = 1, int pageSize = 20}) async {
     return _items;
   }
 
@@ -35,25 +36,25 @@ class FakeCasesRepository extends CasesRepository {
 
   @override
   Future<List<CaseModel>> searchCases(String query, {String? tenantId}) async {
-    return _items.where((c) => c.caseNumber.contains(query) || c.customerFullName.contains(query)).toList();
+    return _items
+        .where((c) =>
+            c.caseNumber.contains(query) || c.invitionType.contains(query))
+        .toList();
   }
 }
 
 void main() {
   test('Create/update/delete case through CasesBloc', () async {
     final initialCase = CaseModel(
-      caseId: '1',
+      id: 1,
+      code: 1,
       tenantId: 't1',
-      caseNumber: 'C-001',
-      invitationType: 'Online',
-      caseStatus: 'Open',
-      caseType: 'Civil',
-      filingDate: DateTime(2025, 1, 1),
-      closingDate: null,
-      customerId: 'c1',
-      customerFullName: 'Jane Doe',
-      courtId: 'court1',
-      courtName: 'Main Court',
+      invitionsStatment: 'Initial statement',
+      invitionType: 'Civil',
+      invitionDate: DateTime(2025, 1, 1),
+      totalAmount: 1000,
+      notes: '',
+      status: 0,
       assignedEmployees: [],
     );
 
@@ -69,18 +70,15 @@ void main() {
     expect(states.last, isA<CasesLoaded>());
 
     final newCase = CaseModel(
-      caseId: '2',
+      id: 2,
+      code: 2,
       tenantId: 't1',
-      caseNumber: 'C-002',
-      invitationType: 'Online',
-      caseStatus: 'Open',
-      caseType: 'Civil',
-      filingDate: DateTime(2025, 2, 1),
-      closingDate: null,
-      customerId: 'c2',
-      customerFullName: 'John Smith',
-      courtId: 'court1',
-      courtName: 'Main Court',
+      invitionsStatment: 'Second statement',
+      invitionType: 'Civil',
+      invitionDate: DateTime(2025, 2, 1),
+      totalAmount: 1200,
+      notes: '',
+      status: 0,
       assignedEmployees: [],
     );
 
@@ -90,18 +88,15 @@ void main() {
     expect(repo.getCases().then((list) => list.length), completion(2));
 
     final updatedCase = CaseModel(
-      caseId: '2',
+      id: 2,
+      code: 2,
       tenantId: 't1',
-      caseNumber: 'C-002',
-      invitationType: 'Online',
-      caseStatus: 'Closed',
-      caseType: 'Civil',
-      filingDate: DateTime(2025, 2, 1),
-      closingDate: DateTime(2025, 3, 1),
-      customerId: 'c2',
-      customerFullName: 'John Smith',
-      courtId: 'court1',
-      courtName: 'Main Court',
+      invitionsStatment: 'Second statement',
+      invitionType: 'Civil',
+      invitionDate: DateTime(2025, 2, 1),
+      totalAmount: 1200,
+      notes: 'closed',
+      status: 3,
       assignedEmployees: [],
     );
 

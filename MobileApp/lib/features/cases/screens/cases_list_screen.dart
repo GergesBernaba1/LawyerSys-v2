@@ -75,19 +75,20 @@ class _CasesListScreenState extends State<CasesListScreen> {
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
+                  borderSide:
+                      BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
+                  borderSide:
+                      BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: _kPrimary, width: 2),
                 ),
               ),
-              onSubmitted: (v) =>
-                  context.read<CasesBloc>().add(SearchCases(v)),
+              onSubmitted: (v) => context.read<CasesBloc>().add(SearchCases(v)),
               onChanged: (_) => setState(() {}),
             ),
           ),
@@ -152,11 +153,14 @@ class _CaseTile extends StatelessWidget {
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'active':
+      case 'in progress':
+      case 'awaiting hearing':
+      case 'new':
         return const Color(0xFF10B981);
       case 'closed':
+      case 'lost':
         return const Color(0xFF6B7280);
-      case 'pending':
+      case 'won':
         return _kGold;
       default:
         return _kPrimaryLight;
@@ -220,7 +224,7 @@ class _CaseTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    caseItem.customerFullName,
+                    caseItem.invitionType,
                     style: const TextStyle(
                         color: _kTextSecondary,
                         fontSize: 13,
@@ -230,8 +234,7 @@ class _CaseTile extends StatelessWidget {
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: statusColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),

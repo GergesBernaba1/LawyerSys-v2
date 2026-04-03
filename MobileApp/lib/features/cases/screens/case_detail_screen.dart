@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/auth/permissions.dart';
@@ -37,7 +37,10 @@ class CaseDetailScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => CaseFormScreen(caseModel: caseModel)));
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => CaseFormScreen(caseModel: caseModel)));
                 if (context.mounted) {
                   context.read<CasesBloc>().add(RefreshCases());
                   context.read<CasesBloc>().add(SelectCase(caseModel.caseId));
@@ -48,48 +51,65 @@ class CaseDetailScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(localizer.deleteCase),
-                  content: Text(localizer.deleteConfirm),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context, false), child: Text(localizer.cancel)),
-                    TextButton(onPressed: () => Navigator.pop(context, true), child: Text(localizer.delete)),
-                  ],
-                ),
-              );
-              if (confirmed == true && context.mounted) {
-                context.read<CasesBloc>().add(DeleteCase(caseModel.caseId));
-                Navigator.pop(context);
-              }
-            },
-          ),
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(localizer.deleteCase),
+                    content: Text(localizer.deleteConfirm),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(localizer.cancel)),
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(localizer.delete)),
+                    ],
+                  ),
+                );
+                if (confirmed == true && context.mounted) {
+                  context.read<CasesBloc>().add(DeleteCase(caseModel.caseId));
+                  Navigator.pop(context);
+                }
+              },
+            ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-            Text('${localizer.caseNumber}: ${caseModel.caseNumber}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text('${localizer.caseNumber}: ${caseModel.caseNumber}',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 8),
             Text('${localizer.status}: ${caseModel.caseStatus}'),
             Text('${localizer.caseType}: ${caseModel.caseType}'),
-            Text('${localizer.customer}: ${caseModel.customerFullName}'),
-            Text('${localizer.court}: ${caseModel.courtName}'),
+            Text('Code: ${caseModel.code}'),
             const SizedBox(height: 8),
-            Text('${localizer.filingDate}: ${caseModel.filingDate?.toLocal().toString() ?? 'N/A'}'),
-            Text('${localizer.closingDate}: ${caseModel.closingDate?.toLocal().toString() ?? 'N/A'}'),
+            Text(
+                '${localizer.filingDate}: ${caseModel.filingDate?.toLocal().toString() ?? 'N/A'}'),
+            Text('${localizer.amount}: ${caseModel.totalAmount}'),
+            if (caseModel.invitionsStatment.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text('Statement: ${caseModel.invitionsStatment}'),
+            ],
+            if (caseModel.notes.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('${localizer.notes}: ${caseModel.notes}'),
+            ],
             const SizedBox(height: 16),
-            Text(localizer.assignedEmployees, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ...caseModel.assignedEmployees.map((employee) => ListTile(
-                  title: Text(employee.employeeName),
-                  subtitle: Text(employee.role),
-                )),
+            if (caseModel.assignedEmployees.isNotEmpty) ...[
+              Text(localizer.assignedEmployees,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
+              ...caseModel.assignedEmployees.map((employee) => ListTile(
+                    title: Text(employee.employeeName),
+                    subtitle: Text(employee.role),
+                  )),
+            ],
           ],
         ),
       ),
     );
   }
 }
-
