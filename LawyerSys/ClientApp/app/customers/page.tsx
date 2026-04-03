@@ -57,6 +57,8 @@ type Customer = {
   usersId: number;
   identity?: IdentityDto;
   user?: any;
+  profileImagePath?: string;
+  profileImageUrl?: string;
   fullName: string;
   userName: string;
   email: string;
@@ -94,6 +96,27 @@ function toDateInput(value: any): string {
 
 function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
   return values.find((value) => value !== undefined && value !== null) as T | undefined;
+}
+
+function normalizeImagePath(raw: any): string | undefined {
+  const value = firstDefined(
+    raw?.profileImagePath,
+    raw?.ProfileImagePath,
+    raw?.profile_Image_Path,
+    raw?.Profile_Image_Path,
+  );
+  if (!value) return undefined;
+  const text = String(value).trim();
+  return text ? text : undefined;
+}
+
+function toCustomerImageUrl(customerId: number, path?: string): string | undefined {
+  if (!path || !customerId) return undefined;
+  const apiBase = String(api.defaults.baseURL || '');
+  const apiRoot = apiBase.replace(/\/api\/?$/, '') || '';
+  const token = typeof window !== 'undefined' ? localStorage.getItem('lawyersys-token') : '';
+  const query = token ? `?access_token=${encodeURIComponent(token)}` : '';
+  return `${apiRoot}/api/Customers/${customerId}/profile-image${query}`;
 }
 
 function normalizeIdentity(raw: any): IdentityDto | undefined {
@@ -149,12 +172,17 @@ function normalizeCustomer(raw: any): Customer {
     raw?.email,
     raw?.Email,
   );
+  const profileImagePath = normalizeImagePath(user) ?? normalizeImagePath(raw);
+
+  const id = Number(firstDefined(raw.id, raw.Id, 0));
 
   return {
-    id: Number(firstDefined(raw.id, raw.Id, 0)),
+    id,
     usersId: Number(firstDefined(raw.usersId, raw.UsersId, raw.userId, raw.UserId, 0)),
     identity: identity ?? fallbackIdentity,
     user,
+    profileImagePath,
+    profileImageUrl: toCustomerImageUrl(id, profileImagePath),
     fullName: fullName || '-',
     userName: userName || '-',
     email: email || '-',
@@ -172,11 +200,16 @@ function normalizeProfile(raw: any) {
     code: firstDefined(item.code, item.Code),
     assignedEmployee: firstDefined(item.assignedEmployee, item.AssignedEmployee),
   })) : [];
+  const profileImagePath = normalizeImagePath(user) ?? normalizeImagePath(raw);
+
+  const id = Number(firstDefined(raw.id, raw.Id, 0));
 
   return {
-    id: firstDefined(raw.id, raw.Id),
+    id,
     identity,
     user,
+    profileImagePath,
+    profileImageUrl: toCustomerImageUrl(id, profileImagePath),
     cases,
   };
 }
@@ -200,6 +233,7 @@ export default function CustomersPageClient() {
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const [sendingResetForId, setSendingResetForId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<EditCustomerForm>({
     fullName: '',
@@ -220,6 +254,7 @@ export default function CustomersPageClient() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
   const [assignmentUndo, setAssignmentUndo] = useState<{ caseCode: number; prevEmployeeId?: number | null } | null>(null);
+  const imageInputRef = React.useRef<HTMLInputElement | null>(null);
   const customerItems = Array.isArray(items) ? items : [];
 
   async function load() {
@@ -325,6 +360,32 @@ export default function CustomersPageClient() {
       setSnackbar({ open: true, message: t('users.failedLoad'), severity: 'error' });
     } finally {
       setLoadingUsers(false);
+    }
+  }
+
+  async function uploadCustomerProfileImage(file: File) {
+    if (!editItem) return;
+
+    setUploadingProfileImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post(`/Customers/${editItem.id}/profile-image`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const updated = normalizeCustomer(response.data);
+      setEditItem(updated);
+      setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+      if (profileOpen && profile?.id === updated.id) {
+        const profileResponse = await api.get(`/Customers/${updated.id}/profile`);
+        setProfile(normalizeProfile(profileResponse.data));
+      }
+      setSnackbar({ open: true, message: t('customers.customerUpdated', { defaultValue: 'Customer updated successfully' }), severity: 'success' });
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || t('customers.failedUpdate');
+      setSnackbar({ open: true, message: msg, severity: 'error' });
+    } finally {
+      setUploadingProfileImage(false);
     }
   }
 
@@ -503,8 +564,18 @@ export default function CustomersPageClient() {
                     }}
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: isRTL ? 'flex-end' : 'flex-start', width: '100%' }}>
-                        <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.light', fontSize: '1rem' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          // Let container direction (rtl/ltr) control inline ordering.
+                          flexDirection: 'row',
+                          justifyContent: 'flex-start',
+                          width: '100%',
+                        }}
+                      >
+                        <Avatar src={item.profileImageUrl} sx={{ width: 36, height: 36, bgcolor: 'primary.light', fontSize: '1rem' }}>
                           <PersonIcon fontSize="small" />
                         </Avatar>
                         <Button 
@@ -777,6 +848,32 @@ export default function CustomersPageClient() {
           {t('common.edit')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2, mb: 2.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            <Avatar src={editItem?.profileImageUrl} sx={{ width: 56, height: 56, bgcolor: 'primary.main' }}>
+              <PersonIcon fontSize="small" />
+            </Avatar>
+            <Button
+              variant="outlined"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={!editItem || uploadingProfileImage}
+              sx={{ borderRadius: 2 }}
+            >
+              {uploadingProfileImage ? t('customers.loading', { defaultValue: 'Loading...' }) : t('files.upload', { defaultValue: 'Upload' })}
+            </Button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(event) => {
+                const selected = event.target.files?.[0];
+                event.currentTarget.value = '';
+                if (selected) {
+                  void uploadCustomerProfileImage(selected);
+                }
+              }}
+            />
+          </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5, mt: 2 }}>
             <TextField
               fullWidth
@@ -879,7 +976,7 @@ export default function CustomersPageClient() {
           {profile ? (
             <Box sx={{ mt: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main', fontSize: '1.5rem' }}>
+                <Avatar src={profile.profileImageUrl} sx={{ width: 64, height: 64, bgcolor: 'primary.main', fontSize: '1.5rem' }}>
                   {(profile.identity?.fullName ?? profile.user?.fullName ?? '?')[0]}
                 </Avatar>
                 <Box sx={{ textAlign: isRTL ? 'right' : 'left' }}>

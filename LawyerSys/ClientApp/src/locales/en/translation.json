@@ -1847,13 +1847,18 @@
                           "goToLogin":  "Go to Login"
                       },
     "profile":  {
+                    "profileTab": "Profile",
+                    "notificationsTab": "Notifications",
+                    "passwordTab": "Password",
                     "editProfile":  "Edit Profile",
+                    "profileImageSection": "Profile Image",
                     "userName":  "Username",
                     "fullName":  "Full Name",
                     "email":  "Email",
                     "phoneNumber":  "Phone Number",
                     "tenantName":  "Lawyer Office Name",
                     "tenantPhoneNumber":  "Lawyer Office Phone Number",
+                    "tenantLogoSection": "Tenant Logo",
                     "country":  "Country",
                     "selectCountry":  "Select country",
                     "address": "Address",

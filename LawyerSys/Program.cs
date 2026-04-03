@@ -310,8 +310,21 @@ builder.Services.AddAuthentication(options =>
         {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
+            var hasToken = !string.IsNullOrWhiteSpace(accessToken);
 
-            if (!string.IsNullOrWhiteSpace(accessToken) && path.StartsWithSegments("/hubs/notifications"))
+            var isNotificationsHub = path.StartsWithSegments("/hubs/notifications");
+            var isProfileImageEndpoint =
+                path.Value != null &&
+                path.Value.StartsWith("/api/customers/", StringComparison.OrdinalIgnoreCase) && path.Value.EndsWith("/profile-image", StringComparison.OrdinalIgnoreCase)
+                || path.Value != null &&
+                path.Value.StartsWith("/api/employees/", StringComparison.OrdinalIgnoreCase) && path.Value.EndsWith("/profile-image", StringComparison.OrdinalIgnoreCase);
+            var isAccountImageEndpoint =
+                path.Value != null &&
+                (path.Value.Equals("/api/account/me/profile-image", StringComparison.OrdinalIgnoreCase)
+                || path.Value.Equals("/api/account/me/tenant-logo", StringComparison.OrdinalIgnoreCase));
+            var isFilesEndpoint = path.StartsWithSegments("/api/files");
+
+            if (hasToken && (isNotificationsHub || isProfileImageEndpoint || isAccountImageEndpoint || isFilesEndpoint))
             {
                 context.Token = accessToken;
             }

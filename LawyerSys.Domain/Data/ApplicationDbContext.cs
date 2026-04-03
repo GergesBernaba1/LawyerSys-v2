@@ -84,6 +84,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasMaxLength(32);
             entity.Property(tenant => tenant.ContactEmail)
                 .HasMaxLength(256);
+            entity.Property(tenant => tenant.LogoPath)
+                .HasMaxLength(260);
             entity.Property(tenant => tenant.CreatedAtUtc);
             entity.HasIndex(tenant => tenant.IsActive);
             entity.HasOne(tenant => tenant.Country)

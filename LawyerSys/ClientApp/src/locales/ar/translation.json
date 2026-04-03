@@ -1851,13 +1851,18 @@
                           "goToLogin":  "الذهاب لتسجيل الدخول"
                       },
     "profile":  {
+                    "profileTab": "الملف الشخصي",
+                    "notificationsTab": "الإشعارات",
+                    "passwordTab": "كلمة المرور",
                     "editProfile":  "تعديل الملف الشخصي",
+                    "profileImageSection": "صورة الملف الشخصي",
                     "userName":  "اسم المستخدم",
                     "fullName":  "الاسم الكامل",
                     "email":  "البريد الإلكتروني",
                     "phoneNumber":  "رقم الهاتف",
                     "tenantName":  "اسم مكتب المحاماة",
                     "tenantPhoneNumber":  "هاتف مكتب المحاماة",
+                    "tenantLogoSection": "شعار المكتب",
                     "country":  "الدولة",
                     "selectCountry":  "اختر الدولة",
                     "address": "العنوان",

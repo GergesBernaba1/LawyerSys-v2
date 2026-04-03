@@ -3,6 +3,7 @@ using System;
 using LawyerSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LawyerSys.Infrastructure.Data.Migrations.Legacy
 {
     [DbContext(typeof(LegacyDbContext))]
-    partial class LegacyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260403113411_AddUserProfileImagePath")]
+    partial class AddUserProfileImagePath
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

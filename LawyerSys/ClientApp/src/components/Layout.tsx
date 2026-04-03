@@ -884,20 +884,19 @@ export default function Layout({ children }: LayoutProps) {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
+          <Avatar
+            src={user?.tenantLogoUrl || undefined}
+            variant="rounded"
             sx={{
               width: 42,
               height: 42,
               borderRadius: 3,
               background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               boxShadow: '0 8px 16px rgba(20, 52, 90, 0.3)',
             }}
           >
             <GavelIcon sx={{ color: 'white', fontSize: 24 }} />
-          </Box>
+          </Avatar>
           {!collapsed && (
             <Typography variant="h5" sx={{ fontWeight: 900, color: 'text.primary', letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               {systemBrandName || t('app.title')}
@@ -1047,6 +1046,7 @@ export default function Layout({ children }: LayoutProps) {
           }}
         >
           <Avatar
+            src={user?.profileImageUrl || undefined}
             sx={{
               width: 42,
               height: 42,
@@ -1462,6 +1462,7 @@ export default function Layout({ children }: LayoutProps) {
                     </Typography>
                   </Box>
                   <Avatar
+                    src={user.profileImageUrl || undefined}
                     sx={{
                       background: 'linear-gradient(135deg, #14345a 0%, #2d6a87 100%)',
                       width: 38,

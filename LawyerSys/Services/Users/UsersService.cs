@@ -161,6 +161,7 @@ public sealed class UsersService : IUsersService
         PhoneNumber = u.Phon_Number.ToString(),
         DateOfBirth = u.Date_Of_Birth,
         SSN = u.SSN.ToString(),
-        UserName = u.User_Name
+        UserName = u.User_Name,
+        ProfileImagePath = u.Profile_Image_Path
     };
 }

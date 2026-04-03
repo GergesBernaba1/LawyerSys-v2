@@ -12,6 +12,10 @@ interface User {
   tenantName: string;
   countryId: number | null;
   countryName: string;
+  profileImagePath?: string;
+  profileImageUrl?: string;
+  tenantLogoPath?: string;
+  tenantLogoUrl?: string;
 }
 
 interface AuthContextValue {
@@ -34,7 +38,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   hasRole: (role: string) => boolean;
   hasAnyRole: (...roles: string[]) => boolean;
-  syncUserProfile: (profile: Partial<Pick<User, 'countryId' | 'countryName' | 'tenantId' | 'tenantName'>>) => void;
+  syncUserProfile: (profile: Partial<Pick<User, 'countryId' | 'countryName' | 'tenantId' | 'tenantName' | 'profileImagePath' | 'profileImageUrl' | 'tenantLogoPath' | 'tenantLogoUrl'>>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -66,6 +70,15 @@ function isTokenExpired(token: string): boolean {
   } catch {
     return true;
   }
+}
+
+function toProtectedImageUrl(path: string | undefined | null, endpoint: string): string | undefined {
+  if (!path) return undefined;
+  const apiBase = String(api.defaults.baseURL || '')
+  const apiRoot = apiBase.replace(/\/api\/?$/, '') || ''
+  const token = typeof window !== 'undefined' ? localStorage.getItem('lawyersys-token') : ''
+  const query = token ? `?access_token=${encodeURIComponent(token)}` : ''
+  return `${apiRoot}${endpoint}${query}`
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -143,6 +156,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 tenantName: response.data?.tenantName || current.tenantName,
                 countryId: Number(response.data?.countryId || 0) || current.countryId,
                 countryName: response.data?.countryName || current.countryName,
+                profileImagePath: response.data?.profileImagePath || current.profileImagePath,
+                profileImageUrl: toProtectedImageUrl(response.data?.profileImagePath, '/api/Account/me/profile-image') || current.profileImageUrl,
+                tenantLogoPath: response.data?.tenantLogoPath || current.tenantLogoPath,
+                tenantLogoUrl: toProtectedImageUrl(response.data?.tenantLogoPath, '/api/Account/me/tenant-logo') || current.tenantLogoUrl,
               };
             });
           })

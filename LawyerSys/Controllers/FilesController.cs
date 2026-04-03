@@ -168,7 +168,8 @@ public class FilesController : ControllerBase
 
         if (!string.IsNullOrEmpty(file.Path))
         {
-            var fullPath = Path.Combine(_env.ContentRootPath, file.Path.TrimStart('/'));
+            if (!TryResolveTrustedFilePath(file.Path, out var fullPath))
+                return BadRequest(new { message = _localizer["PhysicalFileNotFound"].Value });
             if (System.IO.File.Exists(fullPath))
                 System.IO.File.Delete(fullPath);
         }
@@ -187,7 +188,8 @@ public class FilesController : ControllerBase
         if (!await CanAccessFileAsync(id))
             return Forbid();
 
-        var fullPath = Path.Combine(_env.ContentRootPath, file.Path.TrimStart('/'));
+        if (!TryResolveTrustedFilePath(file.Path, out var fullPath))
+            return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
         if (!System.IO.File.Exists(fullPath))
             return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
 
@@ -203,7 +205,8 @@ public class FilesController : ControllerBase
         if (!await CanAccessFileAsync(id))
             return Forbid();
 
-        var fullPath = Path.Combine(_env.ContentRootPath, file.Path.TrimStart('/'));
+        if (!TryResolveTrustedFilePath(file.Path, out var fullPath))
+            return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
         if (!System.IO.File.Exists(fullPath))
             return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
 
@@ -226,6 +229,22 @@ public class FilesController : ControllerBase
         ".gif" => "image/gif",
         _ => "application/octet-stream"
     };
+
+    private bool TryResolveTrustedFilePath(string? path, out string fullPath)
+    {
+        fullPath = string.Empty;
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        var normalized = path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        var uploadsRoot = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "Uploads"));
+        var resolved = Path.GetFullPath(Path.Combine(_env.ContentRootPath, normalized));
+        if (!resolved.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        fullPath = resolved;
+        return true;
+    }
 
     private async Task<int?> GetCurrentCustomerIdAsync()
     {

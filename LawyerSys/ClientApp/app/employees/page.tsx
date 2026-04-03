@@ -45,9 +45,9 @@ import { useCurrency } from '../../src/hooks/useCurrency';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 import SearchableSelect from '../../src/components/SearchableSelect';
 
-type UserDto = { id: number; fullName?: string; userName?: string; email?: string };
+type UserDto = { id: number; fullName?: string; userName?: string; email?: string; profileImagePath?: string };
 type IdentityDto = { fullName?: string; userName?: string; email?: string };
-type Employee = { id: number; salary?: number; usersId: number; user?: UserDto; identity?: IdentityDto; displayName: string };
+type Employee = { id: number; salary?: number; usersId: number; user?: UserDto; identity?: IdentityDto; displayName: string; profileImagePath?: string; profileImageUrl?: string };
 type TenantOption = { id: number; name: string; isActive: boolean };
 
 function firstDefined<T>(...values: Array<T | undefined | null>): T | undefined {
@@ -61,12 +61,34 @@ function asArray<T>(data: any): T[] {
   return [];
 }
 
+function normalizeImagePath(raw: any): string | undefined {
+  const value = firstDefined(
+    raw?.profileImagePath,
+    raw?.ProfileImagePath,
+    raw?.profile_Image_Path,
+    raw?.Profile_Image_Path,
+  );
+  if (!value) return undefined;
+  const text = String(value).trim();
+  return text ? text : undefined;
+}
+
+function toEmployeeImageUrl(employeeId: number, path?: string): string | undefined {
+  if (!path || !employeeId) return undefined;
+  const apiBase = String(api.defaults.baseURL || '');
+  const apiRoot = apiBase.replace(/\/api\/?$/, '') || '';
+  const token = typeof window !== 'undefined' ? localStorage.getItem('lawyersys-token') : '';
+  const query = token ? `?access_token=${encodeURIComponent(token)}` : '';
+  return `${apiRoot}/api/Employees/${employeeId}/profile-image${query}`;
+}
+
 function normalizeUser(raw: any): UserDto {
   return {
     id: Number(firstDefined(raw?.id, raw?.Id, 0)),
     fullName: firstDefined(raw?.fullName, raw?.FullName, raw?.full_Name, raw?.Full_Name),
     userName: firstDefined(raw?.userName, raw?.UserName, raw?.user_Name, raw?.User_Name),
     email: firstDefined(raw?.email, raw?.Email),
+    profileImagePath: normalizeImagePath(raw),
   };
 }
 
@@ -91,14 +113,18 @@ function normalizeEmployee(raw: any): Employee {
     identity?.email,
     user?.email,
   ) || '-';
+  const profileImagePath = user?.profileImagePath ?? normalizeImagePath(raw);
 
+  const id = Number(firstDefined(raw?.id, raw?.Id, 0));
   return {
-    id: Number(firstDefined(raw?.id, raw?.Id, 0)),
+    id,
     salary: salaryRaw === undefined ? undefined : Number(salaryRaw),
     usersId: Number(firstDefined(raw?.usersId, raw?.UsersId, raw?.userId, raw?.UserId, 0)),
     user,
     identity,
     displayName,
+    profileImagePath,
+    profileImageUrl: toEmployeeImageUrl(id, profileImagePath),
   };
 }
 
@@ -123,7 +149,9 @@ export default function EmployeesPageClient() {
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [salary, setSalary] = useState<number | ''>('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const imageInputRef = React.useRef<HTMLInputElement | null>(null);
 
   function parseSalaryInput(value: string): number | '' {
     if (value.trim() === '') return '';
@@ -238,6 +266,27 @@ export default function EmployeesPageClient() {
       setSnackbar({ open: true, message: t('employees.employeeCreated'), severity: 'success' });
     } catch (err: any) {
       setSnackbar({ open: true, message: err?.response?.data?.message ?? t('employees.failedCreate'), severity: 'error' });
+    }
+  }
+
+  async function uploadEmployeeProfileImage(file: File) {
+    if (!editItem) return;
+
+    setUploadingProfileImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post(`/Employees/${editItem.id}/profile-image`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const updated = normalizeEmployee(response.data);
+      setEditItem(updated);
+      setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+      setSnackbar({ open: true, message: t('employees.employeeUpdated', { defaultValue: 'Employee updated successfully' }), severity: 'success' });
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err?.response?.data?.message ?? t('employees.failedUpdate', { defaultValue: 'Failed to update employee' }), severity: 'error' });
+    } finally {
+      setUploadingProfileImage(false);
     }
   }
 
@@ -386,8 +435,18 @@ export default function EmployeesPageClient() {
                     }}
                   >
                     <TableCell sx={{ py: 2, textAlign: isRTL ? 'right' : 'left' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row', width: '100%', justifyContent: isRTL ? 'flex-end' : 'flex-start' }}>
-                        <Avatar sx={{ width: 36, height: 36, bgcolor: 'secondary.light', fontSize: '1rem' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          // Let container direction (rtl/ltr) control inline ordering.
+                          flexDirection: 'row',
+                          width: '100%',
+                          justifyContent: 'flex-start',
+                        }}
+                      >
+                        <Avatar src={item.profileImageUrl} sx={{ width: 36, height: 36, bgcolor: 'secondary.light', fontSize: '1rem' }}>
                           <PersonIcon fontSize="small" />
                         </Avatar>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -472,13 +531,41 @@ export default function EmployeesPageClient() {
               />
             )}
             {editItem ? (
-              <TextField
-                fullWidth
-                label={t('employees.fullName')}
-                value={editItem.displayName}
-                InputProps={{ readOnly: true }}
-                variant="outlined"
-              />
+              <>
+                <TextField
+                  fullWidth
+                  label={t('employees.fullName')}
+                  value={editItem.displayName}
+                  InputProps={{ readOnly: true }}
+                  variant="outlined"
+                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+                  <Avatar src={editItem.profileImageUrl} sx={{ width: 56, height: 56, bgcolor: 'secondary.main' }}>
+                    <PersonIcon fontSize="small" />
+                  </Avatar>
+                  <Button
+                    variant="outlined"
+                    onClick={() => imageInputRef.current?.click()}
+                    disabled={uploadingProfileImage}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    {uploadingProfileImage ? t('employees.loading', { defaultValue: 'Loading...' }) : t('files.upload', { defaultValue: 'Upload' })}
+                  </Button>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(event) => {
+                      const selected = event.target.files?.[0];
+                      event.currentTarget.value = '';
+                      if (selected) {
+                        void uploadEmployeeProfileImage(selected);
+                      }
+                    }}
+                  />
+                </Box>
+              </>
             ) : (
               <SearchableSelect<number>
                 label={t('employees.selectUser')}

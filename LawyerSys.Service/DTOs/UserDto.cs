@@ -12,6 +12,7 @@ public class UserDto
     public DateOnly DateOfBirth { get; set; }
     public string SSN { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
+    public string? ProfileImagePath { get; set; }
 }
 
 public class CreateUserDto

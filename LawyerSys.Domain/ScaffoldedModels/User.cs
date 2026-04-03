@@ -23,6 +23,8 @@ public partial class User
 
     public string Password { get; set; } = null!;
 
+    public string? Profile_Image_Path { get; set; }
+
     public virtual ICollection<App_Sitting> App_Sittings { get; set; } = new List<App_Sitting>();
 
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();

@@ -181,7 +181,8 @@ namespace LawyerSys.Services
                     PhoneNumber = customer.Users.Phon_Number.ToString(),
                     DateOfBirth = customer.Users.Date_Of_Birth,
                     SSN = customer.Users.SSN.ToString(),
-                    UserName = customer.Users.User_Name
+                    UserName = customer.Users.User_Name,
+                    ProfileImagePath = customer.Users.Profile_Image_Path
                 } : null
             };
 
@@ -209,7 +210,8 @@ namespace LawyerSys.Services
                         PhoneNumber = assigned.Employee.Users.Phon_Number.ToString(),
                         DateOfBirth = assigned.Employee.Users.Date_Of_Birth,
                         SSN = assigned.Employee.Users.SSN.ToString(),
-                        UserName = assigned.Employee.Users.User_Name
+                        UserName = assigned.Employee.Users.User_Name,
+                        ProfileImagePath = assigned.Employee.Users.Profile_Image_Path
                     } : null
                 });
             }
@@ -598,7 +600,8 @@ namespace LawyerSys.Services
                 PhoneNumber = c.Users.Phon_Number.ToString(),
                 DateOfBirth = c.Users.Date_Of_Birth,
                 SSN = c.Users.SSN.ToString(),
-                UserName = c.Users.User_Name
+                UserName = c.Users.User_Name,
+                ProfileImagePath = c.Users.Profile_Image_Path
             } : null
         };
     }

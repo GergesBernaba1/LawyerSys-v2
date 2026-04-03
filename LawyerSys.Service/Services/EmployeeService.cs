@@ -344,7 +344,8 @@ namespace LawyerSys.Services
                 PhoneNumber = e.Users.Phon_Number.ToString(),
                 DateOfBirth = e.Users.Date_Of_Birth,
                 SSN = e.Users.SSN.ToString(),
-                UserName = e.Users.User_Name
+                UserName = e.Users.User_Name,
+                ProfileImagePath = e.Users.Profile_Image_Path
             } : null
         };
     }

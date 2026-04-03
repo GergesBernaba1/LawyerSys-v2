@@ -14,6 +14,7 @@ using Microsoft.Extensions.Localization;
 using LawyerSys.Resources;
 using LawyerSys.DTOs;
 using LawyerSys.Data;
+using System.IO;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -28,6 +29,7 @@ public class AccountController : ControllerBase
     private readonly IStringLocalizer<SharedResource> _localizer;
     private readonly IInAppNotificationService _inAppNotificationService;
     private readonly ITenantSubscriptionService _tenantSubscriptionService;
+    private readonly IWebHostEnvironment _env;
 
     public AccountController(
         IAccountService accountService,
@@ -38,7 +40,8 @@ public class AccountController : ControllerBase
         IEmailSender emailSender,
         IStringLocalizer<SharedResource> localizer,
         IInAppNotificationService inAppNotificationService,
-        ITenantSubscriptionService tenantSubscriptionService)
+        ITenantSubscriptionService tenantSubscriptionService,
+        IWebHostEnvironment env)
     {
         _accountService = accountService;
         _userManager = userManager;
@@ -49,6 +52,7 @@ public class AccountController : ControllerBase
         _localizer = localizer;
         _inAppNotificationService = inAppNotificationService;
         _tenantSubscriptionService = tenantSubscriptionService;
+        _env = env;
     }
 
     [HttpPost("register")]
@@ -343,6 +347,8 @@ public class AccountController : ControllerBase
             Address = legacyUser?.Address ?? string.Empty,
             JobTitle = legacyUser?.Job ?? string.Empty,
             DateOfBirth = legacyUser?.Date_Of_Birth,
+            ProfileImagePath = legacyUser?.Profile_Image_Path,
+            TenantLogoPath = user.Tenant?.LogoPath,
             NotificationPreferences = MapNotificationPreference(notificationPreference)
         });
     }
@@ -493,9 +499,112 @@ public class AccountController : ControllerBase
                 Address = legacyUser?.Address ?? string.Empty,
                 JobTitle = legacyUser?.Job ?? string.Empty,
                 DateOfBirth = legacyUser?.Date_Of_Birth,
+                ProfileImagePath = legacyUser?.Profile_Image_Path,
+                TenantLogoPath = user.Tenant?.LogoPath,
                 NotificationPreferences = MapNotificationPreference(notificationPreference)
             }
         });
+    }
+
+    [Authorize]
+    [HttpPost("me/profile-image")]
+    public async Task<IActionResult> UploadMyProfileImage([FromForm] IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = _localizer["NoFileUploaded"].Value });
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!AllowedImageExtensions.Contains(extension))
+            return BadRequest(new { message = "Unsupported image type." });
+        if (file.Length > MaxImageSizeBytes)
+            return BadRequest(new { message = "Image size must be 5 MB or less." });
+
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        var legacyUser = await FindLegacyUserAsync(user.UserName);
+        if (legacyUser == null) return BadRequest(new { message = "Legacy user profile not found." });
+
+        var storedPath = await SaveImageAsync(file, "profiles/users", extension);
+        var previousPath = legacyUser.Profile_Image_Path;
+        legacyUser.Profile_Image_Path = storedPath;
+        await _legacyDbContext.SaveChangesAsync();
+        DeletePhysicalFileIfExists(previousPath);
+
+        return Ok(new { profileImagePath = storedPath });
+    }
+
+    [Authorize]
+    [HttpGet("me/profile-image")]
+    public async Task<IActionResult> GetMyProfileImage()
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        var legacyUser = await FindLegacyUserAsync(user.UserName);
+        if (legacyUser == null || string.IsNullOrWhiteSpace(legacyUser.Profile_Image_Path))
+            return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
+
+        if (!TryResolveTrustedFilePath(legacyUser.Profile_Image_Path, out var fullPath) || !System.IO.File.Exists(fullPath))
+            return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
+
+        var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(stream, GetContentType(fullPath));
+    }
+
+    [Authorize]
+    [HttpPost("me/tenant-logo")]
+    public async Task<IActionResult> UploadMyTenantLogo([FromForm] IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = _localizer["NoFileUploaded"].Value });
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!AllowedImageExtensions.Contains(extension))
+            return BadRequest(new { message = "Unsupported image type." });
+        if (file.Length > MaxImageSizeBytes)
+            return BadRequest(new { message = "Image size must be 5 MB or less." });
+
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+        if (!await UserCanManageTenantAsync(user))
+            return Forbid();
+
+        if (user.Tenant == null)
+        {
+            user.Tenant = await _applicationDbContext.Tenants.SingleOrDefaultAsync(item => item.Id == user.TenantId);
+        }
+        if (user.Tenant == null)
+            return BadRequest(new { message = "Tenant not found." });
+
+        var storedPath = await SaveImageAsync(file, "tenants/logos", extension);
+        var previousPath = user.Tenant.LogoPath;
+        user.Tenant.LogoPath = storedPath;
+        await _applicationDbContext.SaveChangesAsync();
+        DeletePhysicalFileIfExists(previousPath);
+
+        return Ok(new { tenantLogoPath = storedPath });
+    }
+
+    [Authorize]
+    [HttpGet("me/tenant-logo")]
+    public async Task<IActionResult> GetMyTenantLogo()
+    {
+        var user = await GetCurrentUserAsync();
+        if (user == null) return Unauthorized(new { message = "User not found" });
+
+        if (user.Tenant == null)
+        {
+            user.Tenant = await _applicationDbContext.Tenants.AsNoTracking().SingleOrDefaultAsync(item => item.Id == user.TenantId);
+        }
+        if (user.Tenant == null || string.IsNullOrWhiteSpace(user.Tenant.LogoPath))
+            return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
+
+        if (!TryResolveTrustedFilePath(user.Tenant.LogoPath, out var fullPath) || !System.IO.File.Exists(fullPath))
+            return NotFound(new { message = _localizer["PhysicalFileNotFound"].Value });
+
+        var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(stream, GetContentType(fullPath));
     }
 
     [Authorize]
@@ -869,6 +978,57 @@ public class AccountController : ControllerBase
             ? nameAr
             : nameEn ?? string.Empty;
     }
+
+    private static readonly string[] AllowedImageExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp" };
+    private const long MaxImageSizeBytes = 5 * 1024 * 1024;
+
+    private async Task<string> SaveImageAsync(IFormFile file, string relativeFolder, string extension)
+    {
+        var folderPath = Path.Combine(_env.ContentRootPath, "Uploads", relativeFolder.Replace('/', Path.DirectorySeparatorChar));
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
+
+        var fileName = $"{Guid.NewGuid():N}{extension}";
+        var fullPath = Path.Combine(folderPath, fileName);
+        await using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        return $"/Uploads/{relativeFolder}/{fileName}";
+    }
+
+    private bool TryResolveTrustedFilePath(string? path, out string fullPath)
+    {
+        fullPath = string.Empty;
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        var normalized = path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        var uploadsRoot = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "Uploads"));
+        var resolved = Path.GetFullPath(Path.Combine(_env.ContentRootPath, normalized));
+        if (!resolved.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        fullPath = resolved;
+        return true;
+    }
+
+    private void DeletePhysicalFileIfExists(string? path)
+    {
+        if (!TryResolveTrustedFilePath(path, out var fullPath))
+            return;
+        if (System.IO.File.Exists(fullPath))
+            System.IO.File.Delete(fullPath);
+    }
+
+    private static string GetContentType(string path) => Path.GetExtension(path).ToLowerInvariant() switch
+    {
+        ".png" => "image/png",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".gif" => "image/gif",
+        ".bmp" => "image/bmp",
+        ".webp" => "image/webp",
+        _ => "application/octet-stream"
+    };
 }
 
 public class IdentityUserManagementDto
@@ -904,6 +1064,8 @@ public class AccountProfileDto
     public string Address { get; set; } = string.Empty;
     public string JobTitle { get; set; } = string.Empty;
     public DateOnly? DateOfBirth { get; set; }
+    public string? ProfileImagePath { get; set; }
+    public string? TenantLogoPath { get; set; }
     public UserNotificationPreferenceDto NotificationPreferences { get; set; } = new();
 }
 

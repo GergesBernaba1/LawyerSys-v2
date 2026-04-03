@@ -654,6 +654,7 @@ public partial class LegacyDbContext : DbContext
             entity.Property(e => e.Full_Name).HasMaxLength(50);
             entity.Property(e => e.Job).HasMaxLength(50);
             entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.Profile_Image_Path).HasMaxLength(260);
             entity.Property(e => e.User_Name).HasMaxLength(50);
         });
 

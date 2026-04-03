@@ -1488,18 +1488,21 @@ export default function DocumentGenerationPage() {
                   width: 180,
                   getActions: (params) => [
                     <GridActionsCellItem
+                      key="view"
                       icon={<Tooltip title={t('documentGeneration.view', { defaultValue: 'View' })}><Visibility /></Tooltip>}
                       label="View"
                       onClick={() => void viewHistoryDocument(params.row.id)}
                       showInMenu={false}
                     />,
                     <GridActionsCellItem
+                      key="download"
                       icon={<Tooltip title={t('documentGeneration.download', { defaultValue: 'Download' })}><Download /></Tooltip>}
                       label="Download"
                       onClick={() => void downloadHistoryDocument(params.row.id)}
                       showInMenu={false}
                     />,
                     <GridActionsCellItem
+                      key="versions"
                       icon={<Tooltip title={t('documentGeneration.viewVersions', { defaultValue: 'View Versions' })}><History /></Tooltip>}
                       label="View Versions"
                       onClick={() => void loadVersionChain(params.row.id)}
@@ -1576,12 +1579,14 @@ export default function DocumentGenerationPage() {
                   width: 120,
                   getActions: (params) => [
                     <GridActionsCellItem
+                      key="load"
                       icon={<Tooltip title={t('documentGeneration.load', { defaultValue: 'Load' })}><Edit /></Tooltip>}
                       label="Load"
                       onClick={() => void loadDraft(params.row)}
                       showInMenu={false}
                     />,
                     <GridActionsCellItem
+                      key="delete"
                       icon={<Tooltip title={t('documentGeneration.delete', { defaultValue: 'Delete' })}><Delete /></Tooltip>}
                       label="Delete"
                       onClick={() => void deleteDraft(params.row.id)}

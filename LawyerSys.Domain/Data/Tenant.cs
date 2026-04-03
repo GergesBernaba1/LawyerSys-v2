@@ -10,6 +10,7 @@ public class Tenant
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public int? CountryId { get; set; }
+    public string? LogoPath { get; set; }
 
     public Country? Country { get; set; }
     public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
