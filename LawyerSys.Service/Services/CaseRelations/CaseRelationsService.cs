@@ -2,6 +2,7 @@ using LawyerSys.Data;
 using LawyerSys.Data.ScaffoldedModels;
 using LawyerSys.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LawyerSys.Services.CaseRelations;
 
@@ -10,15 +11,18 @@ public sealed class CaseRelationsService : ICaseRelationsService
     private readonly LegacyDbContext _legacyDbContext;
     private readonly IInAppNotificationService _notificationService;
     private readonly IServiceOperationContextFactory _operationContextFactory;
+    private readonly ILogger<CaseRelationsService> _logger;
 
     public CaseRelationsService(
         LegacyDbContext legacyDbContext,
         IInAppNotificationService notificationService,
-        IServiceOperationContextFactory operationContextFactory)
+        IServiceOperationContextFactory operationContextFactory,
+        ILogger<CaseRelationsService> logger)
     {
         _legacyDbContext = legacyDbContext;
         _notificationService = notificationService;
         _operationContextFactory = operationContextFactory;
+        _logger = logger;
     }
 
     public async Task<ServiceResult<object>> GetCaseCustomersAsync(int caseCode, CancellationToken cancellationToken = default)
@@ -48,7 +52,16 @@ public sealed class CaseRelationsService : ICaseRelationsService
 
         _legacyDbContext.Custmors_Cases.Remove(relation);
         await _legacyDbContext.SaveChangesAsync(cancellationToken);
-        await _notificationService.NotifyCustomerRemovedFromCaseAsync(caseCode, customerId);
+
+        try
+        {
+            await _notificationService.NotifyCustomerRemovedFromCaseAsync(caseCode, customerId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to publish customer-remove notification for case {CaseCode} and customer {CustomerId}", caseCode, customerId);
+        }
+
         return ServiceResult<bool>.Success(true);
     }
 
