@@ -347,7 +347,17 @@
                       "myOverdueTasks":  "My Overdue Tasks",
                       "noOverdueTasks":  "No overdue tasks assigned to you.",
                       "myFollowUps":  "My Follow-ups",
-                      "noFollowUps":  "No follow-ups are scheduled right now."
+                      "noFollowUps":  "No follow-ups are scheduled right now.",
+                      "lastUpdated": "Last Updated",
+                      "refreshing": "Refreshing...",
+                      "refresh": "Refresh",
+                      "operationalFocus": "Operational Focus",
+                      "activityHealth": "Activity Health",
+                      "completionScore": "Completion Readiness",
+                      "onTrack": "On Track",
+                      "needsAttention": "Needs Attention",
+                      "critical": "Critical",
+                      "userFallback": "User"
                   },
     "cases":  {
                   "title":  "Cases",
@@ -380,6 +390,8 @@
                   "caseDeleted":  "Case deleted successfully",
                   "caseNumber":  "Case #",
                   "noCaseNumber":  "No case number",
+                  "won": "Won",
+                  "lost": "Lost",
                   "general":  "General",
                   "failedLoad":  "Failed to load cases",
                   "failedCreate":  "Failed to create case",
@@ -1766,7 +1778,10 @@
                    "edit":  "Edit",
                    "close":  "Close",
                    "yes":  "Yes",
-                   "no":  "No"
+                   "no":  "No",
+                   "pending": "Pending",
+                   "active": "Active",
+                   "now": "Now"
                },
     "parityRoadmap":  {
                           "title":  "Parity Roadmap",

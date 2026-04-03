@@ -8,7 +8,6 @@ import {
   Typography,
   Button,
   Paper,
-  IconButton,
   Skeleton,
   Chip,
   Avatar,
@@ -16,11 +15,12 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  LinearProgress,
+  Stack,
   Divider,
   useTheme,
   alpha,
 } from '@mui/material';
-import { Grid } from '@mui/material'
 import {
   Gavel as GavelIcon,
   People as PeopleIcon,
@@ -32,6 +32,9 @@ import {
   OpenInNew as OpenInNewIcon,
   ArrowForward as ArrowForwardIcon,
   TrendingUp as TrendingUpIcon,
+  Refresh as RefreshIcon,
+  AccessTime as AccessTimeIcon,
+  WarningAmber as WarningAmberIcon,
   WavingHand as WavingHandIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
@@ -111,6 +114,7 @@ export default function DashboardPageClient() {
   const theme = useTheme();
   const currentLanguage = i18n.resolvedLanguage || i18n.language || 'ar';
   const isRTL = theme.direction === 'rtl' || currentLanguage.startsWith('ar');
+  const locale = currentLanguage.startsWith('ar') ? 'ar-SA' : 'en-US';
   const isSuperAdmin = hasRole('SuperAdmin');
   const isEmployeeOnly = hasRole('Employee') && !hasRole('Admin') && !isSuperAdmin;
   const isCustomerOnly = hasRole('Customer') && !hasRole('Admin') && !hasRole('Employee') && !isSuperAdmin;
@@ -139,8 +143,9 @@ export default function DashboardPageClient() {
     overdueTasks: [] as any[],
     followUps: [] as any[],
   });
-  const numberLocale = isRTL ? 'ar' : 'en-US'
-
+  const [refreshTick, setRefreshTick] = useState(0);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   useEffect(() => {
     if (!isAuthenticated || !user) return
     if (isCustomerOnly) {
@@ -151,6 +156,7 @@ export default function DashboardPageClient() {
   useEffect(() => {
     if (isCustomerOnly) {
       setLoading(false)
+      setIsManualRefreshing(false)
       return
     }
 
@@ -212,6 +218,8 @@ export default function DashboardPageClient() {
           console.error('Error fetching employee dashboard stats');
         } finally {
           setLoading(false);
+          setIsManualRefreshing(false);
+          setLastUpdatedAt(new Date());
         }
 
         return;
@@ -262,10 +270,12 @@ export default function DashboardPageClient() {
         }
       } finally {
         setLoading(false);
+        setIsManualRefreshing(false);
+        setLastUpdatedAt(new Date());
       }
     }
     fetchStats();
-  }, [isSuperAdmin, isCustomerOnly, isEmployeeOnly]);
+  }, [isSuperAdmin, isCustomerOnly, isEmployeeOnly, refreshTick]);
 
   if (isCustomerOnly) {
     return null
@@ -274,6 +284,38 @@ export default function DashboardPageClient() {
   const navigate = (path: string) => {
     router.push(path)
   }
+
+  const handleRefreshDashboard = () => {
+    if (loading) return;
+    setLoading(true);
+    setIsManualRefreshing(true);
+    setRefreshTick((prev) => prev + 1);
+  };
+
+  const overdueCount = isEmployeeOnly ? employeeMetrics.overdueTasks : stats.overdueTasks;
+  const priorityLoad = isEmployeeOnly ? employeeMetrics.assignedTasks : stats.upcomingHearings + stats.overdueTasks;
+  const activityHealthScore = Math.max(0, Math.min(100, 100 - overdueCount * 12));
+  const completionScore = Math.max(0, Math.min(100, 100 - Math.round(priorityLoad * 6.5)));
+  const attentionLevel =
+    overdueCount === 0
+      ? { label: t('dashboard.onTrack', { defaultValue: 'On Track' }), color: theme.palette.success.main, variant: 'filled' as const }
+      : overdueCount <= 3
+      ? { label: t('dashboard.needsAttention', { defaultValue: 'Needs Attention' }), color: theme.palette.warning.main, variant: 'filled' as const }
+      : { label: t('dashboard.critical', { defaultValue: 'Critical' }), color: theme.palette.error.main, variant: 'filled' as const };
+
+  const getCaseStatusInfo = (caseItem: any) => {
+    const status = String(caseItem.status ?? caseItem.Status ?? '').toLowerCase();
+    if (status === 'won' || status === 'closed' || status === '4') {
+      return { label: t('cases.won', { defaultValue: 'Closed' }), color: theme.palette.success.main };
+    }
+    if (status === 'lost' || status === '5') {
+      return { label: t('cases.lost', { defaultValue: 'Lost' }), color: theme.palette.error.main };
+    }
+    if (status === 'pending' || status === 'review') {
+      return { label: t('common.pending', { defaultValue: 'Pending' }), color: theme.palette.warning.main };
+    }
+    return { label: t('common.active', { defaultValue: 'Active' }), color: theme.palette.info.main };
+  };
 
   const quickActions = isEmployeeOnly
     ? [
@@ -291,7 +333,18 @@ export default function DashboardPageClient() {
       ];
 
   return (
-    <Box dir={isRTL ? 'rtl' : 'ltr'} sx={{ pb: 4, minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'fade-in-up 0.45s ease-out' }}>
+    <Box
+      dir={isRTL ? 'rtl' : 'ltr'}
+      sx={{
+        pb: 4,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        animation: 'fade-in-up 0.45s ease-out',
+        background: `linear-gradient(180deg, ${alpha(theme.palette.primary.light, 0.07)} 0%, ${alpha(theme.palette.background.default, 0)} 34%)`,
+      }}
+    >
       {/* Welcome Section */}
       <Paper 
         elevation={0}
@@ -321,7 +374,7 @@ export default function DashboardPageClient() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <WavingHandIcon sx={{ color: theme.palette.secondary.light }} />
               <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.02em' }}>
-                {t('dashboard.welcomeBack')}{user ? `, ${user.fullName || user.userName || 'User'}` : ''}!
+                {t('dashboard.welcomeBack')}{user ? `, ${user.fullName || user.userName || t('dashboard.userFallback', { defaultValue: 'User' })}` : ''}!
               </Typography>
             </Box>
             <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 500, maxWidth: 600 }}>
@@ -329,10 +382,78 @@ export default function DashboardPageClient() {
                 ? t('dashboard.employeeSubtitle', { defaultValue: 'Here is the work currently assigned to you.' })
                 : (t('dashboard.subtitle') || 'Here is what is happening with your legal practice today.')}
             </Typography>
+            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mt: 2 }}>
+              <Chip
+                size="small"
+                label={`${attentionLevel.label}`}
+                sx={{
+                  bgcolor: alpha(attentionLevel.color, 0.2),
+                  color: '#fff',
+                  border: `1px solid ${alpha('#ffffff', 0.22)}`,
+                  fontWeight: 700,
+                }}
+              />
+              <Chip
+                size="small"
+                label={`${t('tasks.overdue')}: ${overdueCount.toLocaleString(locale)}`}
+                sx={{
+                  bgcolor: alpha('#ffffff', 0.12),
+                  color: '#fff',
+                  border: `1px solid ${alpha('#ffffff', 0.2)}`,
+                  fontWeight: 700,
+                }}
+              />
+              <Chip
+                size="small"
+                label={`${t('dashboard.activityHealth')}: ${activityHealthScore.toLocaleString(locale)}%`}
+                sx={{
+                  bgcolor: alpha('#ffffff', 0.12),
+                  color: '#fff',
+                  border: `1px solid ${alpha('#ffffff', 0.2)}`,
+                  fontWeight: 700,
+                }}
+              />
+            </Stack>
           </Box>
-          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-            <Button
-              aria-label="view-all-cases"
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: isRTL ? 'flex-start' : 'flex-end', gap: 1.5, width: { xs: '100%', md: 'auto' } }}>
+            <Chip
+              icon={<AccessTimeIcon sx={{ fontSize: 16 }} />}
+              label={
+                loading
+                  ? t('app.loading', { defaultValue: 'Loading...' })
+                  : `${t('dashboard.lastUpdated', { defaultValue: 'Last Updated' })}: ${lastUpdatedAt ? lastUpdatedAt.toLocaleString(locale) : t('common.now', { defaultValue: 'Now' })}`
+              }
+              sx={{
+                bgcolor: alpha('#ffffff', 0.14),
+                color: '#fff',
+                border: `1px solid ${alpha('#ffffff', 0.26)}`,
+                fontWeight: 700,
+                '& .MuiChip-icon': { color: '#fff' },
+              }}
+            />
+            <Box sx={{ display: 'flex', gap: 1.25, width: { xs: '100%', md: 'auto' }, flexWrap: 'wrap', justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+              <Button
+                variant="outlined"
+                startIcon={<RefreshIcon sx={{ fontSize: 18 }} />}
+                onClick={handleRefreshDashboard}
+                disabled={loading}
+                sx={{
+                  color: '#fff',
+                  borderColor: alpha('#ffffff', 0.4),
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  px: 2.5,
+                  minWidth: 140,
+                  '&:hover': {
+                    borderColor: '#fff',
+                    bgcolor: alpha('#ffffff', 0.09),
+                  },
+                }}
+              >
+                {isManualRefreshing ? t('dashboard.refreshing', { defaultValue: 'Refreshing...' }) : t('dashboard.refresh', { defaultValue: 'Refresh' })}
+              </Button>
+          <Button
+              aria-label={isEmployeeOnly ? t('dashboard.workQueue', { defaultValue: 'My Work Queue' }) : t('dashboard.viewAllCases')}
               variant="contained"
               sx={{
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(243,247,253,0.96) 100%)',
@@ -356,11 +477,15 @@ export default function DashboardPageClient() {
             >
               {isEmployeeOnly ? t('dashboard.workQueue', { defaultValue: 'My Work Queue' }) : (t('dashboard.viewAllCases') || 'View All Cases')}
             </Button>
+            </Box>
           </Box>
         </Box>
       </Paper>
 
       <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 0 } }}>
+        <Typography variant="h6" fontWeight={800} sx={{ mb: 2.25, px: { xs: 0.5, md: 0 } }}>
+          {t('dashboard.statistics')}
+        </Typography>
         {/* Stats Grid */}
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
           <Box><StatCard title={isEmployeeOnly ? t('dashboard.myCases', { defaultValue: 'My Cases' }) : t('dashboard.totalCases')} value={stats.cases} icon={<GavelIcon />} color={theme.palette.primary.main} loading={loading} onClick={() => navigate('/cases')} trend={isEmployeeOnly ? undefined : stats.casesTrend} trendLabel={t('dashboard.thisMonth')} /></Box>
@@ -373,7 +498,7 @@ export default function DashboardPageClient() {
           <Paper elevation={0} sx={{ p: 3, borderRadius: 5, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight={700}>{isEmployeeOnly ? t('dashboard.openCases', { defaultValue: 'Open Cases' }) : (t('billing.title') || 'Billing')}</Typography>
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>
-              {isEmployeeOnly ? employeeMetrics.openCases.toLocaleString(numberLocale) : stats.revenueThisMonth.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}
+              {isEmployeeOnly ? employeeMetrics.openCases.toLocaleString(locale) : stats.revenueThisMonth.toLocaleString(locale, { maximumFractionDigits: 2 })}
             </Typography>
             {!isEmployeeOnly && (
               <Typography variant="caption" color={stats.revenueTrend >= 0 ? 'success.main' : 'error.main'} fontWeight={700}>
@@ -390,6 +515,78 @@ export default function DashboardPageClient() {
             <Typography variant="h5" fontWeight={800} sx={{ mt: 0.5 }}>{isEmployeeOnly ? employeeMetrics.overdueTasks : stats.overdueTasks}</Typography>
           </Paper>
         </Box>
+
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 2.5, md: 3 },
+            borderRadius: 5,
+            border: '1px solid',
+            borderColor: 'divider',
+            mb: 4,
+            background: `linear-gradient(140deg, ${alpha(theme.palette.background.paper, 0.98)} 0%, ${alpha(theme.palette.primary.light, 0.03)} 100%)`,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, flexWrap: 'wrap', mb: 2.5 }}>
+            <Typography variant="h6" fontWeight={800} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <WarningAmberIcon sx={{ color: attentionLevel.color }} />
+              {t('dashboard.operationalFocus', { defaultValue: 'Operational Focus' })}
+            </Typography>
+            <Chip
+              label={attentionLevel.label}
+              variant={attentionLevel.variant}
+              sx={{
+                fontWeight: 800,
+                bgcolor: alpha(attentionLevel.color, 0.14),
+                color: attentionLevel.color,
+                border: `1px solid ${alpha(attentionLevel.color, 0.24)}`,
+              }}
+            />
+          </Box>
+
+          <Stack spacing={2.25}>
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                <Typography variant="body2" fontWeight={700} color="text.secondary">
+                  {t('dashboard.activityHealth', { defaultValue: 'Activity Health' })}
+                </Typography>
+                <Typography variant="body2" fontWeight={800}>
+                  {activityHealthScore}%
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={activityHealthScore}
+                sx={{
+                  height: 10,
+                  borderRadius: 99,
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  '& .MuiLinearProgress-bar': {
+                    borderRadius: 99,
+                    background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                  },
+                }}
+              />
+            </Box>
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                <Typography variant="body2" fontWeight={700} color="text.secondary">
+                  {t('dashboard.completionScore', { defaultValue: 'Completion Readiness' })}
+                </Typography>
+                <Typography variant="body2" fontWeight={800}>
+                  {completionScore}%
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={completionScore}
+                color={completionScore >= 70 ? 'success' : completionScore >= 50 ? 'warning' : 'error'}
+                sx={{ height: 10, borderRadius: 99 }}
+              />
+            </Box>
+          </Stack>
+        </Paper>
+
       {/* Quick Actions & Recent Cases */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
         <Box>
@@ -481,42 +678,63 @@ export default function DashboardPageClient() {
               <Box>{[1,2,3].map(i => <Skeleton key={i} height={80} sx={{ mb: 1, borderRadius: 2 }} />)}</Box>
             ) : recentCases.length > 0 ? (
               <List disablePadding>
-                {recentCases.map((c, index) => (
-                  <React.Fragment key={c.caseId}>
-                    <ListItem 
-                      sx={{ 
-                        px: 2, 
-                        py: 1.5,
-                        cursor: 'pointer', 
-                        '&:hover': { bgcolor: 'action.hover' }, 
-                        borderRadius: 3,
-                        mb: index < recentCases.length - 1 ? 1 : 0
-                      }} 
-                      onClick={() => navigate('/cases')}
-                    >
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', borderRadius: 2 }}>
-                          <GavelIcon />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText 
-                        primary={<Typography fontWeight={700}>{c.caseName || `${t('cases.caseNumber')} ${c.caseId}`}</Typography>} 
-                        secondary={c.caseNumber || t('cases.noCaseNumber')} 
-                      />
-                      <Chip 
-                        label={c.caseType || t('cases.general')} 
-                        size="small" 
-                        sx={{ 
-                          fontWeight: 700, 
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                          color: 'primary.main',
-                          border: 'none'
-                        }} 
-                      />
-                    </ListItem>
-                    {index < recentCases.length - 1 && <Divider variant="inset" component="li" sx={{ opacity: 0.5, my: 0.5 }} />}
-                  </React.Fragment>
-                ))}
+                {recentCases.map((c, index) => {
+                  const status = getCaseStatusInfo(c);
+                  return (
+                    <React.Fragment key={c.caseId}>
+                      <ListItem
+                        sx={{
+                          px: 2,
+                          py: 1.5,
+                          cursor: 'pointer',
+                          '&:hover': { bgcolor: 'action.hover' },
+                          borderRadius: 3,
+                          mb: index < recentCases.length - 1 ? 1 : 0
+                        }}
+                        onClick={() => navigate('/cases')}
+                      >
+                        <ListItemAvatar>
+                          <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', borderRadius: 2 }}>
+                            <GavelIcon />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={<Typography fontWeight={700}>{c.caseName || `${t('cases.caseNumber')} ${c.caseId}`}</Typography>}
+                          secondary={
+                            <Typography variant="body2" color="text.secondary">
+                              {c.caseNumber || t('cases.noCaseNumber')}
+                            </Typography>
+                          }
+                        />
+                        <Stack direction={isRTL ? 'row-reverse' : 'row'} spacing={1} alignItems="center">
+                          {!!c.caseType && (
+                            <Chip
+                              label={c.caseType}
+                              size="small"
+                              sx={{
+                                fontWeight: 700,
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                color: 'primary.main',
+                                border: 'none',
+                              }}
+                            />
+                          )}
+                          <Chip
+                            label={status.label}
+                            size="small"
+                            sx={{
+                              fontWeight: 700,
+                              bgcolor: alpha(status.color, 0.12),
+                              color: status.color,
+                              border: `1px solid ${alpha(status.color, 0.22)}`,
+                            }}
+                          />
+                        </Stack>
+                      </ListItem>
+                      {index < recentCases.length - 1 && <Divider variant="inset" component="li" sx={{ opacity: 0.5, my: 0.5 }} />}
+                    </React.Fragment>
+                  );
+                })}
               </List>
             ) : (
               <Box sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
@@ -561,7 +779,7 @@ export default function DashboardPageClient() {
                       </ListItemAvatar>
                       <ListItemText
                         primary={<Typography fontWeight={700}>{task.taskName || task.task_Name || t('tasks.task', { defaultValue: 'Task' })}</Typography>}
-                        secondary={task.taskReminderDate ? new Date(task.taskReminderDate).toLocaleString(numberLocale) : t('common.noData', { defaultValue: 'No data' })}
+                        secondary={task.taskReminderDate ? new Date(task.taskReminderDate).toLocaleString(locale) : t('common.noData', { defaultValue: 'No data' })}
                       />
                     </ListItem>
                     {index < employeeWorkload.overdueTasks.length - 1 && <Divider component="li" />}
@@ -594,7 +812,7 @@ export default function DashboardPageClient() {
                       </ListItemAvatar>
                       <ListItemText
                         primary={<Typography fontWeight={700}>{lead.fullName || t('customers.customer', { defaultValue: 'Lead' })}</Typography>}
-                        secondary={lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleString(numberLocale) : t('common.noData', { defaultValue: 'No data' })}
+                        secondary={lead.nextFollowUpAt ? new Date(lead.nextFollowUpAt).toLocaleString(locale) : t('common.noData', { defaultValue: 'No data' })}
                       />
                       <Chip size="small" label={lead.status || t('common.pending', { defaultValue: 'Pending' })} />
                     </ListItem>

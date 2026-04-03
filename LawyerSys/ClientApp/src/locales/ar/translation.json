@@ -347,7 +347,17 @@
                       "myOverdueTasks":  "مهامي المتأخرة",
                       "noOverdueTasks":  "لا توجد مهام متأخرة مسندة إليك.",
                       "myFollowUps":  "متابعاتي",
-                      "noFollowUps":  "لا توجد متابعات مجدولة حالياً."
+                      "noFollowUps":  "لا توجد متابعات مجدولة حالياً.",
+                      "lastUpdated": "آخر تحديث",
+                      "refreshing": "جارٍ التحديث...",
+                      "refresh": "تحديث",
+                      "operationalFocus": "التركيز التشغيلي",
+                      "activityHealth": "صحة النشاط",
+                      "completionScore": "جاهزية الإنجاز",
+                      "onTrack": "على المسار",
+                      "needsAttention": "يتطلب انتباهًا",
+                      "critical": "حرج",
+                      "userFallback": "مستخدم"
                   },
     "cases":  {
                   "title":  "القضايا",
@@ -380,6 +390,8 @@
                   "caseDeleted":  "تم حذف القضية بنجاح",
                   "caseNumber":  "قضية رقم",
                   "noCaseNumber":  "بدون رقم قضية",
+                  "won": "مكسوبة",
+                  "lost": "خاسرة",
                   "general":  "عام",
                   "failedLoad":  "فشل تحميل القضايا",
                   "failedCreate":  "فشل إنشاء القضية",
@@ -1770,7 +1782,10 @@
                    "edit":  "تعديل",
                    "close":  "إغلاق",
                    "yes":  "نعم",
-                   "no":  "لا"
+                   "no":  "لا",
+                   "pending": "قيد الانتظار",
+                   "active": "نشطة",
+                   "now": "الآن"
                },
     "parityRoadmap":  {
                           "title":  "خارطة التكافؤ",
