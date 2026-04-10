@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Alert,
@@ -28,6 +28,8 @@ import { useTranslation } from 'react-i18next';
 import api from '../../src/services/api';
 import SearchableSelect from '../../src/components/SearchableSelect';
 import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout';
+import LoadingButton from '../../src/components/LoadingButton';
+import RetryAlert from '../../src/components/RetryAlert';
 import { formatCurrencyValue } from '../../src/hooks/useCurrency';
 
 type CountryOption = {
@@ -70,6 +72,10 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [countriesLoading, setCountriesLoading] = useState(false);
+  const [countriesError, setCountriesError] = useState('');
+  const [packagesLoading, setPackagesLoading] = useState(false);
+  const [packagesError, setPackagesError] = useState('');
   const { register, isAuthenticated } = useAuth();
   const router = useRouter();
   const { t, i18n } = useTranslation();
@@ -85,63 +91,53 @@ export default function RegisterPage() {
     }
   }, [isAuthenticated, router]);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const loadCountries = async () => {
-      try {
-        const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
-        const res = await api.get('/Account/countries', { headers: { 'Accept-Language': language } });
-        if (!mounted) return;
-
-        const nextCountries = Array.isArray(res.data) ? res.data : [];
-        setCountries(nextCountries);
-
-        if (nextCountries.length === 1) {
-          setCountryId(nextCountries[0].id);
-        }
-      } catch {
-        if (mounted) {
-          setError(t('register.failedCountries', { defaultValue: 'Failed to load countries.' }));
-        }
+  const loadCountries = useCallback(async () => {
+    setCountriesLoading(true);
+    setCountriesError('');
+    try {
+      const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
+      const res = await api.get('/Account/countries', { headers: { 'Accept-Language': language } });
+      const nextCountries = Array.isArray(res.data) ? res.data : [];
+      setCountries(nextCountries);
+      if (nextCountries.length === 1) {
+        setCountryId(nextCountries[0].id);
       }
-    };
-
-    loadCountries();
-    return () => {
-      mounted = false;
-    };
-  }, [i18n.language, i18n.resolvedLanguage, t]);
+    } catch {
+      setCountriesError(t('register.failedCountries', { defaultValue: 'Failed to load countries.' }));
+    } finally {
+      setCountriesLoading(false);
+    }
+  }, [i18n.resolvedLanguage, i18n.language, t]);
 
   useEffect(() => {
-    let mounted = true;
-    const loadPackages = async () => {
-      try {
-        const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
-        const res = await api.get('/SubscriptionPackages/public', {
-          headers: { 'Accept-Language': language },
-          skipTenantHeader: true,
-        } as any);
-        if (!mounted) return;
+    void loadCountries();
+  }, [loadCountries]);
 
-        const nextPackages = Array.isArray(res.data) ? res.data : [];
-        setPackages(nextPackages);
-        if (nextPackages.length > 0) {
-          setSelectedOfficeSize((current) => current || nextPackages[0].officeSize);
-          setSelectedBillingCycle(nextPackages[0].monthlyOption ? "Monthly" : "Annual");
-        }
-      } catch {
-        if (mounted) {
-          setError(t('register.failedPackages', { defaultValue: 'Failed to load subscription packages.' }));
-        }
+  const loadPackages = useCallback(async () => {
+    setPackagesLoading(true);
+    setPackagesError('');
+    try {
+      const language = (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SA' : 'en-US';
+      const res = await api.get('/SubscriptionPackages/public', {
+        headers: { 'Accept-Language': language },
+        skipTenantHeader: true,
+      } as any);
+      const nextPackages = Array.isArray(res.data) ? res.data : [];
+      setPackages(nextPackages);
+      if (nextPackages.length > 0) {
+        setSelectedOfficeSize((current) => current || nextPackages[0].officeSize);
+        setSelectedBillingCycle(nextPackages[0].monthlyOption ? "Monthly" : "Annual");
       }
-    };
+    } catch {
+      setPackagesError(t('register.failedPackages', { defaultValue: 'Failed to load subscription packages.' }));
+    } finally {
+      setPackagesLoading(false);
+    }
+  }, [i18n.resolvedLanguage, i18n.language, t]);
 
-    loadPackages();
-    return () => {
-      mounted = false;
-    };
-  }, [i18n.language, i18n.resolvedLanguage, t]);
+  useEffect(() => {
+    void loadPackages();
+  }, [loadPackages]);
 
   const selectedGroup = useMemo(
     () => packages.find((pkg) => pkg.officeSize === selectedOfficeSize) || null,
@@ -323,8 +319,14 @@ export default function RegisterPage() {
             </Box>
           </Box>
 
-          {error ? <Alert severity="error" sx={{ borderRadius: 3 }}>{error}</Alert> : null}
-          {successMessage ? <Alert severity="success" sx={{ borderRadius: 3 }}>{successMessage}</Alert> : null}
+          {countriesError && (
+            <RetryAlert message={countriesError} onRetry={loadCountries} loading={countriesLoading} />
+          )}
+          {packagesError && (
+            <RetryAlert message={packagesError} onRetry={loadPackages} loading={packagesLoading} />
+          )}
+          {error ? <Alert severity="error" role="alert" aria-live="polite" sx={{ borderRadius: 3 }}>{error}</Alert> : null}
+          {successMessage ? <Alert severity="success" role="status" aria-live="polite" sx={{ borderRadius: 3 }}>{successMessage}</Alert> : null}
 
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
             <TextField required fullWidth id="userName" label={t('register.username') || 'Username'} value={userName} onChange={(e) => setUserName(e.target.value)} sx={fieldSx} />
@@ -371,6 +373,8 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               sx={fieldSx}
+              error={confirmPassword.length > 0 && password !== confirmPassword}
+              helperText={confirmPassword.length > 0 && password !== confirmPassword ? t('register.passwordMismatch') || 'Passwords do not match' : ''}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -396,9 +400,9 @@ export default function RegisterPage() {
             </Paper>
           ) : null}
 
-          <Button type="submit" fullWidth variant="contained" size="large" disabled={loading} sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }}>
-            {loading ? (t('app.loading') || 'Loading...') : (t('register.signUp') || 'Sign Up')}
-          </Button>
+          <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={loading} loadingPosition="start" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }}>
+            {t('register.signUp') || 'Sign Up'}
+          </LoadingButton>
         </Stack>
       </Box>
     </AuthSplitLayout>

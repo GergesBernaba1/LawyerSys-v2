@@ -47,6 +47,8 @@ import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 import SearchableSelect from '../../src/components/SearchableSelect';
 import SearchableMultiSelect from '../../src/components/SearchableMultiSelect';
+import LoadingButton from '../../src/components/LoadingButton';
+import RetryAlert from '../../src/components/RetryAlert';
 
 type CaseItem = {
   id: number;
@@ -117,6 +119,8 @@ export default function CasesPageClient() {
 
   const [items, setItems] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [code, setCode] = useState<number>(0);
   const [invitionsStatment, setInvitionsStatment] = useState('');
   const [invitionType, setInvitionType] = useState('');
@@ -206,6 +210,7 @@ export default function CasesPageClient() {
 
   const load = useCallback(async (p = page) => {
     setLoading(true);
+    setLoadError(false);
     try {
       const r = await api.get(`/Cases?page=${p}&pageSize=${pageSize}${search ? `&search=${encodeURIComponent(search)}` : ''}`);
 
@@ -214,7 +219,7 @@ export default function CasesPageClient() {
       setItems((casesData || []).map(normalizeCaseItem));
       if (r.data?.totalCount) setTotalCount(r.data.totalCount);
     } catch (err) {
-      setSnackbar({ open: true, message: t('cases.failedLoad'), severity: 'error' });
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -256,6 +261,7 @@ export default function CasesPageClient() {
       return;
     }
 
+    setCreating(true);
     try {
       // 1) Create case
       const created = await api.post('/Cases', {
@@ -331,6 +337,8 @@ export default function CasesPageClient() {
     } catch (err: any) {
       console.error(err);
       setSnackbar({ open: true, message: err?.response?.data?.message ?? t('cases.failedCreate'), severity: 'error' });
+    } finally {
+      setCreating(false);
     }
   }
 
@@ -405,18 +413,21 @@ export default function CasesPageClient() {
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('cases.refresh')}>
-            <IconButton 
-              onClick={() => load() } 
-              disabled={loading}
-              sx={{ 
-                bgcolor: 'background.paper', 
-                border: '1px solid', 
-                borderColor: 'divider',
-                '&:hover': { bgcolor: 'grey.50' }
-              }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={() => load()}
+                disabled={loading}
+                aria-label={t('cases.refresh')}
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'grey.50' }
+                }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
           {hasAnyRole('Admin', 'Employee') && (
             <Button
@@ -437,12 +448,22 @@ export default function CasesPageClient() {
         </Box>
       </Box>
 
+      {/* Load error */}
+      {loadError && (
+        <RetryAlert
+          message={t('cases.failedLoad')}
+          onRetry={() => load()}
+          loading={loading}
+          sx={{ mb: 3 }}
+        />
+      )}
+
       {/* Table */}
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          borderRadius: 4, 
-          border: '1px solid', 
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 4,
+          border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
           bgcolor: 'background.paper',
@@ -550,10 +571,11 @@ export default function CasesPageClient() {
                         </Button>
                         {hasAnyRole('Admin', 'Employee') && (
                           <Tooltip title={t('app.delete')}>
-                            <IconButton 
-                              color="error" 
+                            <IconButton
+                              color="error"
                               onClick={() => remove(item.code)}
-                              sx={{ 
+                              aria-label={t('app.delete')}
+                              sx={{
                                 '&:hover': { bgcolor: 'error.light', color: 'white' },
                                 transition: 'all 0.2s ease'
                               }}
@@ -646,6 +668,12 @@ export default function CasesPageClient() {
                 value={invitionsStatment}
                 onChange={(e) => setInvitionsStatment(e.target.value)}
                 placeholder={t('cases.statementHint', { defaultValue: 'Case summary, allegations, and legal context' })}
+                error={invitionsStatment.length > 0 && invitionsStatment.trim().length < MIN_STATEMENT_LENGTH}
+                helperText={
+                  invitionsStatment.length > 0 && invitionsStatment.trim().length < MIN_STATEMENT_LENGTH
+                    ? t('cases.validation.statementTooShort', { defaultValue: `At least ${MIN_STATEMENT_LENGTH} characters required.`, min: MIN_STATEMENT_LENGTH })
+                    : t('cases.statementCharCount', { defaultValue: `${invitionsStatment.trim().length} / ${MIN_STATEMENT_LENGTH}+ characters`, count: invitionsStatment.trim().length, min: MIN_STATEMENT_LENGTH })
+                }
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -666,10 +694,13 @@ export default function CasesPageClient() {
                 inputMode="numeric"
                 value={formatAmountInput(totalAmountInput)}
                 onChange={(e) => setTotalAmountInput(sanitizeAmountInput(e.target.value))}
+                error={totalAmount < 0 || totalAmount > MAX_TOTAL_AMOUNT}
+                helperText={
+                  totalAmount < 0 || totalAmount > MAX_TOTAL_AMOUNT
+                    ? t('cases.validation.amountInvalid', { defaultValue: `Amount must be between 0 and ${MAX_TOTAL_AMOUNT.toLocaleString()}.`, max: MAX_TOTAL_AMOUNT })
+                    : `${t('cases.amountPreview', { defaultValue: 'Formatted' })}: ${formatCurrency(totalAmount || 0)}`
+                }
               />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
-                {t('cases.amountPreview', { defaultValue: 'Formatted amount' })}: {formatCurrency(totalAmount || 0)}
-              </Typography>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <SearchableSelect<number>
@@ -821,19 +852,21 @@ export default function CasesPageClient() {
 
         <DialogActions sx={{ p: 3, pt: 1, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 600 }}>{t('app.cancel')}</Button>
-          <Button 
-            variant="contained" 
-            onClick={create} 
+          <LoadingButton
+            variant="contained"
+            onClick={create}
+            loading={creating}
+            loadingPosition="start"
             disabled={!code || !invitionsStatment.trim() || !invitionType.trim() || !invitionDate}
-            sx={{ 
-              borderRadius: 2.5, 
+            sx={{
+              borderRadius: 2.5,
               px: 4,
               fontWeight: 700,
               boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
             }}
           >
             {t('app.create')}
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
 
@@ -843,10 +876,12 @@ export default function CasesPageClient() {
         onClose={() => setSnackbar({ ...snackbar, open: false })} 
         anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
       >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
-          severity={snackbar.severity} 
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
           variant="filled"
+          role="alert"
+          aria-live="polite"
           sx={{ width: '100%', borderRadius: 3, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
         >
           {snackbar.message}

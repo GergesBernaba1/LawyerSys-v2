@@ -19,6 +19,8 @@ import { useAuth } from '../../src/services/auth';
 import { useCurrency } from '../../src/hooks/useCurrency';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 import SearchableSelect from '../../src/components/SearchableSelect';
+import LoadingButton from '../../src/components/LoadingButton';
+import RetryAlert from '../../src/components/RetryAlert';
 
 type BillingPayDto = { id: number; amount: number; dateOfOperation: string; notes: string; customerId: number; customerName?: string };
 type BillingReceiptDto = { id: number; amount: number; dateOfOperation: string; notes: string; employeeId: number };
@@ -41,6 +43,9 @@ export default function BillingPage() {
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [employees, setEmployees] = useState<EmployeeItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [submittingPay, setSubmittingPay] = useState(false);
+  const [submittingRec, setSubmittingRec] = useState(false);
   const [openPayDialog, setOpenPayDialog] = useState(false);
   const [openRecDialog, setOpenRecDialog] = useState(false);
   const [payForm, setPayForm] = useState({ amount: 0, dateOfOperation: '', notes: '', customerId: 0 });
@@ -50,6 +55,7 @@ export default function BillingPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const [payRes, recRes, custRes, empRes, sumRes] = await Promise.all([
         api.get('/Billing/payments'),
@@ -64,7 +70,7 @@ export default function BillingPage() {
       setEmployees(empRes.data || []);
       setSummary(sumRes.data || null);
     } catch {
-      setSnackbar({ open: true, message: t('billing.failedLoad'), severity: 'error' });
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -73,6 +79,7 @@ export default function BillingPage() {
   useEffect(() => { void load(); }, [load]);
 
   async function submitPayment() {
+    setSubmittingPay(true);
     try {
       await api.post('/Billing/payments', payForm);
       setSnackbar({ open: true, message: t('billing.paymentCreated'), severity: 'success' });
@@ -81,10 +88,13 @@ export default function BillingPage() {
       load();
     } catch {
       setSnackbar({ open: true, message: t('billing.failedCreate'), severity: 'error' });
+    } finally {
+      setSubmittingPay(false);
     }
   }
 
   async function submitReceipt() {
+    setSubmittingRec(true);
     try {
       await api.post('/Billing/receipts', recForm);
       setSnackbar({ open: true, message: t('billing.receiptCreated'), severity: 'success' });
@@ -93,6 +103,8 @@ export default function BillingPage() {
       load();
     } catch {
       setSnackbar({ open: true, message: t('billing.failedCreate'), severity: 'error' });
+    } finally {
+      setSubmittingRec(false);
     }
   }
 
@@ -152,12 +164,24 @@ export default function BillingPage() {
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('common.refresh')}>
-            <IconButton onClick={load} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton onClick={load} disabled={loading} aria-label={t('common.refresh')} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', '&:hover': { bgcolor: 'grey.50' } }}>
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       </Box>
+
+      {/* Load error */}
+      {loadError && (
+        <RetryAlert
+          message={t('billing.failedLoad')}
+          onRetry={load}
+          loading={loading}
+          sx={{ mb: 3 }}
+        />
+      )}
 
       {/* Summary Cards */}
       {isEmployeeOnly && (
@@ -243,7 +267,7 @@ export default function BillingPage() {
                       {canManageBilling && (
                         <TableCell align={isRTL ? 'left' : 'right'}>
                           <Tooltip title={t('common.delete')}>
-                            <IconButton color="error" onClick={() => removePayment(item.id)} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}>
+                            <IconButton color="error" onClick={() => removePayment(item.id)} aria-label={t('common.delete')} sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}>
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
@@ -337,7 +361,7 @@ export default function BillingPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button onClick={() => setOpenPayDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={submitPayment} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{t('common.create')}</Button>
+          <LoadingButton variant="contained" onClick={submitPayment} loading={submittingPay} loadingPosition="start" sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{t('common.create')}</LoadingButton>
         </DialogActions>
       </Dialog>
 
@@ -362,12 +386,12 @@ export default function BillingPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1.5, justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
           <Button onClick={() => setOpenRecDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={submitReceipt} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{t('common.create')}</Button>
+          <LoadingButton variant="contained" onClick={submitReceipt} loading={submittingRec} loadingPosition="start" sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>{t('common.create')}</LoadingButton>
         </DialogActions>
       </Dialog>
 
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} variant="filled" sx={{ borderRadius: 2, fontWeight: 600 }}>{snackbar.message}</Alert>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} variant="filled" role="alert" aria-live="polite" sx={{ borderRadius: 2, fontWeight: 600 }}>{snackbar.message}</Alert>
       </Snackbar>
     </Box>
   );

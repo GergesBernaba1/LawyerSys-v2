@@ -50,6 +50,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../src/services/auth';
 import useConfirmDialog from '../../src/hooks/useConfirmDialog';
 import SearchableSelect from '../../src/components/SearchableSelect';
+import LoadingButton from '../../src/components/LoadingButton';
+import RetryAlert from '../../src/components/RetryAlert';
+import AvatarWithSkeleton from '../../src/components/AvatarWithSkeleton';
 
 type IdentityDto = { id: string; userName?: string; email?: string; fullName?: string; requiresPasswordReset?: boolean };
 type Customer = {
@@ -225,6 +228,7 @@ export default function CustomersPageClient() {
 
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [openCreateWithUser, setOpenCreateWithUser] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editItem, setEditItem] = useState<Customer | null>(null);
@@ -233,6 +237,7 @@ export default function CustomersPageClient() {
   const [selectedTenantId, setSelectedTenantId] = useState<number | ''>('');
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [savingCreate, setSavingCreate] = useState(false);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const [createProfileImageFile, setCreateProfileImageFile] = useState<File | null>(null);
   const [createProfileImagePreview, setCreateProfileImagePreview] = useState<string>('');
@@ -272,13 +277,14 @@ export default function CustomersPageClient() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const customersRes = await api.get('/Customers');
       const data = customersRes.data;
       const source = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
       setItems(source.map(normalizeCustomer));
     } catch (err) {
-      setSnackbar({ open: true, message: t('customers.failedLoad'), severity: 'error' });
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -517,18 +523,21 @@ export default function CustomersPageClient() {
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('cases.refresh')}>
-            <IconButton 
-              onClick={load} 
-              disabled={loading}
-              sx={{ 
-                bgcolor: 'background.paper', 
-                border: '1px solid', 
-                borderColor: 'divider',
-                '&:hover': { bgcolor: 'grey.50' }
-              }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={load}
+                disabled={loading}
+                aria-label={t('cases.refresh')}
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'grey.50' }
+                }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
           {hasRole('Admin') && (
             <Button 
@@ -549,12 +558,22 @@ export default function CustomersPageClient() {
         </Box>
       </Box>
 
+      {/* Load error */}
+      {loadError && (
+        <RetryAlert
+          message={t('customers.failedLoad')}
+          onRetry={load}
+          loading={loading}
+          sx={{ mb: 3 }}
+        />
+      )}
+
       {/* Table */}
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          borderRadius: 4, 
-          border: '1px solid', 
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 4,
+          border: '1px solid',
           borderColor: 'divider',
           overflow: 'hidden',
           bgcolor: 'background.paper',
@@ -616,9 +635,9 @@ export default function CustomersPageClient() {
                           width: '100%',
                         }}
                       >
-                        <Avatar src={item.profileImageUrl} sx={{ width: 36, height: 36, bgcolor: 'primary.light', fontSize: '1rem' }}>
+                        <AvatarWithSkeleton src={item.profileImageUrl} size={36} sx={{ bgcolor: 'primary.light', fontSize: '1rem' }}>
                           <PersonIcon fontSize="small" />
-                        </Avatar>
+                        </AvatarWithSkeleton>
                         <Button 
                           onClick={async ()=>{
                             const r = await api.get(`/Customers/${item.id}/profile`).then(res => normalizeProfile(res.data)).catch(()=>null);
@@ -649,6 +668,7 @@ export default function CustomersPageClient() {
                             <IconButton
                               color="primary"
                               onClick={() => openEdit(item)}
+                              aria-label={t('common.edit')}
                               sx={{
                                 '&:hover': { bgcolor: 'primary.light', color: 'white' },
                                 transition: 'all 0.2s ease'
@@ -677,10 +697,11 @@ export default function CustomersPageClient() {
                         )}
                         {hasRole('Admin') && (
                           <Tooltip title={t('app.delete')}>
-                            <IconButton 
-                              color="error" 
+                            <IconButton
+                              color="error"
                               onClick={() => remove(item.id)}
-                              sx={{ 
+                              aria-label={t('app.delete')}
+                              sx={{
                                 '&:hover': { bgcolor: 'error.light', color: 'white' },
                                 transition: 'all 0.2s ease'
                               }}
@@ -855,8 +876,10 @@ export default function CustomersPageClient() {
           >
             {t('app.cancel')}
           </Button>
-          <Button 
-            variant="contained" 
+          <LoadingButton
+            variant="contained"
+            loading={savingCreate}
+            loadingPosition="start"
             onClick={async ()=>{
               if (!createForm.password || !createForm.confirmPassword) {
                 setSnackbar({ open: true, message: t('customers.passwordRequired', 'Password is required'), severity: 'error' });
@@ -866,6 +889,7 @@ export default function CustomersPageClient() {
                 setSnackbar({ open: true, message: t('register.passwordMismatch'), severity: 'error' });
                 return;
               }
+              setSavingCreate(true);
               try{
                 const payload = {
                   fullName: createForm.fullName,
@@ -919,12 +943,13 @@ export default function CustomersPageClient() {
                 setShowCreateConfirmPassword(false);
                 load();
               }catch(err:any){ setSnackbar({ open: true, message: err?.response?.data?.message ?? t('customers.failedCreate'), severity: 'error' }); }
+              finally { setSavingCreate(false); }
             }}
             disabled={isSuperAdmin && !selectedTenantId}
             sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
           >
             {t('app.create')}
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
 
@@ -981,6 +1006,9 @@ export default function CustomersPageClient() {
               value={editForm.fullName}
               onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
               variant="outlined"
+              required
+              error={editForm.fullName.trim() === ''}
+              helperText={editForm.fullName.trim() === '' ? t('common.required') : ''}
             />
             <TextField
               fullWidth
@@ -1053,9 +1081,9 @@ export default function CustomersPageClient() {
           <Button onClick={() => setOpenEditDialog(false)} sx={{ borderRadius: 2, px: 3, color: 'text.secondary' }}>
             {t('common.cancel')}
           </Button>
-          <Button variant="contained" onClick={handleUpdateCustomer} disabled={savingEdit} sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>
+          <LoadingButton variant="contained" onClick={handleUpdateCustomer} loading={savingEdit} loadingPosition="start" sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}>
             {t('common.save')}
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
 
@@ -1208,10 +1236,12 @@ export default function CustomersPageClient() {
         onClose={() => { setSnackbar({ ...snackbar, open: false }); setAssignmentUndo(null); }} 
         anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
       >
-        <Alert 
-          onClose={() => { setSnackbar({ ...snackbar, open: false }); setAssignmentUndo(null); }} 
-          severity={snackbar.severity} 
-          variant="filled" 
+        <Alert
+          onClose={() => { setSnackbar({ ...snackbar, open: false }); setAssignmentUndo(null); }}
+          severity={snackbar.severity}
+          variant="filled"
+          role="alert"
+          aria-live="polite"
           sx={{ borderRadius: 2, fontWeight: 600 }}
           action={assignmentUndo ? (
             <Button 

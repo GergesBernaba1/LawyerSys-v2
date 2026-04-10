@@ -114,18 +114,21 @@ export default function DataPage({
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
           <Tooltip title={t('cases.refresh')}>
-            <IconButton 
-              onClick={onRefresh} 
-              disabled={loading}
-              sx={{ 
-                bgcolor: 'background.paper', 
-                border: '1px solid', 
-                borderColor: 'divider',
-                '&:hover': { bgcolor: 'grey.50' }
-              }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={onRefresh}
+                disabled={loading}
+                aria-label={t('cases.refresh')}
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'grey.50' }
+                }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
           {createDialog && (
             <Button 
@@ -209,10 +212,11 @@ export default function DataPage({
                     {onDelete && (
                       <TableCell align={isRTL ? 'left' : 'right'} sx={{ py: 2 }}>
                         <Tooltip title={t('app.delete')}>
-                          <IconButton 
-                            color="error" 
+                          <IconButton
+                            color="error"
                             onClick={() => onDelete(row[idField])}
-                            sx={{ 
+                            aria-label={t('app.delete')}
+                            sx={{
                               '&:hover': { bgcolor: 'error.light', color: 'white' },
                               transition: 'all 0.2s ease'
                             }}
@@ -274,10 +278,12 @@ export default function DataPage({
           onClose={snackbar.onClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' }}
         >
-          <Alert 
-            onClose={snackbar.onClose} 
-            severity={snackbar.severity} 
+          <Alert
+            onClose={snackbar.onClose}
+            severity={snackbar.severity}
             variant="filled"
+            role="alert"
+            aria-live="polite"
             sx={{ width: '100%', borderRadius: 3, boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}
           >
             {snackbar.message}

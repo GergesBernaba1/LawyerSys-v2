@@ -258,6 +258,38 @@ const base = {
         },
       },
     },
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          '&:focus-visible': {
+            outline: '3px solid #14345a',
+            outlineOffset: '3px',
+            borderRadius: 'inherit',
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          '&:focus-visible': {
+            outline: '3px solid #14345a',
+            outlineOffset: '2px',
+          },
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          '&:focus-visible': {
+            outline: '3px solid #14345a',
+            outlineOffset: '2px',
+            borderRadius: 2,
+          },
+        },
+      },
+    },
   },
 };
 
