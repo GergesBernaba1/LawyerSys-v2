@@ -20,15 +20,20 @@ class Task {
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
+    int? parseInt(dynamic value) {
+      if (value is int) return value;
+      return int.tryParse((value ?? '').toString());
+    }
+
     return Task(
-      id: json['id'] as int?,
-      taskName: json['taskName'] as String,
-      type: json['type'] as String,
-      taskDate: json['taskDate'] as String?,
-      taskReminderDate: json['taskReminderDate'] as String?,
+      id: parseInt(json['id']),
+      taskName: (json['taskName'] ?? '').toString(),
+      type: (json['type'] ?? '').toString(),
+      taskDate: json['taskDate']?.toString(),
+      taskReminderDate: json['taskReminderDate']?.toString(),
       notes: json['notes'] as String?,
-      employeeId: json['employeeId'] as int?,
-      employeeName: json['employeeName'] as String?,
+      employeeId: parseInt(json['employeeId']),
+      employeeName: json['employeeName']?.toString(),
     );
   }
 

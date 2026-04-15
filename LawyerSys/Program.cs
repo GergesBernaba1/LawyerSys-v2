@@ -375,7 +375,10 @@ app.UseSwaggerUI(c =>
     c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
 });
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowReactClient");
 app.UseRateLimiter();
 app.UseAuthentication();

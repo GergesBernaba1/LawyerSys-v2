@@ -27,12 +27,11 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   late final TextEditingController _fullNameController;
   late final TextEditingController _jobController;
   late final TextEditingController _phoneNumberController;
-  late final TextEditingController _ssnController;
-  late final TextEditingController _addressController;
+  late final TextEditingController _emailController;
   late final TextEditingController _salaryController;
 
-  bool _isEditing = false;
-  bool _isLoading = false;
+  bool _isEditingSalary = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -43,10 +42,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         TextEditingController(text: widget.employeeModel.user?.job ?? '');
     _phoneNumberController = TextEditingController(
         text: widget.employeeModel.user?.phoneNumber ?? '');
-    _ssnController =
-        TextEditingController(text: widget.employeeModel.user?.ssn ?? '');
-    _addressController =
-        TextEditingController(text: widget.employeeModel.user?.address ?? '');
+    _emailController =
+        TextEditingController(text: widget.employeeModel.identity?.email ?? '');
     _salaryController =
         TextEditingController(text: widget.employeeModel.salary.toString());
   }
@@ -56,49 +53,34 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     _fullNameController.dispose();
     _jobController.dispose();
     _phoneNumberController.dispose();
-    _ssnController.dispose();
-    _addressController.dispose();
+    _emailController.dispose();
     _salaryController.dispose();
     super.dispose();
   }
 
-  Future<void> _saveEmployee() async {
-    if (_isLoading) return;
-    setState(() => _isLoading = true);
-    try {
-      final updatedEmployee = EmployeeModel(
-        id: widget.employeeModel.id,
-        salary:
-            int.tryParse(_salaryController.text) ?? widget.employeeModel.salary,
-        usersId: widget.employeeModel.usersId,
-        user: UserModel(
-          id: widget.employeeModel.user?.id ?? 0,
-          fullName: _fullNameController.text,
-          address:
-              _addressController.text.isEmpty ? null : _addressController.text,
-          job: _jobController.text,
-          phoneNumber: _phoneNumberController.text,
-          dateOfBirth: widget.employeeModel.user?.dateOfBirth,
-          ssn: _ssnController.text,
-          userName: widget.employeeModel.user?.userName ?? '',
-          profileImagePath: widget.employeeModel.user?.profileImagePath,
-        ),
-        identity: widget.employeeModel.identity,
-        profileImagePath: widget.employeeModel.profileImagePath,
-        lastSyncedAt: DateTime.now(),
-        isDirty: true,
-      );
-      context.read<EmployeesBloc>().add(UpdateEmployee(updatedEmployee));
-      setState(() {
-        _isEditing = false;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
+  void _saveSalary() {
+    final localizer = AppLocalizations.of(context);
+    final parsedSalary = int.tryParse(_salaryController.text.trim());
+
+    if (parsedSalary == null || parsedSalary < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text(localizer.allFieldsAreRequired)),
       );
+      return;
     }
+
+    setState(() => _isSaving = true);
+    final updatedEmployee = EmployeeModel(
+      id: widget.employeeModel.id,
+      salary: parsedSalary,
+      usersId: widget.employeeModel.usersId,
+      user: widget.employeeModel.user,
+      identity: widget.employeeModel.identity,
+      profileImagePath: widget.employeeModel.profileImagePath,
+      lastSyncedAt: DateTime.now(),
+      isDirty: false,
+    );
+    context.read<EmployeesBloc>().add(UpdateEmployee(updatedEmployee));
   }
 
   @override
@@ -106,106 +88,91 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     final localizer = AppLocalizations.of(context);
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
-    final canEdit = session?.hasPermission(Permissions.editEmployees) ?? false;
+    final canEditSalary =
+        (session?.hasPermission(Permissions.editEmployees) ?? false) &&
+        (session?.isAdmin() ?? false);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(localizer.employeeDetails),
         actions: [
-          if (canEdit)
+          if (canEditSalary)
             IconButton(
-              icon: Icon(_isEditing ? Icons.save : Icons.edit),
-              onPressed: _isLoading
+              icon: Icon(_isEditingSalary ? Icons.save : Icons.edit),
+              onPressed: _isSaving
                   ? null
                   : () {
-                      setState(() => _isEditing = !_isEditing);
-                      if (!_isEditing) {
-                        _saveEmployee();
+                      if (_isEditingSalary) {
+                        _saveSalary();
+                      } else {
+                        setState(() => _isEditingSalary = true);
                       }
                     },
             ),
         ],
       ),
-      body: BlocConsumer<EmployeesBloc, EmployeesState>(
+      body: BlocListener<EmployeesBloc, EmployeesState>(
         listener: (context, state) {
           if (state is EmployeeOperationSuccess) {
+            setState(() {
+              _isSaving = false;
+              _isEditingSalary = false;
+            });
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }
           if (state is EmployeesError) {
+            setState(() => _isSaving = false);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text('${localizer.error}: ${state.message}')));
           }
         },
-        builder: (context, state) {
-          if (state is EmployeesLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is EmployeesError) {
-            return Center(child: Text('${localizer.error}: ${state.message}'));
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
-              children: [
-                Text(
-                  localizer.employeeInformation,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: [
+              Text(
+                localizer.employeeInformation,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _fullNameController,
+                label: localizer.fullName,
+                enabled: false,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _emailController,
+                label: localizer.email,
+                enabled: false,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _jobController,
+                label: localizer.job,
+                enabled: false,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _phoneNumberController,
+                label: localizer.phoneNumber,
+                enabled: false,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: _salaryController,
+                label: localizer.salary,
+                enabled: _isEditingSalary && !_isSaving,
+                keyboardType: TextInputType.number,
+              ),
+              if (_isSaving) ...[
                 const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _fullNameController,
-                  label: localizer.fullName,
-                  enabled: _isEditing,
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  controller: _jobController,
-                  label: localizer.job,
-                  enabled: _isEditing,
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  controller: _phoneNumberController,
-                  label: localizer.phoneNumber,
-                  enabled: _isEditing,
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  controller: _ssnController,
-                  label: localizer.ssn,
-                  enabled: _isEditing,
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  controller: _addressController,
-                  label: localizer.address,
-                  enabled: _isEditing,
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  controller: _salaryController,
-                  label: localizer.salary,
-                  enabled: _isEditing,
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 24),
-                if (!_isEditing) ...[
-                  Text(
-                    '${localizer.lastSyncedAt}: ${widget.employeeModel.lastSyncedAt?.toString() ?? localizer.never}',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${localizer.isDirty}: ${widget.employeeModel.isDirty ? localizer.yes : localizer.no}',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ],
+                const Center(child: CircularProgressIndicator()),
               ],
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }

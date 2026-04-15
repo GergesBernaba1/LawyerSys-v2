@@ -71,5 +71,9 @@ extension UserSessionAuthorization on UserSession {
     final normalized = required.map((p) => p.toLowerCase()).toSet();
     return permissions.map((p) => p.toLowerCase()).any(normalized.contains);
   }
+
+  bool isAdmin() {
+    return hasRole('Admin') || hasRole('SuperAdmin');
+  }
 }
 

@@ -1,16 +1,16 @@
 class ApiConstants {
-  static const baseUrl = 'https://qadayaapi.naqreo.com/api';
-  static const apiRoot = 'https://qadayaapi.naqreo.com';
+  static const baseUrl = 'http://10.0.2.2:5000/api';
+  static const apiRoot = 'http://10.0.2.2:5000';
 
   // Authentication endpoints
-  static const login = '/auth/login';
-  static const register = '/auth/register';
-  static const forgotPassword = '/auth/forgot-password';
-  static const resetPassword = '/auth/reset-password';
+  static const login = '/account/login';
+  static const register = '/account/register';
+  static const forgotPassword = '/account/request-password-reset';
+  static const resetPassword = '/account/reset-password';
   static const refreshToken = '/auth/refresh';
 
   // Dashboard and core endpoints
-  static const dashboard = '/dashboard/summary';
+  static const dashboard = '/dashboard/analytics';
 
   // Employee endpoints
   static const employees = '/employees';

@@ -22,7 +22,7 @@ class EmployeesRepository {
   Future<List<EmployeeModel>> getEmployees(
       {String? tenantId, int page = 1, int pageSize = 20}) async {
     try {
-      final response = await apiClient.get('/api/employees',
+      final response = await apiClient.get('/employees',
           queryParameters: {'page': page, 'pageSize': pageSize});
       final list = _asList(response.data)
           .map((e) =>
@@ -48,7 +48,7 @@ class EmployeesRepository {
 
   Future<EmployeeModel?> getEmployeeById(int id) async {
     try {
-      final response = await apiClient.get('/api/employees/$id');
+      final response = await apiClient.get('/employees/$id');
       if (response.data != null) {
         final model =
             EmployeeModel.fromJson(Map<String, dynamic>.from(response.data));
@@ -69,10 +69,22 @@ class EmployeesRepository {
 
   Future<void> createEmployee(EmployeeModel employee) async {
     try {
-      await apiClient.post('/api/employees', data: employee.toJson());
-      await localDatabase.upsertEmployee(
-          employee.id.toString(), employee.toJson(),
-          isDirty: false);
+      final response = await apiClient.post('/employees',
+          data: {
+            'usersId': employee.usersId,
+            'salary': employee.salary,
+          });
+      if (response.data is Map<String, dynamic>) {
+        final created = EmployeeModel.fromJson(
+            Map<String, dynamic>.from(response.data as Map));
+        await localDatabase.upsertEmployee(
+            created.id.toString(), created.toJson(),
+            isDirty: false);
+      } else {
+        await localDatabase.upsertEmployee(
+            employee.id.toString(), employee.toJson(),
+            isDirty: false);
+      }
     } catch (_) {
       await localDatabase.upsertEmployee(
           employee.id.toString(), employee.toJson(),
@@ -83,8 +95,11 @@ class EmployeesRepository {
 
   Future<void> updateEmployee(EmployeeModel employee) async {
     try {
-      await apiClient.put('/api/employees/${employee.id}',
-          data: employee.toJson());
+      await apiClient.put('/employees/${employee.id}',
+          data: {
+            // Backend UpdateEmployeeDto accepts salary only.
+            'salary': employee.salary,
+          });
       await localDatabase.upsertEmployee(
           employee.id.toString(), employee.toJson(),
           isDirty: false);
@@ -97,14 +112,20 @@ class EmployeesRepository {
   }
 
   Future<void> deleteEmployee(int employeeId) async {
-    await apiClient.delete('/api/employees/$employeeId');
+    await apiClient.delete('/employees/$employeeId');
+    await localDatabase.deleteEmployee(employeeId.toString());
   }
 
   Future<List<EmployeeModel>> searchEmployees(String query,
       {String? tenantId}) async {
+    final keyword = query.trim();
+    if (keyword.isEmpty) {
+      return getEmployees(tenantId: tenantId);
+    }
+
     try {
       final response = await apiClient
-          .get('/api/employees', queryParameters: {'search': query});
+          .get('/employees', queryParameters: {'search': keyword});
       return _asList(response.data)
           .map((e) =>
               EmployeeModel.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -118,11 +139,11 @@ class EmployeesRepository {
           .where((e) =>
               (e.user?.fullName
                       .toLowerCase()
-                      .contains(query.toLowerCase()) ??
+                      .contains(keyword.toLowerCase()) ??
                   false) ||
-              (e.user?.userName.toLowerCase().contains(query.toLowerCase()) ??
+              (e.user?.userName.toLowerCase().contains(keyword.toLowerCase()) ??
                   false) ||
-              (e.user?.job.toLowerCase().contains(query.toLowerCase()) ??
+              (e.user?.job.toLowerCase().contains(keyword.toLowerCase()) ??
                   false))
           .toList();
     }

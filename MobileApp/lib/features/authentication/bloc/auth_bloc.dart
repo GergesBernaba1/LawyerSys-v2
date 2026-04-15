@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 
 import '../../../core/auth/biometric_auth.dart';
 import '../models/login_request.dart';
@@ -27,7 +28,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final session = await authRepository.login(LoginRequest(email: event.email, password: event.password));
+      final session =
+          await authRepository.login(LoginRequest(userName: event.email, password: event.password));
 
       try {
         final fcmToken = await FirebaseMessaging.instance.getToken();
@@ -41,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(AuthAuthenticated(session));
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -84,7 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       });
       emit(AuthRegisterSuccess());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -94,7 +96,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authRepository.forgotPassword(event.email);
       emit(AuthForgotPasswordSuccess());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -104,7 +106,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authRepository.resetPassword(event.email, event.password, event.token);
       emit(AuthResetPasswordSuccess());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -143,6 +145,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       emit(AuthUnauthenticated());
     }
+  }
+
+  String _extractErrorMessage(Object error) {
+    if (error is DioException) {
+      final responseData = error.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message']?.toString();
+        if (message != null && message.isNotEmpty) return message;
+      }
+      return error.message ?? 'Request failed';
+    }
+    return error.toString();
   }
 }
 

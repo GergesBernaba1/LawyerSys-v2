@@ -1,3 +1,4 @@
+﻿import 'dart:convert';
 import 'package:flutter/widgets.dart';
 
 class AppLocalizations {
@@ -10,15 +11,15 @@ class AppLocalizations {
   static AppLocalizations of(BuildContext context) {
     final appLoc = Localizations.of<AppLocalizations>(context, AppLocalizations);
     if (appLoc != null) return appLoc;
-    return AppLocalizations(const Locale('en'));
+    return AppLocalizations(const Locale('ar'));
   }
 
   String translate(String key) {
     final localeValues = _localizedValues[locale.languageCode];
-    if (localeValues != null && localeValues.containsKey(key)) {
-      return localeValues[key]!;
-    }
-    return _localizedValues['en']?[key] ?? key;
+    final rawValue = localeValues != null && localeValues.containsKey(key)
+        ? localeValues[key]!
+        : _localizedValues['en']?[key] ?? key;
+    return _normalizeLocalizedString(rawValue);
   }
 
   @override
@@ -69,6 +70,9 @@ class AppLocalizations {
       'caseDetail': 'Case Details',
       'customerDetail': 'Customer Details',
       'contenders': 'Contenders',
+      'governments': 'Governments',
+      'caseRelations': 'Case Relations',
+      'judicial': 'Judicial',
       'court': 'Court',
       'courtLocation': 'Court Location',
       'address': 'Address',
@@ -104,6 +108,8 @@ class AppLocalizations {
       'startTrackingTime': 'Start Tracking Time',
       'viewRunningTimers': 'View running timers',
       'selectACase': 'Select a case',
+      'hourlyRate': 'Hourly Rate',
+      'noSuggestions': 'No suggestions',
       'all': 'All',
       'running': 'Running',
       'stopped': 'Stopped',
@@ -179,6 +185,18 @@ class AppLocalizations {
       'addEventComingSoon': 'Add event functionality coming soon',
       'recentActivity': 'Recent Activity',
       'consultationDetail': 'Consultation Details',
+      'consultationManagement': 'Consultation Management',
+      'myConsultations': 'My Consultations',
+      'consultationEmployeeHint': 'You can create consultations for yourself and link customers.',
+      'consultationAssignmentHint': 'Create consultations and assign both customers and employees.',
+      'consultationSubject': 'Subject',
+      'consultationType': 'Type',
+      'consultationState': 'State',
+      'consultationDateTime': 'Date & Time',
+      'consultationFeedback': 'Feedback',
+      'consultationCreatedSuccessfully': 'Consultation created successfully',
+      'consultationUpdatedSuccessfully': 'Consultation updated successfully',
+      'noOptions': 'No options available',
       'assignedEmployee': 'Assigned Employee',
       'create': 'Create',
       'add': 'Add',
@@ -225,7 +243,7 @@ class AppLocalizations {
       'register': 'تسجيل',
       'firstName': 'الاسم الأول',
       'lastName': 'اسم العائلة',
-      'phoneNumber': 'رقم الهاتف',
+      'phoneNumber': 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ',
       'confirmPassword': 'تأكيد كلمة المرور',
       'alreadyHaveAccount': 'هل لديك حساب؟ تسجيل الدخول',
       'noAccount': 'ليس لديك حساب؟',
@@ -253,16 +271,19 @@ class AppLocalizations {
       'english': 'الإنجليزية',
       'arabic': 'العربية',
       'sessionExpired': 'انتهت الجلسة. الرجاء تسجيل الدخول مرة أخرى.',
-      'accessDenied': 'تم رفض الوصول',
+      'accessDenied': 'ØªÙ… Ø±ÙØ¶ Ø§Ù„ÙˆØµÙˆÙ„',
       'accessDeniedMessage': 'ليس لديك إذن بالوصول إلى هذا القسم.',
-      'caseDetail': 'تفاصيل القضية',
-      'customerDetail': 'تفاصيل العميل',
-      'contenders': 'الطرف المقابل',
+      'caseDetail': 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù‚Ø¶ÙŠØ©',
+      'customerDetail': 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¹Ù…ÙŠÙ„',
+      'contenders': 'Ø§Ù„Ø·Ø±Ù Ø§Ù„Ù…Ù‚Ø§Ø¨Ù„',
       'court': 'المحكمة',
       'courtLocation': 'موقع المحكمة',
       'address': 'العنوان',
-      'governorate': 'المحافظة',
-      'phone': 'الهاتف',
+      'governorate': 'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©',
+      'governments': 'الحكومات',
+      'caseRelations': 'علاقات القضية',
+      'judicial': 'الوثائق القضائية',
+      'phone': 'Ø§Ù„Ù‡Ø§ØªÙ',
       'notifications': 'الإشعارات',
       'forgotPassword': 'نسيت كلمة المرور',
       'forgotPasswordDescription': 'أدخل بريدك الإلكتروني لتلقي تعليمات إعادة تعيين كلمة المرور.',
@@ -276,7 +297,7 @@ class AppLocalizations {
       'confirmNewPassword': 'تأكيد كلمة المرور الجديدة',
       'biometricLogin': 'تسجيل الدخول البيومتري',
       'biometricLoginDisabled': 'تم تعطيل تسجيل الدخول البيومتري',
-      'biometricEnabled': 'تم تفعيل تسجيل الدخول البيومتري',
+      'biometricEnabled': 'ØªÙ… ØªÙØ¹ÙŠÙ„ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¨ÙŠÙˆÙ…ØªØ±ÙŠ',
       'biometricDisabled': 'تم تعطيل تسجيل الدخول البيومتري',
       'caseNumber': 'رقم القضية',
       'caseType': 'نوع القضية',
@@ -284,7 +305,7 @@ class AppLocalizations {
       'customer': 'العميل',
       'filingDate': 'تاريخ التسجيل',
       'closingDate': 'تاريخ الإغلاق',
-      'assignedEmployees': 'الموظفون المعنيون',
+      'assignedEmployees': 'الموظفون المعينون',
       'noCasesFound': 'لم يتم العثور على قضايا',
       'searchCases': 'البحث في القضايا',
       'call': 'اتصال',
@@ -293,19 +314,21 @@ class AppLocalizations {
       'startTrackingTime': 'بدء تتبع الوقت',
       'viewRunningTimers': 'عرض المؤقتات الجارية',
       'selectACase': 'اختر قضية',
+      'hourlyRate': 'الأجر بالساعة',
       'all': 'الكل',
       'running': 'جارٍ',
       'stopped': 'متوقف',
       'start': 'ابدأ',
+      'statusLabel': 'الحالة',
+      'noSuggestions': 'لا اقتراحات',
       'workType': 'نوع العمل',
       'duration': 'المدة',
-      'statusLabel': 'الحالة',
       'save': 'حفظ',
       'timeEntryForm': 'نموذج إدخال الوقت',
       'pleaseEnterWorkType': 'يرجى إدخال نوع العمل',
-      'customerIdOptional': 'معرف العميل (اختياري)',
-      'timeEntrySavedSuccessfully': 'تم حفظ إدخال الوقت بنجاح',
-      'stopTimerFunctionality': 'وظيفة إيقاف المؤقت',
+      'customerIdOptional': 'Ù…Ø¹Ø±Ù Ø§Ù„Ø¹Ù…ÙŠÙ„ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)',
+      'timeEntrySavedSuccessfully': 'ØªÙ… Ø­ÙØ¸ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„ÙˆÙ‚Øª Ø¨Ù†Ø¬Ø§Ø­',
+      'stopTimerFunctionality': 'ÙˆØ¸ÙŠÙØ© Ø¥ÙŠÙ‚Ø§Ù Ø§Ù„Ù…Ø¤Ù‚Øª',
       'amount': 'المبلغ',
       'actions': 'إجراءات',
       'noDataAvailable': 'لا توجد بيانات متاحة',
@@ -324,27 +347,27 @@ class AppLocalizations {
       'taskDeleteAlert': 'هل أنت متأكد من أنك تريد حذف',
       'searchTasks': 'البحث في المهام',
       'notificationsLabel': 'الإشعارات',
-      'billing': 'الفوترة',
+      'billing': 'Ø§Ù„ÙÙˆØªØ±Ø©',
       'clientPortal': 'بوابة العملاء',
       'portalMessages': 'رسائل البوابة',
       'portalDocuments': 'مستندات البوابة',
       'markedAsRead': 'تم وسمها كمقروءة',
       'downloadStarted': 'بدء التنزيل',
       'timeTracking': 'تتبع الوقت',
-      'payments': 'المدفوعات',
+      'payments': 'Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª',
       'receipts': 'الإيصالات',
       'notes': 'الملاحظات',
-      'noPaymentsFound': 'لم يتم العثور على مدفوعات',
+      'noPaymentsFound': 'Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ù…Ø¯ÙÙˆØ¹Ø§Øª',
       'noReceiptsFound': 'لم يتم العثور على إيصالات',
       'balance': 'الرصيد',
-      'hearingDetail': 'تفاصيل الجلسة',
-      'hearingId': 'معرف الجلسة',
+      'hearingDetail': 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¬Ù„Ø³Ø©',
+      'hearingId': 'Ù…Ø¹Ø±Ù Ø§Ù„Ø¬Ù„Ø³Ø©',
       'createHearing': 'إنشاء جلسة',
       'editHearing': 'تعديل الجلسة',
-      'deleteHearing': 'حذف الجلسة',
-      'deleteHearingConfirm': 'هل أنت متأكد من أنك تريد حذف هذه الجلسة؟',
-      'addHearing': 'إضافة جلسة',
-      'hearingNotificationDetails': 'تفاصيل الإخطار',
+      'deleteHearing': 'Ø­Ø°Ù Ø§Ù„Ø¬Ù„Ø³Ø©',
+      'deleteHearingConfirm': 'Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø£Ù†Ùƒ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø¬Ù„Ø³Ø©ØŸ',
+      'addHearing': 'Ø¥Ø¶Ø§ÙØ© Ø¬Ù„Ø³Ø©',
+      'hearingNotificationDetails': 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¥Ø®Ø·Ø§Ø±',
       'dateLabel': 'التاريخ',
       'timeEntries': 'إدخالات الوقت',
       'calendarView': 'عرض التقويم',
@@ -353,7 +376,7 @@ class AppLocalizations {
       'suggestions': 'الاقتراحات',
       'caseCode': 'رمز القضية',
       'workTypeLabel': 'نوع العمل',
-      'description': 'الوصف',
+      'description': 'Ø§Ù„ÙˆØµÙ',
       'noEventsFound': 'لم يتم العثور على أحداث',
       'monthly': 'شهري',
       'weekly': 'أسبوعي',
@@ -365,9 +388,21 @@ class AppLocalizations {
       'passwordsDoNotMatch': 'كلمات المرور غير متطابقة',
       'allFieldsAreRequired': 'جميع الحقول مطلوبة',
       'emailIsRequired': 'البريد الإلكتروني مطلوب',
-      'addEventComingSoon': 'ميزة إضافة حدث قادمة قريباً',
+      'addEventComingSoon': 'Ù…ÙŠØ²Ø© Ø¥Ø¶Ø§ÙØ© Ø­Ø¯Ø« Ù‚Ø§Ø¯Ù…Ø© Ù‚Ø±ÙŠØ¨Ø§Ù‹',
       'recentActivity': 'النشاط الحديث',
-      'consultationDetail': 'تفاصيل الاستشارة',
+      'consultationDetail': 'ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø§Ø³ØªØ´Ø§Ø±Ø©',
+      'consultationManagement': 'إدارة الاستشارات',
+      'myConsultations': 'استشاراتي',
+      'consultationEmployeeHint': 'يمكنك إنشاء استشارة لك وربطها بالعملاء.',
+      'consultationAssignmentHint': 'أنشئ استشارات وحدد العملاء والموظفين.',
+      'consultationSubject': 'الموضوع',
+      'consultationType': 'النوع',
+      'consultationState': 'الحالة',
+      'consultationDateTime': 'التاريخ والوقت',
+      'consultationFeedback': 'التغذية الراجعة',
+      'consultationCreatedSuccessfully': 'تم إنشاء الاستشارة بنجاح',
+      'consultationUpdatedSuccessfully': 'تم تحديث الاستشارة بنجاح',
+      'noOptions': 'لا توجد خيارات',
       'assignedEmployee': 'الموظف المعين',
       'create': 'إنشاء',
       'add': 'إضافة',
@@ -399,19 +434,24 @@ class AppLocalizations {
       'pleaseEnterTaskType': 'يرجى إدخال نوع المهمة',
       'createCase': 'إنشاء قضية',
       'editCase': 'تعديل القضية',
-      'deleteCase': 'حذف القضية',
+      'deleteCase': 'Ø­Ø°Ù Ø§Ù„Ù‚Ø¶ÙŠØ©',
       'deleteConfirm': 'هل أنت متأكد؟',
       'delete': 'حذف',
-      'caseSaved': 'تم حفظ القضية',
-      'caseDeleted': 'تم حذف القضية',
-      'contenderCreated': 'تم إنشاء الطرف المقابل',
-      'contenderUpdated': 'تم تحديث الطرف المقابل',
-      'contenderDeleted': 'تم حذف الطرف المقابل',
-      'contenderNotFound': 'الطرف المقابل غير موجود',
+      'caseSaved': 'ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù‚Ø¶ÙŠØ©',
+      'caseDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ù‚Ø¶ÙŠØ©',
+      'contenderCreated': 'ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø·Ø±Ù Ø§Ù„Ù…Ù‚Ø§Ø¨Ù„',
+      'contenderUpdated': 'ØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø·Ø±Ù Ø§Ù„Ù…Ù‚Ø§Ø¨Ù„',
+      'contenderDeleted': 'ØªÙ… Ø­Ø°Ù Ø§Ù„Ø·Ø±Ù Ø§Ù„Ù…Ù‚Ø§Ø¨Ù„',
+      'contenderNotFound': 'Ø§Ù„Ø·Ø±Ù Ø§Ù„Ù…Ù‚Ø§Ø¨Ù„ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯',
     },
   };
 
-  String _translate(String key) => _localizedValues[locale.languageCode]?[key] ?? _localizedValues['en']![key] ?? key;
+  String _translate(String key) {
+    final rawValue = _localizedValues[locale.languageCode]?[key] ??
+        _localizedValues['en']![key] ??
+        key;
+    return _normalizeLocalizedString(rawValue);
+  }
 
   String get login => _translate('login');
   String get register => _translate('register');
@@ -492,6 +532,7 @@ class AppLocalizations {
   String get startTrackingTime => _translate('startTrackingTime');
   String get viewRunningTimers => _translate('viewRunningTimers');
   String get selectACase => _translate('selectACase');
+  String get hourlyRate => _translate('hourlyRate');
   String get all => _translate('all');
   String get running => _translate('running');
   String get stopped => _translate('stopped');
@@ -529,6 +570,9 @@ class AppLocalizations {
   String get clientPortal => _translate('clientPortal');
   String get portalMessages => _translate('portalMessages');
   String get portalDocuments => _translate('portalDocuments');
+  String get governments => _translate('governments');
+  String get caseRelations => _translate('caseRelations');
+  String get judicial => _translate('judicial');
   String get markedAsRead => _translate('markedAsRead');
   String get downloadStarted => _translate('downloadStarted');
   String get timeTracking => _translate('timeTracking');
@@ -608,6 +652,26 @@ class AppLocalizations {
   String get isDirty => _translate('isDirty');
   String get yes => _translate('yes');
   String get no => _translate('no');
+
+  static String _normalizeLocalizedString(String value) {
+    if (value.runes.any((codeUnit) => codeUnit >= 0x80)) {
+      try {
+        return utf8.decode(latin1.encode(value));
+      } catch (_) {
+        // Fall through to try cp1252 normalization.
+      }
+
+      final cp1252 = Encoding.getByName('windows-1252') ??
+          Encoding.getByName('cp1252') ??
+          latin1;
+      try {
+        return utf8.decode(cp1252.encode(value));
+      } catch (_) {
+        // Fall through to return original value.
+      }
+    }
+    return value;
+  }
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -622,3 +686,4 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   @override
   bool shouldReload(LocalizationsDelegate<AppLocalizations> old) => false;
 }
+

@@ -10,7 +10,10 @@ import '../../features/authentication/models/user_session.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/cases/screens/cases_list_screen.dart';
 import '../../features/customers/screens/customers_list_screen.dart';
+import '../../features/contenders/screens/contenders_list_screen.dart';
 import '../../features/courts/screens/courts_list_screen.dart';
+import '../../features/governments/screens/governments_list_screen.dart';
+import '../../features/judicial/screens/judicial_documents_list_screen.dart';
 import '../../features/client-portal/screens/portal_messages_screen.dart';
 import '../../features/client-portal/screens/portal_documents_screen.dart';
 import '../../features/calendar/screens/calendar_screen.dart';
@@ -25,6 +28,8 @@ import '../../features/hearings/screens/hearings_list_screen.dart';
 import '../../features/reports/screens/reports_screen.dart';
 import '../../features/consultations/screens/consultations_list_screen.dart';
 import '../../features/documents/screens/documents_list_screen.dart';
+import '../../features/tenants/screens/tenants_list_screen.dart';
+import '../../features/users/screens/users_list_screen.dart';
 import '../../core/realtime/signalr_service.dart';
 import '../../features/notifications/models/notification.dart' as model;
 import '../../features/notifications/bloc/notifications_bloc.dart';
@@ -48,7 +53,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  bool _drawerOpen = false;
 
   @override
   void initState() {
@@ -84,6 +88,7 @@ class _MainScreenState extends State<MainScreen> {
 
     if (isCustomer) {
       return [
+        _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
         _NavItem(Icons.folder, l.cases, const CasesListScreen()),
         _NavItem(
             Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
@@ -95,19 +100,30 @@ class _MainScreenState extends State<MainScreen> {
       ];
     }
 
+    final canAccessEmployees = session?.hasRole('SuperAdmin') == true ||
+        session?.hasRole('Admin') == true ||
+        session?.hasAnyPermission(
+              [Permissions.createEmployees, Permissions.editEmployees],
+            ) ==
+            true;
+    final canAccessAdminModules =
+        session?.hasRole('SuperAdmin') == true || session?.hasRole('Admin') == true;
+
     final all = <_NavItem>[
-      _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen(),
-          permission: Permissions.dashboard),
+      _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
       _NavItem(Icons.gavel, l.cases, const CasesListScreen(),
           permission: Permissions.viewCases),
       _NavItem(Icons.people, l.customers, const CustomersListScreen(),
           permission: Permissions.viewCustomers),
-      if (!isEmployee)
+      _NavItem(Icons.location_city, l.governments, const GovernmentsListScreen()),
+      _NavItem(Icons.person_search, l.contenders, const ContendersListScreen()),
+      if (!isEmployee && canAccessEmployees)
         _NavItem(Icons.badge, l.employees, const EmployeesListScreen()),
       _NavItem(Icons.account_balance, l.courts, const CourtsListScreen(),
           permission: Permissions.viewCourts),
       _NavItem(Icons.event, l.hearings, const HearingsListScreen(),
           permission: Permissions.viewHearings),
+      _NavItem(Icons.description, l.judicial, const JudicialDocumentsListScreen()),
       _NavItem(Icons.calendar_today, l.calendar, const CalendarScreen(),
           permission: Permissions.viewHearings),
       _NavItem(Icons.task_alt, l.tasks, const TasksListScreen()),
@@ -119,12 +135,19 @@ class _MainScreenState extends State<MainScreen> {
       _NavItem(Icons.chat_bubble_outline, l.consultations,
           const ConsultationsListScreen()),
       _NavItem(Icons.description, l.documents, const DocumentsListScreen()),
+      _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen(),
+          permission: Permissions.viewClientPortal),
+      _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen(),
+          permission: Permissions.viewClientPortal),
       _NavItem(Icons.bar_chart, l.reports, const ReportsScreen()),
+      if (canAccessAdminModules)
+        _NavItem(Icons.supervisor_account, 'Users', const UsersListScreen()),
+      if (canAccessAdminModules)
+        _NavItem(Icons.apartment, 'Tenants', const TenantsListScreen()),
       _NavItem(Icons.notifications, l.notifications,
           const NotificationsInboxScreen(),
           permission: Permissions.viewNotifications),
-      _NavItem(Icons.settings, l.settings, const SettingsScreen(),
-          permission: Permissions.manageSettings),
+      _NavItem(Icons.settings, l.settings, const SettingsScreen()),
     ];
 
     return all.where((item) {
@@ -167,9 +190,11 @@ class _MainScreenState extends State<MainScreen> {
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: _kText),
-          onPressed: () => setState(() => _drawerOpen = !_drawerOpen),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu, color: _kText),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
         ),
         title: Text(
           currentItem.label,
@@ -202,7 +227,7 @@ class _MainScreenState extends State<MainScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/settings'),
+              onTap: () => Navigator.pushNamed(context, '/profile'),
               child: CircleAvatar(
                 radius: 18,
                 backgroundColor: _kGold,
@@ -235,7 +260,6 @@ class _MainScreenState extends State<MainScreen> {
         onItemTap: (index) {
           setState(() {
             _selectedIndex = index;
-            _drawerOpen = false;
           });
           Navigator.pop(context);
         },

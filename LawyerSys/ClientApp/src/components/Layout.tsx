@@ -32,6 +32,8 @@ import {
   alpha,
   TextField,
   CircularProgress,
+  BottomNavigation,
+  BottomNavigationAction,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -1570,6 +1572,8 @@ export default function Layout({ children }: LayoutProps) {
         sx={{
           flexGrow: 1,
           p: { xs: 2, md: 4 },
+          pt: { xs: 2, md: 4 },
+          pb: { xs: 'calc(64px + env(safe-area-inset-bottom))', md: 4 },
           mt: '78px',
           width: { xs: '100%', md: `calc(100% - ${collapsed ? collapsedWidth : drawerWidth}px)` },
           marginInlineStart: { xs: 0, md: `${collapsed ? collapsedWidth : drawerWidth}px` },
@@ -1676,7 +1680,7 @@ export default function Layout({ children }: LayoutProps) {
             <Box
               sx={{
                 position: 'fixed',
-                bottom: { xs: 16, md: 24 },
+                bottom: { xs: 'calc(72px + env(safe-area-inset-bottom))', md: 24 },
                 insetInlineEnd: { xs: 16, md: 24 },
                 insetInlineStart: 'auto',
                 zIndex: theme.zIndex.drawer + 3,
@@ -1708,7 +1712,7 @@ export default function Layout({ children }: LayoutProps) {
               <Box
                 sx={{
                   position: 'fixed',
-                  bottom: { xs: 78, md: 88 },
+                  bottom: { xs: 'calc(134px + env(safe-area-inset-bottom))', md: 88 },
                   insetInlineEnd: { xs: 16, md: 24 },
                   width: { xs: 'calc(100vw - 24px)', sm: 420, lg: 460 },
                   maxWidth: 'calc(100vw - 24px)',
@@ -1826,6 +1830,79 @@ export default function Layout({ children }: LayoutProps) {
             )}
           </Box>
         </ClickAwayListener>
+      </Box>
+
+      {/* Mobile Bottom Navigation — hidden on md+ */}
+      <Box
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: theme.zIndex.drawer + 2,
+          borderTop: '1px solid',
+          borderColor: alpha(theme.palette.primary.main, 0.1),
+          boxShadow: '0 -4px 20px rgba(15, 23, 42, 0.08)',
+          bgcolor: alpha(theme.palette.background.paper, 0.96),
+          backdropFilter: 'blur(16px)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        <BottomNavigation
+          value={pathname}
+          onChange={(_, newPath) => handleNavigation(newPath)}
+          sx={{
+            bgcolor: 'transparent',
+            height: 64,
+            '& .MuiBottomNavigationAction-root': {
+              minWidth: 0,
+              padding: '6px 4px',
+              color: 'text.secondary',
+              '&.Mui-selected': {
+                color: 'primary.main',
+              },
+            },
+            '& .MuiBottomNavigationAction-label': {
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              '&.Mui-selected': {
+                fontSize: '0.72rem',
+              },
+            },
+          }}
+        >
+          <BottomNavigationAction
+            label={t('app.dashboard')}
+            value="/dashboard"
+            icon={<DashboardIcon />}
+          />
+          <BottomNavigationAction
+            label={t('app.cases')}
+            value="/cases"
+            icon={<GavelIcon />}
+          />
+          {!isCustomerOnly && (
+            <BottomNavigationAction
+              label={t('app.customers')}
+              value="/customers"
+              icon={<PeopleIcon />}
+            />
+          )}
+          {!isCustomerOnly && (
+            <BottomNavigationAction
+              label={t('app.billing')}
+              value="/billing"
+              icon={<ReceiptIcon />}
+            />
+          )}
+          <BottomNavigationAction
+            label={t('app.menu')}
+            value="__menu__"
+            icon={<MenuIcon />}
+            onClick={(e) => { e.preventDefault(); handleDrawerToggle(); }}
+          />
+        </BottomNavigation>
       </Box>
     </Box>
   );

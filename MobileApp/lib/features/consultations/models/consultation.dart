@@ -3,7 +3,9 @@ class ConsultationModel {
   final String tenantId;
   final String subject;
   final String details;
-  final String status; // 'Pending', 'InProgress', 'Completed', 'Cancelled'
+  final String status;
+  final String type;
+  final String? feedback;
   final DateTime consultationDate;
   final String? customerId;
   final String? customerFullName;
@@ -19,6 +21,8 @@ class ConsultationModel {
     required this.subject,
     required this.details,
     required this.status,
+    this.type = '',
+    this.feedback,
     required this.consultationDate,
     this.customerId,
     this.customerFullName,
@@ -29,14 +33,23 @@ class ConsultationModel {
     this.isDirty = false,
   });
 
+  static int _asInt(dynamic value, [int fallback = 0]) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
   factory ConsultationModel.fromJson(Map<String, dynamic> json) => ConsultationModel(
-        id: json['id'] ?? 0,
+        id: _asInt(json['id'] ?? json['Id']),
         tenantId: json['tenantId']?.toString() ?? '',
-        subject: json['subject']?.toString() ?? '',
-        details: json['details']?.toString() ?? '',
-        status: json['status']?.toString() ?? 'Pending',
-        consultationDate: json['consultationDate'] != null
-            ? DateTime.tryParse(json['consultationDate'].toString()) ?? DateTime.now()
+        subject: (json['subject'] ?? json['Subject'] ?? '').toString(),
+        details: (json['details'] ?? json['description'] ?? json['Description'] ?? '').toString(),
+        status: (json['status'] ?? json['consultionState'] ?? json['ConsultionState'] ?? 'Pending').toString(),
+        type: (json['type'] ?? json['Type'] ?? '').toString(),
+        feedback: (json['feedback'] ?? json['Feedback'])?.toString(),
+        consultationDate: (json['consultationDate'] ?? json['dateTime'] ?? json['DateTime']) != null
+            ? DateTime.tryParse((json['consultationDate'] ?? json['dateTime'] ?? json['DateTime']).toString()) ?? DateTime.now()
             : DateTime.now(),
         customerId: json['customerId']?.toString(),
         customerFullName: json['customerFullName']?.toString(),
@@ -53,9 +66,12 @@ class ConsultationModel {
         'id': id,
         'tenantId': tenantId,
         'subject': subject,
-        'details': details,
-        'status': status,
-        'consultationDate': consultationDate.toIso8601String(),
+        // Backend DTO expects these names.
+        'consultionState': status,
+        'type': type,
+        'description': details,
+        'feedback': feedback,
+        'dateTime': consultationDate.toIso8601String(),
         'customerId': customerId,
         'customerFullName': customerFullName,
         'assignedEmployeeId': assignedEmployeeId,

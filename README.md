@@ -70,3 +70,7 @@ The mobile app uses JWT authentication with the same backend API endpoints.
 ---
 
 If you prefer separate backend + frontend projects or want additional setup steps (IIS hosting, Docker, CI), tell me and I will add them.
+
+## Flutter App
+cd "e:\Gerges Files\LawyerSys-v2\MobileApp"
+flutter run -d emulator-5554

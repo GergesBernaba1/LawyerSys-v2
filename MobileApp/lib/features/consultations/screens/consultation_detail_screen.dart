@@ -12,7 +12,7 @@ class ConsultationDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l.translate('consultationDetail'))),
+      appBar: AppBar(title: Text(l.consultationDetail)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -22,6 +22,10 @@ class ConsultationDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _DetailRow(label: l.status, value: consultation.status),
+            if (consultation.type.isNotEmpty)
+              _DetailRow(
+                  label: l.translate('consultationType'),
+                  value: consultation.type),
             _DetailRow(
               label: l.dateLabel,
               value:
@@ -38,6 +42,13 @@ class ConsultationDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(consultation.details.isNotEmpty ? consultation.details : l.noData),
+            if (consultation.feedback != null && consultation.feedback!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(l.translate('consultationFeedback'),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(consultation.feedback!),
+            ],
             if (consultation.notes != null && consultation.notes!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(l.notes, style: const TextStyle(fontWeight: FontWeight.bold)),

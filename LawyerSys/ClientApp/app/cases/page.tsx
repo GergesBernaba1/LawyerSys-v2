@@ -458,7 +458,102 @@ export default function CasesPageClient() {
         />
       )}
 
-      {/* Table */}
+      {/* Mobile card list — xs only */}
+      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+        {loading ? (
+          Array.from(new Array(4)).map((_, i) => (
+            <Card key={i} sx={{ mb: 2, borderRadius: 3 }}>
+              <CardContent sx={{ py: 2 }}>
+                <Skeleton variant="text" width="60%" height={24} />
+                <Skeleton variant="text" width="40%" height={20} sx={{ mt: 1 }} />
+                <Skeleton variant="text" width="50%" height={20} sx={{ mt: 0.5 }} />
+              </CardContent>
+            </Card>
+          ))
+        ) : items.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8, opacity: 0.5 }}>
+            <GavelIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
+            <Typography variant="h6">{t('cases.noCases')}</Typography>
+          </Box>
+        ) : (
+          items.map((item) => {
+            const s = item.status ?? 0;
+            const labels = ['New','In Progress','Awaiting Hearing','Closed','Won','Lost'];
+            const colors: any = ['default','primary','warning','success','success','error'];
+            return (
+              <Card
+                key={item.id}
+                sx={{
+                  mb: 2,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                  cursor: 'pointer',
+                  '&:active': { bgcolor: 'grey.50' },
+                }}
+                onClick={() => openCaseDetails(item.code)}
+              >
+                <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Chip label={`#${item.code}`} size="small" color="primary" variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 700 }} />
+                    <Chip
+                      label={t(`cases.statuses.${labels[s].replace(/ /g,'').toLowerCase()}`) ?? labels[s]}
+                      size="small"
+                      color={colors[s]}
+                      variant="outlined"
+                      sx={{ fontWeight: 700 }}
+                    />
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                    {item.invitionType || '-'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {item.invitionDate?.slice(0,10) || '-'}
+                  </Typography>
+                  {!isCustomerOnly && item.totalAmount ? (
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main', mt: 0.5 }}>
+                      {formatCurrency(item.totalAmount)}
+                    </Typography>
+                  ) : null}
+                  {hasAnyRole('Admin', 'Employee') && (
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.5, gap: 1 }}>
+                      <Tooltip title={t('app.delete')}>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          aria-label={t('app.delete')}
+                          onClick={(e) => { e.stopPropagation(); void remove(item.code); }}
+                          sx={{ '&:hover': { bgcolor: 'error.light', color: 'white' } }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
+        {/* Mobile pagination */}
+        {!loading && items.length > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
+            <Pagination
+              count={Math.max(1, Math.ceil((totalCount || items.length) / pageSize))}
+              page={page}
+              onChange={(_, v) => { setPage(v); load(v); }}
+              color="primary"
+              shape="rounded"
+              size="small"
+              showFirstButton
+              showLastButton
+            />
+          </Box>
+        )}
+      </Box>
+
+      {/* Table — sm and above */}
       <Paper
         elevation={0}
         sx={{
@@ -468,6 +563,7 @@ export default function CasesPageClient() {
           overflow: 'hidden',
           bgcolor: 'background.paper',
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          display: { xs: 'none', sm: 'block' },
         }}
       >
         <TableContainer>
@@ -638,7 +734,7 @@ export default function CasesPageClient() {
         <DialogTitle sx={{ fontWeight: 800, fontSize: '1.5rem', pb: 1, textAlign: isRTL ? 'right' : 'left' }}>
           {t('cases.createNew')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ overflowY: 'auto', maxHeight: { xs: '65vh', md: '75vh' } }}>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField

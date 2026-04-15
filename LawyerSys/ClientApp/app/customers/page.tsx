@@ -568,7 +568,73 @@ export default function CustomersPageClient() {
         />
       )}
 
-      {/* Table */}
+      {/* Mobile card list — xs only */}
+      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+        {loading ? (
+          Array.from(new Array(4)).map((_, i) => (
+            <Card key={i} sx={{ mb: 2, borderRadius: 3 }}>
+              <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Skeleton variant="circular" width={40} height={40} />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width="60%" />
+                  <Skeleton variant="text" width="40%" />
+                </Box>
+              </CardContent>
+            </Card>
+          ))
+        ) : customerItems.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 8, opacity: 0.5 }}>
+            <PeopleIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3, mb: 2 }} />
+            <Typography variant="h6">{t('customers.noCustomers')}</Typography>
+          </Box>
+        ) : (
+          customerItems.map((item) => (
+            <Card
+              key={item.id}
+              sx={{
+                mb: 2,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+              }}
+            >
+              <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <AvatarWithSkeleton src={item.profileImageUrl} size={40} sx={{ bgcolor: 'primary.light', fontSize: '1rem', flexShrink: 0 }}>
+                    <PersonIcon fontSize="small" />
+                  </AvatarWithSkeleton>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }} noWrap>
+                      {item.fullName}
+                    </Typography>
+                    {item.email !== '-' && (
+                      <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
+                        {item.email}
+                      </Typography>
+                    )}
+                    <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
+                      {item.userName}
+                    </Typography>
+                  </Box>
+                  {hasRole('Admin') && (
+                    <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+                      <IconButton size="small" color="primary" aria-label={t('common.edit')} onClick={() => openEdit(item)}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" color="error" aria-label={t('app.delete')} onClick={() => void remove(item.id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </Box>
+
+      {/* Table — sm and above */}
       <Paper
         elevation={0}
         sx={{
@@ -578,6 +644,7 @@ export default function CustomersPageClient() {
           overflow: 'hidden',
           bgcolor: 'background.paper',
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          display: { xs: 'none', sm: 'block' },
         }}
       >
         <TableContainer>
@@ -734,7 +801,7 @@ export default function CustomersPageClient() {
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>
           {t('customers.createNewWithUser')}
         </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
+        <DialogContent sx={{ px: 3, overflowY: 'auto', maxHeight: { xs: '65vh', md: '75vh' } }}>
           <Box sx={{ mt: 2, mb: 2.5, direction: 'inherit', textAlign: 'start' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, textAlign: 'start' }}>
               {t('profile.profileImageSection', { defaultValue: 'Profile Image' })}
@@ -967,7 +1034,7 @@ export default function CustomersPageClient() {
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>
           {t('common.edit')}
         </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
+        <DialogContent sx={{ px: 3, overflowY: 'auto', maxHeight: { xs: '65vh', md: '75vh' } }}>
           <Box sx={{ mt: 2, mb: 2.5, direction: 'inherit', textAlign: 'start' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, textAlign: 'start' }}>
               {t('profile.profileImageSection', { defaultValue: 'Profile Image' })}
@@ -1101,7 +1168,7 @@ export default function CustomersPageClient() {
         <DialogTitle sx={{ fontWeight: 700, px: 3, pt: 3, textAlign: isRTL ? 'right' : 'left' }}>
           {t('customers.profile')}
         </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
+        <DialogContent sx={{ px: 3, overflowY: 'auto', maxHeight: { xs: '65vh', md: '75vh' } }}>
           {profile ? (
             <Box sx={{ mt: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexDirection: isRTL ? 'row-reverse' : 'row' }}>

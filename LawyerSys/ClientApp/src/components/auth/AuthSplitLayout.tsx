@@ -55,9 +55,10 @@ export default function AuthSplitLayout({
       sx={{
         minHeight: "100vh",
         position: "relative",
-        overflow: "hidden",
+        // overflow hidden clips content on mobile — use auto so the form is reachable on small screens
+        overflow: { xs: "auto", md: "hidden" },
         display: "flex",
-        alignItems: "center",
+        alignItems: { xs: "flex-start", md: "center" },
         py: { xs: 3, md: 5 },
         px: { xs: 2, md: 4 },
         background:
@@ -99,7 +100,8 @@ export default function AuthSplitLayout({
                 background:
                   "linear-gradient(150deg, rgba(8, 19, 32, 0.92) 0%, rgba(15, 39, 66, 0.9) 56%, rgba(22, 70, 92, 0.82) 100%)",
                 borderInlineEnd: { lg: "1px solid rgba(255,255,255,0.08)" },
-                display: "flex",
+                // Hide the hero/branding panel on mobile — form-first UX
+                display: { xs: "none", lg: "flex" },
                 flexDirection: "column",
                 justifyContent: "space-between",
                 gap: 4,

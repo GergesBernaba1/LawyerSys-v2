@@ -79,8 +79,8 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
               );
             }
 
-            final runningEntries = entries.where((x) => x.status == 'Running').toList();
-            final stoppedEntries = entries.where((x) => x.status == 'Stopped').toList();
+            final runningEntries = entries.where((x) => _statusCode(x.status, localizer) == 'Running').toList();
+            final stoppedEntries = entries.where((x) => _statusCode(x.status, localizer) == 'Stopped').toList();
             final totalTrackedMinutes = stoppedEntries.fold<int>(
                 0, (sum, entry) => sum + (entry.durationMinutes ?? 0));
 
@@ -165,7 +165,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
           context,
           MaterialPageRoute(builder: (_) => const TimeTrackingFormScreen()),
         ),
-        tooltip: 'Add Time Entry',
+        tooltip: localizer.startTrackingTime,
         child: const Icon(Icons.add),
       ),
     );
@@ -269,9 +269,9 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                 Expanded(
                   child: TextField(
                     controller: _hourlyRateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Hourly Rate',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizer.hourlyRate,
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   ),
@@ -280,22 +280,22 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     initialValue: _statusFilter,
-                    decoration: const InputDecoration(
-                      labelText: 'Status',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizer.statusLabel,
+                      border: const OutlineInputBorder(),
                     ),
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'All',
-                        child: Text('All'),
+                        child: Text(localizer.all),
                       ),
                       DropdownMenuItem(
                         value: 'Running',
-                        child: Text('Running'),
+                        child: Text(localizer.running),
                       ),
                       DropdownMenuItem(
                         value: 'Stopped',
-                        child: Text('Stopped'),
+                        child: Text(localizer.stopped),
                       ),
                     ],
                     onChanged: (value) {
@@ -326,7 +326,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                           _descriptionController.clear();
                           _hourlyRateController.clear();
                         },
-                  child: const Text('Start'),
+                  child: Text(localizer.start),
                 ),
               ],
             ),
@@ -360,15 +360,15 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
             .map((entry) => DataRow(cells: [
                   DataCell(Text('${entry.workType} ${entry.description ?? ''}')),
                   DataCell(Chip(
-                    label: Text(entry.status),
-                    backgroundColor: entry.status == 'Running'
+                    label: Text(_localizedStatusLabel(entry.status, localizer)),
+                    backgroundColor: _statusCode(entry.status, localizer) == 'Running'
                         ? Colors.orange[100]
                         : Colors.green[100],
                   )),
                   DataCell(Text('${entry.durationMinutes ?? 0} min')),
                   DataCell(Text(
                       '\$${(entry.suggestedAmount ?? 0).toStringAsFixed(2)}')),
-                  DataCell(entry.status == 'Running'
+                  DataCell(_statusCode(entry.status, localizer) == 'Running'
                       ? IconButton(
                           icon: const Icon(Icons.stop),
                           onPressed: () {
@@ -384,12 +384,39 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
     );
   }
 
+  String _statusCode(String status, AppLocalizations localizer) {
+    final normalized = status.trim();
+    if (normalized.toLowerCase() == 'running' || normalized == localizer.running) {
+      return 'Running';
+    }
+    if (normalized.toLowerCase() == 'stopped' || normalized == localizer.stopped) {
+      return 'Stopped';
+    }
+    if (normalized.toLowerCase() == 'all' || normalized == localizer.all) {
+      return 'All';
+    }
+    return normalized;
+  }
+
+  String _localizedStatusLabel(String status, AppLocalizations localizer) {
+    switch (_statusCode(status, localizer)) {
+      case 'Running':
+        return localizer.running;
+      case 'Stopped':
+        return localizer.stopped;
+      case 'All':
+        return localizer.all;
+      default:
+        return status;
+    }
+  }
+
   Widget _buildSuggestionsTable(List<Suggestion> suggestions) {
     final localizer = AppLocalizations.of(context);
     if (suggestions.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(8),
-        child: Center(child: Text('No suggestions')),
+      return Padding(
+        padding: const EdgeInsets.all(8),
+        child: Center(child: Text(localizer.noSuggestions)),
       );
     }
 

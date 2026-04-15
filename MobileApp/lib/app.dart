@@ -50,6 +50,7 @@ import 'features/hearings/screens/hearings_list_screen.dart';
 import 'features/notifications/bloc/notifications_bloc.dart';
 import 'features/notifications/repositories/notifications_repository.dart';
 import 'features/settings/screens/settings_screen.dart';
+import 'features/settings/screens/profile_screen.dart';
 import 'features/tasks/bloc/tasks_bloc.dart';
 import 'features/tasks/repositories/tasks_repository.dart';
 import 'features/tasks/screens/tasks_list_screen.dart';
@@ -66,7 +67,13 @@ import 'features/consultations/bloc/consultations_bloc.dart';
 import 'features/consultations/repositories/consultations_repository.dart';
 import 'features/reports/bloc/reports_bloc.dart';
 import 'features/reports/repositories/reports_repository.dart';
+import 'features/governments/bloc/governments_bloc.dart';
+import 'features/governments/repositories/governments_repository.dart';
+import 'features/tenants/repositories/tenants_repository.dart';
+import 'features/tenants/screens/tenants_list_screen.dart';
 import 'features/trust-accounting/screens/trust_list_screen.dart';
+import 'features/users/repositories/users_repository.dart';
+import 'features/users/screens/users_list_screen.dart';
 import 'shared/screens/main_screen.dart';
 import 'shared/screens/splash_screen.dart';
 import 'shared/screens/unauthorized_screen.dart';
@@ -84,7 +91,7 @@ class App extends StatelessWidget {
       '/forgot-password': null,
       '/reset-password': null,
       '/main': null,
-      '/dashboard': Permissions.dashboard,
+      '/dashboard': null,
       '/tasks': Permissions.dashboard,
       '/calendar': Permissions.viewHearings,
       '/hearings': Permissions.viewHearings,
@@ -95,7 +102,10 @@ class App extends StatelessWidget {
       '/client-portal-messages': Permissions.viewClientPortal,
       '/client-portal-documents': Permissions.viewClientPortal,
       '/customers': Permissions.viewCustomers,
-      '/settings': Permissions.manageSettings,
+      '/settings': null,
+      '/profile': null,
+      '/users': null,
+      '/tenants': null,
       '/documents': Permissions.dashboard,
     };
 
@@ -129,6 +139,9 @@ class App extends StatelessWidget {
         RepositoryProvider(create: (_) => ContendersRepository(apiClient)),
         RepositoryProvider(create: (_) => ConsultationsRepository(apiClient)),
         RepositoryProvider(create: (_) => ReportsRepository(apiClient)),
+        RepositoryProvider(create: (_) => UsersRepository(apiClient)),
+        RepositoryProvider(create: (_) => TenantsRepository(apiClient)),
+        RepositoryProvider(create: (_) => GovernmentsRepository(apiClient)),
         RepositoryProvider(
             create: (_) => EmployeesRepository(apiClient, localDatabase)),
       ],
@@ -197,6 +210,10 @@ class App extends StatelessWidget {
                   employeesRepository:
                       RepositoryProvider.of<EmployeesRepository>(ctx))),
           BlocProvider(
+              create: (ctx) => GovernmentsBloc(
+                  governmentsRepository:
+                      RepositoryProvider.of<GovernmentsRepository>(ctx))),
+          BlocProvider(
               create: (_) => NotificationsBloc(
                   notificationsRepository: NotificationsRepository(
                       LocalDatabase.instance, apiClient))),
@@ -217,7 +234,7 @@ class _AppInitializer extends StatefulWidget {
 }
 
 class _AppInitializerState extends State<_AppInitializer> {
-  Locale _locale = const Locale('en');
+  Locale _locale = const Locale('ar');
   bool _localeLoaded = false;
 
   @override
@@ -237,7 +254,7 @@ class _AppInitializerState extends State<_AppInitializer> {
       setState(() {
         _locale = (langCode?.isNotEmpty == true)
             ? Locale(langCode!)
-            : const Locale('en');
+            : const Locale('ar');
         _localeLoaded = true;
       });
     }
@@ -347,10 +364,10 @@ class _AppInitializerState extends State<_AppInitializer> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en'), Locale('ar')],
+      supportedLocales: const [Locale('ar'), Locale('en')],
       locale: _locale,
       localeResolutionCallback: (currentLocale, supportedLocales) {
-        if (currentLocale == null) return const Locale('en');
+        if (currentLocale == null) return const Locale('ar');
         for (final supported in supportedLocales) {
           if (supported.languageCode == currentLocale.languageCode) {
             return supported;
@@ -418,6 +435,12 @@ class _AppInitializerState extends State<_AppInitializer> {
                 builder: (_) => const CustomersListScreen());
           case '/settings':
             return MaterialPageRoute(builder: (_) => const SettingsScreen());
+          case '/profile':
+            return MaterialPageRoute(builder: (_) => const ProfileScreen());
+          case '/users':
+            return MaterialPageRoute(builder: (_) => const UsersListScreen());
+          case '/tenants':
+            return MaterialPageRoute(builder: (_) => const TenantsListScreen());
           case '/documents':
             return MaterialPageRoute(
                 builder: (_) => const DocumentsListScreen());

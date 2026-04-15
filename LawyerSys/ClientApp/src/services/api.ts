@@ -14,10 +14,18 @@ const envApiBase =
 let fallbackApiBase: string
 
 if (typeof window !== 'undefined') {
-  const { origin, hostname } = window.location
+  const { origin, hostname, protocol, port } = window.location
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // Frontend dev server often runs on 3000/3002 while backend runs on 5000
-    fallbackApiBase = 'http://localhost:5000/api'
+    // Respect the protocol of the current page to avoid mixed-content blocks.
+    // If served over HTTPS (e.g. https://localhost:7001), use HTTPS for the API too.
+    if (protocol === 'https:') {
+      // When the .NET backend serves the app on port 7001 over HTTPS, the API is on the same origin
+      const apiPort = port === '7001' ? '7001' : '5001'
+      fallbackApiBase = `https://localhost:${apiPort}/api`
+    } else {
+      // Plain HTTP dev server (Next.js on 3002 → backend on 5000)
+      fallbackApiBase = 'http://localhost:5000/api'
+    }
   } else {
     fallbackApiBase = `${origin}/api`
   }
@@ -139,6 +147,16 @@ instance.interceptors.request.use((config) => {
 
   return config
 })
+
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.error('Access denied:', error.response?.status, error.response?.data)
+    }
+    return Promise.reject(error)
+  }
+)
 
 export const REALTIME_BASE = API_BASE.replace(/\/api\/?$/, '')
 export const PARITY_API_ROUTES = {

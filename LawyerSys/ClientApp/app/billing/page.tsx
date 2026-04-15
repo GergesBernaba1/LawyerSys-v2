@@ -235,7 +235,42 @@ export default function BillingPage() {
               </Button>
             </Box>
           )}
-          <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+          {/* Mobile card list — xs only */}
+          <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} sx={{ mb: 2, borderRadius: 3 }}>
+                  <CardContent>
+                    <Skeleton variant="text" width="50%" height={28} />
+                    <Skeleton variant="text" width="40%" />
+                    <Skeleton variant="text" width="60%" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : payments.length === 0 ? (
+              <Box sx={{ py: 6, textAlign: 'center', opacity: 0.5 }}>
+                <Typography color="text.secondary">{t('billing.noPayments')}</Typography>
+              </Box>
+            ) : payments.map((item) => (
+              <Card key={item.id} sx={{ mb: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 800, color: 'error.main' }}>{formatAmount(item.amount)}</Typography>
+                    {canManageBilling && (
+                      <IconButton size="small" color="error" aria-label={t('common.delete')} onClick={() => void removePayment(item.id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <Typography variant="caption" color="text.secondary">{formatDate(item.dateOfOperation)}</Typography>
+                  {item.customerName && <Typography variant="body2" sx={{ mt: 0.5 }}>{item.customerName}</Typography>}
+                  {item.notes && <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>{item.notes}</Typography>}
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+          {/* Table — sm and above */}
+          <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)', display: { xs: 'none', sm: 'block' } }}>
             <TableContainer>
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
@@ -293,7 +328,42 @@ export default function BillingPage() {
               </Button>
             </Box>
           )}
-          <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+          {/* Mobile card list — xs only */}
+          <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} sx={{ mb: 2, borderRadius: 3 }}>
+                  <CardContent>
+                    <Skeleton variant="text" width="50%" height={28} />
+                    <Skeleton variant="text" width="40%" />
+                    <Skeleton variant="text" width="60%" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : receipts.length === 0 ? (
+              <Box sx={{ py: 6, textAlign: 'center', opacity: 0.5 }}>
+                <Typography color="text.secondary">{t('billing.noReceipts')}</Typography>
+              </Box>
+            ) : receipts.map((item) => (
+              <Card key={item.id} sx={{ mb: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 800, color: 'success.main' }}>{formatAmount(item.amount)}</Typography>
+                    {canManageBilling && (
+                      <IconButton size="small" color="error" aria-label={t('common.delete')} onClick={() => void removeReceipt(item.id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <Typography variant="caption" color="text.secondary">{formatDate(item.dateOfOperation)}</Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>{employeeNameById(item.employeeId)}</Typography>
+                  {item.notes && <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>{item.notes}</Typography>}
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+          {/* Table — sm and above */}
+          <Paper elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)', display: { xs: 'none', sm: 'block' } }}>
             <TableContainer>
               <Table sx={{ minWidth: 650 }}>
                 <TableHead>
@@ -343,7 +413,7 @@ export default function BillingPage() {
       {/* Payment Dialog */}
       <Dialog open={canManageBilling && openPayDialog} onClose={() => setOpenPayDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>{t('billing.createNewPayment')}</DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
+        <DialogContent sx={{ px: 3, overflowY: 'auto', maxHeight: { xs: '65vh', md: '75vh' } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
             <TextField fullWidth label={t('billing.amount')} type="number" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: Number(e.target.value) })} variant="outlined" />
             <TextField fullWidth label={t('billing.date')} type="date" value={payForm.dateOfOperation} onChange={(e) => setPayForm({ ...payForm, dateOfOperation: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />
@@ -368,7 +438,7 @@ export default function BillingPage() {
       {/* Receipt Dialog */}
       <Dialog open={canManageBilling && openRecDialog} onClose={() => setOpenRecDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
         <DialogTitle sx={{ textAlign: isRTL ? 'right' : 'left', fontWeight: 700, px: 3, pt: 3 }}>{t('billing.createNewReceipt')}</DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
+        <DialogContent sx={{ px: 3, overflowY: 'auto', maxHeight: { xs: '65vh', md: '75vh' } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 2 }}>
             <TextField fullWidth label={t('billing.amount')} type="number" value={recForm.amount} onChange={(e) => setRecForm({ ...recForm, amount: Number(e.target.value) })} variant="outlined" />
             <TextField fullWidth label={t('billing.date')} type="date" value={recForm.dateOfOperation} onChange={(e) => setRecForm({ ...recForm, dateOfOperation: e.target.value })} InputLabelProps={{ shrink: true }} variant="outlined" />

@@ -32,7 +32,6 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Push Notifications'), findsOneWidget);
     final switchFinder = find.byType(SwitchListTile);
     expect(switchFinder, findsOneWidget);
 

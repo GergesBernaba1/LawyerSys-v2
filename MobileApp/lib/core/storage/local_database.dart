@@ -242,6 +242,15 @@ class LocalDatabase {
     return db.query('employees', where: where, whereArgs: whereArgs, limit: limit, offset: offset, orderBy: 'lastSyncedAt DESC');
   }
 
+  Future<void> deleteEmployee(String employeeId) async {
+    final db = await database;
+    await db.delete(
+      'employees',
+      where: 'employeeId = ?',
+      whereArgs: [employeeId],
+    );
+  }
+
   Future<void> upsertNotification(String notificationId, Map<String, dynamic> notificationJson, {String? tenantId, bool isRead = false}) async {
     final db = await database;
     await db.insert(

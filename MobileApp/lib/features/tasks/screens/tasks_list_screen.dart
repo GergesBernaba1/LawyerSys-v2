@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
@@ -58,7 +58,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (state is TasksError) {
-                  return Center(child: Text('Error: ${state.message}'));
+                  return Center(child: Text('${localizer.error}: ${state.message}'));
                 }
                 if (state is TasksLoaded) {
                   final tasks = state.tasks;
@@ -88,7 +88,8 @@ class _TasksListScreenState extends State<TasksListScreen> {
                       final task = tasks[index];
                       return ListTile(
                         title: Text(task.taskName),
-                        subtitle: Text('${task.type} • ${task.taskDate?.split('T')[0] ?? ''}'),
+                        subtitle:
+                            Text('${task.type} - ${task.taskDate?.split('T')[0] ?? ''}'),
                         trailing: PopupMenuButton<int>(
                           onSelected: (value) async {
                             if (value == 1) {
@@ -126,18 +127,18 @@ class _TasksListScreenState extends State<TasksListScreen> {
                             }
                           },
                           itemBuilder: (_) => [
-                            const PopupMenuItem<int>(
+                            PopupMenuItem<int>(
                               value: 1,
                               child: ListTile(
-                                leading: Icon(Icons.edit),
-                                title: Text('Edit'),
+                                leading: const Icon(Icons.edit),
+                                title: Text(localizer.edit),
                               ),
                             ),
-                            const PopupMenuItem<int>(
+                            PopupMenuItem<int>(
                               value: 2,
                               child: ListTile(
-                                leading: Icon(Icons.delete),
-                                title: Text('Delete'),
+                                leading: const Icon(Icons.delete),
+                                title: Text(localizer.taskDelete),
                               ),
                             ),
                           ],
@@ -167,7 +168,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
           );
           if (context.mounted) context.read<TasksBloc>().add(LoadTasks());
         },
-        tooltip: 'Add Task',
+        tooltip: localizer.createTask,
         child: const Icon(Icons.add),
       ),
     );
