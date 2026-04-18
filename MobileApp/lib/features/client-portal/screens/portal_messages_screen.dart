@@ -39,7 +39,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
         title: Text(message.subject),
         content: SingleChildScrollView(child: Text(message.body)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).cancel)),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.cancel)),
         ],
       ),
     );
@@ -47,7 +47,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.portalMessages)),

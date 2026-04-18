@@ -59,7 +59,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   }
 
   void _saveSalary() {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final parsedSalary = int.tryParse(_salaryController.text.trim());
 
     if (parsedSalary == null || parsedSalary < 0) {
@@ -85,7 +85,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
     final canEditSalary =

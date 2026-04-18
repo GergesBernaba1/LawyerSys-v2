@@ -10,7 +10,7 @@ class ConsultationDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l.consultationDetail)),
       body: SingleChildScrollView(
@@ -23,9 +23,7 @@ class ConsultationDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _DetailRow(label: l.status, value: consultation.status),
             if (consultation.type.isNotEmpty)
-              _DetailRow(
-                  label: l.translate('consultationType'),
-                  value: consultation.type),
+              _DetailRow(label: l.consultationType, value: consultation.type),
             _DetailRow(
               label: l.dateLabel,
               value:
@@ -35,7 +33,7 @@ class ConsultationDetailScreen extends StatelessWidget {
               _DetailRow(label: l.customer, value: consultation.customerFullName!),
             if (consultation.assignedEmployeeName != null)
               _DetailRow(
-                  label: l.translate('assignedEmployee'),
+                  label: l.assignedEmployee,
                   value: consultation.assignedEmployeeName!),
             const SizedBox(height: 12),
             Text(l.description,
@@ -44,7 +42,7 @@ class ConsultationDetailScreen extends StatelessWidget {
             Text(consultation.details.isNotEmpty ? consultation.details : l.noData),
             if (consultation.feedback != null && consultation.feedback!.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text(l.translate('consultationFeedback'),
+              Text(l.consultationFeedback,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Text(consultation.feedback!),

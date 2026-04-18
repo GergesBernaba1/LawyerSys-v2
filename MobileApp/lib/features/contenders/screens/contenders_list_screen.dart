@@ -33,7 +33,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.contenders)),
@@ -67,7 +67,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizer.error}: ${state.message}')));
                 }
                 if (state is ContenderOperationSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizer.translate(state.message))));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
                 }
               },
               builder: (context, state) {

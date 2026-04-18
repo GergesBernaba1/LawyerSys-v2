@@ -63,12 +63,12 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
       _createSalary = '';
     });
 
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text('${localizer.translate('employees')} - ${localizer.translate('create')}'),
+          title: Text('${localizer.employees} - ${localizer.create}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -81,12 +81,13 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                 DropdownButtonFormField<int>(
                   initialValue: _selectedUserId,
                   decoration: InputDecoration(
-                    labelText: localizer.translate('employee'),
+                    labelText: localizer.employee,
                   ),
                   items: _users
                       .map((user) => DropdownMenuItem<int>(
                             value: int.tryParse('${user['id']}'),
-                            child: Text('${user['fullName'] ?? user['email'] ?? user['userName'] ?? 'User'}'),
+                            child: Text(
+                                '${user['fullName'] ?? user['email'] ?? user['userName'] ?? 'User'}'),
                           ))
                       .toList(),
                   onChanged: (value) {
@@ -113,7 +114,9 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
               child: Text(localizer.cancel),
             ),
             TextButton(
-              onPressed: _selectedUserId == null || _createSalary.trim().isEmpty || _isCreatingEmployee
+              onPressed: _selectedUserId == null ||
+                      _createSalary.trim().isEmpty ||
+                      _isCreatingEmployee
                   ? null
                   : () async {
                       Navigator.of(dialogContext).pop();
@@ -126,7 +129,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                       width: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(localizer.translate('create')),
+                  : Text(localizer.create),
             ),
           ],
         );
@@ -135,7 +138,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
   }
 
   Future<void> _createEmployee() async {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final parsedSalary = int.tryParse(_createSalary.trim());
     if (parsedSalary == null || parsedSalary < 0 || _selectedUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -158,12 +161,12 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
   }
 
   Future<void> _confirmDeleteEmployee(int employeeId) async {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(localizer.translate('deleteTask') /* reuse delete label */),
-        content: Text(localizer.translate('deleteTaskConfirm')),
+        title: Text(localizer.deleteTask),
+        content: Text(localizer.deleteTaskConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -191,7 +194,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
 
@@ -210,10 +213,10 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
       ),
       floatingActionButton:
           (session?.hasPermission(Permissions.createEmployees) ?? false) &&
-          (session?.isAdmin() ?? false)
+                  (session?.isAdmin() ?? false)
               ? FloatingActionButton(
                   onPressed: _showCreateEmployeeDialog,
-                  tooltip: localizer.translate('create'),
+                  tooltip: localizer.create,
                   child: const Icon(Icons.add),
                 )
               : null,
@@ -225,8 +228,8 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
             context.read<EmployeesBloc>().add(RefreshEmployees());
           }
           if (state is EmployeesError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${localizer.error}: ${state.message}')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('${localizer.error}: ${state.message}')));
           }
         },
         child: Column(
@@ -318,9 +321,12 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                               children: [
                                 Text(
                                   employee.salary.toString(),
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700),
                                 ),
-                                if ((session?.hasPermission(Permissions.editEmployees) ?? false) &&
+                                if ((session?.hasPermission(
+                                            Permissions.editEmployees) ??
+                                        false) &&
                                     (session?.isAdmin() ?? false)) ...[
                                   const SizedBox(width: 12),
                                   IconButton(
@@ -332,14 +338,17 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => EmployeeDetailScreen(employeeModel: employee),
+                                          builder: (context) =>
+                                              EmployeeDetailScreen(
+                                                  employeeModel: employee),
                                         ),
                                       );
                                     },
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete),
-                                    onPressed: () => _confirmDeleteEmployee(employee.id),
+                                    onPressed: () =>
+                                        _confirmDeleteEmployee(employee.id),
                                   ),
                                 ],
                               ],
@@ -351,7 +360,8 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EmployeeDetailScreen(employeeModel: employee),
+                                  builder: (context) => EmployeeDetailScreen(
+                                      employeeModel: employee),
                                 ),
                               );
                             },

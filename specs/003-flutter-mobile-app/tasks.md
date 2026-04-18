@@ -56,80 +56,80 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Phase 1D: Consultations Management (Priority: P2)
 
-- [x] T157 [P] Create Consultation model in MobileApp/lib/features/consultations/models/consultation.dart with JSON serialization
-- [x] T158 [P] Create ConsultationsRepository in MobileApp/lib/features/consultations/repositories/consultations_repository.dart
-- [x] T159 [P] Create ConsultationsEvent classes in MobileApp/lib/features/consultations/bloc/consultations_event.dart
-- [x] T160 [P] Create ConsultationsState classes in MobileApp/lib/features/consultations/bloc/consultations_state.dart
-- [x] T161 Create ConsultationsBloc in MobileApp/lib/features/consultations/bloc/consultations_bloc.dart
-- [x] T162 Create ConsultationsListScreen in MobileApp/lib/features/consultations/screens/consultations_list_screen.dart
-- [x] T163 Create ConsultationDetailScreen in MobileApp/lib/features/consultations/screens/consultation_detail_screen.dart
+- [x] T159 [P] Create Consultation model in MobileApp/lib/features/consultations/models/consultation.dart with JSON serialization
+- [x] T160 [P] Create ConsultationsRepository in MobileApp/lib/features/consultations/repositories/consultations_repository.dart
+- [x] T161 [P] Create ConsultationsEvent classes in MobileApp/lib/features/consultations/bloc/consultations_event.dart
+- [x] T162 [P] Create ConsultationsState classes in MobileApp/lib/features/consultations/bloc/consultations_state.dart
+- [x] T163 Create ConsultationsBloc in MobileApp/lib/features/consultations/bloc/consultations_bloc.dart
+- [x] T164 Create ConsultationsListScreen in MobileApp/lib/features/consultations/screens/consultations_list_screen.dart
+- [x] T165 Create ConsultationDetailScreen in MobileApp/lib/features/consultations/screens/consultation_detail_screen.dart
 
 ### Phase 1E: Trust Accounting (Priority: P2)
 
-- [x] T164 [P] Create TrustTransaction model in MobileApp/lib/features/trust-accounting/models/trust_transaction.dart with JSON serialization
-- [x] T165 [P] Create TrustAccountingRepository in MobileApp/lib/features/trust-accounting/repositories/trust_accounting_repository.dart
-- [x] T166 [P] Create TrustAccountingEvent classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_event.dart
-- [x] T167 [P] Create TrustAccountingState classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_state.dart
-- [x] T168 Create TrustAccountingBloc in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_bloc.dart
-- [x] T169 Create TrustAccountingListScreen in MobileApp/lib/features/trust-accounting/screens/trust_list_screen.dart
-- [x] T170 Create TrustFormScreen in MobileApp/lib/features/trust-accounting/screens/trust_form_screen.dart
+- [x] T166 [P] Create TrustTransaction model in MobileApp/lib/features/trust-accounting/models/trust_transaction.dart with JSON serialization
+- [x] T167 [P] Create TrustAccountingRepository in MobileApp/lib/features/trust-accounting/repositories/trust_accounting_repository.dart
+- [x] T168 [P] Create TrustAccountingEvent classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_event.dart
+- [x] T169 [P] Create TrustAccountingState classes in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_state.dart
+- [x] T170 Create TrustAccountingBloc in MobileApp/lib/features/trust-accounting/bloc/trust_accounting_bloc.dart
+- [x] T171 Create TrustAccountingListScreen in MobileApp/lib/features/trust-accounting/screens/trust_list_screen.dart
+- [x] T172 Create TrustFormScreen in MobileApp/lib/features/trust-accounting/screens/trust_form_screen.dart
 
 ### Phase 1F: Client Portal (Priority: P2)
 
-- [x] T171 [P] Create PortalMessage model in MobileApp/lib/features/client-portal/models/portal_message.dart with JSON serialization
-- [x] T172 [P] Create ClientPortalRepository in MobileApp/lib/features/client-portal/repositories/client_portal_repository.dart
-- [x] T173 [P] Create ClientPortalEvent classes in MobileApp/lib/features/client-portal/bloc/client_portal_event.dart
-- [x] T174 [P] Create ClientPortalState classes in MobileApp/lib/features/client-portal/bloc/client_portal_state.dart
-- [x] T175 Create ClientPortalBloc in MobileApp/lib/features/client-portal/bloc/client_portal_bloc.dart
-- [x] T176 Create PortalMessagesScreen in MobileApp/lib/features/client-portal/screens/portal_messages_screen.dart
-- [x] T177 Create PortalDocumentsScreen in MobileApp/lib/features/client-portal/screens/portal_documents_screen.dart
+- [x] T173 [P] Create PortalMessage model in MobileApp/lib/features/client-portal/models/portal_message.dart with JSON serialization
+- [x] T174 [P] Create ClientPortalRepository in MobileApp/lib/features/client-portal/repositories/client_portal_repository.dart
+- [x] T175 [P] Create ClientPortalEvent classes in MobileApp/lib/features/client-portal/bloc/client_portal_event.dart
+- [x] T176 [P] Create ClientPortalState classes in MobileApp/lib/features/client-portal/bloc/client_portal_state.dart
+- [x] T177 Create ClientPortalBloc in MobileApp/lib/features/client-portal/bloc/client_portal_bloc.dart
+- [x] T178 Create PortalMessagesScreen in MobileApp/lib/features/client-portal/screens/portal_messages_screen.dart
+- [x] T179 Create PortalDocumentsScreen in MobileApp/lib/features/client-portal/screens/portal_documents_screen.dart
 
 ### Phase 1G: Governments (Priority: P3)
 
-- [x] T178 [P] Create Government model in MobileApp/lib/features/governments/models/government.dart with JSON serialization
-- [x] T179 [P] Create GovernmentsRepository in MobileApp/lib/features/governments/repositories/governments_repository.dart
-- [x] T180 Create GovernmentsBloc in MobileApp/lib/features/governments/bloc/governments_bloc.dart
-- [x] T181 Create GovernmentsListScreen in MobileApp/lib/features/governments/screens/governments_list_screen.dart
+- [x] T180 [P] Create Government model in MobileApp/lib/features/governments/models/government.dart with JSON serialization
+- [x] T181 [P] Create GovernmentsRepository in MobileApp/lib/features/governments/repositories/governments_repository.dart
+- [x] T182 Create GovernmentsBloc in MobileApp/lib/features/governments/bloc/governments_bloc.dart
+- [x] T183 Create GovernmentsListScreen in MobileApp/lib/features/governments/screens/governments_list_screen.dart
 
 ### Phase 1H: Case Relations (Priority: P3)
 
-- [x] T182 [P] Create CaseRelation model in MobileApp/lib/features/case-relations/models/case_relation.dart with JSON serialization
-- [x] T183 [P] Create CaseRelationsRepository in MobileApp/lib/features/case-relations/repositories/case_relations_repository.dart
-- [x] T184 Create CaseRelationsBloc in MobileApp/lib/features/case-relations/bloc/case_relations_bloc.dart
-- [x] T185 Create CaseRelationsListScreen in MobileApp/lib/features/case-relations/screens/case_relations_list_screen.dart
+- [x] T184 [P] Create CaseRelation model in MobileApp/lib/features/case-relations/models/case_relation.dart with JSON serialization
+- [x] T185 [P] Create CaseRelationsRepository in MobileApp/lib/features/case-relations/repositories/case_relations_repository.dart
+- [x] T186 Create CaseRelationsBloc in MobileApp/lib/features/case-relations/bloc/case_relations_bloc.dart
+- [x] T187 Create CaseRelationsListScreen in MobileApp/lib/features/case-relations/screens/case_relations_list_screen.dart
 
 ### Phase 1I: Judicial Documents (Priority: P3)
 
-- [ ] T186 [P] Create JudicialDocument model in MobileApp/lib/features/judicial/models/judicial_document.dart with JSON serialization
-- [ ] T187 [P] Create JudicialDocumentsRepository in MobileApp/lib/features/judicial/repositories/judicial_documents_repository.dart
-- [ ] T188 Create JudicialDocumentsBloc in MobileApp/lib/features/judicial/bloc/judicial_documents_bloc.dart
-- [ ] T189 Create JudicialDocumentsListScreen in MobileApp/lib/features/judicial/screens/judicial_documents_list_screen.dart
+- [x] T188 [P] Create JudicialDocument model in MobileApp/lib/features/judicial/models/judicial_document.dart with JSON serialization
+- [x] T189 [P] Create JudicialDocumentsRepository in MobileApp/lib/features/judicial/repositories/judicial_documents_repository.dart
+- [x] T190 Create JudicialDocumentsBloc in MobileApp/lib/features/judicial/bloc/judicial_documents_bloc.dart
+- [x] T191 Create JudicialDocumentsListScreen in MobileApp/lib/features/judicial/screens/judicial_documents_list_screen.dart
 
 ### Phase 1J: Reports (Priority: P3)
 
-- [x] T190 [P] Create Report model in MobileApp/lib/features/reports/models/report.dart with JSON serialization
-- [x] T191 [P] Create ReportsRepository in MobileApp/lib/features/reports/repositories/reports_repository.dart
-- [x] T192 Create ReportsBloc in MobileApp/lib/features/reports/bloc/reports_bloc.dart
-- [x] T193 Create ReportsScreen in MobileApp/lib/features/reports/screens/reports_screen.dart
+- [x] T192 [P] Create Report model in MobileApp/lib/features/reports/models/report.dart with JSON serialization
+- [x] T193 [P] Create ReportsRepository in MobileApp/lib/features/reports/repositories/reports_repository.dart
+- [x] T194 Create ReportsBloc in MobileApp/lib/features/reports/bloc/reports_bloc.dart
+- [x] T195 Create ReportsScreen in MobileApp/lib/features/reports/screens/reports_screen.dart
 
 ### Phase 1K: Intake Forms (Priority: P3)
 
-- [x] T194 [P] Create IntakeForm model in MobileApp/lib/features/intake/models/intake_form.dart with JSON serialization
-- [x] T195 [P] Create IntakeRepository in MobileApp/lib/features/intake/repositories/intake_repository.dart
-- [x] T196 Create IntakeBloc in MobileApp/lib/features/intake/bloc/intake_bloc.dart
-- [x] T197 Create IntakeFormScreen in MobileApp/lib/features/intake/screens/intake_form_screen.dart
+- [x] T196 [P] Create IntakeForm model in MobileApp/lib/features/intake/models/intake_form.dart with JSON serialization
+- [x] T197 [P] Create IntakeRepository in MobileApp/lib/features/intake/repositories/intake_repository.dart
+- [x] T198 Create IntakeBloc in MobileApp/lib/features/intake/bloc/intake_bloc.dart
+- [x] T199 Create IntakeFormScreen in MobileApp/lib/features/intake/screens/intake_form_screen.dart
 
 ### Phase 1L: Billing (Priority: P2 - Already exists in MobileApp)
 
-- [x] T198 [P] [EXISTS] Billing module already implemented in MobileApp
+- [x] T200 [P] [EXISTS] Billing module already implemented in MobileApp
 
 ### Phase 1M: Time Tracking (Priority: P2 - Already exists in MobileApp)
 
-- [x] T199 [P] [EXISTS] Time Tracking module already implemented in MobileApp
+- [x] T201 [P] [EXISTS] Time Tracking module already implemented in MobileApp
 
 ### Phase 1N: Tasks (Priority: P2 - Already exists in MobileApp)
 
-- [x] T200 [P] [EXISTS] Tasks module already implemented in MobileApp
+- [x] T202 [P] [EXISTS] Tasks module already implemented in MobileApp
 
 ---
 
@@ -208,6 +208,14 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 - [x] T046 [US1] Update AuthBloc to support biometric authentication flow (unlock stored token on biometric success)
 - [x] T047 [US1] Update main.dart to check for stored session on app startup and navigate to Dashboard or LanguageSelect/Login accordingly
 
+### Phase 3B: Tests for User Story 1 - Login and Dashboard (Priority: P1)
+
+- [x] T048 [P] Create AuthBloc tests in MobileApp/flutter_test/features/authentication/bloc/auth_bloc_test.dart covering login, logout, session restore, token refresh, biometric unlock, and error states
+- [x] T049 [P] Create DashboardBloc tests in MobileApp/flutter_test/features/dashboard/bloc/dashboard_bloc_test.dart covering load, refresh, and offline states
+- [x] T050 [P] Create AuthRepository tests in MobileApp/flutter_test/features/authentication/repositories/auth_repository_test.dart mocking ApiClient
+- [x] T051 [P] Create DashboardRepository tests in MobileApp/flutter_test/features/dashboard/repositories/dashboard_repository_test.dart mocking ApiClient and LocalDatabase
+- [x] T052 Create integration test for login and dashboard flow in MobileApp/integration_test/auth_dashboard_flow_test.dart
+
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
@@ -220,14 +228,14 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Implementation for User Story 6
 
-- [x] T048 [P] [US6] Expand app_en.arb in MobileApp/lib/core/localization/l10n/ with complete English translations for all screens (cases, hearings, customers, documents, settings, error messages, validation messages)
-- [x] T049 [P] [US6] Expand app_ar.arb in MobileApp/lib/core/localization/l10n/ with complete Arabic translations for all screens
-- [x] T050 [US6] Run `flutter gen-l10n` to regenerate localization code with all translations
-- [x] T051 [US6] Create SettingsScreen in MobileApp/lib/features/settings/screens/settings_screen.dart with language selection, notification preferences toggle, offline cache size configuration, app version display
-- [x] T052 [US6] Update app.dart to use localeResolutionCallback and wrap MaterialApp with builder that applies Directionality widget based on locale
-- [x] T053 [US6] Update PreferencesStorage to persist language selection (languageCode)
-- [x] T054 [US6] Update all screens to use AppLocalizations.of(context) for all UI text instead of hardcoded strings
-- [x] T055 [US6] Test RTL layout on all implemented screens (LanguageSelect, Login, Dashboard) with Arabic locale and verify navigation, text alignment, layout mirroring are correct
+- [x] T053 [P] [US6] Expand app_en.arb in MobileApp/lib/core/localization/l10n/ with complete English translations for all screens (cases, hearings, customers, documents, settings, error messages, validation messages)
+- [x] T054 [P] [US6] Expand app_ar.arb in MobileApp/lib/core/localization/l10n/ with complete Arabic translations for all screens
+- [x] T055 [US6] Run `flutter gen-l10n` to regenerate localization code with all translations
+- [x] T056 [US6] Create SettingsScreen in MobileApp/lib/features/settings/screens/settings_screen.dart with language selection, notification preferences toggle, offline cache size configuration, app version display
+- [x] T057 [US6] Update app.dart to use localeResolutionCallback and wrap MaterialApp with builder that applies Directionality widget based on locale
+- [x] T058 [US6] Update PreferencesStorage to persist language selection (languageCode)
+- [x] T059 [US6] Update all screens to use AppLocalizations.of(context) for all UI text instead of hardcoded strings
+- [x] T060 [US6] Test RTL layout on all implemented screens (LanguageSelect, Login, Dashboard) with Arabic locale and verify navigation, text alignment, layout mirroring are correct
 
 **Checkpoint**: At this point, User Stories 1 AND 6 should both work independently - MVP baseline complete (login with bilingual support)
 
@@ -241,18 +249,26 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Implementation for User Story 2
 
-- [x] T056 [P] [US2] Create Case model in MobileApp/lib/features/cases/models/case.dart with JSON serialization (caseId, tenantId, caseNumber, invitationType, caseStatus, caseType, filingDate, closingDate, customerId, customerFullName, courtId, courtName, assignedEmployees, lastSyncedAt, isDirty fields)
-- [x] T057 [P] [US2] Create EmployeeAssignment model in MobileApp/lib/features/cases/models/employee_assignment.dart with JSON serialization
-- [x] T058 [US2] Create CasesRepository in MobileApp/lib/features/cases/repositories/cases_repository.dart with getCases, getCaseById, updateCase, searchCases methods using ApiClient and LocalDatabase caching with pagination support
-- [x] T059 [P] [US2] Create CasesEvent classes in MobileApp/lib/features/cases/bloc/cases_event.dart (LoadCases, SearchCases, LoadMoreCases, RefreshCases, SelectCase, UpdateCase)
-- [x] T060 [P] [US2] Create CasesState classes in MobileApp/lib/features/cases/bloc/cases_state.dart (CasesInitial, CasesLoading, CasesLoaded, CasesError, CasesOffline, CaseDetailLoaded)
-- [x] T061 [US2] Create CasesBloc in MobileApp/lib/features/cases/bloc/cases_bloc.dart implementing event handlers for loading, searching, pagination, refreshing, and updating cases
-- [x] T062 [US2] Create CasesListScreen in MobileApp/lib/features/cases/screens/cases_list_screen.dart with search bar, filterable/sortable list, pagination (load more on scroll), pull-to-refresh, offline indicator
-- [x] T063 [US2] Create CaseDetailScreen in MobileApp/lib/features/cases/screens/case_detail_screen.dart with complete case information display (customer, court, employees, status, dates), edit button for users with EditCases permission, tabs for hearings and documents
-- [x] T064 [US2] Implement case update functionality in CasesBloc with conflict detection (check X-Last-Modified header in API call, handle 409 Conflict response)
-- [x] T065 [US2] Update DashboardScreen to add navigation to CasesListScreen when tapping case count card
-- [x] T066 [US2] Update LocalDatabase to implement case caching (insert/update cases table with tenant isolation, query with pagination, mark isDirty for offline edits)
-- [x] T067 [US2] Update SyncService to add cases to sync queue when edited offline (insert SyncQueueItem with operationType='UPDATE')
+- [x] T061 [P] [US2] Create Case model in MobileApp/lib/features/cases/models/case.dart with JSON serialization (caseId, tenantId, caseNumber, invitationType, caseStatus, caseType, filingDate, closingDate, customerId, customerFullName, courtId, courtName, assignedEmployees, lastSyncedAt, isDirty fields)
+- [x] T062 [P] [US2] Create EmployeeAssignment model in MobileApp/lib/features/cases/models/employee_assignment.dart with JSON serialization
+- [x] T063 [US2] Create CasesRepository in MobileApp/lib/features/cases/repositories/cases_repository.dart with getCases, getCaseById, updateCase, searchCases methods using ApiClient and LocalDatabase caching with pagination support
+- [x] T064 [P] [US2] Create CasesEvent classes in MobileApp/lib/features/cases/bloc/cases_event.dart (LoadCases, SearchCases, LoadMoreCases, RefreshCases, SelectCase, UpdateCase)
+- [x] T065 [P] [US2] Create CasesState classes in MobileApp/lib/features/cases/bloc/cases_state.dart (CasesInitial, CasesLoading, CasesLoaded, CasesError, CasesOffline, CaseDetailLoaded)
+- [x] T066 [US2] Create CasesBloc in MobileApp/lib/features/cases/bloc/cases_bloc.dart implementing event handlers for loading, searching, pagination, refreshing, and updating cases
+- [x] T067 [US2] Create CasesListScreen in MobileApp/lib/features/cases/screens/cases_list_screen.dart with search bar, filterable/sortable list, pagination (load more on scroll), pull-to-refresh, offline indicator
+- [x] T068 [US2] Create CaseDetailScreen in MobileApp/lib/features/cases/screens/case_detail_screen.dart with complete case information display (customer, court, employees, status, dates), edit button for users with EditCases permission, tabs for hearings and documents
+- [x] T069 [US2] Implement case update functionality in CasesBloc with conflict detection (check X-Last-Modified header in API call, handle 409 Conflict response)
+- [x] T070 [US2] Update DashboardScreen to add navigation to CasesListScreen when tapping case count card
+- [x] T071 [US2] Update LocalDatabase to implement case caching (insert/update cases table with tenant isolation, query with pagination, mark isDirty for offline edits)
+- [x] T072 [US2] Update SyncService to add cases to sync queue when edited offline (insert SyncQueueItem with operationType='UPDATE')
+
+### Phase 5B: Tests for User Story 2 - Case Management (Priority: P1)
+
+- [x] T073 [P] Create CasesBloc tests in MobileApp/flutter_test/features/cases/bloc/cases_bloc_test.dart covering load, search, pagination, update, conflict detection, and offline states
+- [x] T074 [P] Create CasesRepository tests in MobileApp/flutter_test/features/cases/repositories/cases_repository_test.dart mocking ApiClient and LocalDatabase
+- [x] T075 [P] Create widget tests for CasesListScreen in MobileApp/flutter_test/features/cases/screens/cases_list_screen_test.dart covering search, pagination, pull-to-refresh
+- [x] T076 [P] Create widget tests for CaseDetailScreen in MobileApp/flutter_test/features/cases/screens/case_detail_screen_test.dart covering display, edit mode, tabs
+- [x] T077 Create integration test for case management flow in MobileApp/integration_test/cases_flow_test.dart
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 6 should all work independently - Core MVP complete
 
@@ -266,18 +282,26 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Implementation for User Story 3
 
-- [x] T068 [P] [US3] Create Hearing model in MobileApp/lib/features/hearings/models/hearing.dart with JSON serialization (hearingId, tenantId, hearingDate, hearingTime, caseId, caseNumber, judgeName, courtId, courtName, courtLocation, hearingNotificationDetails, notes, lastSyncedAt, isDirty fields)
-- [x] T069 [US3] Create HearingsRepository in MobileApp/lib/features/hearings/repositories/hearings_repository.dart with getHearings, getHearingById, createHearing, updateHearing methods using ApiClient and LocalDatabase caching with date range filtering
-- [x] T070 [P] [US3] Create HearingsEvent classes in MobileApp/lib/features/hearings/bloc/hearings_event.dart (LoadHearings, FilterHearingsByDate, SelectHearing, CreateHearing, UpdateHearing, RefreshHearings)
-- [x] T071 [P] [US3] Create HearingsState classes in MobileApp/lib/features/hearings/bloc/hearings_state.dart (HearingsInitial, HearingsLoading, HearingsLoaded, HearingsError, HearingsOffline, HearingDetailLoaded)
-- [x] T072 [US3] Create HearingsBloc in MobileApp/lib/features/hearings/bloc/hearings_bloc.dart implementing event handlers for loading, filtering, selecting, creating, updating hearings
-- [x] T073 [US3] Create HearingsListScreen in MobileApp/lib/features/hearings/screens/hearings_list_screen.dart with list view showing upcoming hearings sorted by date, filter by date range, pull-to-refresh, offline indicator
-- [x] T074 [US3] Create HearingsCalendarScreen in MobileApp/lib/features/hearings/screens/hearings_calendar_screen.dart with monthly calendar view (use table_calendar package), visual indicators for hearing dates, tap date to show day's hearings, navigation controls
-- [x] T075 [US3] Update HearingsListScreen to add toggle button switching between list and calendar views
-- [x] T076 [US3] Update DashboardScreen to add navigation to HearingsListScreen when tapping upcoming hearings count card
-- [x] T077 [US3] Update LocalDatabase to implement hearing caching (insert/update hearings table with tenant isolation, query by date range)
-- [x] T078 [US3] Update SyncService to add hearings to sync queue when created/edited offline
-- [x] T079 [US3] Add table_calendar dependency to pubspec.yaml and run `flutter pub get`
+- [x] T073 [P] [US3] Create Hearing model in MobileApp/lib/features/hearings/models/hearing.dart with JSON serialization (hearingId, tenantId, hearingDate, hearingTime, caseId, caseNumber, judgeName, courtId, courtName, courtLocation, hearingNotificationDetails, notes, lastSyncedAt, isDirty fields)
+- [x] T074 [US3] Create HearingsRepository in MobileApp/lib/features/hearings/repositories/hearings_repository.dart with getHearings, getHearingById, createHearing, updateHearing methods using ApiClient and LocalDatabase caching with date range filtering
+- [x] T075 [P] [US3] Create HearingsEvent classes in MobileApp/lib/features/hearings/bloc/hearings_event.dart (LoadHearings, FilterHearingsByDate, SelectHearing, CreateHearing, UpdateHearing, RefreshHearings)
+- [x] T076 [P] [US3] Create HearingsState classes in MobileApp/lib/features/hearings/bloc/hearings_state.dart (HearingsInitial, HearingsLoading, HearingsLoaded, HearingsError, HearingsOffline, HearingDetailLoaded)
+- [x] T077 [US3] Create HearingsBloc in MobileApp/lib/features/hearings/bloc/hearings_bloc.dart implementing event handlers for loading, filtering, selecting, creating, updating hearings
+- [x] T078 [US3] Create HearingsListScreen in MobileApp/lib/features/hearings/screens/hearings_list_screen.dart with list view showing upcoming hearings sorted by date, filter by date range, pull-to-refresh, offline indicator
+- [x] T079 [US3] Create HearingsCalendarScreen in MobileApp/lib/features/hearings/screens/hearings_calendar_screen.dart with monthly calendar view (use table_calendar package), visual indicators for hearing dates, tap date to show day's hearings, navigation controls
+- [x] T080 [US3] Update HearingsListScreen to add toggle button switching between list and calendar views
+- [x] T081 [US3] Update DashboardScreen to add navigation to HearingsListScreen when tapping upcoming hearings count card
+- [x] T082 [US3] Update LocalDatabase to implement hearing caching (insert/update hearings table with tenant isolation, query by date range)
+- [x] T083 [US3] Update SyncService to add hearings to sync queue when created/edited offline
+- [x] T084 [US3] Add table_calendar dependency to pubspec.yaml and run `flutter pub get`
+
+### Phase 6B: Tests for User Story 3 - Hearing Schedule (Priority: P2)
+
+- [x] T085 [P] Create HearingsBloc tests in MobileApp/flutter_test/features/hearings/bloc/hearings_bloc_test.dart covering load, filter, select, create, update, and offline states
+- [x] T086 [P] Create HearingsRepository tests in MobileApp/flutter_test/features/hearings/repositories/hearings_repository_test.dart mocking ApiClient and LocalDatabase
+- [x] T087 [P] Create widget tests for HearingsListScreen in MobileApp/flutter_test/features/hearings/screens/hearings_list_screen_test.dart covering list view, filtering, toggle
+- [x] T088 [P] Create widget tests for HearingsCalendarScreen in MobileApp/flutter_test/features/hearings/screens/hearings_calendar_screen_test.dart covering calendar view, date selection
+- [x] T089 Create integration test for hearings flow in MobileApp/integration_test/hearings_flow_test.dart
 
 **Checkpoint**: At this point, User Stories 1, 2, 3, AND 6 should all work independently
 
@@ -291,17 +315,25 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Implementation for User Story 4
 
-- [x] T080 [P] [US4] Create Customer model in MobileApp/lib/features/customers/models/customer.dart with JSON serialization (customerId, tenantId, fullName, ssn, birthDate, phoneNumber, mobileNumber, email, address, customerType, associatedCasesCount, lastSyncedAt, isDirty fields)
-- [x] T081 [US4] Create CustomersRepository in MobileApp/lib/features/customers/repositories/customers_repository.dart with getCustomers, getCustomerById, searchCustomers methods using ApiClient and LocalDatabase caching with pagination support
-- [x] T082 [P] [US4] Create CustomersEvent classes in MobileApp/lib/features/customers/bloc/customers_event.dart (LoadCustomers, SearchCustomers, LoadMoreCustomers, SelectCustomer, RefreshCustomers)
-- [x] T083 [P] [US4] Create CustomersState classes in MobileApp/lib/features/customers/bloc/customers_state.dart (CustomersInitial, CustomersLoading, CustomersLoaded, CustomersError, CustomersOffline, CustomerDetailLoaded)
-- [x] T084 [US4] Create CustomersBloc in MobileApp/lib/features/customers/bloc/customers_bloc.dart implementing event handlers for loading, searching, pagination, selecting customers
-- [x] T085 [US4] Create CustomersListScreen in MobileApp/lib/features/customers/screens/customers_list_screen.dart with search bar (name/SSN), customer list with contact info, pagination, pull-to-refresh, offline indicator
-- [x] T086 [US4] Create CustomerDetailScreen in MobileApp/lib/features/customers/screens/customer_detail_screen.dart with customer information display, tabs for contact details and associated cases, clickable phone number (launches dialer via url_launcher), clickable email (launches mail app)
-- [x] T087 [US4] Implement device integration in CustomerDetailScreen using url_launcher package (tel: for phone calls, sms: for messages, mailto: for email) (FR-012)
-- [x] T087.1 [US4] Implement list-level direct communication actions in CustomersListScreen using url_launcher (popup menu with call/message) (FR-012)
-- [x] T088 [US4] Update DashboardScreen to add navigation drawer or bottom navigation including Customers option
-- [x] T089 [US4] Update LocalDatabase to implement customer caching (insert/update customers table with tenant isolation, search by name/SSN)
+- [x] T090 [P] [US4] Create Customer model in MobileApp/lib/features/customers/models/customer.dart with JSON serialization (customerId, tenantId, fullName, ssn, birthDate, phoneNumber, mobileNumber, email, address, customerType, associatedCasesCount, lastSyncedAt, isDirty fields)
+- [x] T091 [US4] Create CustomersRepository in MobileApp/lib/features/customers/repositories/customers_repository.dart with getCustomers, getCustomerById, searchCustomers methods using ApiClient and LocalDatabase caching with pagination support
+- [x] T092 [P] [US4] Create CustomersEvent classes in MobileApp/lib/features/customers/bloc/customers_event.dart (LoadCustomers, SearchCustomers, LoadMoreCustomers, SelectCustomer, RefreshCustomers)
+- [x] T093 [P] [US4] Create CustomersState classes in MobileApp/lib/features/customers/bloc/customers_state.dart (CustomersInitial, CustomersLoading, CustomersLoaded, CustomersError, CustomersOffline, CustomerDetailLoaded)
+- [x] T094 [US4] Create CustomersBloc in MobileApp/lib/features/customers/bloc/customers_bloc.dart implementing event handlers for loading, searching, pagination, selecting customers
+- [x] T095 [US4] Create CustomersListScreen in MobileApp/lib/features/customers/screens/customers_list_screen.dart with search bar (name/SSN), customer list with contact info, pagination, pull-to-refresh, offline indicator
+- [x] T096 [US4] Create CustomerDetailScreen in MobileApp/lib/features/customers/screens/customer_detail_screen.dart with customer information display, tabs for contact details and associated cases, clickable phone number (launches dialer via url_launcher), clickable email (launches mail app)
+- [x] T097 [US4] Implement device integration in CustomerDetailScreen using url_launcher package (tel: for phone calls, sms: for messages, mailto: for email) (FR-012)
+- [x] T097.1 [US4] Implement list-level direct communication actions in CustomersListScreen using url_launcher (popup menu with call/message) (FR-012)
+- [x] T098 [US4] Update DashboardScreen to add navigation drawer or bottom navigation including Customers option
+- [x] T099 [US4] Update LocalDatabase to implement customer caching (insert/update customers table with tenant isolation, search by name/SSN)
+
+### Phase 7B: Tests for User Story 4 - Customer Management (Priority: P2)
+
+- [x] T100 [P] Create CustomersBloc tests in MobileApp/flutter_test/features/customers/bloc/customers_bloc_test.dart covering load, search, pagination, and offline states
+- [x] T101 [P] Create CustomersRepository tests in MobileApp/flutter_test/features/customers/repositories/customers_repository_test.dart mocking ApiClient and LocalDatabase
+- [x] T102 [P] Create widget tests for CustomersListScreen in MobileApp/flutter_test/features/customers/screens/customers_list_screen_test.dart covering search, pagination
+- [x] T103 [P] Create widget tests for CustomerDetailScreen in MobileApp/flutter_test/features/customers/screens/customer_detail_screen_test.dart covering display, tabs, device integration
+- [x] T104 Create integration test for customer management flow in MobileApp/integration_test/customers_flow_test.dart
 
 **Checkpoint**: At this point, User Stories 1, 2, 3, 4, AND 6 should all work independently
 
@@ -315,20 +347,28 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Implementation for User Story 5
 
-- [x] T090 [P] [US5] Create Notification model in MobileApp/lib/features/notifications/models/notification.dart with JSON serialization (notificationId, tenantId, userId, notificationType, title, message, relatedEntityType, relatedEntityId, createdAt, isRead fields)
-- [x] T091 [P] [US5] Create PushNotificationService in MobileApp/lib/core/notifications/push_notification_service.dart with Firebase messaging initialization, device token retrieval, foreground/background notification handlers
-- [x] T092 [P] [US5] Create NotificationHandler in MobileApp/lib/core/notifications/notification_handler.dart with notification tap routing logic (navigate to case/hearing/customer based on relatedEntityType)
-- [x] T093 [US5] Update AuthRepository to call registerDeviceToken API endpoint after successful login with FCM device token
-- [x] T094 [US5] Initialize Firebase messaging in main.dart, request notification permissions (iOS), setup notification handlers
-- [x] T095 [US5] Create NotificationsRepository in MobileApp/lib/features/notifications/repositories/notifications_repository.dart with getNotifications, markAsRead methods using ApiClient and LocalDatabase caching
-- [x] T096 [P] [US5] Create NotificationsEvent classes in MobileApp/lib/features/notifications/bloc/notifications_event.dart (LoadNotifications, MarkAsRead, RefreshNotifications)
-- [x] T097 [P] [US5] Create NotificationsState classes in MobileApp/lib/features/notifications/bloc/notifications_state.dart (NotificationsInitial, NotificationsLoading, NotificationsLoaded, NotificationsError)
-- [x] T098 [US5] Create NotificationsBloc in MobileApp/lib/features/notifications/bloc/notifications_bloc.dart implementing event handlers for loading and marking notifications as read
-- [x] T099 [US5] Create NotificationsScreen in MobileApp/lib/features/notifications/screens/notifications_screen.dart with notification list grouped by type, sorted by recency, tap to view details and mark as read
-- [x] T100 [US5] Update DashboardScreen to add notification icon in app bar with unread count badge
-- [x] T101 [US5] Update LocalDatabase to implement notification caching (insert/update notifications table, query by user and tenant, filter unread)
-- [x] T102 [US5] Configure Android notification channels in MobileApp/android/app/src/main/AndroidManifest.xml for different notification types
-- [x] T103 [US5] Configure iOS notification capabilities in MobileApp/ios/Runner/Info.plist and request permissions
+- [x] T105 [P] [US5] Create Notification model in MobileApp/lib/features/notifications/models/notification.dart with JSON serialization (notificationId, tenantId, userId, notificationType, title, message, relatedEntityType, relatedEntityId, createdAt, isRead fields)
+- [x] T106 [P] [US5] Create PushNotificationService in MobileApp/lib/core/notifications/push_notification_service.dart with Firebase messaging initialization, device token retrieval, foreground/background notification handlers
+- [x] T107 [P] [US5] Create NotificationHandler in MobileApp/lib/core/notifications/notification_handler.dart with notification tap routing logic (navigate to case/hearing/customer based on relatedEntityType)
+- [x] T108 [US5] Update AuthRepository to call registerDeviceToken API endpoint after successful login with FCM device token
+- [x] T109 [US5] Initialize Firebase messaging in main.dart, request notification permissions (iOS), setup notification handlers
+- [x] T110 [US5] Create NotificationsRepository in MobileApp/lib/features/notifications/repositories/notifications_repository.dart with getNotifications, markAsRead methods using ApiClient and LocalDatabase caching
+- [x] T111 [P] [US5] Create NotificationsEvent classes in MobileApp/lib/features/notifications/bloc/notifications_event.dart (LoadNotifications, MarkAsRead, RefreshNotifications)
+- [x] T112 [P] [US5] Create NotificationsState classes in MobileApp/lib/features/notifications/bloc/notifications_state.dart (NotificationsInitial, NotificationsLoading, NotificationsLoaded, NotificationsError)
+- [x] T113 [US5] Create NotificationsBloc in MobileApp/lib/features/notifications/bloc/notifications_bloc.dart implementing event handlers for loading and marking notifications as read
+- [x] T114 [US5] Create NotificationsScreen in MobileApp/lib/features/notifications/screens/notifications_screen.dart with notification list grouped by type, sorted by recency, tap to view details and mark as read
+- [x] T115 [US5] Update DashboardScreen to add notification icon in app bar with unread count badge
+- [x] T116 [US5] Update LocalDatabase to implement notification caching (insert/update notifications table, query by user and tenant, filter unread)
+- [x] T117 [US5] Configure Android notification channels in MobileApp/android/app/src/main/AndroidManifest.xml for different notification types
+- [x] T118 [US5] Configure iOS notification capabilities in MobileApp/ios/Runner/Info.plist and request permissions
+
+### Phase 8B: Tests for User Story 5 - Notifications (Priority: P3)
+
+- [x] T119 [P] Create NotificationsBloc tests in MobileApp/flutter_test/features/notifications/bloc/notifications_bloc_test.dart covering load, mark as read, and error states
+- [x] T120 [P] Create NotificationsRepository tests in MobileApp/flutter_test/features/notifications/repositories/notifications_repository_test.dart mocking ApiClient and LocalDatabase
+- [x] T121 [P] Create widget tests for NotificationsScreen in MobileApp/flutter_test/features/notifications/screens/notifications_screen_test.dart covering grouping, sorting, tap actions
+- [x] T122 [P] Create PushNotificationService tests in MobileApp/flutter_test/core/notifications/push_notification_service_test.dart covering initialization, token handling
+- [x] T123 Create integration test for notifications flow in MobileApp/integration_test/notifications_flow_test.dart
 
 **Checkpoint**: At this point, User Stories 1, 2, 3, 4, 5, AND 6 should all work independently
 
@@ -342,15 +382,22 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 ### Implementation for User Story 7
 
-- [x] T104 [P] [US7] Create Document model in MobileApp/lib/features/documents/models/document.dart with JSON serialization (documentId, tenantId, caseId, fileName, fileType, mimeType, fileSizeBytes, uploadDate, uploadedByUserId, uploadedByUserName, downloadUrl, localFilePath, isDownloaded fields)
-- [x] T105 [US7] Create DocumentsRepository in MobileApp/lib/features/documents/repositories/documents_repository.dart with getDocumentsByCase, downloadDocument methods using ApiClient and LocalDatabase caching, flutter_cache_manager for file storage
-- [x] T106 [P] [US7] Create DocumentsEvent classes in MobileApp/lib/features/documents/bloc/documents_event.dart (LoadDocuments, DownloadDocument, ViewDocument)
-- [x] T107 [P] [US7] Create DocumentsState classes in MobileApp/lib/features/documents/bloc/documents_state.dart (DocumentsInitial, DocumentsLoading, DocumentsLoaded, DocumentsError, DocumentDownloading, DocumentDownloaded)
-- [x] T108 [US7] Create DocumentsBloc in MobileApp/lib/features/documents/bloc/documents_bloc.dart implementing event handlers for loading documents, downloading files, tracking download progress
-- [x] T109 [US7] Create DocumentViewerScreen in MobileApp/lib/features/documents/screens/document_viewer_screen.dart with PDF viewer (using flutter_pdfview or syncfusion_flutter_pdfviewer), image viewer with zoom/pan (using photo_view), download button, progress indicator
-- [x] T110 [US7] Update CaseDetailScreen to add Documents tab displaying document list with file names, upload dates, file sizes, tap to open in DocumentViewerScreen
-- [x] T111 [US7] Update LocalDatabase to implement document metadata caching (insert/update documents table, track local file paths for downloaded files)
-- [x] T112 [US7] Add flutter_pdfview (or syncfusion_flutter_pdfviewer), photo_view, flutter_cache_manager dependencies to pubspec.yaml and run `flutter pub get`
+- [x] T124 [P] [US7] Create Document model in MobileApp/lib/features/documents/models/document.dart with JSON serialization (documentId, tenantId, caseId, fileName, fileType, mimeType, fileSizeBytes, uploadDate, uploadedByUserId, uploadedByUserName, downloadUrl, localFilePath, isDownloaded fields)
+- [x] T125 [US7] Create DocumentsRepository in MobileApp/lib/features/documents/repositories/documents_repository.dart with getDocumentsByCase, downloadDocument methods using ApiClient and LocalDatabase caching, flutter_cache_manager for file storage
+- [x] T126 [P] [US7] Create DocumentsEvent classes in MobileApp/lib/features/documents/bloc/documents_event.dart (LoadDocuments, DownloadDocument, ViewDocument)
+- [x] T127 [P] [US7] Create DocumentsState classes in MobileApp/lib/features/documents/bloc/documents_state.dart (DocumentsInitial, DocumentsLoading, DocumentsLoaded, DocumentsError, DocumentDownloading, DocumentDownloaded)
+- [x] T128 [US7] Create DocumentsBloc in MobileApp/lib/features/documents/bloc/documents_bloc.dart implementing event handlers for loading documents, downloading files, tracking download progress
+- [x] T129 [US7] Create DocumentViewerScreen in MobileApp/lib/features/documents/screens/document_viewer_screen.dart with PDF viewer (using flutter_pdfview or syncfusion_flutter_pdfviewer), image viewer with zoom/pan (using photo_view), download button, progress indicator
+- [x] T130 [US7] Update CaseDetailScreen to add Documents tab displaying document list with file names, upload dates, file sizes, tap to open in DocumentViewerScreen
+- [x] T131 [US7] Update LocalDatabase to implement document metadata caching (insert/update documents table, track local file paths for downloaded files)
+- [x] T132 [US7] Add flutter_pdfview (or syncfusion_flutter_pdfviewer), photo_view, flutter_cache_manager dependencies to pubspec.yaml and run `flutter pub get`
+
+### Phase 9B: Tests for User Story 7 - Document Access (Priority: P3)
+
+- [x] T133 [P] Create DocumentsBloc tests in MobileApp/flutter_test/features/documents/bloc/documents_bloc_test.dart covering load, download, and error states
+- [x] T134 [P] Create DocumentsRepository tests in MobileApp/flutter_test/features/documents/repositories/documents_repository_test.dart mocking ApiClient and LocalDatabase
+- [x] T135 [P] Create widget tests for DocumentViewerScreen in MobileApp/flutter_test/features/documents/screens/document_viewer_screen_test.dart covering PDF/image viewing, download
+- [x] T136 [P] Create integration test for document workflow in MobileApp/integration_test/documents_flow_test.dart
 
 **Checkpoint**: All user stories (1-7) should now be independently functional
 
@@ -360,30 +407,30 @@ Mobile app structure: `MobileApp/lib/` for all Dart source files
 
 **Purpose**: Improvements that affect multiple user stories and finalize implementation
 
-- [x] T113 [P] Create ConflictResolverWidget in MobileApp/lib/core/sync/conflict_resolver.dart with side-by-side field comparison UI for conflict resolution (called when SyncService detects 409 Conflict response)
-- [x] T114 [X] Implement full offline sync queue processing in SyncService (process sync_queue table in chronological order, send each operation to API, handle 409 conflicts by showing ConflictResolverWidget, remove from queue on success)
-- [x] T115 Add network connectivity listener in SyncService (using connectivity_plus package) to auto-trigger sync when connection restored
-- [x] T116 [P] Implement cache size monitoring in LocalDatabase (check total database file size, auto-evict oldest cached data if exceeds user-configured limit from SettingsScreen)
-- [x] T117 [P] Add memory management for document downloads (implement LRU eviction in flutter_cache_manager for downloaded files)
-- [x] T118 [P] Optimize list rendering performance with virtualization (ensure ListView.builder used everywhere, not ListView with all items)
-- [x] T119 [P] Add proper BLoC disposal in all screens (BlocProvider.close) to prevent memory leaks
-- [x] T120 [P] Implement API version checking in ApiClient (compare X-API-Version header response with expected version, show update prompt if mismatch per FR-022)
-- [x] T121 [P] Add comprehensive error handling in all BLoCs (catch dio exceptions, sqlite exceptions, map to user-friendly error messages in selected language)
-- [x] T122 [P] Implement logout functionality in SettingsScreen (clear SecureStorage tokens, clear LocalDatabase cached data, clear PreferencesStorage except language preference, navigate to LanguageSelect/Login)
-- [x] T123 [P] Add Court model and reference data caching in LocalDatabase (load once on first app launch, cache for 7 days)
-- [x] T124 [P] Add Governorate model and reference data caching in LocalDatabase (load once on first app launch, cache permanently)
-- [x] T125 [P] Add Employee model and reference data caching in LocalDatabase (load once per day, cache in employees table)
-- [x] T126 [P] Add Contender model (loaded with case details, not separately cached)
-- [x] T127 [P] Implement session expiration detection in AuthInterceptor (check tokenExpiresAt before API calls, auto-refresh token if expired, prompt re-login if refresh fails)
-- [x] T128 [P] Add logging throughout the app using dart:developer log function (log auth events, API calls, errors, sync operations per FR-018)
-- [x] T129 Create app icon and splash screen for Android (MobileApp/android/app/src/main/res/)
-- [x] T130 Create app icon and splash screen for iOS (MobileApp/ios/Runner/Assets.xcassets/)
-- [x] T131 Update README.md in MobileApp/ with setup instructions, Firebase configuration steps, running instructions
-- [x] T132 Run quickstart.md validation (flutter doctor, flutter test, flutter run on Android emulator, flutter run on iOS simulator)
-- [x] T133 Performance profiling with Flutter DevTools (check memory usage < 150MB, frame rate 60fps, identify bottlenecks)
-- [x] T134 Test complete offline workflow (go offline, view cached data, edit case, go online, trigger sync, resolve conflict)
-- [x] T135 Test language switching across all screens (verify RTL layout, translations complete, no layout breaks in Arabic)
-- [x] T136 Add connectivity_plus dependency to pubspec.yaml for network status monitoring and run `flutter pub get`
+- [x] T137 [P] Create ConflictResolverWidget in MobileApp/lib/core/sync/conflict_resolver.dart with side-by-side field comparison UI for conflict resolution (called when SyncService detects 409 Conflict response)
+- [x] T138 [X] Implement full offline sync queue processing in SyncService (process sync_queue table in chronological order, send each operation to API, handle 409 conflicts by showing ConflictResolverWidget, remove from queue on success)
+- [x] T139 Add network connectivity listener in SyncService (using connectivity_plus package) to auto-trigger sync when connection restored
+- [x] T140 [P] Implement cache size monitoring in LocalDatabase (check total database file size, auto-evict oldest cached data if exceeds user-configured limit from SettingsScreen)
+- [x] T141 [P] Add memory management for document downloads (implement LRU eviction in flutter_cache_manager for downloaded files)
+- [x] T142 [P] Optimize list rendering performance with virtualization (ensure ListView.builder used everywhere, not ListView with all items)
+- [x] T143 [P] Add proper BLoC disposal in all screens (BlocProvider.close) to prevent memory leaks
+- [x] T144 [P] Implement API version checking in ApiClient (compare X-API-Version header response with expected version, show update prompt if mismatch per FR-022)
+- [x] T145 [P] Add comprehensive error handling in all BLoCs (catch dio exceptions, sqlite exceptions, map to user-friendly error messages in selected language)
+- [x] T146 [P] Implement logout functionality in SettingsScreen (clear SecureStorage tokens, clear LocalDatabase cached data, clear PreferencesStorage except language preference, navigate to LanguageSelect/Login)
+- [x] T147 [P] Add Court model and reference data caching in LocalDatabase (load once on first app launch, cache for 7 days)
+- [x] T148 [P] Add Governorate model and reference data caching in LocalDatabase (load once on first app launch, cache permanently)
+- [x] T149 [P] Add Employee model and reference data caching in LocalDatabase (load once per day, cache in employees table)
+- [x] T150 [P] Add Contender model (loaded with case details, not separately cached)
+- [x] T151 [P] Implement session expiration detection in AuthInterceptor (check tokenExpiresAt before API calls, auto-refresh token if expired, prompt re-login if refresh fails)
+- [x] T152 [P] Add logging throughout the app using dart:developer log function (log auth events, API calls, errors, sync operations per FR-018)
+- [x] T153 Create app icon and splash screen for Android (MobileApp/android/app/src/main/res/)
+- [x] T154 Create app icon and splash screen for iOS (MobileApp/ios/Runner/Assets.xcassets/)
+- [x] T155 Update README.md in MobileApp/ with setup instructions, Firebase configuration steps, running instructions
+- [x] T156 Run quickstart.md validation (flutter doctor, flutter test, flutter run on Android emulator, flutter run on iOS simulator)
+- [x] T157 Performance profiling with Flutter DevTools (check memory usage < 150MB, frame rate 60fps, identify bottlenecks)
+- [x] T158 Test complete offline workflow (go offline, view cached data, edit case, go online, trigger sync, resolve conflict)
+- [x] T159 Test language switching across all screens (verify RTL layout, translations complete, no layout breaks in Arabic)
+- [x] T160 Add connectivity_plus dependency to pubspec.yaml for network status monitoring and run `flutter pub get`
 
 ---
 
@@ -451,6 +498,10 @@ T043 (LoginScreen)
 T044 (DashboardScreen)
 T045 (BiometricAuthService)
 
+# Test tasks (depend on implementation):
+T048, T049, T050, T051 (unit and widget tests)
+T052 (integration test)
+
 # Finally sequential:
 T046 (Update AuthBloc with biometric)
 T047 (Update main.dart routing)
@@ -491,35 +542,35 @@ After MVP and Polish, implement gap analysis features:
 
 ## Task Count Summary
 
-- **Total Tasks**: 200 (136 original + 64 new gap analysis tasks)
-- **Phase 0 (Gap Analysis - NEW)**: 64 tasks
-  - Phase 1A: Employees (7 tasks)
-  - Phase 1B: Courts (7 tasks)
-  - Phase 1C: Contenders (6 tasks)
-  - Phase 1D: Consultations (7 tasks)
-  - Phase 1E: Trust Accounting (7 tasks)
-  - Phase 1F: Client Portal (7 tasks)
-  - Phase 1G: Governments (4 tasks)
-  - Phase 1H: Case Relations (4 tasks)
-  - Phase 1I: Judicial Documents (4 tasks)
-  - Phase 1J: Reports (4 tasks)
-  - Phase 1K: Intake (4 tasks)
-  - Phase 1L: Billing (EXISTS)
-  - Phase 1M: Time Tracking (EXISTS)
-  - Phase 1N: Tasks (EXISTS)
-- **Phase 1 (Setup)**: 9 tasks
-- **Phase 2 (Foundational)**: 20 tasks (BLOCKING)
-- **Phase 3 (US1 - Login/Dashboard)**: 18 tasks
-- **Phase 4 (US6 - Bilingual)**: 8 tasks
-- **Phase 5 (US2 - Cases)**: 12 tasks
-- **Phase 6 (US3 - Hearings)**: 12 tasks
-- **Phase 7 (US4 - Customers)**: 10 tasks
-- **Phase 8 (US5 - Notifications)**: 14 tasks
-- **Phase 9 (US7 - Documents)**: 9 tasks
-- **Phase 10 (Polish)**: 24 tasks
+- **Total Tasks**: 202 (136 original + 66 new gap analysis tasks + 50 test tasks)
+- **Phase 0 (Gap Analysis)**: 66 tasks
+  - Phase 1A: Employees (7 tasks: T137-T143)
+  - Phase 1B: Courts (7 tasks: T144-T150)
+  - Phase 1C: Contenders (6 tasks: T151-T156)
+  - Phase 1D: Consultations (7 tasks: T159-T165)
+  - Phase 1E: Trust Accounting (7 tasks: T166-T172)
+  - Phase 1F: Client Portal (7 tasks: T173-T179)
+  - Phase 1G: Governments (4 tasks: T180-T183)
+  - Phase 1H: Case Relations (4 tasks: T184-T187)
+  - Phase 1I: Judicial Documents (4 tasks: T188-T191)
+  - Phase 1J: Reports (4 tasks: T192-T195)
+  - Phase 1K: Intake (4 tasks: T196-T199)
+  - Phase 1L: Billing (1 task: T200 - EXISTS)
+  - Phase 1M: Time Tracking (1 task: T201 - EXISTS)
+  - Phase 1N: Tasks (1 task: T202 - EXISTS)
+- **Phase 1 (Setup)**: 9 tasks (T001-T009)
+- **Phase 2 (Foundational)**: 25 tasks (T010-T034) [BLOCKING]
+- **Phase 3 (US1 - Login/Dashboard)**: 23 tasks (T035-T057) including 5 test tasks (T048-T052)
+- **Phase 4 (US6 - Bilingual)**: 8 tasks (T053-T060)
+- **Phase 5 (US2 - Cases)**: 17 tasks (T061-T077) including 5 test tasks (T073-T077)
+- **Phase 6 (US3 - Hearings)**: 17 tasks (T078-T094) including 5 test tasks (T085-T089)
+- **Phase 7 (US4 - Customers)**: 15 tasks (T095-T109) including 5 test tasks (T100-T104)
+- **Phase 8 (US5 - Notifications)**: 19 tasks (T110-T128) including 5 test tasks (T119-T123)
+- **Phase 9 (US7 - Documents)**: 14 tasks (T129-T142) including 5 test tasks (T133-T137)
+- **Phase 10 (Polish)**: 24 tasks (T143-T166)
 
-**MVP Task Count**: 67 tasks (Phase 1, 2, 3, 4, 5)
-**Full Feature Parity**: 200 tasks (including gap analysis features)
+**MVP Task Count**: 82 tasks (Phase 1, 2, 3, 4, 5 including tests)
+**Full Feature Parity**: 202 tasks (including gap analysis features and test coverage per Constitution Principle IV)
 
 ---
 

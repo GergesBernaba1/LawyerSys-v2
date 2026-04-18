@@ -1,4 +1,4 @@
-﻿import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import '../../storage/secure_storage.dart';
 
 class TenantInterceptor extends Interceptor {

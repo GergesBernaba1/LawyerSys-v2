@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
@@ -16,7 +16,8 @@ class ConsultationsListScreen extends StatefulWidget {
   const ConsultationsListScreen({super.key});
 
   @override
-  State<ConsultationsListScreen> createState() => _ConsultationsListScreenState();
+  State<ConsultationsListScreen> createState() =>
+      _ConsultationsListScreenState();
 }
 
 class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
@@ -92,7 +93,8 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     await showDialog<void>(
       context: context,
       builder: (_) => StatefulBuilder(
-        builder: (context, setModalState) => _buildConsultationDialog(setModalState),
+        builder: (context, setModalState) =>
+            _buildConsultationDialog(setModalState),
       ),
     );
   }
@@ -112,8 +114,10 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     });
 
     try {
-      final customerIds = await repo.getConsultationCustomerIds(consultation.id);
-      final employeeIds = await repo.getConsultationEmployeeIds(consultation.id);
+      final customerIds =
+          await repo.getConsultationCustomerIds(consultation.id);
+      final employeeIds =
+          await repo.getConsultationEmployeeIds(consultation.id);
       if (!mounted) return;
       setState(() {
         _selectedCustomerIds = customerIds.toSet();
@@ -135,13 +139,14 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     await showDialog<void>(
       context: context,
       builder: (_) => StatefulBuilder(
-        builder: (context, setModalState) => _buildConsultationDialog(setModalState),
+        builder: (context, setModalState) =>
+            _buildConsultationDialog(setModalState),
       ),
     );
   }
 
   Future<void> _submitDialog(StateSetter setModalState) async {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final repo = context.read<ConsultationsRepository>();
     final authState = context.read<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
@@ -153,7 +158,10 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     final type = _typeController.text.trim();
     final state = _stateController.text.trim();
     final description = _descriptionController.text.trim();
-    if (subject.isEmpty || type.isEmpty || state.isEmpty || description.isEmpty) {
+    if (subject.isEmpty ||
+        type.isEmpty ||
+        state.isEmpty ||
+        description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizer.allFieldsAreRequired)),
       );
@@ -196,8 +204,8 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
         SnackBar(
           content: Text(
             _editing == null
-                ? localizer.translate('consultationCreatedSuccessfully')
-                : localizer.translate('consultationUpdatedSuccessfully'),
+                ? localizer.consultationCreatedSuccessfully
+                : localizer.consultationUpdatedSuccessfully,
           ),
         ),
       );
@@ -214,7 +222,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
   }
 
   Future<void> _confirmDelete(ConsultationModel item) async {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
@@ -239,7 +247,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
   }
 
   Widget _buildConsultationDialog(StateSetter setModalState) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final authState = context.read<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
     final isEmployeeOnly = session?.hasRole('Employee') == true &&
@@ -257,24 +265,24 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
               TextField(
                 controller: _subjectController,
                 decoration:
-                    InputDecoration(labelText: localizer.translate('consultationSubject')),
+                    InputDecoration(labelText: localizer.consultationSubject),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _typeController,
                 decoration:
-                    InputDecoration(labelText: localizer.translate('consultationType')),
+                    InputDecoration(labelText: localizer.consultationType),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _stateController,
                 decoration:
-                    InputDecoration(labelText: localizer.translate('consultationState')),
+                    InputDecoration(labelText: localizer.consultationState),
               ),
               const SizedBox(height: 10),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(localizer.translate('consultationDateTime')),
+                title: Text(localizer.consultationDateTime),
                 subtitle: Text(
                   _selectedDateTime == null
                       ? localizer.dateLabel
@@ -319,7 +327,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                 minLines: 2,
                 maxLines: 3,
                 decoration:
-                    InputDecoration(labelText: localizer.translate('consultationFeedback')),
+                    InputDecoration(labelText: localizer.consultationFeedback),
               ),
               const SizedBox(height: 10),
               TextField(
@@ -342,6 +350,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                     }
                   });
                 },
+                localizer: localizer,
               ),
               const SizedBox(height: 12),
               if (!isEmployeeOnly)
@@ -358,6 +367,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                       }
                     });
                   },
+                  localizer: localizer,
                 ),
               if (_loadingRelations) ...[
                 const SizedBox(height: 12),
@@ -385,6 +395,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     required List<RelationOption> options,
     required Set<int> selectedIds,
     required void Function(int id, bool selected) onToggle,
+    required AppLocalizations localizer,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,7 +412,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Text(AppLocalizations.of(context).translate('noOptions')),
+                    child: Text(localizer.noOptions),
                   ),
                 )
               : ListView(
@@ -423,7 +434,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
     final isEmployeeOnly = session?.hasRole('Employee') == true &&
@@ -446,8 +457,8 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
               children: [
                 Text(
                   isEmployeeOnly
-                      ? localizer.translate('myConsultations')
-                      : localizer.translate('consultationManagement'),
+                      ? localizer.myConsultations
+                      : localizer.consultationManagement,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -497,8 +508,8 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                   ),
                   child: Text(
                     isEmployeeOnly
-                        ? localizer.translate('consultationEmployeeHint')
-                        : localizer.translate('consultationAssignmentHint'),
+                        ? localizer.consultationEmployeeHint
+                        : localizer.consultationAssignmentHint,
                   ),
                 ),
               ],
@@ -509,7 +520,8 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
               listener: (context, state) {
                 if (state is ConsultationsError) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${localizer.error}: ${state.message}')),
+                    SnackBar(
+                        content: Text('${localizer.error}: ${state.message}')),
                   );
                 }
                 if (state is ConsultationOperationSuccess) {
@@ -587,3 +599,5 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     );
   }
 }
+
+

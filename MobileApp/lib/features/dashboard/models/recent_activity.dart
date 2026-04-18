@@ -1,4 +1,4 @@
-﻿class RecentActivity {
+class RecentActivity {
   final String id;
   final String title;
   final String description;

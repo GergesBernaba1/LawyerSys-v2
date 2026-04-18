@@ -19,7 +19,7 @@ class HearingDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(

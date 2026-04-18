@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
@@ -32,7 +32,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(localizer.tasks)),
       body: Column(

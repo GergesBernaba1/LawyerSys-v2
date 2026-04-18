@@ -34,7 +34,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
     final canCreateBilling = session?.hasPermission(Permissions.createBilling) ?? false;
@@ -201,7 +201,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
   }
 
   Widget _buildPaymentsList(BuildContext context, List<BillingPay> payments, bool canDeleteBilling) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     if (payments.isEmpty) {
       return Center(
         child: Column(
@@ -251,7 +251,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
   }
 
   Widget _buildReceiptsList(BuildContext context, List<BillingReceipt> receipts, bool canDeleteBilling) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     if (receipts.isEmpty) {
       return Center(
         child: Column(

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/authentication/bloc/auth_bloc.dart';
@@ -86,3 +86,5 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+
+

@@ -107,7 +107,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final isEdit = widget.caseModel != null;
 
     return Scaffold(

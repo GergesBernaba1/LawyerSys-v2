@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/intake_bloc.dart';
@@ -180,7 +180,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   }
 }
 
-// ── Lead tile ───────────────────────────────────────────────────────────────
+// Lead tile
 
 class _LeadTile extends StatelessWidget {
   final IntakeForm lead;
@@ -238,7 +238,7 @@ class _LeadTile extends StatelessWidget {
   }
 }
 
-// ── Lead actions bottom sheet ───────────────────────────────────────────────
+// Lead actions bottom sheet
 
 class _LeadActionsSheet extends StatelessWidget {
   final IntakeForm lead;
@@ -316,7 +316,7 @@ class _LeadActionsSheet extends StatelessWidget {
               _DetailRow(
                   icon: Icons.check_circle,
                   text:
-                      'Converted → Case #${lead.convertedCaseCode}, Customer #${lead.convertedCustomerId}',
+                      'Converted -> Case #${lead.convertedCaseCode}, Customer #${lead.convertedCustomerId}',
                   color: Colors.green),
 
             const SizedBox(height: 12),
@@ -472,7 +472,7 @@ class _AssignSectionState extends State<_AssignSection> {
   }
 }
 
-// ── Public intake form ──────────────────────────────────────────────────────
+// Public intake form
 
 class _PublicIntakeForm extends StatefulWidget {
   const _PublicIntakeForm();
@@ -604,3 +604,5 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
     );
   }
 }
+
+

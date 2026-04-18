@@ -22,7 +22,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.portalDocuments)),

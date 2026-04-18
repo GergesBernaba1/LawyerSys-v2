@@ -91,7 +91,7 @@ class _TrustFormScreenState extends State<TrustFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final isEdit = widget.transaction != null;
 
     return Scaffold(

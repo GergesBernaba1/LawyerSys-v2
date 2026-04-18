@@ -113,7 +113,7 @@ class _HearingFormScreenState extends State<HearingFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final isEditing = widget.hearing != null;
 
     return Scaffold(

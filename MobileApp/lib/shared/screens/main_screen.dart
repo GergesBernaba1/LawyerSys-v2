@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/auth/permissions.dart';
@@ -29,14 +29,14 @@ import '../../features/reports/screens/reports_screen.dart';
 import '../../features/consultations/screens/consultations_list_screen.dart';
 import '../../features/documents/screens/documents_list_screen.dart';
 import '../../features/tenants/screens/tenants_list_screen.dart';
-import '../../features/users/screens/users_list_screen.dart';
+import 'package:qadaya_lawyersys/features/users/screens/users_list_screen.dart';
 import '../../core/realtime/signalr_service.dart';
 import '../../features/notifications/models/notification.dart' as model;
 import '../../features/notifications/bloc/notifications_bloc.dart';
 import '../../features/notifications/bloc/notifications_event.dart';
 import '../../features/notifications/bloc/notifications_state.dart';
 
-// ─── Theme constants matching ClientApp ───────────────────────────────────────
+// Theme constants matching ClientApp
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
 const _kGold = Color(0xFFB98746);
@@ -158,7 +158,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
     final items = _buildNavItems(localizer, session);
@@ -280,7 +280,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// ─── Sidebar Drawer ───────────────────────────────────────────────────────────
+// Sidebar Drawer
 class _AppDrawer extends StatelessWidget {
   final List<_NavItem> items;
   final int selectedIndex;
@@ -495,3 +495,5 @@ class _NavItem {
 
   _NavItem(this.icon, this.label, this.page, {this.permission});
 }
+
+

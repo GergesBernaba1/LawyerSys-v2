@@ -77,7 +77,7 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     final isEdit = widget.contender != null;
 
     return BlocListener<ContendersBloc, ContendersState>(

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/auth/biometric_auth.dart';
@@ -7,7 +7,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-// ─── Theme constants matching ClientApp ───────────────────────────────────────
+// Theme constants matching ClientApp
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
 const _kGold = Color(0xFFB98746);
@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: _kBg,
@@ -291,3 +291,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+

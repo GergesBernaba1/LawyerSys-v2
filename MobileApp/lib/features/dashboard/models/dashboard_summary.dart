@@ -1,4 +1,4 @@
-﻿import 'recent_activity.dart';
+import 'recent_activity.dart';
 
 class DashboardSummary {
   final int totalCasesCount;

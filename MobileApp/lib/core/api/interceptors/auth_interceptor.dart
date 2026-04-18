@@ -1,4 +1,4 @@
-﻿import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 
 import '../../api/api_constants.dart';
 import '../../storage/secure_storage.dart';

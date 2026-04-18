@@ -107,7 +107,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.hearings)),

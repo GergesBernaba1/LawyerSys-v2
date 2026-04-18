@@ -52,7 +52,7 @@ Lawyers need to quickly find, view, and update case information while away from 
 
 ### User Story 3 - Hearing Schedule and Calendar View (Priority: P2)
 
-Lawyers and staff need to view upcoming court hearings (sitings) on their mobile devices, including hearing dates, times, associated cases, judge names, and court locations.
+Lawyers and staff need to view upcoming court hearings on their mobile devices, including hearing dates, times, associated cases, judge names, and court locations.
 
 **Why this priority**: Missing a court hearing has serious legal consequences. Mobile access to hearing schedules helps lawyers manage their court calendar while traveling.
 
@@ -140,42 +140,55 @@ Users need to view and download case-related documents and files from their mobi
 
 ---
 
-### Edge Cases
+### Edge Cases and Acceptance Scenarios
 
-- What happens when the user loses network connection while viewing or editing data?
-  - The app displays previously cached data with a clear offline indicator
-  - Edit attempts show a message that changes will be synchronized when connection is restored
-  - Critical operations (authentication, data submission) are queued and retry automatically when connection returns
+**Edge Case 1: Network Loss During Data Viewing/Editing**
 
-- How does the system handle expired authentication tokens during an active session?
-  - The app detects token expiration before making API calls
-  - User is prompted to re-authenticate without losing their current screen context
-  - After successful re-authentication, the original operation continues automatically
+- **Given** the user is viewing a list of cases with network connectivity, **When** the network connection is lost, **Then** the app displays previously cached data with a clear "Offline Mode" indicator
+- **Given** the user is editing a case while offline, **When** they attempt to save changes, **Then** a message appears stating "Changes will be synchronized when connection is restored" and the edit is queued
+- **Given** the user attempts to authenticate while offline, **When** they submit login credentials, **Then** the app displays an error message "Network connection required for authentication" and queues the login request
+- **Given** the user has queued operations while offline, **When** network connectivity is restored, **Then** the app automatically processes the sync queue and notifies the user of successful synchronization
 
-- What happens when the mobile app version becomes incompatible with the backend API?
-  - The app checks API version compatibility on startup
-  - If incompatible, user is shown a message requiring app update with link to app store
-  - Critical data is not corrupted or lost during version mismatch scenarios
+**Edge Case 2: Expired Authentication Token During Active Session**
 
-- How does the system handle very large data sets (e.g., offices with thousands of cases)?
-  - Lists implement pagination loading a reasonable batch size (e.g., 20-50 items)
-  - Infinite scroll or load more button loads additional batches
-  - Search and filter operations occur server-side to avoid loading full data sets
+- **Given** the user has an active session that has been open for 8 days (beyond 7-day token validity), **When** they attempt to load the dashboard, **Then** the app detects token expiration and displays a re-authentication dialog without navigating away from the dashboard
+- **Given** the user is prompted to re-authenticate due to expired token, **When** they enter valid credentials, **Then** the app refreshes the JWT token, preserves the current screen context, and automatically completes the original dashboard load operation
+- **Given** the refresh token is also expired, **When** re-authentication is attempted, **Then** the user is navigated to the login screen with a message explaining "Session expired - please log in again"
 
-- What happens when push notification permissions are denied?
-  - App functionality remains fully usable without notifications
-  - User is shown in-app updates only when actively using the app
-  - Settings screen shows notification permission status with instructions to enable in device settings
+**Edge Case 3: Mobile App Version Incompatible with Backend API**
 
-- How does the system handle multi-tenant isolation in offline mode?
-  - Cached data includes tenant context to prevent cross-tenant data access
-  - All cached data is cleared when user switches tenants or logs out
-  - Offline operations are validated against tenant permissions when connection is restored
+- **Given** the app is launched, **When** the API version check detects incompatibility, **Then** a full-screen modal appears with title "App Update Required" and message "This version is no longer compatible with the server. Please update to continue."
+- **Given** the update required modal is displayed, **When** the user taps the "Update Now" button, **Then** the app opens the appropriate app store (Google Play or Apple App Store) to the app's update page
+- **Given** the user dismisses the update modal, **When** they attempt to use any app feature, **Then** the modal reappears preventing app usage until updated
+- **Given** the user has unsaved local data before version incompatibility is detected, **When** they update and relaunch the app, **Then** the local data is preserved and synced if compatible with the new version
 
-- What happens when two users edit the same case simultaneously?
-  - Last-write detection alerts the second user that data has changed
-  - User is prompted to refresh and review changes before resubmitting
-  - Option to view a comparison of their changes versus current server state
+**Edge Case 4: Large Data Sets (Thousands of Cases)**
+
+- **Given** the user's office has 5000+ cases, **When** they navigate to the cases list, **Then** only the first 20-50 cases are loaded initially with a "Load More" button at the bottom
+- **Given** the cases list is paginated, **When** the user scrolls to the end or taps "Load More", **Then** the next batch of 20-50 cases loads without requiring full page refresh
+- **Given** the user searches for cases with the term "Smith", **When** the search is submitted, **Then** the API performs server-side filtering and returns only matching cases (not the full 5000+ records)
+- **Given** the user filters cases by status "Active", **When** the filter is applied, **Then** the API performs server-side filtering and returns only active cases
+
+**Edge Case 5: Push Notification Permissions Denied**
+
+- **Given** the user has denied push notification permissions, **When** a new hearing is scheduled for their case, **Then** no push notification is sent but the hearing appears in the upcoming hearings list
+- **Given** the user has denied push notification permissions, **When** they open the app, **Then** an in-app notification badge shows pending updates (e.g., "2 new events")
+- **Given** the user navigates to Settings, **When** they view the notification preferences, **Then** the status shows "Push notifications disabled" with instructions to enable in device settings
+- **Given** the user has denied push notification permissions, **When** they tap the pending updates badge, **Then** the notifications screen opens showing all recent events
+
+**Edge Case 6: Multi-Tenant Isolation in Offline Mode**
+
+- **Given** the user is logged into Tenant A and has cached 100 cases, **When** they log out and log into Tenant B, **Then** all Tenant A cached data is cleared before Tenant B data is loaded
+- **Given** the user is working in Tenant A offline mode, **When** they edit a case, **Then** the edit is queued with tenant context and will only sync to Tenant A when connection is restored
+- **Given** the user switches tenants while offline, **When** they attempt to access cached data, **Then** only data for the current tenant is visible and previous tenant data is inaccessible
+- **Given** the user has queued offline operations for Tenant A, **When** they log into Tenant B, **Then** the Tenant A operations remain queued but are not processed until they log back into Tenant A
+
+**Edge Case 7: Simultaneous Case Editing by Multiple Users**
+
+- **Given** User A and User B both have Case #123 open for editing, **When** User A saves changes first, **Then** User B's screen shows an alert "This case has been modified by another user"
+- **Given** User B receives the conflict alert, **When** they tap "Review Changes", **Then** a side-by-side comparison screen displays User B's unsaved changes versus the current server version
+- **Given** User B is viewing the comparison screen, **When** they tap on individual fields, **Then** they can select which version to keep (their changes or server version) on a field-by-field basis
+- **Given** User B has resolved conflicts for all fields, **When** they tap "Save Resolved Changes", **Then** the case updates with their selected field values and is synced to the server
 
 ## Clarifications
 
@@ -216,16 +229,20 @@ Users need to view and download case-related documents and files from their mobi
 - **FR-015**: System MUST receive and display push notifications for new case assignments, upcoming hearings, and task reminders using native platform services (Firebase Cloud Messaging for Android and Apple Push Notification service for iOS)
 - **FR-016**: System MUST provide access to case-related documents and files with ability to view PDFs, images, and download files to device storage
 - **FR-017**: System MUST maintain user session across app restarts using secure token storage with a 7-day session validity period and automatic refresh token renewal
-- **FR-018**: System MUST log all API errors and authentication failures for debugging and audit purposes
+- **FR-018**: System MUST log all API calls, authentication events, data mutations, and sync operations for debugging and audit purposes with the following requirements:
+  - Audit logs MUST include timestamp, user ID, tenant ID, action type, entity affected, and success/failure status
+  - Audit logs MUST be retained locally for 90 days minimum and synced to backend when online
+  - Audit logs MUST support filtering by user, tenant, date range, and action type for compliance reporting
+  - Audit logs MUST be securely stored and cleared when user logs out or switches tenants
 - **FR-019**: System MUST implement pull-to-refresh functionality on all list views to manually request updated data
-- **FR-020**: System MUST use pagination for large data sets to optimize performance and reduce bandwidth usage
+- **FR-020**: System MUST use pagination for large data sets to optimize performance and reduce bandwidth usage with page sizes of 20-50 items per batch
 - **FR-021**: System MUST respect user role and permission settings defined in the backend, hiding or disabling features user does not have access to
-- **FR-022**: System MUST detect and handle API version incompatibilities by prompting user to update the app
-- **FR-023**: System MUST provide a settings screen for language selection, notification preferences, and about/version information
-- **FR-024**: System MUST clear all cached data and stored credentials when user logs out
+- **FR-022**: System MUST detect and handle API version incompatibilities by prompting user to update the app with a clear error message
+- **FR-023**: System MUST provide a settings screen for language selection, notification preferences, offline cache size configuration (50-500MB), and about/version information
+- **FR-024**: System MUST clear all cached data and stored credentials when user logs out except for language preference
 - **FR-025**: System MUST display loading states during network operations and meaningful error messages for failed operations in the selected language
 - **FR-026**: System MUST format dates, times, and numbers according to the selected language locale conventions
-- **FR-027**: System MUST support iOS 13+ and Android 8.0+ as minimum platform versions
+- **FR-027**: System MUST support iOS 13+ and Android 8.0+ (API level 26) as minimum platform versions
 
 ### Key Entities
 
@@ -233,7 +250,7 @@ Users need to view and download case-related documents and files from their mobi
 - **Dashboard Summary**: Aggregated statistics including total cases, active cases, upcoming hearings count, pending tasks count, and recent activity items
 - **Case**: Legal case with case number, customer reference, court assignment, employee assignments, invitation type, case status, case type, dates (filing, closing), and related entities (hearings, documents, files)
 - **Customer**: Client information including full name, SSN/ID, birth date, phone numbers, address, email, associated cases list, and customer type
-- **Hearing (Siting)**: Court appearance with hearing date, hearing time, associated case, judge name, hearing notification details, court location, and notes
+- **Hearing**: Court appearance with hearing date, hearing time, associated case, judge name, hearing notification details, court location, and notes
 - **Court**: Court entity with court name, address, telephone, governorate/jurisdiction, and notes
 - **Employee**: Office staff or lawyer with full name, role, contact information, and case assignments
 - **Document/File**: Case-related files with file name, file type, upload date, file size, uploader user, and file content (downloadable)
@@ -255,5 +272,22 @@ Users need to view and download case-related documents and files from their mobi
 - **SC-008**: PDF documents up to 10MB open in under 5 seconds on typical mobile devices
 - **SC-009**: App memory usage remains under 150MB during normal operation with typical data loads
 - **SC-010**: Battery consumption is less than 5% per hour during active use with normal network conditions
-- **SC-011**: 95% of API calls succeed on first attempt under normal server load conditions
+- **SC-011**: 95% of API calls succeed on first attempt under normal server load conditions (defined as 100 concurrent users, <1000 requests/second, <50ms database query time)
 - **SC-012**: Users require no more than 3 taps to reach any primary feature (cases, hearings, customers) from the dashboard
+- **SC-013**: 90% of users successfully recover from API errors without app restart when error messages are clear and actionable
+- **SC-014**: All screens render correctly with Arabic text strings up to 2x English length without layout breaks or text truncation
+- **SC-015**: Navigation and touch targets remain accessible and tappable in RTL mode (minimum 44x44 point touch targets)
+
+### Error Recovery Success Criteria
+
+- **SC-016**: When network connection is lost during an operation, users receive a clear offline indicator message in their selected language
+- **SC-017**: When authentication token expires, users are prompted to re-authenticate without losing their current screen context
+- **SC-018**: When offline edits conflict with server data after reconnection, users see a side-by-side comparison and can choose which changes to keep
+- **SC-019**: When API version is incompatible, users see a clear error message with a direct link to the app store for updating
+
+### Audit and Compliance Success Criteria
+
+- **SC-020**: Audit logs capture 100% of authentication events (login, logout, session refresh, biometric unlock)
+- **SC-021**: Audit logs capture 100% of data mutation events (create, update, delete operations) with user ID, tenant ID, timestamp, and entity reference
+- **SC-022**: Audit logs are queryable by user, tenant, date range, and action type for compliance reporting
+- **SC-023**: Audit logs are retained for minimum 90 days and automatically cleared when user logs out or switches tenants

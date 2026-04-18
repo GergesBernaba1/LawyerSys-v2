@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
@@ -38,7 +38,7 @@ class _CasesListScreenState extends State<CasesListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     return BlocListener<CasesBloc, CasesState>(
       listener: (context, state) {
         if (state is CaseOperationSuccess) {
@@ -254,3 +254,5 @@ class _CaseTile extends StatelessWidget {
     );
   }
 }
+
+

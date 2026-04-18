@@ -1,4 +1,4 @@
-﻿import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import 'api_constants.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/tenant_interceptor.dart';

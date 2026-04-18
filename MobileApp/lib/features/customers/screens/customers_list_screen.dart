@@ -48,18 +48,18 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
   }
 
   Future<void> _dial(String phoneNumber) async {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     await _launchTelecommunication(phoneNumber, 'tel', '${localizer.error}: ${localizer.call}');
   }
 
   Future<void> _sms(String phoneNumber) async {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     await _launchTelecommunication(phoneNumber, 'sms', '${localizer.error}: ${localizer.message}');
   }
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.customers)),

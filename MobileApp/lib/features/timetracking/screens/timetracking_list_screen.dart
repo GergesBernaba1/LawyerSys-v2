@@ -40,7 +40,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.timeTracking)),
@@ -199,7 +199,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
 
   Widget _buildStartForm(
       BuildContext context, List<Map<String, dynamic>> caseOptions, double hourlyRate) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.all(8),
       child: Padding(
@@ -337,7 +337,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
   }
 
   Widget _buildEntriesTable(List<TimeEntry> entries) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     if (entries.isEmpty) {
       return Padding(
@@ -412,7 +412,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
   }
 
   Widget _buildSuggestionsTable(List<Suggestion> suggestions) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     if (suggestions.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8),

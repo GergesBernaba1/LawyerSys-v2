@@ -29,7 +29,7 @@ class _TimeTrackingFormScreenState extends State<TimeTrackingFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -149,7 +149,7 @@ class _TimeTrackingFormScreenState extends State<TimeTrackingFormScreen> {
     ));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).timeEntrySaved)),
+      SnackBar(content: Text(AppLocalizations.of(context)!.timeEntrySaved)),
     );
     Navigator.pop(context);
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/localization/l10n/app_localizations.dart';
 import '../bloc/governments_bloc.dart';
 import '../bloc/governments_event.dart';
 import '../bloc/governments_state.dart';
@@ -39,15 +40,18 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
     setState(() {
       _filtered = query.isEmpty
           ? all
-          : all.where((g) => g.governorateName.toLowerCase().contains(query)).toList();
+          : all
+              .where((g) => g.governorateName.toLowerCase().contains(query))
+              .toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Governments'),
+        title: Text(l.governments),
         backgroundColor: _kPrimary,
         elevation: 0,
       ),
@@ -68,7 +72,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search governments...',
+                hintText: l.search,
                 prefixIcon: const Icon(Icons.search, color: _kPrimaryLight),
                 filled: true,
                 fillColor: _kPrimary.withValues(alpha: 0.04),
@@ -76,7 +80,8 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               onChanged: (_) {
                 final state = context.read<GovernmentsBloc>().state;
@@ -92,16 +97,19 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
               },
               builder: (context, state) {
                 if (state is GovernmentsLoading) {
-                  return const Center(child: CircularProgressIndicator(color: _kPrimary));
+                  return const Center(
+                      child: CircularProgressIndicator(color: _kPrimary));
                 }
                 if (state is GovernmentsError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 48, color: _kTextSecondary),
+                        const Icon(Icons.error_outline,
+                            size: 48, color: _kTextSecondary),
                         const SizedBox(height: 16),
-                        Text('Error: ${state.message}', style: const TextStyle(color: Colors.red)),
+                        Text('${l.error}: ${state.message}',
+                            style: const TextStyle(color: Colors.red)),
                       ],
                     ),
                   );
@@ -111,20 +119,17 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.location_city, size: 64, color: _kTextSecondary.withValues(alpha: 0.5)),
+                        Icon(Icons.location_city,
+                            size: 64,
+                            color: _kTextSecondary.withValues(alpha: 0.5)),
                         const SizedBox(height: 16),
-                        const Text(
-                          'No governments found',
-                          style: TextStyle(
+                        Text(
+                          l.noGovernmentsFound,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: _kTextSecondary,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Try a different search term',
-                          style: TextStyle(color: _kTextSecondary, fontSize: 14),
                         ),
                       ],
                     ),
@@ -158,7 +163,8 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                           ],
                         ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           leading: Container(
                             width: 48,
                             height: 48,
@@ -166,7 +172,8 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                               color: _kPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(Icons.location_city, color: _kPrimary, size: 24),
+                            child: const Icon(Icons.location_city,
+                                color: _kPrimary, size: 24),
                           ),
                           title: Text(
                             gov.governorateName,

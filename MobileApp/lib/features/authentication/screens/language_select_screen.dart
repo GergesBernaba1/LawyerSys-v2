@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../core/localization/app_localizations.dart';
 
 class LanguageSelectScreen extends StatelessWidget {
@@ -6,7 +6,7 @@ class LanguageSelectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(localizer.login)),
       body: Center(child: Text(localizer.languageSelectionScreen)),

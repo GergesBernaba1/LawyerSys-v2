@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_constants.dart';

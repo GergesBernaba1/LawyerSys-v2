@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 class OfflineIndicator extends StatelessWidget {
   const OfflineIndicator({super.key});

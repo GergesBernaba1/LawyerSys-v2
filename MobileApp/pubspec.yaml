@@ -1,4 +1,4 @@
-﻿name: qadaya_lawyersys
+name: qadaya_lawyersys
 description: Qadaya LawyerSys mobile application
 publish_to: none
 version: 0.1.0
@@ -45,6 +45,7 @@ flutter_launcher_icons:
   remove_alpha_ios: true
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/

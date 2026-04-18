@@ -1,4 +1,4 @@
-﻿class UserSession {
+class UserSession {
   final String userId;
   final String email;
   final String fullName;

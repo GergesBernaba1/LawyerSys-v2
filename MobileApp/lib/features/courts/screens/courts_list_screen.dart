@@ -33,7 +33,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(localizer.courts)),
       floatingActionButton: FloatingActionButton(

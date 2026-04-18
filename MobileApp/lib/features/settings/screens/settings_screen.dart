@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../core/auth/biometric_auth.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -96,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context);
+    final localizer = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(localizer.settings)),
       body: ListView(

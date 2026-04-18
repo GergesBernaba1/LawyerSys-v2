@@ -1,4 +1,4 @@
-﻿import '../models/case.dart';
+import '../models/case.dart';
 
 abstract class CasesEvent {}
 class LoadCases extends CasesEvent {}

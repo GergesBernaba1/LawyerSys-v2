@@ -114,158 +114,129 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onRefresh: _handleRefresh,
                   isEmployeeOnly: isEmployeeOnly,
                   isRTL: isRTL,
-                  getThemeColor: _getThemeColor,
                 ),
                 const SizedBox(height: 20),
-                _BaseCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Statistics',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF0F172A),
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1.3,
-                        children: [
-                          _StatCard(
-                            label: isEmployeeOnly ? 'My Cases' : 'Total Cases',
-                            value:
-                                '${isEmployeeOnly ? (s.employeeMetrics?.openCases ?? 0) : s.totalCasesCount}',
-                            icon: Icons.gavel,
-                            gradient: [
-                              _getThemeColor(context, 'primary'),
-                              _getThemeColor(context, 'primaryLight')
-                            ],
-                            trend: isEmployeeOnly ? null : s.casesTrend,
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const CasesListScreen())),
-                          ),
-                          _StatCard(
-                            label: isEmployeeOnly ? 'My Tasks' : 'Customers',
-                            value:
-                                '${isEmployeeOnly ? (s.employeeMetrics?.assignedTasks ?? 0) : s.customersCount}',
-                            icon: isEmployeeOnly
-                                ? Icons.check_circle
-                                : Icons.people,
-                            gradient: isEmployeeOnly
-                                ? [
-                                    _getThemeColor(context, 'warning'),
-                                    Colors.orange.shade200
-                                  ]
-                                : [
-                                    const Color(0xFF0EA5E9),
-                                    const Color(0xFF38BDF8)
-                                  ],
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => isEmployeeOnly
-                                        ? const TasksListScreen()
-                                        : const CustomersListScreen())),
-                          ),
-                          _StatCard(
-                            label: isEmployeeOnly ? 'My Leads' : 'Employees',
-                            value:
-                                '${isEmployeeOnly ? (s.employeeMetrics?.assignedLeads ?? 0) : s.employeesCount}',
-                            icon: isEmployeeOnly
-                                ? Icons.person_search
-                                : Icons.badge,
-                            gradient: [
-                              _getThemeColor(context, 'secondary'),
-                              const Color(0xFFD4A15A)
-                            ],
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => isEmployeeOnly
-                                        ? const IntakeFormScreen()
-                                        : const EmployeesListScreen())),
-                          ),
-                          _StatCard(
-                            label:
-                                isEmployeeOnly ? 'My Consultations' : 'Files',
-                            value:
-                                '${isEmployeeOnly ? (s.employeeMetrics?.assignedConsultations ?? 0) : s.filesCount}',
-                            icon: isEmployeeOnly
-                                ? Icons.description
-                                : Icons.folder,
-                            gradient: [
-                              _getThemeColor(context, 'success'),
-                              const Color(0xFF34D399)
-                            ],
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        const ConsultationsListScreen())),
-                          ),
-                        ],
-                      ),
-                    ],
+                const Text(
+                  'Statistics',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
+                    letterSpacing: -0.3,
                   ),
                 ),
+                const SizedBox(height: 12),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                  children: [
+                    _StatCard(
+                      label: isEmployeeOnly ? 'My Cases' : 'Total Cases',
+                      value:
+                          '${isEmployeeOnly ? (s.employeeMetrics?.openCases ?? 0) : s.totalCasesCount}',
+                      icon: Icons.gavel,
+                      gradient: [
+                        _getThemeColor(context, 'primary'),
+                        _getThemeColor(context, 'primaryLight')
+                      ],
+                      trend: isEmployeeOnly ? null : s.casesTrend,
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const CasesListScreen())),
+                    ),
+                    _StatCard(
+                      label: isEmployeeOnly ? 'My Tasks' : 'Customers',
+                      value:
+                          '${isEmployeeOnly ? (s.employeeMetrics?.assignedTasks ?? 0) : s.customersCount}',
+                      icon: isEmployeeOnly ? Icons.check_circle : Icons.people,
+                      gradient: isEmployeeOnly
+                          ? [
+                              _getThemeColor(context, 'warning'),
+                              Colors.orange.shade200
+                            ]
+                          : [const Color(0xFF0EA5E9), const Color(0xFF38BDF8)],
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => isEmployeeOnly
+                                  ? const TasksListScreen()
+                                  : const CustomersListScreen())),
+                    ),
+                    _StatCard(
+                      label: isEmployeeOnly ? 'My Leads' : 'Employees',
+                      value:
+                          '${isEmployeeOnly ? (s.employeeMetrics?.assignedLeads ?? 0) : s.employeesCount}',
+                      icon: isEmployeeOnly ? Icons.person_search : Icons.badge,
+                      gradient: [
+                        _getThemeColor(context, 'secondary'),
+                        const Color(0xFFD4A15A)
+                      ],
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => isEmployeeOnly
+                                  ? const IntakeFormScreen()
+                                  : const EmployeesListScreen())),
+                    ),
+                    _StatCard(
+                      label: isEmployeeOnly ? 'My Consultations' : 'Files',
+                      value:
+                          '${isEmployeeOnly ? (s.employeeMetrics?.assignedConsultations ?? 0) : s.filesCount}',
+                      icon: isEmployeeOnly ? Icons.description : Icons.folder,
+                      gradient: [
+                        _getThemeColor(context, 'success'),
+                        const Color(0xFF34D399)
+                      ],
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ConsultationsListScreen())),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
-                _BaseCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GridView.count(
-                        crossAxisCount: 3,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1.4,
-                        children: [
-                          _SmallStatCard(
-                            label: isEmployeeOnly ? 'Open Cases' : 'Revenue',
-                            value: isEmployeeOnly
-                                ? '${s.employeeMetrics?.openCases ?? 0}'
-                                : '\$${s.revenueThisMonth.toStringAsFixed(0)}',
-                            icon: isEmployeeOnly
-                                ? Icons.folder_open
-                                : Icons.attach_money,
-                            color: isEmployeeOnly
-                                ? _getThemeColor(context, 'primary')
-                                : _getThemeColor(context, 'success'),
-                            trend: isEmployeeOnly ? null : s.revenueTrend,
-                            getThemeColor: _getThemeColor,
-                          ),
-                          _SmallStatCard(
-                            label: isEmployeeOnly
-                                ? 'Qualified Leads'
-                                : 'Upcoming Hearings',
-                            value:
-                                '${isEmployeeOnly ? (s.employeeMetrics?.qualifiedLeads ?? 0) : s.upcomingHearingsCount}',
-                            icon: isEmployeeOnly ? Icons.star : Icons.event,
-                            color: _getThemeColor(context, 'warning'),
-                            getThemeColor: _getThemeColor,
-                          ),
-                          _SmallStatCard(
-                            label: 'Overdue Tasks',
-                            value: '$overdueCount',
-                            icon: Icons.warning,
-                            color: _getThemeColor(context, 'error'),
-                            getThemeColor: _getThemeColor,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.4,
+                  children: [
+                    _SmallStatCard(
+                      label: isEmployeeOnly ? 'Open Cases' : 'Revenue',
+                      value: isEmployeeOnly
+                          ? '${s.employeeMetrics?.openCases ?? 0}'
+                          : '\$${s.revenueThisMonth.toStringAsFixed(0)}',
+                      icon: isEmployeeOnly
+                          ? Icons.folder_open
+                          : Icons.attach_money,
+                      color: isEmployeeOnly
+                          ? _getThemeColor(context, 'primary')
+                          : _getThemeColor(context, 'success'),
+                      trend: isEmployeeOnly ? null : s.revenueTrend,
+                    ),
+                    _SmallStatCard(
+                      label: isEmployeeOnly
+                          ? 'Qualified Leads'
+                          : 'Upcoming Hearings',
+                      value:
+                          '${isEmployeeOnly ? (s.employeeMetrics?.qualifiedLeads ?? 0) : s.upcomingHearingsCount}',
+                      icon: isEmployeeOnly ? Icons.star : Icons.event,
+                      color: _getThemeColor(context, 'warning'),
+                    ),
+                    _SmallStatCard(
+                      label: 'Overdue Tasks',
+                      value: '$overdueCount',
+                      icon: Icons.warning,
+                      color: _getThemeColor(context, 'error'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 _OperationalFocusSection(
@@ -273,7 +244,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   completionScore: completionScore,
                   attentionLevel: attentionLevel,
                   isRTL: isRTL,
-                  getThemeColor: _getThemeColor,
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -284,7 +254,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: _QuickActionsSection(
                         isEmployeeOnly: isEmployeeOnly,
                         isRTL: isRTL,
-                        getThemeColor: _getThemeColor,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -293,7 +262,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: _RecentCasesSection(
                         recentCases: s.recentCases,
                         isRTL: isRTL,
-                        getThemeColor: _getThemeColor,
                       ),
                     ),
                   ],
@@ -307,7 +275,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: _OverdueTasksSection(
                           tasks: s.employeeMetrics?.overdueTaskList ?? [],
                           isRTL: isRTL,
-                          getThemeColor: _getThemeColor,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -315,7 +282,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: _FollowUpsSection(
                           leads: s.employeeMetrics?.followUps ?? [],
                           isRTL: isRTL,
-                          getThemeColor: _getThemeColor,
                         ),
                       ),
                     ],
@@ -331,14 +297,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class _BaseCard extends StatelessWidget {
-  final Widget child;
+class _WelcomeHeader extends StatelessWidget {
+  final dynamic summary;
+  final Map<String, dynamic> attentionLevel;
+  final int overdueCount;
+  final double activityHealthScore;
+  final DateTime? lastUpdatedAt;
+  final bool isRefreshing;
+  final VoidCallback onRefresh;
+  final bool isEmployeeOnly;
+  final bool isRTL;
 
-  const _BaseCard({
-    required this.child,
+  const _WelcomeHeader({
+    required this.summary,
+    required this.attentionLevel,
+    required this.overdueCount,
+    required this.activityHealthScore,
+    required this.lastUpdatedAt,
+    required this.isRefreshing,
+    required this.onRefresh,
+    required this.isEmployeeOnly,
+    required this.isRTL,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -365,64 +347,12 @@ class _BaseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color:
-              _getDefaultThemeColor(context, 'primary').withValues(alpha: 0.08),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color:
-                _getDefaultThemeColor(context, 'text').withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
-class _WelcomeHeader extends StatelessWidget {
-  final dynamic summary;
-  final Map<String, dynamic> attentionLevel;
-  final int overdueCount;
-  final double activityHealthScore;
-  final DateTime? lastUpdatedAt;
-  final bool isRefreshing;
-  final VoidCallback onRefresh;
-  final bool isEmployeeOnly;
-  final bool isRTL;
-  final Color Function(BuildContext context, String colorType) getThemeColor;
-
-  const _WelcomeHeader({
-    required this.summary,
-    required this.attentionLevel,
-    required this.overdueCount,
-    required this.activityHealthScore,
-    required this.lastUpdatedAt,
-    required this.isRefreshing,
-    required this.onRefresh,
-    required this.isEmployeeOnly,
-    required this.isRTL,
-    required this.getThemeColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            getThemeColor(context, 'primary'),
-            getThemeColor(context, 'primaryLight')
+            _getThemeColor(context, 'primary'),
+            _getThemeColor(context, 'primaryLight')
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -430,7 +360,7 @@ class _WelcomeHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: getThemeColor(context, 'primary').withValues(alpha: 0.3),
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -675,7 +605,6 @@ class _SmallStatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final double? trend;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _SmallStatCard({
     required this.label,
@@ -683,10 +612,9 @@ class _SmallStatCard extends StatelessWidget {
     required this.icon,
     required this.color,
     this.trend,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -712,7 +640,6 @@ class _SmallStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -721,7 +648,7 @@ class _SmallStatCard extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(
-            color: colorFunc(context, 'text').withValues(alpha: 0.04),
+            color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -740,8 +667,8 @@ class _SmallStatCard extends StatelessWidget {
                     Icon(
                       trend! >= 0 ? Icons.trending_up : Icons.trending_down,
                       color: trend! >= 0
-                          ? colorFunc(context, 'success')
-                          : colorFunc(context, 'error'),
+                          ? _getThemeColor(context, 'success')
+                          : _getThemeColor(context, 'error'),
                       size: 12,
                     ),
                     const SizedBox(width: 2),
@@ -749,8 +676,8 @@ class _SmallStatCard extends StatelessWidget {
                       '${trend! >= 0 ? '+' : ''}${trend!.toInt()}%',
                       style: TextStyle(
                         color: trend! >= 0
-                            ? colorFunc(context, 'success')
-                            : colorFunc(context, 'error'),
+                            ? _getThemeColor(context, 'success')
+                            : _getThemeColor(context, 'error'),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -763,7 +690,7 @@ class _SmallStatCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              color: colorFunc(context, 'text'),
+              color: _getThemeColor(context, 'text'),
               fontSize: 22,
               fontWeight: FontWeight.w900,
             ),
@@ -772,7 +699,7 @@ class _SmallStatCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: colorFunc(context, 'textSecondary'),
+              color: _getThemeColor(context, 'textSecondary'),
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -788,17 +715,15 @@ class _OperationalFocusSection extends StatelessWidget {
   final double completionScore;
   final Map<String, dynamic> attentionLevel;
   final bool isRTL;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _OperationalFocusSection({
     required this.activityHealthScore,
     required this.completionScore,
     required this.attentionLevel,
     required this.isRTL,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -824,8 +749,21 @@ class _OperationalFocusSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
-    return _BaseCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: (attentionLevel['color'] as Color).withValues(alpha: 0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -842,7 +780,7 @@ class _OperationalFocusSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: colorFunc(context, 'text'),
+                  color: _getThemeColor(context, 'text'),
                 ),
               ),
               const Spacer(),
@@ -872,17 +810,17 @@ class _OperationalFocusSection extends StatelessWidget {
           _ProgressBar(
             label: 'Activity Health',
             value: activityHealthScore,
-            color: colorFunc(context, 'primary'),
+            color: _getThemeColor(context, 'primary'),
           ),
           const SizedBox(height: 12),
           _ProgressBar(
             label: 'Completion Readiness',
             value: completionScore,
             color: completionScore >= 70
-                ? colorFunc(context, 'success')
+                ? _getThemeColor(context, 'success')
                 : completionScore >= 50
-                    ? colorFunc(context, 'warning')
-                    : colorFunc(context, 'error'),
+                    ? _getThemeColor(context, 'warning')
+                    : _getThemeColor(context, 'error'),
           ),
         ],
       ),
@@ -901,59 +839,7 @@ class _ProgressBar extends StatelessWidget {
     required this.color,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF5F7085),
-              ),
-            ),
-            Text(
-              '${value.toInt()}%',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: value / 100,
-            backgroundColor: color.withValues(alpha: 0.08),
-            color: color,
-            minHeight: 8,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickActionsSection extends StatelessWidget {
-  final bool isEmployeeOnly;
-  final bool isRTL;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
-
-  const _QuickActionsSection({
-    required this.isEmployeeOnly,
-    required this.isRTL,
-    this.getThemeColor,
-  });
-
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -977,87 +863,171 @@ class _QuickActionsSection extends StatelessWidget {
     }
   }
 
-  List<Map<String, dynamic>> _getActions(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
-    return isEmployeeOnly
-        ? [
-            {
-              'label': 'Work Queue',
-              'path': '/employee-workqueue',
-              'icon': Icons.assignment_turned_in,
-              'color': colorFunc(context, 'error')
-            },
-            {
-              'label': 'My Cases',
-              'path': '/cases',
-              'icon': Icons.gavel,
-              'color': colorFunc(context, 'primary')
-            },
-            {
-              'label': 'My Tasks',
-              'path': '/tasks',
-              'icon': Icons.event,
-              'color': colorFunc(context, 'success')
-            },
-            {
-              'label': 'My Leads',
-              'path': '/intake',
-              'icon': Icons.person_search,
-              'color': colorFunc(context, 'primaryLight')
-            },
-            {
-              'label': 'My Consultations',
-              'path': '/consultations',
-              'icon': Icons.description,
-              'color': const Color(0xFF8B5CF6)
-            },
-          ]
-        : [
-            {
-              'label': 'New Case',
-              'path': '/cases',
-              'icon': Icons.gavel,
-              'color': colorFunc(context, 'primary')
-            },
-            {
-              'label': 'New Customer',
-              'path': '/customers',
-              'icon': Icons.people,
-              'color': colorFunc(context, 'primaryLight')
-            },
-            {
-              'label': 'View Billing',
-              'path': '/billing',
-              'icon': Icons.receipt_long,
-              'color': colorFunc(context, 'secondary')
-            },
-            {
-              'label': 'Admin Tasks',
-              'path': '/tasks',
-              'icon': Icons.event,
-              'color': colorFunc(context, 'success')
-            },
-          ];
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: _getThemeColor(context, 'textSecondary'),
+              ),
+            ),
+            Text(
+              '${value.toInt()}%',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: _getThemeColor(context, 'text'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: value / 100,
+            backgroundColor: color.withValues(alpha: 0.08),
+            color: color,
+            minHeight: 8,
+          ),
+        ),
+      ],
+    );
   }
+}
+
+class _QuickActionsSection extends StatelessWidget {
+  final bool isEmployeeOnly;
+  final bool isRTL;
+
+  const _QuickActionsSection({
+    required this.isEmployeeOnly,
+    required this.isRTL,
+  });
+
+  Color _getThemeColor(BuildContext context, String colorType) {
+    final theme = Theme.of(context);
+    switch (colorType) {
+      case 'primary':
+        return theme.colorScheme.primary;
+      case 'secondary':
+        return theme.colorScheme.secondary;
+      case 'error':
+        return theme.colorScheme.error;
+      case 'success':
+        return Colors.green;
+      case 'warning':
+        return Colors.orange;
+      case 'primaryLight':
+        return theme.colorScheme.primary.withValues(alpha: 0.8);
+      case 'text':
+        return const Color(0xFF0F172A);
+      case 'textSecondary':
+        return const Color(0xFF5F7085);
+      default:
+        return theme.colorScheme.primary;
+    }
+  }
+
+  List<Map<String, dynamic>> _getActions(BuildContext context) => isEmployeeOnly
+      ? [
+          {
+            'label': 'Work Queue',
+            'path': '/employee-workqueue',
+            'icon': Icons.assignment_turned_in,
+            'color': _getThemeColor(context, 'error')
+          },
+          {
+            'label': 'My Cases',
+            'path': '/cases',
+            'icon': Icons.gavel,
+            'color': _getThemeColor(context, 'primary')
+          },
+          {
+            'label': 'My Tasks',
+            'path': '/tasks',
+            'icon': Icons.event,
+            'color': _getThemeColor(context, 'success')
+          },
+          {
+            'label': 'My Leads',
+            'path': '/intake',
+            'icon': Icons.person_search,
+            'color': _getThemeColor(context, 'primaryLight')
+          },
+          {
+            'label': 'My Consultations',
+            'path': '/consultations',
+            'icon': Icons.description,
+            'color': const Color(0xFF8B5CF6)
+          },
+        ]
+      : [
+          {
+            'label': 'New Case',
+            'path': '/cases',
+            'icon': Icons.gavel,
+            'color': _getThemeColor(context, 'primary')
+          },
+          {
+            'label': 'New Customer',
+            'path': '/customers',
+            'icon': Icons.people,
+            'color': _getThemeColor(context, 'primaryLight')
+          },
+          {
+            'label': 'View Billing',
+            'path': '/billing',
+            'icon': Icons.receipt_long,
+            'color': _getThemeColor(context, 'secondary')
+          },
+          {
+            'label': 'Admin Tasks',
+            'path': '/tasks',
+            'icon': Icons.event,
+            'color': _getThemeColor(context, 'success')
+          },
+        ];
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
-    return _BaseCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(Icons.open_in_new,
-                  color: colorFunc(context, 'primary'), size: 20),
+                  color: _getThemeColor(context, 'primary'), size: 20),
               const SizedBox(width: 8),
               Text(
                 'Quick Actions',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: colorFunc(context, 'text'),
+                  color: _getThemeColor(context, 'text'),
                 ),
               ),
             ],
@@ -1094,6 +1064,30 @@ class _ActionButton extends StatelessWidget {
     required this.onTap,
   });
 
+  Color _getThemeColor(BuildContext context, String colorType) {
+    final theme = Theme.of(context);
+    switch (colorType) {
+      case 'primary':
+        return theme.colorScheme.primary;
+      case 'secondary':
+        return theme.colorScheme.secondary;
+      case 'error':
+        return theme.colorScheme.error;
+      case 'success':
+        return Colors.green;
+      case 'warning':
+        return Colors.orange;
+      case 'primaryLight':
+        return theme.colorScheme.primary.withValues(alpha: 0.8);
+      case 'text':
+        return const Color(0xFF0F172A);
+      case 'textSecondary':
+        return const Color(0xFF5F7085);
+      default:
+        return theme.colorScheme.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -1120,10 +1114,10 @@ class _ActionButton extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
+                  color: _getThemeColor(context, 'text'),
                 ),
               ),
             ),
@@ -1142,15 +1136,13 @@ class _ActionButton extends StatelessWidget {
 class _RecentCasesSection extends StatelessWidget {
   final List<dynamic> recentCases;
   final bool isRTL;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _RecentCasesSection({
     required this.recentCases,
     required this.isRTL,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -1176,21 +1168,35 @@ class _RecentCasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
-    return _BaseCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.gavel, color: colorFunc(context, 'primary'), size: 20),
+              Icon(Icons.gavel,
+                  color: _getThemeColor(context, 'primary'), size: 20),
               const SizedBox(width: 8),
               Text(
                 'Recent Cases',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: colorFunc(context, 'text'),
+                  color: _getThemeColor(context, 'text'),
                 ),
               ),
               const Spacer(),
@@ -1216,7 +1222,7 @@ class _RecentCasesSection extends StatelessWidget {
                   Icon(
                     Icons.gavel,
                     size: 48,
-                    color: colorFunc(context, 'textSecondary')
+                    color: _getThemeColor(context, 'textSecondary')
                         .withValues(alpha: 0.3),
                   ),
                   const SizedBox(height: 12),
@@ -1225,7 +1231,7 @@ class _RecentCasesSection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: colorFunc(context, 'textSecondary'),
+                      color: _getThemeColor(context, 'textSecondary'),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1233,7 +1239,7 @@ class _RecentCasesSection extends StatelessWidget {
                     'Start by creating your first case',
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorFunc(context, 'textSecondary')
+                      color: _getThemeColor(context, 'textSecondary')
                           .withValues(alpha: 0.7),
                     ),
                   ),
@@ -1250,7 +1256,6 @@ class _RecentCasesSection extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (_) => const CasesListScreen())),
-                  getThemeColor: colorFunc,
                 )),
         ],
       ),
@@ -1264,7 +1269,6 @@ class _RecentCaseTile extends StatelessWidget {
   final String caseType;
   final String status;
   final VoidCallback onTap;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _RecentCaseTile({
     required this.caseName,
@@ -1272,10 +1276,9 @@ class _RecentCaseTile extends StatelessWidget {
     required this.caseType,
     required this.status,
     required this.onTap,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -1301,16 +1304,15 @@ class _RecentCaseTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
     final statusColor =
         status.toLowerCase() == 'won' || status.toLowerCase() == 'closed'
-            ? colorFunc(context, 'success')
+            ? _getThemeColor(context, 'success')
             : status.toLowerCase() == 'lost'
-                ? colorFunc(context, 'error')
+                ? _getThemeColor(context, 'error')
                 : status.toLowerCase() == 'pending' ||
                         status.toLowerCase() == 'review'
-                    ? colorFunc(context, 'warning')
-                    : colorFunc(context, 'primary');
+                    ? _getThemeColor(context, 'warning')
+                    : _getThemeColor(context, 'primary');
 
     return GestureDetector(
       onTap: onTap,
@@ -1321,7 +1323,8 @@ class _RecentCaseTile extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: colorFunc(context, 'primary').withValues(alpha: 0.06)),
+              color:
+                  _getThemeColor(context, 'primary').withValues(alpha: 0.06)),
         ),
         child: Row(
           children: [
@@ -1329,11 +1332,12 @@ class _RecentCaseTile extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: colorFunc(context, 'primary').withValues(alpha: 0.08),
+                color:
+                    _getThemeColor(context, 'primary').withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(Icons.gavel,
-                  color: colorFunc(context, 'primary'), size: 18),
+                  color: _getThemeColor(context, 'primary'), size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1344,7 +1348,7 @@ class _RecentCaseTile extends StatelessWidget {
                     caseName,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: colorFunc(context, 'text'),
+                      color: _getThemeColor(context, 'text'),
                       fontSize: 14,
                     ),
                   ),
@@ -1352,7 +1356,7 @@ class _RecentCaseTile extends StatelessWidget {
                   Text(
                     caseNumber.isNotEmpty ? caseNumber : 'No Case Number',
                     style: TextStyle(
-                      color: colorFunc(context, 'textSecondary'),
+                      color: _getThemeColor(context, 'textSecondary'),
                       fontSize: 12,
                     ),
                   ),
@@ -1364,7 +1368,8 @@ class _RecentCaseTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: colorFunc(context, 'primary').withValues(alpha: 0.08),
+                  color: _getThemeColor(context, 'primary')
+                      .withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -1372,7 +1377,7 @@ class _RecentCaseTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: colorFunc(context, 'primary'),
+                    color: _getThemeColor(context, 'primary'),
                   ),
                 ),
               ),
@@ -1402,15 +1407,13 @@ class _RecentCaseTile extends StatelessWidget {
 class _OverdueTasksSection extends StatelessWidget {
   final List<dynamic> tasks;
   final bool isRTL;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _OverdueTasksSection({
     required this.tasks,
     required this.isRTL,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -1436,22 +1439,35 @@ class _OverdueTasksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
-    return _BaseCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(Icons.event_busy,
-                  color: colorFunc(context, 'error'), size: 20),
+                  color: _getThemeColor(context, 'error'), size: 20),
               const SizedBox(width: 8),
               Text(
                 'My Overdue Tasks',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: colorFunc(context, 'text'),
+                  color: _getThemeColor(context, 'text'),
                 ),
               ),
               const Spacer(),
@@ -1474,15 +1490,14 @@ class _OverdueTasksSection extends StatelessWidget {
               'No overdue tasks',
               style: TextStyle(
                 fontSize: 13,
-                color: colorFunc(context, 'textSecondary'),
+                color: _getThemeColor(context, 'textSecondary'),
               ),
             )
           else
             ...tasks.take(5).map((task) => _TaskTile(
                   taskName: task.taskName ?? task.task_Name ?? 'Task',
                   reminderDate: task.taskReminderDate,
-                  color: colorFunc(context, 'error'),
-                  getThemeColor: colorFunc,
+                  color: _getThemeColor(context, 'error'),
                 )),
         ],
       ),
@@ -1493,15 +1508,13 @@ class _OverdueTasksSection extends StatelessWidget {
 class _FollowUpsSection extends StatelessWidget {
   final List<dynamic> leads;
   final bool isRTL;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _FollowUpsSection({
     required this.leads,
     required this.isRTL,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -1527,22 +1540,35 @@ class _FollowUpsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
-    return _BaseCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(Icons.people_outline,
-                  color: colorFunc(context, 'warning'), size: 20),
+                  color: _getThemeColor(context, 'warning'), size: 20),
               const SizedBox(width: 8),
               Text(
                 'My Follow-ups',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: colorFunc(context, 'text'),
+                  color: _getThemeColor(context, 'text'),
                 ),
               ),
               const Spacer(),
@@ -1567,7 +1593,7 @@ class _FollowUpsSection extends StatelessWidget {
               'No follow-ups scheduled',
               style: TextStyle(
                 fontSize: 13,
-                color: colorFunc(context, 'textSecondary'),
+                color: _getThemeColor(context, 'textSecondary'),
               ),
             )
           else
@@ -1575,8 +1601,7 @@ class _FollowUpsSection extends StatelessWidget {
                   fullName: lead.fullName ?? 'Lead',
                   followUpAt: lead.nextFollowUpAt,
                   status: lead.status ?? 'Pending',
-                  color: colorFunc(context, 'warning'),
-                  getThemeColor: colorFunc,
+                  color: _getThemeColor(context, 'warning'),
                 )),
         ],
       ),
@@ -1588,16 +1613,14 @@ class _TaskTile extends StatelessWidget {
   final String taskName;
   final String? reminderDate;
   final Color color;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _TaskTile({
     required this.taskName,
     required this.reminderDate,
     required this.color,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -1623,7 +1646,6 @@ class _TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
     DateTime? date;
     try {
       date = reminderDate != null ? DateTime.parse(reminderDate!) : null;
@@ -1657,7 +1679,7 @@ class _TaskTile extends StatelessWidget {
                   taskName,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: colorFunc(context, 'text'),
+                    color: _getThemeColor(context, 'text'),
                     fontSize: 13,
                   ),
                 ),
@@ -1665,7 +1687,7 @@ class _TaskTile extends StatelessWidget {
                   Text(
                     '${date.day}/${date.month}/${date.year}',
                     style: TextStyle(
-                      color: colorFunc(context, 'textSecondary'),
+                      color: _getThemeColor(context, 'textSecondary'),
                       fontSize: 11,
                     ),
                   ),
@@ -1683,17 +1705,15 @@ class _LeadTile extends StatelessWidget {
   final String? followUpAt;
   final String status;
   final Color color;
-  final Color Function(BuildContext context, String colorType)? getThemeColor;
 
   const _LeadTile({
     required this.fullName,
     required this.followUpAt,
     required this.status,
     required this.color,
-    this.getThemeColor,
   });
 
-  Color _getDefaultThemeColor(BuildContext context, String colorType) {
+  Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
     switch (colorType) {
       case 'primary':
@@ -1719,7 +1739,6 @@ class _LeadTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorFunc = getThemeColor ?? _getDefaultThemeColor;
     DateTime? date;
     try {
       date = followUpAt != null ? DateTime.parse(followUpAt!) : null;
@@ -1753,7 +1772,7 @@ class _LeadTile extends StatelessWidget {
                   fullName,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: colorFunc(context, 'text'),
+                    color: _getThemeColor(context, 'text'),
                     fontSize: 13,
                   ),
                 ),
@@ -1761,7 +1780,7 @@ class _LeadTile extends StatelessWidget {
                   Text(
                     '${date.day}/${date.month}/${date.year}',
                     style: TextStyle(
-                      color: colorFunc(context, 'textSecondary'),
+                      color: _getThemeColor(context, 'textSecondary'),
                       fontSize: 11,
                     ),
                   ),
