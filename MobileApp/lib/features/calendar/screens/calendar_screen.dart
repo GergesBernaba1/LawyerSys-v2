@@ -83,7 +83,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (result == true && mounted) _loadCalendarEvents();
   }
 
-  Future<void> _confirmDelete(model.CalendarEvent event, AppLocalizations l) async {
+  Future<void> _confirmDelete(
+      model.CalendarEvent event, AppLocalizations l) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -105,6 +106,157 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 fromDate: _fromDate, toDate: _toDate),
           );
     }
+  }
+
+  void _showDayEventsSheet(
+      BuildContext context, String date, List<model.CalendarEvent> dayEvents) {
+    final l = AppLocalizations.of(context)!;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          builder: (_, scrollController) {
+            return Column(
+              children: [
+                // Drag handle
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ),
+                // Date header
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        date,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${dayEvents.length} ${dayEvents.length == 1 ? 'event' : 'events'}', // TODO: localize
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                // Event list
+                Expanded(
+                  child: dayEvents.isEmpty
+                      ? Center(child: Text(l.noEventsFound))
+                      : ListView.separated(
+                          controller: scrollController,
+                          itemCount: dayEvents.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1, indent: 16, endIndent: 16),
+                          itemBuilder: (ctx, index) {
+                            final event = dayEvents[index];
+                            final timeRange = event.end != null
+                                ? '${_formatTime(event.start)} – ${_formatTime(event.end!)}'
+                                : _formatTime(event.start);
+                            return ListTile(
+                              leading: Container(
+                                width: 4,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: event.isReminderEvent
+                                      ? Colors.orange
+                                      : Colors.blue,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              title: Row(
+                                children: [
+                                  Expanded(child: Text(event.title)),
+                                  if (event.isReminderEvent)
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange
+                                            .withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: Colors.orange
+                                                .withValues(alpha: 0.5)),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.notifications,
+                                              size: 12, color: Colors.orange),
+                                          SizedBox(width: 2),
+                                          Text(
+                                            'Reminder', // TODO: localize
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.orange),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              subtitle: Text('${event.type} • $timeRange'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        size: 20),
+                                    tooltip: l.edit,
+                                    onPressed: () {
+                                      Navigator.pop(sheetCtx);
+                                      _openForm(event: event);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        size: 20, color: Colors.red),
+                                    tooltip: l.delete,
+                                    onPressed: () async {
+                                      Navigator.pop(sheetCtx);
+                                      await _confirmDelete(event, l);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -205,9 +357,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 margin: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 child: ExpansionTile(
-                                  title: Text(date,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                  title: InkWell(
+                                    onTap: () => _showDayEventsSheet(
+                                        context, date, dayEvents),
+                                    child: Text(date,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                  ),
                                   initiallyExpanded: true,
                                   children: dayEvents
                                       .map((event) => ListTile(
@@ -221,6 +377,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             title: Text(event.title),
                                             subtitle: Text(
                                                 '${event.type} • ${_formatTime(event.start)}'),
+                                            onTap: () => _showDayEventsSheet(
+                                                context, date, dayEvents),
                                             trailing: PopupMenuButton<String>(
                                               onSelected: (v) {
                                                 if (v == 'edit') {

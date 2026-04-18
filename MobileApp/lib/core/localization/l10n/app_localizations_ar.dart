@@ -616,139 +616,24 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get employee => 'موظف';
 
-  // Calendar
   @override
-  String get createCalendarEvent => 'إضافة حدث';
-  @override
-  String get editCalendarEvent => 'تعديل حدث';
-  @override
-  String get deleteCalendarEvent => 'حذف الحدث';
-  @override
-  String get deleteCalendarEventConfirm => 'هل أنت متأكد أنك تريد حذف هذا الحدث؟';
-  @override
-  String get calendarEventTitle => 'عنوان الحدث';
-  @override
-  String get calendarEventType => 'نوع الحدث';
-  @override
-  String get calendarEventEnd => 'نهاية';
-  @override
-  String get calendarEventEndOptional => 'تاريخ النهاية (اختياري)';
-  @override
-  String get calendarReminderEvent => 'حدث تذكير';
-  @override
-  String get calendarEventSaved => 'تم حفظ الحدث بنجاح';
-  @override
-  String get calendarEventDeleted => 'تم حذف الحدث بنجاح';
+  String get createGovernment => 'إضافة محافظة';
 
-  // Intake
   @override
-  String get intake => 'الاستقبال';
-  @override
-  String get leads => 'العملاء المحتملون';
-  @override
-  String get noLeadsFound => 'لا يوجد عملاء محتملون';
-  @override
-  String get leadStatus => 'الحالة';
-  @override
-  String get leadSubject => 'الموضوع';
-  @override
-  String get leadAssignedTo => 'مُسند إلى';
-  @override
-  String get leadQualify => 'تأهيل';
-  @override
-  String get leadReject => 'رفض';
-  @override
-  String get leadAssign => 'إسناد';
-  @override
-  String get leadConflictCheck => 'فحص التعارض';
-  @override
-  String get conflictDetected => 'تم اكتشاف تعارض';
-  @override
-  String get noConflict => 'لا يوجد تعارض';
-  @override
-  String get leadConvert => 'تحويل إلى قضية';
-  @override
-  String get nextFollowUp => 'المتابعة التالية';
-  @override
-  String get qualificationNotes => 'ملاحظات التأهيل';
+  String get editGovernment => 'تعديل المحافظة';
 
-  // Portal
   @override
-  String get replyMessage => 'رد';
-  @override
-  String get sendMessage => 'إرسال';
-  @override
-  String get messageBody => 'الرسالة';
-  @override
-  String get messageSent => 'تم إرسال الرسالة بنجاح';
+  String get deleteGovernment => 'حذف المحافظة';
 
-  // Contenders
   @override
-  String get dateOfBirth => 'تاريخ الميلاد';
+  String get deleteGovernmentConfirm => 'هل أنت متأكد من حذف هذه المحافظة؟';
 
-  // Courts
   @override
-  String get createCourt => 'إضافة محكمة';
-  @override
-  String get editCourt => 'تعديل محكمة';
-  @override
-  String get deleteCourt => 'حذف المحكمة';
-  @override
-  String get deleteCourtConfirm => 'هل أنت متأكد أنك تريد حذف هذه المحكمة؟';
-  @override
-  String get courtName => 'اسم المحكمة';
-  @override
-  String get courtSaved => 'تم حفظ المحكمة بنجاح';
-  @override
-  String get courtDeleted => 'تم حذف المحكمة بنجاح';
-  @override
-  String get noCourtsFound => 'لا توجد محاكم';
+  String get governmentName => 'اسم المحافظة';
 
-  // Customers
   @override
-  String get createCustomer => 'إضافة عميل';
-  @override
-  String get editCustomer => 'تعديل عميل';
-  @override
-  String get deleteCustomer => 'حذف العميل';
-  @override
-  String get deleteCustomerConfirm => 'هل أنت متأكد أنك تريد حذف هذا العميل؟';
-  @override
-  String get customerSaved => 'تم حفظ العميل بنجاح';
-  @override
-  String get customerDeleted => 'تم حذف العميل بنجاح';
-  @override
-  String get noCustomersFound => 'لا يوجد عملاء';
+  String get governmentSaved => 'تم حفظ المحافظة بنجاح';
 
-  // Governments
   @override
-  String get createGovernment => 'إضافة حكومة';
-  @override
-  String get editGovernment => 'تعديل حكومة';
-  @override
-  String get deleteGovernment => 'حذف الحكومة';
-  @override
-  String get deleteGovernmentConfirm => 'هل أنت متأكد أنك تريد حذف هذه الحكومة؟';
-  @override
-  String get governmentName => 'اسم الحكومة';
-  @override
-  String get governmentSaved => 'تم حفظ الحكومة بنجاح';
-  @override
-  String get governmentDeleted => 'تم حذف الحكومة بنجاح';
-
-  // Users
-  @override
-  String get users => 'المستخدمون';
-  @override
-  String get noUsersFound => 'لا يوجد مستخدمون';
-
-  // Tenants
-  @override
-  String get tenants => 'المستأجرون';
-  @override
-  String get noTenantsFound => 'لا يوجد مستأجرون';
-  @override
-  String get tenantStatusUpdated => 'تم تحديث حالة المستأجر';
-  @override
-  String get currentTenant => 'الحالي';
+  String get governmentDeleted => 'تم حذف المحافظة بنجاح';
 }

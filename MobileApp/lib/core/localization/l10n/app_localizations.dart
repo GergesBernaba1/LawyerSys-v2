@@ -746,6 +746,12 @@ abstract class AppLocalizations {
   /// **'Stop timer functionality'**
   String get stopTimerFunctionality;
 
+  /// No description provided for @noEventsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No events found'**
+  String get noEventsFound;
+
   /// No description provided for @monthly.
   ///
   /// In en, this message translates to:
@@ -1298,83 +1304,47 @@ abstract class AppLocalizations {
   /// **'Employee'**
   String get employee;
 
-  // Calendar
-  String get createCalendarEvent;
-  String get editCalendarEvent;
-  String get deleteCalendarEvent;
-  String get deleteCalendarEventConfirm;
-  String get calendarEventTitle;
-  String get calendarEventType;
-  String get calendarEventEnd;
-  String get calendarEventEndOptional;
-  String get calendarReminderEvent;
-  String get calendarEventSaved;
-  String get calendarEventDeleted;
-  String get noEventsFound;
-
-  // Intake
-  String get intake;
-  String get leads;
-  String get noLeadsFound;
-  String get leadStatus;
-  String get leadSubject;
-  String get leadAssignedTo;
-  String get leadQualify;
-  String get leadReject;
-  String get leadAssign;
-  String get leadConflictCheck;
-  String get conflictDetected;
-  String get noConflict;
-  String get leadConvert;
-  String get nextFollowUp;
-  String get qualificationNotes;
-
-  // Portal
-  String get replyMessage;
-  String get sendMessage;
-  String get messageBody;
-  String get messageSent;
-
-  // Contenders
-  String get dateOfBirth;
-
-  // Courts
-  String get createCourt;
-  String get editCourt;
-  String get deleteCourt;
-  String get deleteCourtConfirm;
-  String get courtName;
-  String get courtSaved;
-  String get courtDeleted;
-  String get noCourtsFound;
-
-  // Customers
-  String get createCustomer;
-  String get editCustomer;
-  String get deleteCustomer;
-  String get deleteCustomerConfirm;
-  String get customerSaved;
-  String get customerDeleted;
-  String get noCustomersFound;
-
-  // Governments
+  /// No description provided for @createGovernment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Government'**
   String get createGovernment;
+
+  /// No description provided for @editGovernment.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Government'**
   String get editGovernment;
+
+  /// No description provided for @deleteGovernment.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Government'**
   String get deleteGovernment;
+
+  /// No description provided for @deleteGovernmentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this government?'**
   String get deleteGovernmentConfirm;
+
+  /// No description provided for @governmentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Government Name'**
   String get governmentName;
+
+  /// No description provided for @governmentSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Government saved successfully'**
   String get governmentSaved;
+
+  /// No description provided for @governmentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Government deleted successfully'**
   String get governmentDeleted;
-
-  // Users
-  String get users;
-  String get noUsersFound;
-
-  // Tenants
-  String get tenants;
-  String get noTenantsFound;
-  String get tenantStatusUpdated;
-  String get currentTenant;
 }
 
 class _AppLocalizationsDelegate

@@ -41,13 +41,173 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     super.dispose();
   }
 
+  void _showUploadSheet(BuildContext context) {
+    // NOTE: file_picker package is not available in pubspec.yaml.
+    // Using a manual file path TextField as a fallback.
+    // To enable proper file picking, add `file_picker` to pubspec.yaml
+    // and replace this TextField with FilePicker.platform.pickFiles().
+    final filePathController = TextEditingController();
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        return BlocListener<DocumentsBloc, DocumentsState>(
+          bloc: _bloc,
+          listener: (ctx, state) {
+            if (state is DocumentsUploadSuccess) {
+              Navigator.pop(sheetCtx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Document uploaded successfully')), // TODO: localize
+              );
+            } else if (state is DocumentsError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: ${state.error}')),
+              );
+            }
+          },
+          child: StatefulBuilder(
+            builder: (ctx, setSheetState) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Drag handle
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'Upload Document', // TODO: localize
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // File path input (file_picker not available — manual path entry)
+                    TextField(
+                      controller: filePathController,
+                      decoration: InputDecoration(
+                        labelText: 'File Path', // TODO: localize
+                        hintText: '/storage/emulated/0/Documents/file.pdf',
+                        helperText:
+                            'Enter the full path to your file', // TODO: localize
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.folder_open),
+                          onPressed: () {
+                            // TODO: replace with FilePicker when file_picker is added to pubspec.yaml
+                            setSheetState(() {});
+                          },
+                        ),
+                      ),
+                      onChanged: (v) {
+                        setSheetState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Title (optional)', // TODO: localize
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: descriptionController,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        labelText: 'Description (optional)', // TODO: localize
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    BlocBuilder<DocumentsBloc, DocumentsState>(
+                      bloc: _bloc,
+                      builder: (_, state) {
+                        final isUploading = state is DocumentsUploading;
+                        return ElevatedButton.icon(
+                          icon: isUploading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.upload),
+                          label: Text(isUploading
+                              ? 'Uploading...' // TODO: localize
+                              : 'Upload'), // TODO: localize
+                          onPressed: isUploading
+                              ? null
+                              : () {
+                                  final path =
+                                      filePathController.text.trim();
+                                  if (path.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Please enter a file path')), // TODO: localize
+                                    );
+                                    return;
+                                  }
+                                  _bloc.add(UploadDocument(
+                                    path,
+                                    title: titleController.text.trim().isEmpty
+                                        ? null
+                                        : titleController.text.trim(),
+                                    description: descriptionController.text
+                                            .trim()
+                                            .isEmpty
+                                        ? null
+                                        : descriptionController.text.trim(),
+                                  ));
+                                },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    ).whenComplete(() {
+      filePathController.dispose();
+      titleController.dispose();
+      descriptionController.dispose();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _bloc,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Documents'),
+          title: const Text('Documents'), // TODO: localize
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
@@ -55,9 +215,26 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
             )
           ],
         ),
-        body: BlocBuilder<DocumentsBloc, DocumentsState>(
+        floatingActionButton: FloatingActionButton(
+          tooltip: 'Upload Document', // TODO: localize
+          onPressed: () => _showUploadSheet(context),
+          child: const Icon(Icons.upload_file),
+        ),
+        body: BlocConsumer<DocumentsBloc, DocumentsState>(
+          listener: (context, state) {
+            if (state is DocumentsUploadSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Document uploaded successfully')), // TODO: localize
+              );
+            } else if (state is DocumentsError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: ${state.error}')),
+              );
+            }
+          },
           builder: (context, state) {
-            if (state is DocumentsLoading) {
+            if (state is DocumentsLoading || state is DocumentsUploading) {
               return const Center(child: CircularProgressIndicator());
             }
             if (state is DocumentsError) {
@@ -66,7 +243,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
             if (state is DocumentsLoaded) {
               final docs = state.documents;
               if (docs.isEmpty) {
-                return const Center(child: Text('No documents found'));
+                return const Center(child: Text('No documents found')); // TODO: localize
               }
               return ListView.builder(
                 itemCount: docs.length,

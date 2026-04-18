@@ -200,5 +200,12 @@
   "consultationManagement": "إدارة الاستشارات",
   "consultationEmployeeHint": "يمكنك فقط عرض وتحديث الاستشارات المعينة لك",
   "consultationAssignmentHint": "يمكنك تعيين الاستشارات للموظفين من فريقك",
-  "employee": "موظف"
+  "employee": "موظف",
+  "createGovernment": "إضافة محافظة",
+  "editGovernment": "تعديل المحافظة",
+  "deleteGovernment": "حذف المحافظة",
+  "deleteGovernmentConfirm": "هل أنت متأكد من حذف هذه المحافظة؟",
+  "governmentName": "اسم المحافظة",
+  "governmentSaved": "تم حفظ المحافظة بنجاح",
+  "governmentDeleted": "تم حذف المحافظة بنجاح"
 }

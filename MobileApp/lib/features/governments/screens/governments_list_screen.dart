@@ -6,6 +6,7 @@ import '../bloc/governments_bloc.dart';
 import '../bloc/governments_event.dart';
 import '../bloc/governments_state.dart';
 import '../models/government.dart';
+import 'government_detail_screen.dart';
 import 'government_form_screen.dart';
 
 const _kPrimary = Color(0xFF14345A);
@@ -205,6 +206,12 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                             style: const TextStyle(
                               fontSize: 13,
                               color: _kTextSecondary,
+                            ),
+                          ),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => GovernmentDetailScreen(government: gov),
                             ),
                           ),
                           trailing: PopupMenuButton<String>(

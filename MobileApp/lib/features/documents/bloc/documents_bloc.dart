@@ -11,6 +11,7 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     on<LoadDocuments>(_onLoadDocuments);
     on<DownloadDocument>(_onDownloadDocument);
     on<RefreshDocuments>(_onRefreshDocuments);
+    on<UploadDocument>(_onUploadDocument);
   }
 
   Future<void> _onLoadDocuments(LoadDocuments event, Emitter<DocumentsState> emit) async {
@@ -36,6 +37,22 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
       emit(DocumentsLoaded(await documentsRepository.getDocuments()));
     } catch (e) {
       emit(DocumentsError('Failed to download: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onUploadDocument(UploadDocument event, Emitter<DocumentsState> emit) async {
+    emit(DocumentsUploading());
+    try {
+      await documentsRepository.uploadDocument(
+        event.filePath,
+        title: event.title,
+        description: event.description,
+      );
+      emit(DocumentsUploadSuccess());
+      final docs = await documentsRepository.getDocuments();
+      emit(DocumentsLoaded(docs));
+    } catch (e) {
+      emit(DocumentsError('Failed to upload: ${e.toString()}'));
     }
   }
 }

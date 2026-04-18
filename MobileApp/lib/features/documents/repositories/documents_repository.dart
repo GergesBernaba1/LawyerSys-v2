@@ -72,4 +72,20 @@ class DocumentsRepository {
       return Document.fromJson(json);
     }).toList();
   }
+
+  Future<void> uploadDocument(
+    String filePath, {
+    String? title,
+    String? description,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        filePath,
+        filename: filePath.split('/').last,
+      ),
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+    });
+    await apiClient.post('/files/upload', data: formData);
+  }
 }

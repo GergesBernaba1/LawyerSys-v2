@@ -335,6 +335,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stopTimerFunctionality => 'Stop timer functionality';
 
   @override
+  String get noEventsFound => 'No events found';
+
+  @override
   String get monthly => 'Monthly';
 
   @override
@@ -616,141 +619,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get employee => 'Employee';
 
-  // Calendar
-  @override
-  String get createCalendarEvent => 'Add Event';
-  @override
-  String get editCalendarEvent => 'Edit Event';
-  @override
-  String get deleteCalendarEvent => 'Delete Event';
-  @override
-  String get deleteCalendarEventConfirm => 'Are you sure you want to delete this event?';
-  @override
-  String get calendarEventTitle => 'Event Title';
-  @override
-  String get calendarEventType => 'Event Type';
-  @override
-  String get calendarEventEnd => 'End';
-  @override
-  String get calendarEventEndOptional => 'End date (optional)';
-  @override
-  String get calendarReminderEvent => 'Reminder Event';
-  @override
-  String get calendarEventSaved => 'Event saved successfully';
-  @override
-  String get calendarEventDeleted => 'Event deleted successfully';
-  @override
-  String get noEventsFound => 'No events found';
-
-  // Intake
-  @override
-  String get intake => 'Intake';
-  @override
-  String get leads => 'Leads';
-  @override
-  String get noLeadsFound => 'No leads found';
-  @override
-  String get leadStatus => 'Status';
-  @override
-  String get leadSubject => 'Subject';
-  @override
-  String get leadAssignedTo => 'Assigned To';
-  @override
-  String get leadQualify => 'Qualify';
-  @override
-  String get leadReject => 'Reject';
-  @override
-  String get leadAssign => 'Assign';
-  @override
-  String get leadConflictCheck => 'Conflict Check';
-  @override
-  String get conflictDetected => 'Conflict detected';
-  @override
-  String get noConflict => 'No conflict found';
-  @override
-  String get leadConvert => 'Convert to Case';
-  @override
-  String get nextFollowUp => 'Next Follow-Up';
-  @override
-  String get qualificationNotes => 'Qualification Notes';
-
-  // Portal
-  @override
-  String get replyMessage => 'Reply';
-  @override
-  String get sendMessage => 'Send';
-  @override
-  String get messageBody => 'Message';
-  @override
-  String get messageSent => 'Message sent successfully';
-
-  // Contenders
-  @override
-  String get dateOfBirth => 'Date of Birth';
-
-  // Courts
-  @override
-  String get createCourt => 'Add Court';
-  @override
-  String get editCourt => 'Edit Court';
-  @override
-  String get deleteCourt => 'Delete Court';
-  @override
-  String get deleteCourtConfirm => 'Are you sure you want to delete this court?';
-  @override
-  String get courtName => 'Court Name';
-  @override
-  String get courtSaved => 'Court saved successfully';
-  @override
-  String get courtDeleted => 'Court deleted successfully';
-  @override
-  String get noCourtsFound => 'No courts found';
-
-  // Customers
-  @override
-  String get createCustomer => 'Add Customer';
-  @override
-  String get editCustomer => 'Edit Customer';
-  @override
-  String get deleteCustomer => 'Delete Customer';
-  @override
-  String get deleteCustomerConfirm => 'Are you sure you want to delete this customer?';
-  @override
-  String get customerSaved => 'Customer saved successfully';
-  @override
-  String get customerDeleted => 'Customer deleted successfully';
-  @override
-  String get noCustomersFound => 'No customers found';
-
-  // Governments
   @override
   String get createGovernment => 'Add Government';
+
   @override
   String get editGovernment => 'Edit Government';
+
   @override
   String get deleteGovernment => 'Delete Government';
+
   @override
-  String get deleteGovernmentConfirm => 'Are you sure you want to delete this government?';
+  String get deleteGovernmentConfirm =>
+      'Are you sure you want to delete this government?';
+
   @override
   String get governmentName => 'Government Name';
+
   @override
   String get governmentSaved => 'Government saved successfully';
+
   @override
   String get governmentDeleted => 'Government deleted successfully';
-
-  // Users
-  @override
-  String get users => 'Users';
-  @override
-  String get noUsersFound => 'No users found';
-
-  // Tenants
-  @override
-  String get tenants => 'Tenants';
-  @override
-  String get noTenantsFound => 'No tenants found';
-  @override
-  String get tenantStatusUpdated => 'Tenant status updated';
-  @override
-  String get currentTenant => 'Current';
 }

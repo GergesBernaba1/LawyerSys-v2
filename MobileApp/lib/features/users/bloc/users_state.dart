@@ -15,3 +15,8 @@ class UsersError extends UsersState {
   final String message;
   UsersError(this.message);
 }
+
+class UserOperationSuccess extends UsersState {
+  final String message;
+  UserOperationSuccess(this.message);
+}

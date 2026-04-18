@@ -80,6 +80,41 @@ import 'features/intake/screens/intake_leads_list_screen.dart';
 import 'features/users/bloc/users_bloc.dart';
 import 'features/users/repositories/users_repository.dart';
 import 'package:qadaya_lawyersys/features/users/screens/users_list_screen.dart';
+import 'features/files/bloc/files_bloc.dart';
+import 'features/files/repositories/files_repository.dart';
+import 'features/files/screens/files_list_screen.dart';
+import 'features/esign/bloc/esign_bloc.dart';
+import 'features/esign/repositories/esign_repository.dart';
+import 'features/esign/screens/esign_list_screen.dart';
+import 'features/ai-assistant/bloc/ai_assistant_bloc.dart';
+import 'features/ai-assistant/repositories/ai_assistant_repository.dart';
+import 'features/ai-assistant/screens/ai_assistant_screen.dart';
+import 'features/auditlogs/bloc/audit_logs_bloc.dart';
+import 'features/auditlogs/repositories/audit_logs_repository.dart';
+import 'features/auditlogs/screens/audit_logs_screen.dart';
+import 'features/sitings/bloc/sitings_bloc.dart';
+import 'features/sitings/repositories/sitings_repository.dart';
+import 'features/sitings/screens/sitings_list_screen.dart';
+import 'features/about/screens/about_screen.dart';
+import 'features/contact/screens/contact_screen.dart';
+import 'features/document-generation/bloc/doc_generation_bloc.dart';
+import 'features/document-generation/repositories/doc_generation_repository.dart';
+import 'features/document-generation/screens/doc_generation_screen.dart';
+import 'features/court-automation/bloc/court_automation_bloc.dart';
+import 'features/court-automation/repositories/court_automation_repository.dart';
+import 'features/court-automation/screens/court_automation_screen.dart';
+import 'features/workqueue/bloc/workqueue_bloc.dart';
+import 'features/workqueue/repositories/workqueue_repository.dart';
+import 'features/workqueue/screens/workqueue_screen.dart';
+import 'features/administration/bloc/administration_bloc.dart';
+import 'features/administration/repositories/administration_repository.dart';
+import 'features/administration/screens/administration_screen.dart';
+import 'features/subscription/bloc/subscription_bloc.dart';
+import 'features/subscription/repositories/subscription_repository.dart';
+import 'features/subscription/screens/subscription_screen.dart';
+import 'features/trust-reports/bloc/trust_reports_bloc.dart';
+import 'features/trust-reports/repositories/trust_reports_repository.dart';
+import 'features/trust-reports/screens/trust_reports_screen.dart';
 import 'shared/screens/main_screen.dart';
 import 'shared/screens/splash_screen.dart';
 import 'shared/screens/unauthorized_screen.dart';
@@ -114,6 +149,19 @@ class App extends StatelessWidget {
       '/tenants': null,
       '/documents': Permissions.dashboard,
       '/intake': null,
+      '/files': Permissions.dashboard,
+      '/esign': null,
+      '/ai-assistant': null,
+      '/audit-logs': null,
+      '/sitings': null,
+      '/about': null,
+      '/contact': null,
+      '/document-generation': null,
+      '/court-automation': null,
+      '/workqueue': null,
+      '/administration': null,
+      '/subscription': null,
+      '/trust-reports': Permissions.viewBilling,
     };
 
     final requiredPermission = routePermissions[route];
@@ -152,6 +200,17 @@ class App extends StatelessWidget {
         RepositoryProvider(
             create: (_) => EmployeesRepository(apiClient, localDatabase)),
         RepositoryProvider(create: (_) => IntakeRepository(apiClient)),
+        RepositoryProvider(create: (_) => FilesRepository(apiClient)),
+        RepositoryProvider(create: (_) => ESignRepository(apiClient)),
+        RepositoryProvider(create: (_) => AiAssistantRepository(apiClient)),
+        RepositoryProvider(create: (_) => AuditLogsRepository(apiClient)),
+        RepositoryProvider(create: (_) => SitingsRepository(apiClient: apiClient)),
+        RepositoryProvider(create: (_) => DocGenerationRepository(apiClient)),
+        RepositoryProvider(create: (_) => CourtAutomationRepository(apiClient)),
+        RepositoryProvider(create: (_) => WorkqueueRepository(apiClient)),
+        RepositoryProvider(create: (_) => AdministrationRepository(apiClient)),
+        RepositoryProvider(create: (_) => SubscriptionRepository(apiClient)),
+        RepositoryProvider(create: (_) => TrustReportsRepository(apiClient)),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -232,6 +291,39 @@ class App extends StatelessWidget {
               create: (ctx) => IntakeBloc(
                   repository: RepositoryProvider.of<IntakeRepository>(ctx))
                 ..add(LoadIntakeLeads())),
+          BlocProvider(
+              create: (ctx) => FilesBloc(
+                  filesRepository: RepositoryProvider.of<FilesRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => ESignBloc(
+                  repository: RepositoryProvider.of<ESignRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => AiAssistantBloc(
+                  repository: RepositoryProvider.of<AiAssistantRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => AuditLogsBloc(
+                  repository: RepositoryProvider.of<AuditLogsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => SitingsBloc(
+                  repository: RepositoryProvider.of<SitingsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => DocGenerationBloc(
+                  repository: RepositoryProvider.of<DocGenerationRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => CourtAutomationBloc(
+                  repository: RepositoryProvider.of<CourtAutomationRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => WorkqueueBloc(
+                  repository: RepositoryProvider.of<WorkqueueRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => AdministrationBloc(
+                  repository: RepositoryProvider.of<AdministrationRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => SubscriptionBloc(
+                  repository: RepositoryProvider.of<SubscriptionRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => TrustReportsBloc(
+                  repository: RepositoryProvider.of<TrustReportsRepository>(ctx))),
           BlocProvider(
               create: (_) => NotificationsBloc(
                   notificationsRepository: NotificationsRepository(
@@ -466,6 +558,37 @@ class _AppInitializerState extends State<_AppInitializer> {
           case '/intake':
             return MaterialPageRoute(
                 builder: (_) => const IntakeLeadsListScreen());
+          case '/files':
+            return MaterialPageRoute(builder: (_) => const FilesListScreen());
+          case '/esign':
+            return MaterialPageRoute(builder: (_) => const ESignListScreen());
+          case '/ai-assistant':
+            return MaterialPageRoute(builder: (_) => const AiAssistantScreen());
+          case '/audit-logs':
+            return MaterialPageRoute(builder: (_) => const AuditLogsScreen());
+          case '/sitings':
+            return MaterialPageRoute(builder: (_) => const SitingsListScreen());
+          case '/about':
+            return MaterialPageRoute(builder: (_) => const AboutScreen());
+          case '/contact':
+            return MaterialPageRoute(builder: (_) => const ContactScreen());
+          case '/document-generation':
+            return MaterialPageRoute(
+                builder: (_) => const DocGenerationScreen());
+          case '/court-automation':
+            return MaterialPageRoute(
+                builder: (_) => const CourtAutomationScreen());
+          case '/workqueue':
+            return MaterialPageRoute(builder: (_) => const WorkqueueScreen());
+          case '/administration':
+            return MaterialPageRoute(
+                builder: (_) => const AdministrationScreen());
+          case '/subscription':
+            return MaterialPageRoute(
+                builder: (_) => const SubscriptionScreen());
+          case '/trust-reports':
+            return MaterialPageRoute(
+                builder: (_) => const TrustReportsScreen());
           default:
             return null;
         }

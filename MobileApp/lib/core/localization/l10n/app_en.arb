@@ -200,5 +200,12 @@
   "consultationManagement": "Consultation Management",
   "consultationEmployeeHint": "You can only view and update consultations assigned to you",
   "consultationAssignmentHint": "You can assign consultations to employees from your team",
-  "employee": "Employee"
+  "employee": "Employee",
+  "createGovernment": "Add Government",
+  "editGovernment": "Edit Government",
+  "deleteGovernment": "Delete Government",
+  "deleteGovernmentConfirm": "Are you sure you want to delete this government?",
+  "governmentName": "Government Name",
+  "governmentSaved": "Government saved successfully",
+  "governmentDeleted": "Government deleted successfully"
 }

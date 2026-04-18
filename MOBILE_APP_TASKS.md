@@ -10,19 +10,19 @@
 
 | # | Module | Priority | Scope |
 |---|--------|----------|-------|
-| 1.1 | **ai-assistant** | P1 | Drafting, summarization, task suggestion screens + service wrapper around `AIAssistantController`. |
-| 1.2 | **document-generation** | P1 | Template picker, field-fill screen, generated-document preview + `DocumentGenerationController` integration. |
-| 1.3 | **esign** | P1 | Request creation, signer list, sign flow, status tracking against `ESignController`. |
-| 1.4 | **files** | P1 | File browser, upload/download, folder navigation via `FilesController`. |
-| 1.5 | **court-automation** | P1 | Automated filing submission + status tracking against `CourtAutomationController`. |
-| 1.6 | **employee-workqueue** | P1 | Assigned task queue, accept/complete flow, reassignment. |
-| 1.7 | **administration** | P2 | Admin dashboard, system toggles, tenant-level config. |
-| 1.8 | **auditlogs** | P2 | Audit trail list + filters (user, entity, date). Read-only. |
-| 1.9 | **sitings** | P2 | Court sittings list/detail/form. |
-| 1.10 | **subscription** | P2 | Package list, current plan, upgrade/cancel flow. |
-| 1.11 | **trust-reports** | P2 | Trust account reporting screen (distinct from trust-accounting transactions). |
-| 1.12 | **about-us** | P3 | Static informational screen. |
-| 1.13 | **contact-us** | P3 | Public contact form. |
+| 1.1 | ~~**ai-assistant**~~ ✅ | P1 | Drafting, summarization, task suggestion screens + service wrapper around `AIAssistantController`. |
+| 1.2 | ~~**document-generation**~~ ✅ | P1 | Template picker, field-fill screen, generated-document preview + `DocumentGenerationController` integration. |
+| 1.3 | ~~**esign**~~ ✅ | P1 | Request creation, signer list, sign flow, status tracking against `ESignController`. |
+| 1.4 | ~~**files**~~ ✅ | P1 | File browser, upload/download, folder navigation via `FilesController`. |
+| 1.5 | ~~**court-automation**~~ ✅ | P1 | Automated filing submission + status tracking against `CourtAutomationController`. |
+| 1.6 | ~~**employee-workqueue**~~ ✅ | P1 | Assigned task queue, accept/complete flow, reassignment. |
+| 1.7 | ~~**administration**~~ ✅ | P2 | Admin dashboard, system toggles, tenant-level config. |
+| 1.8 | ~~**auditlogs**~~ ✅ | P2 | Audit trail list + filters (user, entity, date). Read-only. |
+| 1.9 | ~~**sitings**~~ ✅ | P2 | Court sittings list/detail/form. |
+| 1.10 | ~~**subscription**~~ ✅ | P2 | Package list, current plan, upgrade/cancel flow. |
+| 1.11 | ~~**trust-reports**~~ ✅ | P2 | Trust account reporting screen (distinct from trust-accounting transactions). |
+| 1.12 | ~~**about-us**~~ ✅ | P3 | Static informational screen. |
+| 1.13 | ~~**contact-us**~~ ✅ | P3 | Public contact form. |
 
 ---
 
@@ -37,8 +37,8 @@
 - [ ] Requested-document workflow
 
 ### 2.2 Employees — **P0**
-- [ ] Create-employee form
-- [ ] Edit-employee form
+- [x] Create-employee form
+- [x] Edit-employee form
 - [ ] Profile image upload
 - [ ] Link to workqueue / assigned tasks
 
@@ -47,14 +47,14 @@
 - [x] Localize "Add Court" / "Edit Court" labels
 
 ### 2.4 Governments — **P1**
-- [ ] Detail screen
+- [x] Detail screen
 - [x] Create form
 - [x] Edit form
 - [x] Delete action
 
 ### 2.5 Users — **P0**
 - [x] Introduce Bloc + Model layer (currently uses `setState` directly)
-- [ ] Create / edit / delete
+- [x] Create / edit / delete
 - [ ] Role management
 - [x] Localize AppBar + messages
 
@@ -65,25 +65,25 @@
 - [x] Localize hardcoded strings ("Tenants", "Tenant status updated", "No tenants found")
 
 ### 2.7 Intake — **P1**
-- [ ] Lead list view
-- [ ] Lead detail view
-- [ ] Conflict-check UI
-- [ ] Lead assignment workflow
+- [x] Lead list view
+- [x] Lead detail view
+- [x] Conflict-check UI
+- [x] Lead assignment workflow
 - [ ] Public intake link generation
 
 ### 2.8 Client Portal — **P1**
-- [ ] Real document download (currently only shows "Download started" snackbar)
-- [ ] Message compose + reply
+- [x] Real document download (url_launcher integration)
+- [x] Message compose + reply
 - [ ] File upload to portal
 
 ### 2.9 Calendar — **P1**
-- [ ] Event creation
-- [ ] Event edit
-- [ ] Event delete
-- [ ] Date-specific event details sheet
+- [x] Event creation
+- [x] Event edit
+- [x] Event delete
+- [x] Date-specific event details sheet
 
 ### 2.10 Documents — **P1**
-- [ ] Upload from device
+- [x] Upload from device
 - [ ] Create/rename
 - [ ] Version history
 - [ ] Share / external link
@@ -97,12 +97,12 @@
 - [ ] Create / edit / delete
 
 ### 2.13 Consultations — **P2**
-- [ ] Expand detail screen (currently 82 lines, read-only)
-- [ ] Edit flow
+- [x] Expand detail screen
+- [x] Edit flow (full create/edit/delete in list screen)
 
 ### 2.14 Contenders — **P2**
-- [ ] Expand detail screen (39 lines)
-- [ ] Fix field mapping: `birthDate` rendered as "startDate" label
+- [x] Expand detail screen
+- [x] Fix field mapping: `birthDate` label corrected
 
 ---
 
@@ -121,6 +121,7 @@
 
 ## 5. UX Enhancements
 
+- [x] **P1** — Navigation drawer wired to all modules (intake, files, esign, ai-assistant, doc-generation, court-automation, sitings, workqueue, administration, subscription, trust-reports, audit-logs, about, contact).
 - [ ] **P1** — Implement real file downloads in client portal (replace snackbar stub).
 - [ ] **P2** — Form validation pass on all create/edit forms.
 - [ ] **P2** — Consistent empty-state illustrations across list screens.

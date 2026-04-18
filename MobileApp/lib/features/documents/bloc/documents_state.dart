@@ -20,3 +20,7 @@ class DocumentsError extends DocumentsState {
   final String error;
   DocumentsError(this.error);
 }
+
+class DocumentsUploading extends DocumentsState {}
+
+class DocumentsUploadSuccess extends DocumentsState {}

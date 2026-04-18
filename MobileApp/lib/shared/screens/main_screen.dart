@@ -30,6 +30,20 @@ import '../../features/consultations/screens/consultations_list_screen.dart';
 import '../../features/documents/screens/documents_list_screen.dart';
 import '../../features/tenants/screens/tenants_list_screen.dart';
 import 'package:qadaya_lawyersys/features/users/screens/users_list_screen.dart';
+import '../../features/intake/screens/intake_leads_list_screen.dart';
+import '../../features/files/screens/files_list_screen.dart';
+import '../../features/esign/screens/esign_list_screen.dart';
+import '../../features/ai-assistant/screens/ai_assistant_screen.dart';
+import '../../features/auditlogs/screens/audit_logs_screen.dart';
+import '../../features/sitings/screens/sitings_list_screen.dart';
+import '../../features/about/screens/about_screen.dart';
+import '../../features/contact/screens/contact_screen.dart';
+import '../../features/document-generation/screens/doc_generation_screen.dart';
+import '../../features/court-automation/screens/court_automation_screen.dart';
+import '../../features/workqueue/screens/workqueue_screen.dart';
+import '../../features/administration/screens/administration_screen.dart';
+import '../../features/subscription/screens/subscription_screen.dart';
+import '../../features/trust-reports/screens/trust_reports_screen.dart';
 import '../../core/realtime/signalr_service.dart';
 import '../../features/notifications/models/notification.dart' as model;
 import '../../features/notifications/bloc/notifications_bloc.dart';
@@ -144,6 +158,22 @@ class _MainScreenState extends State<MainScreen> {
         _NavItem(Icons.supervisor_account, 'Users', const UsersListScreen()),
       if (canAccessAdminModules)
         _NavItem(Icons.apartment, 'Tenants', const TenantsListScreen()),
+      _NavItem(Icons.assignment_ind, 'Intake', const IntakeLeadsListScreen()),
+      _NavItem(Icons.folder_open, 'Files', const FilesListScreen()),
+      _NavItem(Icons.draw, 'E-Sign', const ESignListScreen()),
+      _NavItem(Icons.smart_toy, 'AI Assistant', const AiAssistantScreen()),
+      _NavItem(Icons.create_new_folder, 'Document Generation', const DocGenerationScreen()),
+      _NavItem(Icons.gavel, 'Court Automation', const CourtAutomationScreen()),
+      _NavItem(Icons.event_seat, 'Sitings', const SitingsListScreen()),
+      _NavItem(Icons.queue, 'My Queue', const WorkqueueScreen()),
+      if (canAccessAdminModules) ...[
+        _NavItem(Icons.admin_panel_settings, 'Administration', const AdministrationScreen()),
+        _NavItem(Icons.subscriptions, 'Subscription', const SubscriptionScreen()),
+        _NavItem(Icons.bar_chart, 'Trust Reports', const TrustReportsScreen()),
+        _NavItem(Icons.history, 'Audit Logs', const AuditLogsScreen()),
+      ],
+      _NavItem(Icons.info_outline, 'About', const AboutScreen()),
+      _NavItem(Icons.contact_mail, 'Contact', const ContactScreen()),
       _NavItem(Icons.notifications, l.notifications,
           const NotificationsInboxScreen(),
           permission: Permissions.viewNotifications),
