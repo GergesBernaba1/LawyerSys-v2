@@ -79,21 +79,51 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
                 if (state is CourtsLoaded) {
                   final courts = state.courts;
                   if (courts.isEmpty) {
-                    return Center(child: Text(localizer.noData));
+                    return Center(child: Text(localizer.noCourtsFound));
                   }
-                  return ListView.builder(
-                    itemCount: courts.length,
-                    itemBuilder: (context, index) {
-                      final court = courts[index];
-                      return ListTile(
-                        title: Text(court.name),
-                        subtitle: Text('${court.governorate} • ${court.address}'),
-                        onTap: () {
-                          context.read<CourtsBloc>().add(SelectCourt(court.courtId));
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => CourtDetailScreen(court: court)));
-                        },
-                      );
-                    },
+                  return RefreshIndicator(
+                    onRefresh: () async => context.read<CourtsBloc>().add(RefreshCourts()),
+                    child: ListView.builder(
+                      itemCount: courts.length,
+                      itemBuilder: (context, index) {
+                        final court = courts[index];
+                        return ListTile(
+                          title: Text(court.name),
+                          subtitle: Text('${court.governorate} • ${court.address}'),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                await Navigator.push(context, MaterialPageRoute(builder: (_) => CourtFormScreen(court: court)));
+                                if (context.mounted) context.read<CourtsBloc>().add(RefreshCourts());
+                              } else if (value == 'delete') {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text(localizer.deleteCourt),
+                                    content: Text(localizer.deleteCourtConfirm),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(localizer.cancel)),
+                                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(localizer.delete)),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed == true && context.mounted) {
+                                  context.read<CourtsBloc>().add(DeleteCourt(court.courtId));
+                                }
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              PopupMenuItem(value: 'edit', child: Text(localizer.edit)),
+                              PopupMenuItem(value: 'delete', child: Text(localizer.delete)),
+                            ],
+                          ),
+                          onTap: () {
+                            context.read<CourtsBloc>().add(SelectCourt(court.courtId));
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => CourtDetailScreen(court: court)));
+                          },
+                        );
+                      },
+                    ),
                   );
                 }
                 if (state is CourtDetailLoaded) {

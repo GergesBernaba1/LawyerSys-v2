@@ -2,50 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
-import '../bloc/courts_bloc.dart';
-import '../bloc/courts_event.dart';
-import '../bloc/courts_state.dart';
-import '../models/court.dart';
+import '../bloc/customers_bloc.dart';
+import '../bloc/customers_event.dart';
+import '../bloc/customers_state.dart';
+import '../models/customer.dart';
 
-class CourtFormScreen extends StatefulWidget {
-  final CourtModel? court;
+class CustomerFormScreen extends StatefulWidget {
+  final Customer? customer;
 
-  const CourtFormScreen({super.key, this.court});
+  const CustomerFormScreen({super.key, this.customer});
 
   @override
-  State<CourtFormScreen> createState() => _CourtFormScreenState();
+  State<CustomerFormScreen> createState() => _CustomerFormScreenState();
 }
 
-class _CourtFormScreenState extends State<CourtFormScreen> {
+class _CustomerFormScreenState extends State<CustomerFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _governorateController = TextEditingController();
+  final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _notesController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _ssnController = TextEditingController();
+  final _addressController = TextEditingController();
   bool _isSaving = false;
 
-  bool get _isEditing => widget.court != null;
+  bool get _isEditing => widget.customer != null;
 
   @override
   void initState() {
     super.initState();
     if (_isEditing) {
-      _nameController.text = widget.court!.name;
-      _addressController.text = widget.court!.address;
-      _governorateController.text = widget.court!.governorate;
-      _phoneController.text = widget.court!.phone;
-      _notesController.text = widget.court!.notes;
+      _fullNameController.text = widget.customer!.fullName;
+      _phoneController.text = widget.customer!.phoneNumber ?? '';
+      _emailController.text = widget.customer!.email ?? '';
+      _ssnController.text = widget.customer!.ssn ?? '';
+      _addressController.text = widget.customer!.address ?? '';
     }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _addressController.dispose();
-    _governorateController.dispose();
+    _fullNameController.dispose();
     _phoneController.dispose();
-    _notesController.dispose();
+    _emailController.dispose();
+    _ssnController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -53,19 +53,18 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final court = CourtModel(
-      courtId: widget.court?.courtId ?? '',
-      name: _nameController.text.trim(),
-      address: _addressController.text.trim(),
-      governorate: _governorateController.text.trim(),
-      phone: _phoneController.text.trim(),
-      notes: _notesController.text.trim(),
-    );
+    final data = {
+      'fullName': _fullNameController.text.trim(),
+      'phoneNumber': _phoneController.text.trim(),
+      'email': _emailController.text.trim(),
+      'ssn': _ssnController.text.trim(),
+      'address': _addressController.text.trim(),
+    };
 
     if (_isEditing) {
-      context.read<CourtsBloc>().add(UpdateCourt(court));
+      context.read<CustomersBloc>().add(UpdateCustomer(widget.customer!.customerId, data));
     } else {
-      context.read<CourtsBloc>().add(CreateCourt(court));
+      context.read<CustomersBloc>().add(CreateCustomer(data));
     }
   }
 
@@ -74,15 +73,15 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? l.editCourt : l.createCourt)),
-      body: BlocListener<CourtsBloc, CourtsState>(
+      appBar: AppBar(title: Text(_isEditing ? l.editCustomer : l.createCustomer)),
+      body: BlocListener<CustomersBloc, CustomersState>(
         listener: (context, state) {
-          if (state is CourtOperationSuccess) {
+          if (state is CustomerOperationSuccess) {
             ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(l.courtSaved)));
+                .showSnackBar(SnackBar(content: Text(l.customerSaved)));
             Navigator.of(context).pop(true);
           }
-          if (state is CourtsError) {
+          if (state is CustomersError) {
             setState(() => _isSaving = false);
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${l.error}: ${state.message}')));
@@ -98,27 +97,9 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFormField(
-                        controller: _nameController,
+                        controller: _fullNameController,
                         decoration: InputDecoration(
-                            labelText: l.courtName,
-                            border: const OutlineInputBorder()),
-                        validator: (v) =>
-                            (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _addressController,
-                        decoration: InputDecoration(
-                            labelText: l.address,
-                            border: const OutlineInputBorder()),
-                        validator: (v) =>
-                            (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _governorateController,
-                        decoration: InputDecoration(
-                            labelText: l.governorate,
+                            labelText: l.fullName,
                             border: const OutlineInputBorder()),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
@@ -128,15 +109,30 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                            labelText: l.phone,
+                            labelText: l.phoneNumber,
                             border: const OutlineInputBorder()),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
-                        controller: _notesController,
-                        maxLines: 3,
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                            labelText: l.notes,
+                            labelText: l.email,
+                            border: const OutlineInputBorder()),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _ssnController,
+                        decoration: InputDecoration(
+                            labelText: l.ssn,
+                            border: const OutlineInputBorder()),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _addressController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                            labelText: l.address,
                             border: const OutlineInputBorder()),
                       ),
                       const SizedBox(height: 20),

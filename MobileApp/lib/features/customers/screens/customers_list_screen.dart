@@ -6,6 +6,7 @@ import '../bloc/customers_bloc.dart';
 import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
 import 'customer_detail_screen.dart';
+import 'customer_form_screen.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../cases/repositories/cases_repository.dart';
 
@@ -63,6 +64,13 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(localizer.customers)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerFormScreen()));
+          if (context.mounted) context.read<CustomersBloc>().add(RefreshCustomers());
+        },
+        child: const Icon(Icons.add),
+      ),
       body: Column(
         children: [
           Padding(
@@ -84,7 +92,13 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
             ),
           ),
           Expanded(
-            child: BlocBuilder<CustomersBloc, CustomersState>(
+            child: BlocConsumer<CustomersBloc, CustomersState>(
+              listener: (context, state) {
+                if (state is CustomerOperationSuccess) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(state.message)));
+                }
+              },
               builder: (context, state) {
                 if (state is CustomersLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -95,7 +109,7 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                 if (state is CustomersLoaded) {
                   final customers = state.customers;
                   if (customers.isEmpty) {
-                    return Center(child: Text(localizer.noDataAvailable));
+                    return Center(child: Text(localizer.noCustomersFound));
                   }
                   return RefreshIndicator(
                     onRefresh: () async {
@@ -107,18 +121,38 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                         final customer = customers[index];
                         return ListTile(
                           title: Text(customer.fullName),
-                          subtitle: Text(customer.customerId),
+                          subtitle: Text(customer.email ?? customer.phoneNumber ?? ''),
                           trailing: PopupMenuButton<String>(
-                            onSelected: (value) {
+                            onSelected: (value) async {
                               if (value == 'call') {
                                 _dial(customer.phoneNumber ?? '');
                               } else if (value == 'message') {
                                 _sms(customer.phoneNumber ?? '');
+                              } else if (value == 'edit') {
+                                await Navigator.push(context, MaterialPageRoute(builder: (_) => CustomerFormScreen(customer: customer)));
+                                if (context.mounted) context.read<CustomersBloc>().add(RefreshCustomers());
+                              } else if (value == 'delete') {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text(localizer.deleteCustomer),
+                                    content: Text(localizer.deleteCustomerConfirm),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(localizer.cancel)),
+                                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(localizer.delete)),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed == true && context.mounted) {
+                                  context.read<CustomersBloc>().add(DeleteCustomer(customer.customerId));
+                                }
                               }
                             },
                             itemBuilder: (_) => [
                               PopupMenuItem(value: 'call', child: Text(localizer.call)),
                               PopupMenuItem(value: 'message', child: Text(localizer.message)),
+                              PopupMenuItem(value: 'edit', child: Text(localizer.edit)),
+                              PopupMenuItem(value: 'delete', child: Text(localizer.delete)),
                             ],
                           ),
                           onTap: () {

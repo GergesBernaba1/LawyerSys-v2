@@ -1,8 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
-import '../repositories/users_repository.dart';
+import '../bloc/users_bloc.dart';
+import '../bloc/users_event.dart';
+import '../bloc/users_state.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({super.key});
@@ -13,14 +15,11 @@ class UsersListScreen extends StatefulWidget {
 
 class _UsersListScreenState extends State<UsersListScreen> {
   final _searchController = TextEditingController();
-  bool _loading = true;
-  String? _error;
-  List<Map<String, dynamic>> _users = const [];
 
   @override
   void initState() {
     super.initState();
-    _load();
+    context.read<UsersBloc>().add(LoadUsers());
   }
 
   @override
@@ -29,35 +28,12 @@ class _UsersListScreenState extends State<UsersListScreen> {
     super.dispose();
   }
 
-  Future<void> _load({String? search}) async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-
-    try {
-      final repo = context.read<UsersRepository>();
-      final users = await repo.getUsers(search: search);
-      if (!mounted) return;
-      setState(() {
-        _users = users;
-        _loading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Users')),
+      appBar: AppBar(title: Text(l.users)),
       body: Column(
         children: [
           Padding(
@@ -68,66 +44,67 @@ class _UsersListScreenState extends State<UsersListScreen> {
                 hintText: l.search,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () => _load(search: _searchController.text),
+                  onPressed: () => context
+                      .read<UsersBloc>()
+                      .add(SearchUsers(_searchController.text)),
                 ),
               ),
-              onSubmitted: (value) => _load(search: value),
+              onSubmitted: (value) =>
+                  context.read<UsersBloc>().add(SearchUsers(value)),
             ),
           ),
           Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => _load(search: _searchController.text),
-              child: _buildBody(l),
+            child: BlocBuilder<UsersBloc, UsersState>(
+              builder: (context, state) {
+                if (state is UsersLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is UsersError) {
+                  return ListView(children: [
+                    const SizedBox(height: 80),
+                    Center(child: Text('${l.error}: ${state.message}')),
+                  ]);
+                }
+                if (state is UsersLoaded) {
+                  if (state.users.isEmpty) {
+                    return ListView(children: [
+                      const SizedBox(height: 80),
+                      Center(child: Text(l.noUsersFound)),
+                    ]);
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        context.read<UsersBloc>().add(RefreshUsers()),
+                    child: ListView.separated(
+                      itemCount: state.users.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final user = state.users[index];
+                        final displayName = user.fullName.isNotEmpty
+                            ? user.fullName
+                            : user.userName;
+                        return ListTile(
+                          leading: const CircleAvatar(child: Icon(Icons.person)),
+                          title: Text(displayName),
+                          subtitle: Text([
+                            if (user.userName.isNotEmpty) '@${user.userName}',
+                            if (user.job != null && user.job!.isNotEmpty)
+                              user.job!,
+                            if (user.phoneNumber != null &&
+                                user.phoneNumber!.isNotEmpty)
+                              user.phoneNumber!,
+                          ].join(' • ')),
+                        );
+                      },
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBody(AppLocalizations l) {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_error != null) {
-      return ListView(
-        children: [
-          const SizedBox(height: 80),
-          Center(child: Text('Error: $_error')),
-        ],
-      );
-    }
-
-    if (_users.isEmpty) {
-      return ListView(
-        children: [
-          const SizedBox(height: 80),
-          Center(child: Text(l.noDataAvailable)),
-        ],
-      );
-    }
-
-    return ListView.separated(
-      itemCount: _users.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final user = _users[index];
-        final fullName = (user['fullName'] ?? user['FullName'] ?? '').toString();
-        final userName = (user['userName'] ?? user['UserName'] ?? '').toString();
-        final phone = (user['phoneNumber'] ?? user['PhoneNumber'] ?? '').toString();
-        final job = (user['job'] ?? user['Job'] ?? '').toString();
-
-        return ListTile(
-          leading: const CircleAvatar(child: Icon(Icons.person)),
-          title: Text(fullName.isNotEmpty ? fullName : userName),
-          subtitle: Text([
-            if (userName.isNotEmpty) '@$userName',
-            if (job.isNotEmpty) job,
-            if (phone.isNotEmpty) phone,
-          ].join(' • ')),
-        );
-      },
     );
   }
 }

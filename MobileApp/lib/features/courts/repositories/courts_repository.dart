@@ -1,4 +1,5 @@
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/court.dart';
 
 class CourtsRepository {
@@ -12,10 +13,14 @@ class CourtsRepository {
       'pageSize': pageSize,
     });
 
-    final data = response.data as List<dynamic>?;
-    if (data == null) return [];
+    final data = normalizeJsonList(response.data);
+    if (data.isEmpty) return [];
 
-    return data.map((raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(
+            (raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+        .toList();
   }
 
   Future<CourtModel?> getCourtById(String courtId) async {
@@ -30,7 +35,8 @@ class CourtsRepository {
   }
 
   Future<CourtModel> updateCourt(CourtModel court) async {
-    final response = await apiClient.put('/api/courts/${court.courtId}', data: court.toJson());
+    final response = await apiClient.put('/api/courts/${court.courtId}',
+        data: court.toJson());
     return CourtModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
@@ -39,9 +45,14 @@ class CourtsRepository {
   }
 
   Future<List<CourtModel>> searchCourts(String query) async {
-    final response = await apiClient.get('/api/courts/search', queryParameters: {'q': query});
-    final data = response.data as List<dynamic>?;
-    if (data == null) return [];
-    return data.map((raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
+    final response = await apiClient
+        .get('/api/courts/search', queryParameters: {'q': query});
+    final data = normalizeJsonList(response.data);
+    if (data.isEmpty) return [];
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(
+            (raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+        .toList();
   }
 }

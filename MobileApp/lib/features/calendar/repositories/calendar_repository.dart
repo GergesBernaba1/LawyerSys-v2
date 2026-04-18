@@ -1,4 +1,5 @@
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/calendar_event.dart';
 
 class CalendarRepository {
@@ -15,7 +16,26 @@ class CalendarRepository {
       'toDate': toDate,
     });
 
-    final eventsData = response.data as List<dynamic>? ?? [];
-    return eventsData.map((json) => CalendarEvent.fromJson(json)).toList();
+    final eventsData = normalizeJsonList(response.data);
+    return eventsData
+        .whereType<Map<String, dynamic>>()
+        .map(CalendarEvent.fromJson)
+        .toList();
+  }
+
+  Future<CalendarEvent> createEvent(Map<String, dynamic> data) async {
+    final response = await apiClient.post('/Calendar/events', data: data);
+    return CalendarEvent.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<CalendarEvent> updateEvent(String id, Map<String, dynamic> data) async {
+    final response = await apiClient.put('/Calendar/events/$id', data: data);
+    return CalendarEvent.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<void> deleteEvent(String id) async {
+    await apiClient.delete('/Calendar/events/$id');
   }
 }

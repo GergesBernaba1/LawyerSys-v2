@@ -746,12 +746,6 @@ abstract class AppLocalizations {
   /// **'Stop timer functionality'**
   String get stopTimerFunctionality;
 
-  /// No description provided for @noEventsFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No events found'**
-  String get noEventsFound;
-
   /// No description provided for @monthly.
   ///
   /// In en, this message translates to:
@@ -1303,6 +1297,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Employee'**
   String get employee;
+
+  // Calendar
+  String get createCalendarEvent;
+  String get editCalendarEvent;
+  String get deleteCalendarEvent;
+  String get deleteCalendarEventConfirm;
+  String get calendarEventTitle;
+  String get calendarEventType;
+  String get calendarEventEnd;
+  String get calendarEventEndOptional;
+  String get calendarReminderEvent;
+  String get calendarEventSaved;
+  String get calendarEventDeleted;
+  String get noEventsFound;
+
+  // Intake
+  String get intake;
+  String get leads;
+  String get noLeadsFound;
+  String get leadStatus;
+  String get leadSubject;
+  String get leadAssignedTo;
+  String get leadQualify;
+  String get leadReject;
+  String get leadAssign;
+  String get leadConflictCheck;
+  String get conflictDetected;
+  String get noConflict;
+  String get leadConvert;
+  String get nextFollowUp;
+  String get qualificationNotes;
+
+  // Portal
+  String get replyMessage;
+  String get sendMessage;
+  String get messageBody;
+  String get messageSent;
+
+  // Contenders
+  String get dateOfBirth;
+
+  // Courts
+  String get createCourt;
+  String get editCourt;
+  String get deleteCourt;
+  String get deleteCourtConfirm;
+  String get courtName;
+  String get courtSaved;
+  String get courtDeleted;
+  String get noCourtsFound;
+
+  // Customers
+  String get createCustomer;
+  String get editCustomer;
+  String get deleteCustomer;
+  String get deleteCustomerConfirm;
+  String get customerSaved;
+  String get customerDeleted;
+  String get noCustomersFound;
+
+  // Governments
+  String get createGovernment;
+  String get editGovernment;
+  String get deleteGovernment;
+  String get deleteGovernmentConfirm;
+  String get governmentName;
+  String get governmentSaved;
+  String get governmentDeleted;
+
+  // Users
+  String get users;
+  String get noUsersFound;
+
+  // Tenants
+  String get tenants;
+  String get noTenantsFound;
+  String get tenantStatusUpdated;
+  String get currentTenant;
 }
 
 class _AppLocalizationsDelegate

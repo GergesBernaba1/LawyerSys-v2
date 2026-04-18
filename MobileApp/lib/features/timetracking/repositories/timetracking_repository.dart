@@ -1,4 +1,5 @@
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/time_entry.dart';
 
 class TimeTrackingRepository {
@@ -14,19 +15,27 @@ class TimeTrackingRepository {
       queryParameters['status'] = statusFilter;
     }
 
-    final response = await apiClient.get('/TimeTracking', queryParameters: queryParameters);
-    final entriesData = response.data as List<dynamic>? ?? [];
-    return entriesData.map((json) => TimeEntry.fromJson(json)).toList();
+    final response =
+        await apiClient.get('/TimeTracking', queryParameters: queryParameters);
+    final entriesData = normalizeJsonList(response.data);
+    return entriesData
+        .whereType<Map<String, dynamic>>()
+        .map(TimeEntry.fromJson)
+        .toList();
   }
 
   Future<List<Suggestion>> getSuggestions({
     required double hourlyRate,
   }) async {
-    final response = await apiClient.get('/TimeTracking/suggestions', queryParameters: {
+    final response =
+        await apiClient.get('/TimeTracking/suggestions', queryParameters: {
       'hourlyRate': hourlyRate,
     });
-    final suggestionsData = response.data as List<dynamic>? ?? [];
-    return suggestionsData.map((json) => Suggestion.fromJson(json)).toList();
+    final suggestionsData = normalizeJsonList(response.data);
+    return suggestionsData
+        .whereType<Map<String, dynamic>>()
+        .map(Suggestion.fromJson)
+        .toList();
   }
 
   Future<List<Map<String, dynamic>>> getCaseOptions() async {

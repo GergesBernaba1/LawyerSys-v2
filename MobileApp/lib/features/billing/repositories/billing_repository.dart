@@ -1,4 +1,5 @@
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/billing.dart';
 
 class BillingRepository {
@@ -8,26 +9,38 @@ class BillingRepository {
 
   Future<List<BillingPay>> getPayments() async {
     final response = await apiClient.get('/Billing/payments');
-    final paymentsData = response.data as List<dynamic>? ?? [];
-    return paymentsData.map((json) => BillingPay.fromJson(json)).toList();
+    final paymentsData = normalizeJsonList(response.data);
+    return paymentsData
+        .whereType<Map<String, dynamic>>()
+        .map(BillingPay.fromJson)
+        .toList();
   }
 
   Future<List<BillingReceipt>> getReceipts() async {
     final response = await apiClient.get('/Billing/receipts');
-    final receiptsData = response.data as List<dynamic>? ?? [];
-    return receiptsData.map((json) => BillingReceipt.fromJson(json)).toList();
+    final receiptsData = normalizeJsonList(response.data);
+    return receiptsData
+        .whereType<Map<String, dynamic>>()
+        .map(BillingReceipt.fromJson)
+        .toList();
   }
 
   Future<List<CustomerItem>> getCustomers() async {
     final response = await apiClient.get('/Customers');
-    final customersData = response.data as List<dynamic>? ?? [];
-    return customersData.map((json) => CustomerItem.fromJson(json)).toList();
+    final customersData = normalizeJsonList(response.data);
+    return customersData
+        .whereType<Map<String, dynamic>>()
+        .map(CustomerItem.fromJson)
+        .toList();
   }
 
   Future<List<EmployeeItem>> getEmployees() async {
     final response = await apiClient.get('/Employees');
-    final employeesData = response.data as List<dynamic>? ?? [];
-    return employeesData.map((json) => EmployeeItem.fromJson(json)).toList();
+    final employeesData = normalizeJsonList(response.data);
+    return employeesData
+        .whereType<Map<String, dynamic>>()
+        .map(EmployeeItem.fromJson)
+        .toList();
   }
 
   Future<BillingSummary> getSummary() async {

@@ -29,3 +29,10 @@ class PortalMessageMarkedAsRead extends ClientPortalState {
   final String messageId;
   PortalMessageMarkedAsRead(this.messageId);
 }
+
+class PortalMessageSent extends ClientPortalState {}
+
+class PortalDocumentUrlReady extends ClientPortalState {
+  final String url;
+  PortalDocumentUrlReady(this.url);
+}

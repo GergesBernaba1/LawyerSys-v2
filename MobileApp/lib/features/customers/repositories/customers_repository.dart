@@ -1,4 +1,5 @@
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/customer.dart';
 
 class CustomersRepository {
@@ -12,10 +13,13 @@ class CustomersRepository {
       'pageSize': pageSize,
     });
 
-    final data = response.data as List<dynamic>?;
-    if (data == null) return [];
+    final data = normalizeJsonList(response.data);
+    if (data.isEmpty) return [];
 
-    return data.map((raw) => Customer.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map((raw) => Customer.fromJson(Map<String, dynamic>.from(raw as Map)))
+        .toList();
   }
 
   Future<Customer?> getCustomerById(String customerId) async {
@@ -25,9 +29,27 @@ class CustomersRepository {
   }
 
   Future<List<Customer>> searchCustomers(String query) async {
-    final response = await apiClient.get('/api/customers/search', queryParameters: {'q': query});
-    final data = response.data as List<dynamic>?;
-    if (data == null) return [];
-    return data.map((raw) => Customer.fromJson(Map<String, dynamic>.from(raw as Map))).toList();
+    final response = await apiClient
+        .get('/api/customers/search', queryParameters: {'q': query});
+    final data = normalizeJsonList(response.data);
+    if (data.isEmpty) return [];
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map((raw) => Customer.fromJson(Map<String, dynamic>.from(raw as Map)))
+        .toList();
+  }
+
+  Future<Customer> createCustomer(Map<String, dynamic> data) async {
+    final response = await apiClient.post('/api/customers', data: data);
+    return Customer.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<Customer> updateCustomer(String customerId, Map<String, dynamic> data) async {
+    final response = await apiClient.put('/api/customers/$customerId', data: data);
+    return Customer.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<void> deleteCustomer(String customerId) async {
+    await apiClient.delete('/api/customers/$customerId');
   }
 }

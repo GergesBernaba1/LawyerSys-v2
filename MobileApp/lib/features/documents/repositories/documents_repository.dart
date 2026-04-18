@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_constants.dart';
 import '../../../core/storage/local_database.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/document.dart';
 
 class DocumentsRepository {
@@ -21,9 +22,9 @@ class DocumentsRepository {
     }
 
     final response = await apiClient.get('/api/files', queryParameters: params);
-    final data = response.data as List<dynamic>?;
+    final data = normalizeJsonList(response.data);
 
-    if (data == null) {
+    if (data.isEmpty) {
       return [];
     }
 

@@ -69,9 +69,15 @@ import 'features/reports/bloc/reports_bloc.dart';
 import 'features/reports/repositories/reports_repository.dart';
 import 'features/governments/bloc/governments_bloc.dart';
 import 'features/governments/repositories/governments_repository.dart';
+import 'features/tenants/bloc/tenants_bloc.dart';
 import 'features/tenants/repositories/tenants_repository.dart';
 import 'features/tenants/screens/tenants_list_screen.dart';
 import 'features/trust-accounting/screens/trust_list_screen.dart';
+import 'features/intake/bloc/intake_bloc.dart';
+import 'features/intake/bloc/intake_event.dart';
+import 'features/intake/repositories/intake_repository.dart';
+import 'features/intake/screens/intake_leads_list_screen.dart';
+import 'features/users/bloc/users_bloc.dart';
 import 'features/users/repositories/users_repository.dart';
 import 'package:qadaya_lawyersys/features/users/screens/users_list_screen.dart';
 import 'shared/screens/main_screen.dart';
@@ -107,6 +113,7 @@ class App extends StatelessWidget {
       '/users': null,
       '/tenants': null,
       '/documents': Permissions.dashboard,
+      '/intake': null,
     };
 
     final requiredPermission = routePermissions[route];
@@ -144,6 +151,7 @@ class App extends StatelessWidget {
         RepositoryProvider(create: (_) => GovernmentsRepository(apiClient)),
         RepositoryProvider(
             create: (_) => EmployeesRepository(apiClient, localDatabase)),
+        RepositoryProvider(create: (_) => IntakeRepository(apiClient)),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -213,6 +221,17 @@ class App extends StatelessWidget {
               create: (ctx) => GovernmentsBloc(
                   governmentsRepository:
                       RepositoryProvider.of<GovernmentsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => UsersBloc(
+                  usersRepository: RepositoryProvider.of<UsersRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => TenantsBloc(
+                  tenantsRepository:
+                      RepositoryProvider.of<TenantsRepository>(ctx))),
+          BlocProvider(
+              create: (ctx) => IntakeBloc(
+                  repository: RepositoryProvider.of<IntakeRepository>(ctx))
+                ..add(LoadIntakeLeads())),
           BlocProvider(
               create: (_) => NotificationsBloc(
                   notificationsRepository: NotificationsRepository(
@@ -444,6 +463,9 @@ class _AppInitializerState extends State<_AppInitializer> {
           case '/documents':
             return MaterialPageRoute(
                 builder: (_) => const DocumentsListScreen());
+          case '/intake':
+            return MaterialPageRoute(
+                builder: (_) => const IntakeLeadsListScreen());
           default:
             return null;
         }

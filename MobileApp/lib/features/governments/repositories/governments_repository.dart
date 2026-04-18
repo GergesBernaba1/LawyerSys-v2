@@ -22,4 +22,18 @@ class GovernmentsRepository {
         .map((e) => Government.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
+
+  Future<Government> createGovernment(Map<String, dynamic> data) async {
+    final response = await apiClient.post('/api/Governments', data: data);
+    return Government.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<Government> updateGovernment(String id, Map<String, dynamic> data) async {
+    final response = await apiClient.put('/api/Governments/$id', data: data);
+    return Government.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<void> deleteGovernment(String id) async {
+    await apiClient.delete('/api/Governments/$id');
+  }
 }

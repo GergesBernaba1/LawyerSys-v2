@@ -15,3 +15,8 @@ class GovernmentsError extends GovernmentsState {
   final String message;
   GovernmentsError(this.message);
 }
+
+class GovernmentOperationSuccess extends GovernmentsState {
+  final String message;
+  GovernmentOperationSuccess(this.message);
+}

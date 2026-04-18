@@ -22,3 +22,13 @@ class CalendarError extends CalendarState {
   final String message;
   CalendarError(this.message);
 }
+
+class CalendarOperationSuccess extends CalendarState {
+  final String message;
+  final List<CalendarEvent> events;
+  final String view;
+  final DateTime anchorDate;
+  CalendarOperationSuccess(this.message, this.events,
+      {this.view = 'month', DateTime? anchorDate})
+      : anchorDate = anchorDate ?? DateTime.now();
+}

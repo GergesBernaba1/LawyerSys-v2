@@ -12,6 +12,9 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     on<SearchCustomers>(_onSearchCustomers);
     on<RefreshCustomers>(_onRefreshCustomers);
     on<LoadCustomerDetail>(_onLoadCustomerDetail);
+    on<CreateCustomer>(_onCreateCustomer);
+    on<UpdateCustomer>(_onUpdateCustomer);
+    on<DeleteCustomer>(_onDeleteCustomer);
   }
 
   Future<void> _onLoadCustomers(LoadCustomers event, Emitter<CustomersState> emit) async {
@@ -52,6 +55,42 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
       } else {
         emit(CustomersError('Customer not found'));
       }
+    } catch (e) {
+      emit(CustomersError(e.toString()));
+    }
+  }
+
+  Future<void> _onCreateCustomer(CreateCustomer event, Emitter<CustomersState> emit) async {
+    emit(CustomersLoading());
+    try {
+      await customersRepository.createCustomer(event.data);
+      emit(CustomerOperationSuccess('Customer created'));
+      final customers = await customersRepository.getCustomers();
+      emit(CustomersLoaded(customers));
+    } catch (e) {
+      emit(CustomersError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateCustomer(UpdateCustomer event, Emitter<CustomersState> emit) async {
+    emit(CustomersLoading());
+    try {
+      await customersRepository.updateCustomer(event.customerId, event.data);
+      emit(CustomerOperationSuccess('Customer updated'));
+      final customers = await customersRepository.getCustomers();
+      emit(CustomersLoaded(customers));
+    } catch (e) {
+      emit(CustomersError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteCustomer(DeleteCustomer event, Emitter<CustomersState> emit) async {
+    emit(CustomersLoading());
+    try {
+      await customersRepository.deleteCustomer(event.customerId);
+      emit(CustomerOperationSuccess('Customer deleted'));
+      final customers = await customersRepository.getCustomers();
+      emit(CustomersLoaded(customers));
     } catch (e) {
       emit(CustomersError(e.toString()));
     }

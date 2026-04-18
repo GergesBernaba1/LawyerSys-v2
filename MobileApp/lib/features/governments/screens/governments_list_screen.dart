@@ -6,6 +6,7 @@ import '../bloc/governments_bloc.dart';
 import '../bloc/governments_event.dart';
 import '../bloc/governments_state.dart';
 import '../models/government.dart';
+import 'government_form_screen.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -54,6 +55,14 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
         title: Text(l.governments),
         backgroundColor: _kPrimary,
         elevation: 0,
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: _kPrimary,
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (_) => const GovernmentFormScreen()));
+          if (context.mounted) context.read<GovernmentsBloc>().add(RefreshGovernments());
+        },
+        child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
@@ -113,6 +122,14 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                       ],
                     ),
                   );
+                }
+                if (state is GovernmentOperationSuccess) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(state.message)));
+                    }
+                  });
                 }
                 if (_filtered.isEmpty && state is GovernmentsLoaded) {
                   return Center(
@@ -190,9 +207,33 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                               color: _kTextSecondary,
                             ),
                           ),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: _kPrimaryLight.withValues(alpha: 0.5),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              final gov = _filtered[index];
+                              if (value == 'edit') {
+                                await Navigator.push(context, MaterialPageRoute(builder: (_) => GovernmentFormScreen(government: gov)));
+                                if (context.mounted) context.read<GovernmentsBloc>().add(RefreshGovernments());
+                              } else if (value == 'delete') {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text(l.deleteGovernment),
+                                    content: Text(l.deleteGovernmentConfirm),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
+                                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.delete)),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed == true && context.mounted) {
+                                  context.read<GovernmentsBloc>().add(DeleteGovernment(gov.governorateId));
+                                }
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              PopupMenuItem(value: 'edit', child: Text(l.edit)),
+                              PopupMenuItem(value: 'delete', child: Text(l.delete)),
+                            ],
                           ),
                         ),
                       );

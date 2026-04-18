@@ -22,3 +22,14 @@ class SelectPortalMessage extends ClientPortalEvent {
   final PortalMessageModel message;
   SelectPortalMessage(this.message);
 }
+
+class SendPortalMessage extends ClientPortalEvent {
+  final String subject;
+  final String body;
+  SendPortalMessage({required this.subject, required this.body});
+}
+
+class DownloadPortalDocument extends ClientPortalEvent {
+  final String messageId;
+  DownloadPortalDocument(this.messageId);
+}

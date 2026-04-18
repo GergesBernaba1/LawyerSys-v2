@@ -12,6 +12,9 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
     on<bloc_calendar_event.RefreshCalendarEvents>(_onRefreshCalendarEvents);
     on<bloc_calendar_event.ChangeView>(_onChangeView);
     on<bloc_calendar_event.ChangeDate>(_onChangeDate);
+    on<bloc_calendar_event.CreateCalendarEvent>(_onCreateEvent);
+    on<bloc_calendar_event.UpdateCalendarEvent>(_onUpdateEvent);
+    on<bloc_calendar_event.DeleteCalendarEvent>(_onDeleteEvent);
   }
 
   Future<void> _onLoadCalendarEvents(
@@ -72,6 +75,48 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
         view: 'month',
         anchorDate: event.date,
       ));
+    }
+  }
+
+  Future<void> _onCreateEvent(
+      bloc_calendar_event.CreateCalendarEvent event, Emitter<CalendarState> emit) async {
+    emit(CalendarLoading());
+    try {
+      await calendarRepository.createEvent(event.data);
+      final events = await calendarRepository.getEvents(
+          fromDate: event.fromDate, toDate: event.toDate);
+      emit(CalendarOperationSuccess('Event created', events));
+      emit(CalendarLoaded(events));
+    } catch (e) {
+      emit(CalendarError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateEvent(
+      bloc_calendar_event.UpdateCalendarEvent event, Emitter<CalendarState> emit) async {
+    emit(CalendarLoading());
+    try {
+      await calendarRepository.updateEvent(event.id, event.data);
+      final events = await calendarRepository.getEvents(
+          fromDate: event.fromDate, toDate: event.toDate);
+      emit(CalendarOperationSuccess('Event updated', events));
+      emit(CalendarLoaded(events));
+    } catch (e) {
+      emit(CalendarError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteEvent(
+      bloc_calendar_event.DeleteCalendarEvent event, Emitter<CalendarState> emit) async {
+    emit(CalendarLoading());
+    try {
+      await calendarRepository.deleteEvent(event.id);
+      final events = await calendarRepository.getEvents(
+          fromDate: event.fromDate, toDate: event.toDate);
+      emit(CalendarOperationSuccess('Event deleted', events));
+      emit(CalendarLoaded(events));
+    } catch (e) {
+      emit(CalendarError(e.toString()));
     }
   }
 }

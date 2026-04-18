@@ -15,6 +15,8 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
     on<MarkMessageAsRead>(_onMarkMessageAsRead);
     on<LoadPortalDocuments>(_onLoadPortalDocuments);
     on<RefreshPortalDocuments>(_onRefreshPortalDocuments);
+    on<SendPortalMessage>(_onSendMessage);
+    on<DownloadPortalDocument>(_onDownloadDocument);
   }
 
   Future<void> _onLoadPortalMessages(LoadPortalMessages event, Emitter<ClientPortalState> emit) async {
@@ -74,6 +76,31 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
     try {
       final docs = await clientPortalRepository.getDocuments();
       emit(ClientPortalDocumentsLoaded(docs));
+    } catch (e) {
+      emit(ClientPortalError(e.toString()));
+    }
+  }
+
+  Future<void> _onSendMessage(SendPortalMessage event, Emitter<ClientPortalState> emit) async {
+    emit(ClientPortalLoading());
+    try {
+      await clientPortalRepository.sendMessage(event.subject, event.body);
+      emit(PortalMessageSent());
+      final messages = await clientPortalRepository.getMessages();
+      emit(ClientPortalMessagesLoaded(messages));
+    } catch (e) {
+      emit(ClientPortalError(e.toString()));
+    }
+  }
+
+  Future<void> _onDownloadDocument(DownloadPortalDocument event, Emitter<ClientPortalState> emit) async {
+    try {
+      final url = await clientPortalRepository.getDocumentDownloadUrl(event.messageId);
+      if (url != null && url.isNotEmpty) {
+        emit(PortalDocumentUrlReady(url));
+      } else {
+        emit(ClientPortalError('Download URL not available'));
+      }
     } catch (e) {
       emit(ClientPortalError(e.toString()));
     }

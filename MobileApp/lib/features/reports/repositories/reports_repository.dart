@@ -1,4 +1,5 @@
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/json_utils.dart';
 import '../models/report.dart';
 
 class ReportsRepository {
@@ -23,11 +24,12 @@ class ReportsRepository {
   }
 
   Future<List<OutstandingBalance>> getOutstandingBalances() async {
-    final response =
-        await apiClient.get('/api/Reports/outstanding-balances');
-    return (response.data as List<dynamic>? ?? [])
-        .map((e) => OutstandingBalance.fromJson(
-            Map<String, dynamic>.from(e as Map)))
+    final response = await apiClient.get('/api/Reports/outstanding-balances');
+    final data = normalizeJsonList(response.data);
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map((e) =>
+            OutstandingBalance.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 

@@ -20,3 +20,8 @@ class CustomerDetailLoaded extends CustomersState {
   final Customer customer;
   CustomerDetailLoaded(this.customer);
 }
+
+class CustomerOperationSuccess extends CustomersState {
+  final String message;
+  CustomerOperationSuccess(this.message);
+}
