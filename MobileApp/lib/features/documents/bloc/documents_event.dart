@@ -20,3 +20,14 @@ class UploadDocument extends DocumentsEvent {
   final String? description;
   UploadDocument(this.filePath, {this.title, this.description});
 }
+
+class ShareDocument extends DocumentsEvent {
+  final int documentId;
+  ShareDocument(this.documentId);
+}
+
+class RenameDocument extends DocumentsEvent {
+  final int documentId;
+  final String newName;
+  RenameDocument({required this.documentId, required this.newName});
+}

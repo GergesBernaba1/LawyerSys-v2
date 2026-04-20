@@ -745,4 +745,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tenantStatusUpdated => 'Tenant status updated';
   @override
   String get currentTenant => 'Current';
+  @override
+  String get createTenant => 'Create Tenant';
+  @override
+  String get editTenant => 'Edit Tenant';
+  @override
+  String get deleteTenant => 'Delete Tenant';
+  @override
+  String get deleteTenantConfirm => 'Are you sure you want to delete this tenant?';
+  @override
+  String get tenantName => 'Tenant Name';
+  @override
+  String get tenantSaved => 'Tenant saved successfully';
+  @override
+  String get tenantDeleted => 'Tenant deleted successfully';
+
+  // Users / Roles
+  @override
+  String get changeRole => 'Change Role';
+  @override
+  String get roleSaved => 'Role updated successfully';
+
+  // Documents
+  @override
+  String get uploadDocument => 'Upload Document';
+  @override
+  String get shareDocument => 'Share Document';
+  @override
+  String get shareLink => 'Share Link';
+  @override
+  String get copyLink => 'Copy Link';
+  @override
+  String get openInBrowser => 'Open in Browser';
+
+  // Case Relations
+  @override
+  String get caseRelations => 'Case Relations';
+  @override
+  String get addRelation => 'Add Relation';
+  @override
+  String get deleteRelation => 'Remove Relation';
+  @override
+  String get relationType => 'Relation Type';
+  @override
+  String get relatedCase => 'Related Case';
+  @override
+  String get noRelationsFound => 'No relations found';
 }

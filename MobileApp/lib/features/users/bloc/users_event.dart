@@ -42,3 +42,9 @@ class DeleteUser extends UsersEvent {
   final String id;
   DeleteUser(this.id);
 }
+
+class ChangeUserRole extends UsersEvent {
+  final String id;
+  final String role;
+  ChangeUserRole({required this.id, required this.role});
+}

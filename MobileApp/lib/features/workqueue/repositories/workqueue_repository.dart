@@ -32,4 +32,13 @@ class WorkqueueRepository {
   Future<void> reassignTask(int id, int newEmployeeId) async {
     await apiClient.put('/tasks/$id', data: {'assignedToId': newEmployeeId});
   }
+
+  Future<List<WorkqueueTask>> getTasksByEmployee(int userId) async {
+    final response = await apiClient.get('/tasks', queryParameters: {
+      'assignedToId': userId,
+      'pageSize': 20,
+    });
+    final items = normalizeJsonList(response.data);
+    return items.whereType<Map<String, dynamic>>().map(WorkqueueTask.fromJson).toList();
+  }
 }

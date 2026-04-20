@@ -1367,6 +1367,32 @@ abstract class AppLocalizations {
   String get noTenantsFound;
   String get tenantStatusUpdated;
   String get currentTenant;
+  String get createTenant;
+  String get editTenant;
+  String get deleteTenant;
+  String get deleteTenantConfirm;
+  String get tenantName;
+  String get tenantSaved;
+  String get tenantDeleted;
+
+  // Users / Roles
+  String get changeRole;
+  String get roleSaved;
+
+  // Documents
+  String get uploadDocument;
+  String get shareDocument;
+  String get shareLink;
+  String get copyLink;
+  String get openInBrowser;
+
+  // Case Relations
+  String get caseRelations;
+  String get addRelation;
+  String get deleteRelation;
+  String get relationType;
+  String get relatedCase;
+  String get noRelationsFound;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../core/api/api_client.dart';
 import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../authentication/bloc/auth_bloc.dart';
 import '../../authentication/bloc/auth_state.dart';
 import '../../authentication/models/user_session.dart';
+import '../../workqueue/models/workqueue_task.dart';
+import '../../workqueue/repositories/workqueue_repository.dart';
 import '../bloc/employees_bloc.dart';
 import '../bloc/employees_event.dart';
 import '../bloc/employees_state.dart';
 import '../models/employee.dart';
+import '../repositories/employees_repository.dart';
 
 class EmployeeDetailScreen extends StatefulWidget {
   const EmployeeDetailScreen({
@@ -32,6 +37,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
 
   bool _isEditingSalary = false;
   bool _isSaving = false;
+  bool _isUploadingImage = false;
+  late final Future<List<WorkqueueTask>> _tasksFuture;
 
   @override
   void initState() {
@@ -46,6 +53,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         TextEditingController(text: widget.employeeModel.identity?.email ?? '');
     _salaryController =
         TextEditingController(text: widget.employeeModel.salary.toString());
+    _tasksFuture = WorkqueueRepository(ApiClient())
+        .getTasksByEmployee(widget.employeeModel.usersId);
   }
 
   @override
@@ -56,6 +65,31 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     _emailController.dispose();
     _salaryController.dispose();
     super.dispose();
+  }
+
+  Future<void> _uploadProfileImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked == null || !mounted) return;
+
+    setState(() => _isUploadingImage = true);
+    try {
+      final repo = RepositoryProvider.of<EmployeesRepository>(context);
+      await repo.uploadProfileImage(widget.employeeModel.id, picked.path);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile photo updated')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
   }
 
   void _saveSalary() {
@@ -96,6 +130,21 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
       appBar: AppBar(
         title: Text(localizer.employeeDetails),
         actions: [
+          if (_isUploadingImage)
+            const Padding(
+              padding: EdgeInsets.all(12.0),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.add_a_photo),
+              tooltip: 'Upload Profile Photo',
+              onPressed: _uploadProfileImage,
+            ),
           if (canEditSalary)
             IconButton(
               icon: Icon(_isEditingSalary ? Icons.save : Icons.edit),
@@ -170,6 +219,55 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                 const SizedBox(height: 16),
                 const Center(child: CircularProgressIndicator()),
               ],
+              const SizedBox(height: 24),
+              Text(
+                'Assigned Tasks', // TODO: localize
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              FutureBuilder<List<WorkqueueTask>>(
+                future: _tasksFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('No assigned tasks'); // TODO: localize
+                  }
+                  final tasks = snapshot.data!.take(5).toList();
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      final task = tasks[index];
+                      Color chipColor;
+                      switch (task.status) {
+                        case 'Completed':
+                          chipColor = Colors.green;
+                          break;
+                        case 'InProgress':
+                          chipColor = Colors.orange;
+                          break;
+                        default:
+                          chipColor = Colors.grey;
+                      }
+                      return ListTile(
+                        title: Text(task.title),
+                        trailing: Chip(
+                          label: Text(
+                            task.status,
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          backgroundColor: chipColor.withValues(alpha: 0.15),
+                          side: BorderSide.none,
+                          labelStyle: TextStyle(color: chipColor),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
         ),

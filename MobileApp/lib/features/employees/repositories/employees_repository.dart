@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+
 import '../../../core/api/api_client.dart';
 import '../../../core/storage/local_database.dart';
 import '../models/employee.dart';
@@ -114,6 +116,16 @@ class EmployeesRepository {
   Future<void> deleteEmployee(int employeeId) async {
     await apiClient.delete('/employees/$employeeId');
     await localDatabase.deleteEmployee(employeeId.toString());
+  }
+
+  Future<void> uploadProfileImage(int employeeId, String filePath) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        filePath,
+        filename: filePath.split('/').last,
+      ),
+    });
+    await apiClient.post('/employees/$employeeId/profile-image', data: formData);
   }
 
   Future<List<EmployeeModel>> searchEmployees(String query,

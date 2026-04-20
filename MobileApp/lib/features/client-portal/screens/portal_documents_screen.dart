@@ -33,12 +33,146 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
     }
   }
 
+  void _showUploadSheet(BuildContext context) {
+    final filePathController = TextEditingController();
+    final titleController = TextEditingController();
+    final bloc = context.read<ClientPortalBloc>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        return BlocProvider.value(
+          value: bloc,
+          child: BlocListener<ClientPortalBloc, ClientPortalState>(
+            listener: (ctx, state) {
+              if (state is PortalDocumentUploaded) {
+                Navigator.pop(sheetCtx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Document uploaded')), // TODO: localize
+                );
+              } else if (state is ClientPortalError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${AppLocalizations.of(context)!.error}: ${state.message}')),
+                );
+              }
+            },
+            child: StatefulBuilder(
+              builder: (ctx, setSheetState) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Drag handle
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        'Upload Document', // TODO: localize
+                        style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
+                      // TODO: replace with FilePicker
+                      TextField(
+                        controller: filePathController,
+                        decoration: const InputDecoration(
+                          labelText: 'File Path', // TODO: localize
+                          hintText: '/storage/emulated/0/Documents/file.pdf',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (_) => setSheetState(() {}),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: titleController,
+                        decoration: const InputDecoration(
+                          labelText: 'Title (optional)', // TODO: localize
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      BlocBuilder<ClientPortalBloc, ClientPortalState>(
+                        builder: (_, state) {
+                          final isUploading = state is PortalDocumentUploading;
+                          return ElevatedButton.icon(
+                            icon: isUploading
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Icon(Icons.upload),
+                            label: Text(isUploading
+                                ? 'Uploading...' // TODO: localize
+                                : 'Upload'), // TODO: localize
+                            onPressed: isUploading
+                                ? null
+                                : () {
+                                    final path = filePathController.text.trim();
+                                    if (path.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Please enter a file path')), // TODO: localize
+                                      );
+                                      return;
+                                    }
+                                    ctx.read<ClientPortalBloc>().add(
+                                          UploadPortalDocument(
+                                            filePath: path,
+                                            title: titleController.text.trim().isEmpty
+                                                ? null
+                                                : titleController.text.trim(),
+                                          ),
+                                        );
+                                  },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    ).whenComplete(() {
+      filePathController.dispose();
+      titleController.dispose();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(l.portalDocuments)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showUploadSheet(context),
+        child: const Icon(Icons.upload_file),
+      ),
       body: BlocConsumer<ClientPortalBloc, ClientPortalState>(
         listener: (context, state) {
           if (state is ClientPortalError) {
@@ -50,7 +184,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
           }
         },
         builder: (context, state) {
-          if (state is ClientPortalLoading) {
+          if (state is ClientPortalLoading || state is PortalDocumentUploading) {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is ClientPortalError) {

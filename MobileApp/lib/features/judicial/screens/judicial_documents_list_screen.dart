@@ -5,6 +5,7 @@ import '../bloc/judicial_documents_bloc.dart';
 import '../bloc/judicial_documents_event.dart';
 import '../bloc/judicial_documents_state.dart';
 import '../models/judicial_document.dart';
+import 'judicial_document_detail_screen.dart';
 
 class JudicialDocumentsListScreen extends StatefulWidget {
   const JudicialDocumentsListScreen({super.key});
@@ -187,6 +188,15 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
                                   ],
                                 ),
                                 isThreeLine: doc.customerName != null && doc.docDetails.isNotEmpty,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => BlocProvider.value(
+                                      value: context.read<JudicialDocumentsBloc>(),
+                                      child: JudicialDocumentDetailScreen(document: doc),
+                                    ),
+                                  ),
+                                ),
                               );
                             },
                           ),

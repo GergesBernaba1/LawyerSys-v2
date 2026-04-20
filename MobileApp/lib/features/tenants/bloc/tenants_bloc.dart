@@ -12,6 +12,9 @@ class TenantsBloc extends Bloc<TenantsEvent, TenantsState> {
     on<LoadTenants>(_onLoad);
     on<RefreshTenants>(_onRefresh);
     on<UpdateTenantStatus>(_onUpdateStatus);
+    on<CreateTenant>(_onCreateTenant);
+    on<UpdateTenant>(_onUpdateTenant);
+    on<DeleteTenant>(_onDeleteTenant);
   }
 
   Future<void> _onLoad(LoadTenants event, Emitter<TenantsState> emit) async {
@@ -35,6 +38,36 @@ class TenantsBloc extends Bloc<TenantsEvent, TenantsState> {
     try {
       await tenantsRepository.updateTenantStatus(event.id, event.isActive);
       emit(TenantStatusUpdated('Tenant status updated'));
+      emit(TenantsLoaded(await _fetch()));
+    } catch (e) {
+      emit(TenantsError(e.toString()));
+    }
+  }
+
+  Future<void> _onCreateTenant(CreateTenant event, Emitter<TenantsState> emit) async {
+    try {
+      await tenantsRepository.createTenant(event.data);
+      emit(TenantOperationSuccess('Tenant created successfully')); // TODO: localize
+      emit(TenantsLoaded(await _fetch()));
+    } catch (e) {
+      emit(TenantsError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateTenant(UpdateTenant event, Emitter<TenantsState> emit) async {
+    try {
+      await tenantsRepository.updateTenant(event.id, event.data);
+      emit(TenantOperationSuccess('Tenant updated successfully')); // TODO: localize
+      emit(TenantsLoaded(await _fetch()));
+    } catch (e) {
+      emit(TenantsError(e.toString()));
+    }
+  }
+
+  Future<void> _onDeleteTenant(DeleteTenant event, Emitter<TenantsState> emit) async {
+    try {
+      await tenantsRepository.deleteTenant(event.id);
+      emit(TenantOperationSuccess('Tenant deleted successfully')); // TODO: localize
       emit(TenantsLoaded(await _fetch()));
     } catch (e) {
       emit(TenantsError(e.toString()));

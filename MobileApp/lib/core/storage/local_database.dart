@@ -14,7 +14,12 @@ class LocalDatabase {
   Future<Database> get database async {
     if (_db != null) return _db!;
     final path = join(await getDatabasesPath(), 'lawyersys.db');
-    _db = await openDatabase(path, version: 1, onCreate: _onCreate);
+    _db = await openDatabase(
+      path,
+      version: 2,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
     return _db!;
   }
 
@@ -121,6 +126,30 @@ class LocalDatabase {
         occurredAt TEXT
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE calendar_events(
+        eventId TEXT PRIMARY KEY,
+        data TEXT,
+        fromDate TEXT,
+        toDate TEXT,
+        lastSyncedAt TEXT
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS calendar_events(
+          eventId TEXT PRIMARY KEY,
+          data TEXT,
+          fromDate TEXT,
+          toDate TEXT,
+          lastSyncedAt TEXT
+        )
+      ''');
+    }
   }
 
   Future<void> upsertCase(String caseId, Map<String, dynamic> caseJson, {String? tenantId, bool isDirty = false}) async {
@@ -422,6 +451,41 @@ class LocalDatabase {
     await db.delete('notifications');
     await db.delete('dashboard');
     await db.delete('employees');
+  }
+
+  Future<void> upsertCalendarEvent(
+      String eventId, Map<String, dynamic> eventJson,
+      {String? fromDate, String? toDate}) async {
+    final db = await database;
+    await db.insert(
+      'calendar_events',
+      {
+        'eventId': eventId,
+        'data': jsonEncode(eventJson),
+        'fromDate': fromDate,
+        'toDate': toDate,
+        'lastSyncedAt': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getCalendarEvents(
+      {String? fromDate, String? toDate, int limit = 200}) async {
+    final db = await database;
+    if (fromDate != null && toDate != null) {
+      // Return events that overlap the requested range
+      return db.rawQuery(
+        '''SELECT * FROM calendar_events
+           WHERE (fromDate IS NULL OR fromDate <= ?)
+             AND (toDate IS NULL OR toDate >= ?)
+           ORDER BY lastSyncedAt DESC
+           LIMIT ?''',
+        [toDate, fromDate, limit],
+      );
+    }
+    return db.query('calendar_events',
+        orderBy: 'lastSyncedAt DESC', limit: limit);
   }
 }
 

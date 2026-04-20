@@ -219,6 +219,50 @@ class _UsersListScreenState extends State<UsersListScreen> {
     jobController.dispose();
   }
 
+  Future<void> _showChangeRoleDialog(BuildContext context, UserModel user) async {
+    String selectedRole = 'Employee';
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return AlertDialog(
+            title: const Text('Change Role'), // TODO: localize
+            content: DropdownButtonFormField<String>(
+              value: selectedRole,
+              decoration: const InputDecoration(
+                labelText: 'Role', // TODO: localize
+              ),
+              items: const [
+                DropdownMenuItem(value: 'Employee', child: Text('Employee')), // TODO: localize
+                DropdownMenuItem(value: 'Admin', child: Text('Admin')), // TODO: localize
+                DropdownMenuItem(value: 'SuperAdmin', child: Text('SuperAdmin')), // TODO: localize
+              ],
+              onChanged: (v) {
+                if (v != null) setDialogState(() => selectedRole = v);
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'), // TODO: localize
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  context
+                      .read<UsersBloc>()
+                      .add(ChangeUserRole(id: user.id, role: selectedRole));
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Confirm'), // TODO: localize
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _confirmDelete(BuildContext context, UserModel user) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -347,6 +391,8 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                         _showUserForm(context, user);
                                       } else if (v == 'delete') {
                                         _confirmDelete(context, user);
+                                      } else if (v == 'change_role') {
+                                        _showChangeRoleDialog(context, user);
                                       }
                                     },
                                     itemBuilder: (_) => [
@@ -356,6 +402,14 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                           const Icon(Icons.edit, size: 18),
                                           const SizedBox(width: 8),
                                           const Text('Edit'), // TODO: localize
+                                        ]),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'change_role',
+                                        child: Row(children: [
+                                          const Icon(Icons.manage_accounts, size: 18),
+                                          const SizedBox(width: 8),
+                                          const Text('Change Role'), // TODO: localize
                                         ]),
                                       ),
                                       PopupMenuItem(

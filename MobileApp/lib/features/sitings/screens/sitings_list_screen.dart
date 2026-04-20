@@ -45,6 +45,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
         text: siting?.courtId != null ? siting!.courtId.toString() : '');
     final notesCtrl = TextEditingController(text: siting?.notes ?? '');
     DateTime selectedDate = siting?.sitingDate ?? DateTime.now();
+    final formKey = GlobalKey<FormState>();
 
     await showDialog<void>(
       context: context,
@@ -59,70 +60,74 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
                 style: const TextStyle(color: _kPrimary, fontWeight: FontWeight.w700),
               ),
               content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: caseCodeCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Case Code', // TODO localize
-                        border: OutlineInputBorder(),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: caseCodeCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Case Code', // TODO localize
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: courtIdCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Court ID', // TODO localize
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: courtIdCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Court ID', // TODO localize
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.calendar_today, size: 18),
-                      label: Text(_formatDateTime(selectedDate)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: _kPrimary,
-                        side: const BorderSide(color: _kPrimary),
-                        minimumSize: const Size(double.infinity, 48),
-                      ),
-                      onPressed: () async {
-                        final pickedDate = await showDatePicker(
-                          context: ctx,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (pickedDate == null) return;
-                        if (!ctx.mounted) return;
-                        final pickedTime = await showTimePicker(
-                          context: ctx,
-                          initialTime: TimeOfDay.fromDateTime(selectedDate),
-                        );
-                        if (pickedTime == null) return;
-                        setDialogState(() {
-                          selectedDate = DateTime(
-                            pickedDate.year,
-                            pickedDate.month,
-                            pickedDate.day,
-                            pickedTime.hour,
-                            pickedTime.minute,
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.calendar_today, size: 18),
+                        label: Text(_formatDateTime(selectedDate)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _kPrimary,
+                          side: const BorderSide(color: _kPrimary),
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                        onPressed: () async {
+                          final pickedDate = await showDatePicker(
+                            context: ctx,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
                           );
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: notesCtrl,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Notes', // TODO localize
-                        border: OutlineInputBorder(),
-                        alignLabelWithHint: true,
+                          if (pickedDate == null) return;
+                          if (!ctx.mounted) return;
+                          final pickedTime = await showTimePicker(
+                            context: ctx,
+                            initialTime: TimeOfDay.fromDateTime(selectedDate),
+                          );
+                          if (pickedTime == null) return;
+                          setDialogState(() {
+                            selectedDate = DateTime(
+                              pickedDate.year,
+                              pickedDate.month,
+                              pickedDate.day,
+                              pickedTime.hour,
+                              pickedTime.minute,
+                            );
+                          });
+                        },
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: notesCtrl,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: 'Notes', // TODO localize
+                          border: OutlineInputBorder(),
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -133,6 +138,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: _kPrimary),
                   onPressed: () {
+                    if (!formKey.currentState!.validate()) return;
                     final data = <String, dynamic>{
                       'caseCode': caseCodeCtrl.text.trim(),
                       if (courtIdCtrl.text.trim().isNotEmpty)

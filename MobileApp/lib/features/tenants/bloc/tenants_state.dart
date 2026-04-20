@@ -20,3 +20,8 @@ class TenantStatusUpdated extends TenantsState {
   final String message;
   TenantStatusUpdated(this.message);
 }
+
+class TenantOperationSuccess extends TenantsState {
+  final String message;
+  TenantOperationSuccess(this.message);
+}

@@ -24,3 +24,10 @@ class DocumentsError extends DocumentsState {
 class DocumentsUploading extends DocumentsState {}
 
 class DocumentsUploadSuccess extends DocumentsState {}
+
+class DocumentShareLinkLoaded extends DocumentsState {
+  final String url;
+  DocumentShareLinkLoaded(this.url);
+}
+
+class DocumentRenamed extends DocumentsState {}

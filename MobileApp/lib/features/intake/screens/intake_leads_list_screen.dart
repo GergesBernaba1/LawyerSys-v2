@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/api/api_client.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../bloc/intake_bloc.dart';
 import '../bloc/intake_event.dart';
 import '../bloc/intake_state.dart';
+import '../repositories/intake_repository.dart';
 import 'intake_lead_detail_screen.dart';
 import 'intake_form_screen.dart';
 
@@ -40,6 +43,68 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
     super.dispose();
   }
 
+  Future<void> _onPublicLinkTapped() async {
+    final link = await IntakeRepository(ApiClient()).getPublicIntakeLink();
+    if (!mounted) return;
+    if (link == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Public intake link not available')), // TODO: localize
+      );
+      return;
+    }
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const Text(
+                'Public Intake Link', // TODO: localize
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: SelectableText(link)),
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    tooltip: 'Copy', // TODO: localize
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: link));
+                      Navigator.pop(sheetCtx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Link copied')), // TODO: localize
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _applyFilter() {
     context.read<IntakeBloc>().add(LoadIntakeLeads(
           status: _statusFilter,
@@ -57,6 +122,11 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
       appBar: AppBar(
         title: Text(l.leads),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.link),
+            tooltip: 'Public Intake Link', // TODO: localize
+            onPressed: _onPublicLinkTapped,
+          ),
           PopupMenuButton<String?>(
             icon: const Icon(Icons.filter_list),
             onSelected: (v) {

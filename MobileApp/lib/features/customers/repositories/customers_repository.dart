@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../core/api/api_client.dart';
 import '../../../core/utils/json_utils.dart';
 import '../models/customer.dart';
@@ -51,5 +53,15 @@ class CustomersRepository {
 
   Future<void> deleteCustomer(String customerId) async {
     await apiClient.delete('/api/customers/$customerId');
+  }
+
+  Future<void> uploadProfileImage(String customerId, String filePath) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        filePath,
+        filename: filePath.split('/').last,
+      ),
+    });
+    await apiClient.post('/customers/$customerId/profile-image', data: formData);
   }
 }

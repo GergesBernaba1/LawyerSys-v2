@@ -106,7 +106,9 @@ class _ReportsScreenState extends State<ReportsScreen>
                     children: [
                       _FinancialTab(state: state),
                       _OutstandingTab(
-                          balances: state.outstandingBalances),
+                          balances: state.outstandingBalances,
+                          year: state.year,
+                          month: state.month),
                     ],
                   );
                 }
@@ -276,40 +278,67 @@ class _FinancialTab extends StatelessWidget {
 
 class _OutstandingTab extends StatelessWidget {
   final List<OutstandingBalance> balances;
+  final int year;
+  final int month;
 
-  const _OutstandingTab({required this.balances});
+  const _OutstandingTab({
+    required this.balances,
+    required this.year,
+    required this.month,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (balances.isEmpty) {
-      return const Center(child: Text('No outstanding balances'));
+      return RefreshIndicator(
+        onRefresh: () async {
+          context.read<ReportsBloc>().add(
+                RefreshReports(year: year, month: month),
+              );
+          await Future.delayed(const Duration(milliseconds: 500));
+        },
+        child: ListView(
+          children: const [
+            SizedBox(height: 200),
+            Center(child: Text('No outstanding balances')),
+          ],
+        ),
+      );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(12),
-      itemCount: balances.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final b = balances[index];
-        final isPositive = b.outstandingBalance > 0;
-        return ListTile(
-          dense: true,
-          title: Text(b.customerName,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: Text(
-              'Case total: ${b.casesTotalAmount.toStringAsFixed(2)}  •  Paid: ${b.paidAmount.toStringAsFixed(2)}'),
-          trailing: Text(
-            b.outstandingBalance.toStringAsFixed(2),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isPositive ? Colors.red : Colors.green,
-            ),
-          ),
-          onTap: () => context
-              .read<ReportsBloc>()
-              .add(LoadCustomerBillingHistory(b.customerId)),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<ReportsBloc>().add(
+              RefreshReports(year: year, month: month),
+            );
+        await Future.delayed(const Duration(milliseconds: 500));
       },
+      child: ListView.separated(
+        padding: const EdgeInsets.all(12),
+        itemCount: balances.length,
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final b = balances[index];
+          final isPositive = b.outstandingBalance > 0;
+          return ListTile(
+            dense: true,
+            title: Text(b.customerName,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: Text(
+                'Case total: ${b.casesTotalAmount.toStringAsFixed(2)}  •  Paid: ${b.paidAmount.toStringAsFixed(2)}'),
+            trailing: Text(
+              b.outstandingBalance.toStringAsFixed(2),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPositive ? Colors.red : Colors.green,
+              ),
+            ),
+            onTap: () => context
+                .read<ReportsBloc>()
+                .add(LoadCustomerBillingHistory(b.customerId)),
+          );
+        },
+      ),
     );
   }
 }

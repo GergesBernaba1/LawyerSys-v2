@@ -71,4 +71,18 @@ class IntakeRepository {
     });
     return Map<String, dynamic>.from(response.data as Map);
   }
+
+  Future<String?> getPublicIntakeLink() async {
+    try {
+      final response = await apiClient.get('/intake/public-link');
+      if (response.data is Map) {
+        return (response.data as Map)['url']?.toString()
+            ?? (response.data as Map)['link']?.toString()
+            ?? (response.data as Map)['publicUrl']?.toString();
+      }
+      return response.data?.toString();
+    } catch (_) {
+      return null;
+    }
+  }
 }

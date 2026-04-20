@@ -21,6 +21,7 @@ dependencies:
   shared_preferences: ^2.2.0
   path_provider: ^2.0.17
   url_launcher: ^6.1.10
+  image_picker: ^1.1.2
   connectivity_plus: ^6.0.3
   table_calendar: ^3.0.8
   flutter_pdfview: ^1.2.3
@@ -30,6 +31,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^2.0.1
   bloc_test: ^9.1.0

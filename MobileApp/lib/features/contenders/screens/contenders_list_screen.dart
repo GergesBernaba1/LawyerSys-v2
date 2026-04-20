@@ -82,16 +82,22 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                   if (contenders.isEmpty) {
                     return Center(child: Text(localizer.noData));
                   }
-                  return ListView.builder(
-                    itemCount: contenders.length,
-                    itemBuilder: (context, index) {
-                      final contender = contenders[index];
-                      return ListTile(
-                        title: Text(contender.fullName),
-                        subtitle: Text('${contender.contenderType} • ${contender.ssn}'),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContenderDetailScreen(contender: contender))),
-                      );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<ContendersBloc>().add(RefreshContenders());
+                      await Future.delayed(const Duration(milliseconds: 500));
                     },
+                    child: ListView.builder(
+                      itemCount: contenders.length,
+                      itemBuilder: (context, index) {
+                        final contender = contenders[index];
+                        return ListTile(
+                          title: Text(contender.fullName),
+                          subtitle: Text('${contender.contenderType} • ${contender.ssn}'),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContenderDetailScreen(contender: contender))),
+                        );
+                      },
+                    ),
                   );
                 }
                 if (state is ContenderDetailLoaded) {

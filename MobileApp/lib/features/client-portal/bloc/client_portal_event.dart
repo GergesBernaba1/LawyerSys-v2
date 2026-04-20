@@ -33,3 +33,9 @@ class DownloadPortalDocument extends ClientPortalEvent {
   final String messageId;
   DownloadPortalDocument(this.messageId);
 }
+
+class UploadPortalDocument extends ClientPortalEvent {
+  final String filePath;
+  final String? title;
+  UploadPortalDocument({required this.filePath, this.title});
+}

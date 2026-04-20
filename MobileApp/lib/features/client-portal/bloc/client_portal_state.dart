@@ -36,3 +36,6 @@ class PortalDocumentUrlReady extends ClientPortalState {
   final String url;
   PortalDocumentUrlReady(this.url);
 }
+
+class PortalDocumentUploading extends ClientPortalState {}
+class PortalDocumentUploaded extends ClientPortalState {}

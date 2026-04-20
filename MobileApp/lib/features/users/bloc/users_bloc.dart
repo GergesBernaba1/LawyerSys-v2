@@ -15,6 +15,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     on<CreateUser>(_onCreateUser);
     on<UpdateUser>(_onUpdateUser);
     on<DeleteUser>(_onDeleteUser);
+    on<ChangeUserRole>(_onChangeUserRole);
   }
 
   Future<void> _onLoad(LoadUsers event, Emitter<UsersState> emit) async {
@@ -90,6 +91,18 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     try {
       await usersRepository.deleteUser(event.id);
       emit(UserOperationSuccess('User deleted successfully')); // TODO: localize
+      final raw = await usersRepository.getUsers();
+      emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
+    } catch (e) {
+      emit(UsersError(e.toString()));
+    }
+  }
+
+  Future<void> _onChangeUserRole(ChangeUserRole event, Emitter<UsersState> emit) async {
+    emit(UsersLoading());
+    try {
+      await usersRepository.changeUserRole(event.id, event.role);
+      emit(UserOperationSuccess('User role changed successfully')); // TODO: localize
       final raw = await usersRepository.getUsers();
       emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
     } catch (e) {

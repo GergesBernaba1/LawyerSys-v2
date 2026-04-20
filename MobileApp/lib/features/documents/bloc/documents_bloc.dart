@@ -12,6 +12,8 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     on<DownloadDocument>(_onDownloadDocument);
     on<RefreshDocuments>(_onRefreshDocuments);
     on<UploadDocument>(_onUploadDocument);
+    on<ShareDocument>(_onShare);
+    on<RenameDocument>(_onRename);
   }
 
   Future<void> _onLoadDocuments(LoadDocuments event, Emitter<DocumentsState> emit) async {
@@ -53,6 +55,30 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
       emit(DocumentsLoaded(docs));
     } catch (e) {
       emit(DocumentsError('Failed to upload: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onShare(ShareDocument event, Emitter<DocumentsState> emit) async {
+    try {
+      final url = await documentsRepository.getShareLink(event.documentId);
+      if (url != null) {
+        emit(DocumentShareLinkLoaded(url));
+      } else {
+        emit(DocumentsError('No share link available'));
+      }
+    } catch (e) {
+      emit(DocumentsError(e.toString()));
+    }
+  }
+
+  Future<void> _onRename(RenameDocument event, Emitter<DocumentsState> emit) async {
+    try {
+      await documentsRepository.renameDocument(event.documentId, event.newName);
+      emit(DocumentRenamed());
+      final docs = await documentsRepository.getDocuments();
+      emit(DocumentsLoaded(docs));
+    } catch (e) {
+      emit(DocumentsError(e.toString()));
     }
   }
 }

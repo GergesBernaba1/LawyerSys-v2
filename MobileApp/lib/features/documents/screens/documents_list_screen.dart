@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,6 +40,70 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
   void dispose() {
     _bloc.close();
     super.dispose();
+  }
+
+  void _showShareSheet(BuildContext context, String url) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const Text(
+                'Share Link', // TODO: localize
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: SelectableText(url),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    tooltip: 'Copy Link', // TODO: localize
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: url));
+                      Navigator.pop(sheetCtx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Link copied')), // TODO: localize
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () async {
+                  final uri = Uri.parse(url);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+                child: const Text('Open in Browser'), // TODO: localize
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showUploadSheet(BuildContext context) {
@@ -201,6 +266,43 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     });
   }
 
+  void _showRenameDialog(BuildContext context, Document doc) {
+    final controller = TextEditingController(text: doc.fileName);
+    showDialog<void>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Rename Document'), // TODO: localize
+        content: TextFormField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'File Name', // TODO: localize
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Cancel'), // TODO: localize
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                _bloc.add(RenameDocument(
+                  documentId: doc.id,
+                  newName: newName,
+                ));
+              }
+              Navigator.pop(dialogCtx);
+            },
+            child: const Text('Rename'), // TODO: localize
+          ),
+        ],
+      ),
+    ).whenComplete(() => controller.dispose());
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -231,6 +333,12 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Error: ${state.error}')),
               );
+            } else if (state is DocumentShareLinkLoaded) {
+              _showShareSheet(context, state.url);
+            } else if (state is DocumentRenamed) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Renamed successfully')), // TODO: localize
+              );
             }
           },
           builder: (context, state) {
@@ -257,9 +365,38 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                         ? document.code
                         : document.fileName),
                     subtitle: Text(document.fileName),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.download),
-                      onPressed: () => _bloc.add(DownloadDocument(document)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          tooltip: 'Share', // TODO: localize
+                          onPressed: () => _bloc.add(ShareDocument(document.id)),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.download),
+                          onPressed: () => _bloc.add(DownloadDocument(document)),
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'rename') {
+                              _showRenameDialog(context, document);
+                            }
+                          },
+                          itemBuilder: (_) => const [
+                            PopupMenuItem(
+                              value: 'rename',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Rename'), // TODO: localize
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     onTap: () async {
                       if (document.isPdf || document.isImage) {

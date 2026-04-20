@@ -88,4 +88,22 @@ class DocumentsRepository {
     });
     await apiClient.post('/files/upload', data: formData);
   }
+
+  Future<void> renameDocument(int id, String newName) async {
+    await apiClient.patch('/files/$id', data: {'fileName': newName});
+  }
+
+  Future<String?> getShareLink(int documentId) async {
+    try {
+      final response = await apiClient.get('/files/$documentId/share-link');
+      if (response.data is Map) {
+        return (response.data as Map)['url']?.toString()
+            ?? (response.data as Map)['shareLink']?.toString()
+            ?? (response.data as Map)['link']?.toString();
+      }
+      return response.data?.toString();
+    } catch (_) {
+      return null;
+    }
+  }
 }

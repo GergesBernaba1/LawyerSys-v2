@@ -68,4 +68,8 @@ class UsersRepository {
   Future<void> deleteUser(String id) async {
     await apiClient.delete('/users/$id');
   }
+
+  Future<void> changeUserRole(String id, String role) async {
+    await apiClient.put('/users/$id/role', data: {'role': role});
+  }
 }

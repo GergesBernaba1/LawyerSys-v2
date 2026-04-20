@@ -30,6 +30,7 @@ import 'features/calendar/repositories/calendar_repository.dart';
 import 'features/calendar/screens/calendar_screen.dart';
 import 'features/cases/bloc/cases_bloc.dart';
 import 'features/cases/repositories/cases_repository.dart';
+import 'features/cases/screens/cases_list_screen.dart';
 import 'features/client-portal/bloc/client_portal_bloc.dart';
 import 'features/client-portal/repositories/client_portal_repository.dart';
 import 'features/client-portal/screens/portal_documents_screen.dart';
@@ -502,6 +503,24 @@ class _AppInitializerState extends State<_AppInitializer> {
         if (!widget.canAccessRoute(settings.name, session)) {
           return MaterialPageRoute(builder: (_) => const UnauthorizedScreen());
         }
+
+        // ── Deep-link / parameterized route handling ──────────────────────────────
+        final rawPath = settings.name ?? '';
+        final segments = rawPath.split('/').where((s) => s.isNotEmpty).toList();
+        if (segments.length == 2) {
+          final entityType = segments[0];
+          // final entityId   = segments[1];
+          switch (entityType) {
+            case 'cases':
+              // CaseDetailScreen requires a full CaseModel, not just an ID.
+              // Fall back to the cases list screen for deep links.
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => const CasesListScreen(),
+              );
+          }
+        }
+        // ── end deep-link handling ────────────────────────────────────────────────
 
         switch (settings.name) {
           case '/':

@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../bloc/customers_bloc.dart';
 import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
 import '../models/customer.dart';
+import '../repositories/customers_repository.dart';
 
 class CustomerFormScreen extends StatefulWidget {
   final Customer? customer;
@@ -24,6 +28,8 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
   final _ssnController = TextEditingController();
   final _addressController = TextEditingController();
   bool _isSaving = false;
+  File? _selectedImage;
+  bool _isUploadingImage = false;
 
   bool get _isEditing => widget.customer != null;
 
@@ -47,6 +53,14 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
     _ssnController.dispose();
     _addressController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked != null) {
+      setState(() => _selectedImage = File(picked.path));
+    }
   }
 
   void _submit() {
@@ -75,8 +89,22 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_isEditing ? l.editCustomer : l.createCustomer)),
       body: BlocListener<CustomersBloc, CustomersState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is CustomerOperationSuccess) {
+            if (_selectedImage != null) {
+              setState(() => _isUploadingImage = true);
+              try {
+                final customerId = widget.customer?.customerId ?? '';
+                if (customerId.isNotEmpty) {
+                  await RepositoryProvider.of<CustomersRepository>(context)
+                      .uploadProfileImage(customerId, _selectedImage!.path);
+                }
+              } catch (_) {
+                // Non-fatal: profile image upload failed
+              } finally {
+                if (mounted) setState(() => _isUploadingImage = false);
+              }
+            }
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(l.customerSaved)));
             Navigator.of(context).pop(true);
@@ -96,6 +124,21 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Profile image picker
+                      GestureDetector(
+                        onTap: _isUploadingImage ? null : _pickImage,
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          backgroundImage: _selectedImage != null ? FileImage(_selectedImage!) : null,
+                          child: _selectedImage == null
+                              ? Icon(Icons.add_a_photo,
+                                  size: 32,
+                                  color: Theme.of(context).colorScheme.primary)
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: _fullNameController,
                         decoration: InputDecoration(

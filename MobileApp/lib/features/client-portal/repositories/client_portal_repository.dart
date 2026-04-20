@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../core/api/api_client.dart';
 import '../../../core/utils/json_utils.dart';
 import '../models/portal_message.dart';
@@ -62,5 +64,13 @@ class ClientPortalRepository {
       'subject': subject,
       'body': body,
     });
+  }
+
+  Future<void> uploadPortalDocument(String filePath, {String? title}) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath, filename: filePath.split('/').last),
+      if (title != null && title.isNotEmpty) 'title': title,
+    });
+    await apiClient.post('/client-portal/documents/upload', data: formData);
   }
 }

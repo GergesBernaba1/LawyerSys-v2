@@ -38,4 +38,16 @@ class TenantsRepository {
   Future<void> updateTenantStatus(int id, bool isActive) async {
     await apiClient.put('/tenants/$id/status', data: {'isActive': isActive});
   }
+
+  Future<void> createTenant(Map<String, dynamic> data) async {
+    await apiClient.post('/tenants', data: data);
+  }
+
+  Future<void> updateTenant(int id, Map<String, dynamic> data) async {
+    await apiClient.put('/tenants/$id', data: data);
+  }
+
+  Future<void> deleteTenant(int id) async {
+    await apiClient.delete('/tenants/$id');
+  }
 }

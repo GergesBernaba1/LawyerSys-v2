@@ -38,6 +38,10 @@ class ApiClient {
     return await _dio.put(_normalizePath(path), data: data);
   }
 
+  Future<Response<dynamic>> patch(String path, {dynamic data}) async {
+    return await _dio.patch(_normalizePath(path), data: data);
+  }
+
   Future<Response<dynamic>> delete(String path, {dynamic data}) async {
     return await _dio.delete(_normalizePath(path), data: data);
   }

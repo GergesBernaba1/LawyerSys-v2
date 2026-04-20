@@ -17,6 +17,7 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
     on<RefreshPortalDocuments>(_onRefreshPortalDocuments);
     on<SendPortalMessage>(_onSendMessage);
     on<DownloadPortalDocument>(_onDownloadDocument);
+    on<UploadPortalDocument>(_onUploadDocument);
   }
 
   Future<void> _onLoadPortalMessages(LoadPortalMessages event, Emitter<ClientPortalState> emit) async {
@@ -101,6 +102,17 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
       } else {
         emit(ClientPortalError('Download URL not available'));
       }
+    } catch (e) {
+      emit(ClientPortalError(e.toString()));
+    }
+  }
+
+  Future<void> _onUploadDocument(UploadPortalDocument event, Emitter<ClientPortalState> emit) async {
+    emit(PortalDocumentUploading());
+    try {
+      await clientPortalRepository.uploadPortalDocument(event.filePath, title: event.title);
+      emit(PortalDocumentUploaded());
+      emit(ClientPortalDocumentsLoaded(await clientPortalRepository.getDocuments()));
     } catch (e) {
       emit(ClientPortalError(e.toString()));
     }

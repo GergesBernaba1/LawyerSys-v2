@@ -745,4 +745,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tenantStatusUpdated => 'تم تحديث حالة المستأجر';
   @override
   String get currentTenant => 'الحالي';
+  @override
+  String get createTenant => 'إنشاء مستأجر';
+  @override
+  String get editTenant => 'تعديل المستأجر';
+  @override
+  String get deleteTenant => 'حذف المستأجر';
+  @override
+  String get deleteTenantConfirm => 'هل أنت متأكد من حذف هذا المستأجر؟';
+  @override
+  String get tenantName => 'اسم المستأجر';
+  @override
+  String get tenantSaved => 'تم حفظ المستأجر بنجاح';
+  @override
+  String get tenantDeleted => 'تم حذف المستأجر بنجاح';
+
+  // Users / Roles
+  @override
+  String get changeRole => 'تغيير الدور';
+  @override
+  String get roleSaved => 'تم تحديث الدور بنجاح';
+
+  // Documents
+  @override
+  String get uploadDocument => 'رفع وثيقة';
+  @override
+  String get shareDocument => 'مشاركة الوثيقة';
+  @override
+  String get shareLink => 'رابط المشاركة';
+  @override
+  String get copyLink => 'نسخ الرابط';
+  @override
+  String get openInBrowser => 'فتح في المتصفح';
+
+  // Case Relations
+  @override
+  String get caseRelations => 'علاقات القضية';
+  @override
+  String get addRelation => 'إضافة علاقة';
+  @override
+  String get deleteRelation => 'حذف العلاقة';
+  @override
+  String get relationType => 'نوع العلاقة';
+  @override
+  String get relatedCase => 'القضية المرتبطة';
+  @override
+  String get noRelationsFound => 'لا توجد علاقات';
 }

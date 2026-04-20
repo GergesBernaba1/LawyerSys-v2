@@ -10,6 +10,7 @@ import '../bloc/cases_bloc.dart';
 import '../bloc/cases_event.dart';
 import '../models/case.dart';
 import 'case_form_screen.dart';
+import 'case_relations_screen.dart';
 
 class CaseDetailScreen extends StatelessWidget {
   final CaseModel caseModel;
@@ -107,6 +108,11 @@ class CaseDetailScreen extends StatelessWidget {
                     subtitle: Text(employee.role),
                   )),
             ],
+            const SizedBox(height: 16),
+            const Divider(),
+            CaseRelationsSection(
+              caseId: int.tryParse(caseModel.caseId) ?? 0,
+            ),
           ],
         ),
       ),
