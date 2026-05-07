@@ -35,7 +35,7 @@ class TenantsRepository {
     );
   }
 
-  Future<void> updateTenantStatus(int id, bool isActive) async {
+  Future<void> updateTenantStatus(int id, {required bool isActive}) async {
     await apiClient.put('/tenants/$id/status', data: {'isActive': isActive});
   }
 

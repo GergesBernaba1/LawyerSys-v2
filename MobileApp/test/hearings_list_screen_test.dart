@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,6 +95,6 @@ void main() {
     // Selected day event should show list entry for the first hearing
     expect(find.textContaining('CASE-001'), findsOneWidget);
 
-    hearingsBloc.close();
+    unawaited(hearingsBloc.close());
   });
 }

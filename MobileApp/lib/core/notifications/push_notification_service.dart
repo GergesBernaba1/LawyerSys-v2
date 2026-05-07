@@ -62,7 +62,7 @@ class PushNotificationService {
 
       _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((event) async {
         debugPrint('Notification opened-app payload: ${event.data}');
-        await _persistNotification(event);
+        unawaited(_persistNotification(event));
         NotificationHandler.onMessageOpened(event);
       });
 
@@ -117,5 +117,6 @@ class PushNotificationService {
     }
   }
 }
+
 
 

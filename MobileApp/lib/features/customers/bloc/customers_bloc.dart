@@ -185,7 +185,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     try {
       final preference = await customersRepository.updateCaseNotificationPreference(
         event.caseCode,
-        event.notificationsEnabled,
+        notificationsEnabled: event.notificationsEnabled,
       );
       emit(CaseNotificationPreferenceUpdated(preference));
     } catch (e) {
@@ -240,4 +240,3 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     }
   }
 }
-

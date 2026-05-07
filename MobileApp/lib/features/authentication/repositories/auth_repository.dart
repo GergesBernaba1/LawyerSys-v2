@@ -264,7 +264,7 @@ class AuthRepository {
     return const [];
   }
 
-  Future<bool> setBiometricEnabled(bool enabled) async {
+  Future<bool> setBiometricEnabled({required bool enabled}) async {
     final stored = await getStoredSession();
     if (stored == null) return false;
 
@@ -287,5 +287,4 @@ class AuthRepository {
     return true;
   }
 }
-
 

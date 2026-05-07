@@ -422,11 +422,11 @@ class _AppInitializerState extends State<_AppInitializer> {
       });
     }
 
-    final pushService = PushNotificationService();
-    pushService.configure(
-      authRepository,
-      notificationsRepository: notificationsRepository,
-    );
+    final pushService = PushNotificationService()
+      ..configure(
+        authRepository,
+        notificationsRepository: notificationsRepository,
+      );
     unawaited(pushService.init());
 
     final signalRService = SignalRService();

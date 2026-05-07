@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _setPushNotificationsEnabled(bool enabled) async {
-    await _preferences.setPushNotificationEnabled(enabled);
+    await _preferences.setPushNotificationEnabled(enabled: enabled);
     setState(() {
       _pushNotificationsEnabled = enabled;
     });
@@ -84,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _setBiometricEnabled(bool enabled) async {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
-    final success = await authRepository.setBiometricEnabled(enabled);
+    final success = await authRepository.setBiometricEnabled(enabled: enabled);
     if (!mounted) return;
     final l = AppLocalizations.of(context)!;
     if (!success) {
@@ -218,4 +218,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-

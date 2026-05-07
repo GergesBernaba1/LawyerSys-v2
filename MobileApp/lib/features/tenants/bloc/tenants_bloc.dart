@@ -35,7 +35,7 @@ class TenantsBloc extends Bloc<TenantsEvent, TenantsState> {
 
   Future<void> _onUpdateStatus(UpdateTenantStatus event, Emitter<TenantsState> emit) async {
     try {
-      await tenantsRepository.updateTenantStatus(event.id, event.isActive);
+      await tenantsRepository.updateTenantStatus(event.id, isActive: event.isActive);
       emit(TenantStatusUpdated('Tenant status updated'));
       emit(TenantsLoaded(await _fetch()));
     } catch (e) {

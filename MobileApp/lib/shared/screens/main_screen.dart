@@ -73,8 +73,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    final bloc = context.read<NotificationsBloc>();
-    bloc.add(LoadNotifications());
+    final bloc = context.read<NotificationsBloc>()
+      ..add(LoadNotifications());
     _signalRSub = SignalRService().events.listen((event) {
       if ((event['event']?.toString() ?? '') == 'NotificationsChanged') {
         if (mounted) bloc.add(LoadNotifications());
@@ -530,6 +530,5 @@ class _NavItem {
   final Widget page;
   final String? permission;
 }
-
 
 

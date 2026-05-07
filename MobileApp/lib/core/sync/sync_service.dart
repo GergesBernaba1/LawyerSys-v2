@@ -229,7 +229,7 @@ class SyncService {
   }) async {
     try {
       final response = await fetch();
-      final raw = response.data;
+      final raw = response.data as Object?;
       final List<dynamic> list = raw is List ? raw : [];
       final items = list.whereType<Map<String, dynamic>>().toList();
       await upsert(items);
@@ -279,6 +279,5 @@ class SyncService {
     );
   }
 }
-
 
 

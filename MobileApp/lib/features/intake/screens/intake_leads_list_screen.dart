@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,8 +55,9 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
       );
       return;
     }
-    showModalBottomSheet<void>(
-      context: context,
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -102,6 +105,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
           ),
         );
       },
+      ),
     );
   }
 

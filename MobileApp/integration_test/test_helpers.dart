@@ -51,7 +51,7 @@ Finder findWidgetWithTextPattern<T extends Widget>(
         widget is TextButton ||
         widget is OutlinedButton) {
       final button = widget as dynamic;
-      final child = button.child;
+      final child = button.child as Object?;
       if (child is Text) {
         final text = child.data ?? '';
         return RegExp(pattern, caseSensitive: caseSensitive).hasMatch(text);

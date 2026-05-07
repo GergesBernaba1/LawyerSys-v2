@@ -9,7 +9,7 @@ class PreferencesStorage {
     await prefs.setString(key, value);
   }
 
-  Future<void> setBool(String key, bool value) async {
+  Future<void> setBool(String key, {required bool value}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
   }
@@ -19,8 +19,8 @@ class PreferencesStorage {
     return prefs.getBool(key);
   }
 
-  Future<void> setPushNotificationEnabled(bool enabled) async {
-    await setBool(_pushNotificationEnabledKey, enabled);
+  Future<void> setPushNotificationEnabled({required bool enabled}) async {
+    await setBool(_pushNotificationEnabledKey, value: enabled);
   }
 
   Future<bool> getPushNotificationEnabled() async {

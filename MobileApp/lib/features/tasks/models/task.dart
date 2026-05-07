@@ -61,11 +61,12 @@ class EmployeeItem {
   });
 
   factory EmployeeItem.fromJson(Map<String, dynamic> json) {
+    final identity = json['identity'] as Map<String, dynamic>?;
     return EmployeeItem(
       id: json['id'] as int,
       usersId: json['usersId'] as int?,
-      fullName: json['identity']?['fullName'] as String?,
-      email: json['identity']?['email'] as String?,
+      fullName: identity?['fullName'] as String?,
+      email: identity?['email'] as String?,
     );
   }
   final int id;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,6 +63,6 @@ void main() {
     expect(find.text('Call'), findsOneWidget);
     expect(find.text('Message'), findsOneWidget);
 
-    customersBloc.close();
+    unawaited(customersBloc.close());
   });
 }

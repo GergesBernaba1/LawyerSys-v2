@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,7 +101,7 @@ void main() {
     expect(find.text('PT-200'), findsOneWidget);
     expect(find.textContaining('Assigned to'), findsNWidgets(2));
 
-    customersBloc.close();
+    unawaited(customersBloc.close());
   });
 
   testWidgets('CustomerDetailScreen includes direct call and message actions', (tester) async {
@@ -127,6 +129,6 @@ void main() {
     expect(find.text('Call'), findsOneWidget);
     expect(find.text('Message'), findsOneWidget);
 
-    customersBloc.close();
+    unawaited(customersBloc.close());
   });
 }

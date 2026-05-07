@@ -22,8 +22,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Future<void> _onRefresh() async {
-    final bloc = context.read<SubscriptionBloc>();
-    bloc.add(RefreshSubscriptionPackages());
+    final bloc = context.read<SubscriptionBloc>()
+      ..add(RefreshSubscriptionPackages());
     await bloc.stream.firstWhere(
       (s) => s is! SubscriptionLoading,
       orElse: () => bloc.state,

@@ -159,4 +159,3 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
   }
 }
 
-

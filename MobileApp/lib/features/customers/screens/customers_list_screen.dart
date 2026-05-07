@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
@@ -169,8 +171,11 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                               } else if (value == 'message') {
                                 _sms(customer.phoneNumber ?? '');
                               } else if (value == 'edit') {
-                                await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CustomerFormScreen(customer: customer)));
-                                if (context.mounted) context.read<CustomersBloc>().add(RefreshCustomers());
+                                unawaited(
+                                  Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CustomerFormScreen(customer: customer))).then((_) {
+                                    if (context.mounted) context.read<CustomersBloc>().add(RefreshCustomers());
+                                  }),
+                                );
                               } else if (value == 'delete') {
                                 final confirmed = await showDialog<bool>(
                                   context: context,

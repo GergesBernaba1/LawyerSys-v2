@@ -77,7 +77,7 @@ class CustomersRepository {
   }
 
   Future<CaseNotificationPreference> updateCaseNotificationPreference(
-      int caseCode, bool notificationsEnabled,) async {
+      int caseCode, {required bool notificationsEnabled}) async {
     final response = await apiClient.put(
       '/api/cases/$caseCode/notification-preferences',
       data: {'notificationsEnabled': notificationsEnabled},

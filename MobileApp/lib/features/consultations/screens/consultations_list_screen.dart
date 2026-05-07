@@ -601,4 +601,3 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     );
   }
 }
-

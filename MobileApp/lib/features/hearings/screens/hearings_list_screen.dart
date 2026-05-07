@@ -262,4 +262,3 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
   }
 }
 
-

@@ -87,4 +87,3 @@ class RequestedDocumentSubmitted extends CustomersState {
   final CustomerRequestedDocument document;
 }
 
-

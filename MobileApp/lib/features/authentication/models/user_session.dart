@@ -77,4 +77,3 @@ extension UserSessionAuthorization on UserSession {
   }
 }
 
-

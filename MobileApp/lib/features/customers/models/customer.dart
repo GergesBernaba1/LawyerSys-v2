@@ -44,12 +44,13 @@ class CustomerCaseHistoryItem {
   });
 
   factory CustomerCaseHistoryItem.fromJson(Map<String, dynamic> json) {
+    final assignedEmployee = json['assignedEmployee'] as Map<String, dynamic>?;
     return CustomerCaseHistoryItem(
       caseId: json['caseId']?.toString() ?? json['caseId']?.toString() ?? '',
       caseName: json['caseName']?.toString() ?? '',
       caseCode: json['code']?.toString() ?? '',
-      assignedEmployeeName: json['assignedEmployee'] != null
-          ? json['assignedEmployee']['fullName']?.toString() ?? ''
+      assignedEmployeeName: assignedEmployee != null
+          ? assignedEmployee['fullName']?.toString() ?? ''
           : '',
     );
   }
@@ -58,5 +59,4 @@ class CustomerCaseHistoryItem {
   final String caseCode;
   final String assignedEmployeeName;
 }
-
 

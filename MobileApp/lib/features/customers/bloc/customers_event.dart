@@ -44,7 +44,7 @@ class LoadCaseNotificationPreference extends CustomersEvent {
 }
 
 class UpdateCaseNotificationPreference extends CustomersEvent {
-  UpdateCaseNotificationPreference(this.caseCode, this.notificationsEnabled);
+  UpdateCaseNotificationPreference(this.caseCode, {required this.notificationsEnabled});
   final int caseCode;
   final bool notificationsEnabled;
 }
@@ -85,5 +85,4 @@ class SubmitRequestedDocument extends CustomersEvent {
   final String filePath;
   final String? notes;
 }
-
 

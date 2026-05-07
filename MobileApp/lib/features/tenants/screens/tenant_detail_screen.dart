@@ -270,7 +270,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                         onChanged: (v) {
                           context
                               .read<TenantsBloc>()
-                              .add(UpdateTenantStatus(_tenant.id, v));
+                              .add(UpdateTenantStatus(_tenant.id, isActive: v));
                         },
                       ),
                     ],

@@ -32,7 +32,7 @@ class FakeAuthRepository extends AuthRepository {
   }
 
   @override
-  Future<bool> setBiometricEnabled(bool enabled) async {
+  Future<bool> setBiometricEnabled({required bool enabled}) async {
     if (currentSession == null) return false;
     currentSession = UserSession(
       userId: currentSession!.userId,

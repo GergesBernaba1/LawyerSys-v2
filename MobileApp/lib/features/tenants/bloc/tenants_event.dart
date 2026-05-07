@@ -5,7 +5,7 @@ class LoadTenants extends TenantsEvent {}
 class RefreshTenants extends TenantsEvent {}
 
 class UpdateTenantStatus extends TenantsEvent {
-  UpdateTenantStatus(this.id, this.isActive);
+  UpdateTenantStatus(this.id, {required this.isActive});
   final int id;
   final bool isActive;
 }

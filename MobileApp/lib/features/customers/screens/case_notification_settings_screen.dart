@@ -110,7 +110,7 @@ class _CaseNotificationSettingsScreenState
                       context.read<CustomersBloc>().add(
                             UpdateCaseNotificationPreference(
                               widget.caseCode,
-                              value,
+                              notificationsEnabled: value,
                             ),
                           );
                     },

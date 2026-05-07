@@ -227,7 +227,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                             value: tenant.isActive,
                             onChanged: (v) => context
                                 .read<TenantsBloc>()
-                                .add(UpdateTenantStatus(tenant.id, v)),
+                                .add(UpdateTenantStatus(tenant.id, isActive: v)),
                           )
                         else
                           Icon(
