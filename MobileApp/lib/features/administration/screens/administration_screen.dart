@@ -61,40 +61,41 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
     );
   }
 
-  List<_StatCardData> _buildCardData(AdminOverview overview) {
+  List<_StatCardData> _buildCardData(BuildContext context, AdminOverview overview) {
+    final l = AppLocalizations.of(context)!;
     return [
       _StatCardData(
-        label: 'Total Users',
+        label: l.totalUsers,
         value: overview.totalUsers,
         icon: Icons.people,
         color: Colors.blue,
       ),
       _StatCardData(
-        label: 'Total Cases',
+        label: l.totalCases,
         value: overview.totalCases,
         icon: Icons.folder_copy,
         color: Colors.indigo,
       ),
       _StatCardData(
-        label: 'Total Customers',
+        label: l.totalCustomers,
         value: overview.totalCustomers,
         icon: Icons.person,
         color: Colors.teal,
       ),
       _StatCardData(
-        label: 'Total Employees',
+        label: l.totalEmployees,
         value: overview.totalEmployees,
         icon: Icons.badge,
         color: Colors.orange,
       ),
       _StatCardData(
-        label: 'Total Tenants',
+        label: l.totalTenants,
         value: overview.totalTenants,
         icon: Icons.apartment,
         color: Colors.purple,
       ),
       _StatCardData(
-        label: 'Active Tenants',
+        label: l.activeTenants,
         value: overview.activeTenants,
         icon: Icons.check_circle,
         color: Colors.green,
@@ -125,7 +126,7 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
           }
 
           if (state is AdminLoaded) {
-            final cards = _buildCardData(state.overview);
+            final cards = _buildCardData(context, state.overview);
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<AdministrationBloc>().add(RefreshAdminOverview());

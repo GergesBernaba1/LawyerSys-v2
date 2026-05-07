@@ -50,17 +50,20 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
   Future<void> _confirmDelete(int id) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Document'),
-        content: const Text('Are you sure you want to delete this document?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l.deleteDocument),
+          content: Text(l.deleteDocumentConfirm),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.delete, style: const TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
     if ((confirmed ?? false) && mounted) {
       context.read<JudicialDocumentsBloc>().add(DeleteJudicialDocument(id));
@@ -71,12 +74,12 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Judicial Documents'),
+        title: Text(AppLocalizations.of(context)!.judicialDocuments),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _showForm,
-            tooltip: 'Create Document',
+            tooltip: AppLocalizations.of(context)!.createDocument,
           ),
         ],
       ),

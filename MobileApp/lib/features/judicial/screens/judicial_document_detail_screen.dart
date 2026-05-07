@@ -27,20 +27,23 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
   Future<void> _confirmDelete(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Document'),
-        content: const Text('Are you sure you want to delete this document?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l.deleteDocument),
+          content: Text(l.deleteDocumentConfirm),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.delete, style: const TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
     if ((confirmed ?? false) && context.mounted) {
       context.read<JudicialDocumentsBloc>().add(DeleteJudicialDocument(document.id));
@@ -52,18 +55,19 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Document #${document.docNum}'),
+        title: Text('${l.document} #${document.docNum}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            tooltip: 'Edit',
+            tooltip: l.edit,
             onPressed: () => _showForm(context, doc: document),
           ),
           IconButton(
             icon: const Icon(Icons.delete),
-            tooltip: 'Delete',
+            tooltip: l.delete,
             onPressed: () => _confirmDelete(context),
           ),
         ],
@@ -78,32 +82,32 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _InfoRow(
-                  label: 'Doc Type',
+                  label: l.documentType,
                   value: document.docType,
                   labelColor: primaryColor,
                 ),
                 const Divider(),
                 _InfoRow(
-                  label: 'Doc Number',
+                  label: l.documentNumber,
                   value: document.docNum.toString(),
                   labelColor: primaryColor,
                 ),
                 const Divider(),
                 _InfoRow(
-                  label: 'Customer',
+                  label: l.customer,
                   value: document.customerName ?? document.customerId.toString(),
                   labelColor: primaryColor,
                 ),
                 const Divider(),
                 _InfoRow(
-                  label: 'Agents Count',
+                  label: l.agentsCount,
                   value: document.numOfAgent.toString(),
                   labelColor: primaryColor,
                 ),
                 if (document.docDetails.isNotEmpty) ...[
                   const Divider(),
                   _InfoRow(
-                    label: 'Details',
+                    label: l.details,
                     value: document.docDetails,
                     labelColor: primaryColor,
                     multiline: true,
@@ -112,7 +116,7 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
                 if (document.notes.isNotEmpty) ...[
                   const Divider(),
                   _InfoRow(
-                    label: 'Notes',
+                    label: l.notes,
                     value: document.notes,
                     labelColor: primaryColor,
                     multiline: true,

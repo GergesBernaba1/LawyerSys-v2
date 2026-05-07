@@ -863,6 +863,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myFollowUps => 'My Follow-Ups';
   @override
   String get noFollowUpsScheduled => 'No follow-ups scheduled';
+  @override
+  String get totalCases => 'Total Cases';
+  @override
+  String get files => 'Files';
+  @override
+  String get openCases => 'Open Cases';
+  @override
+  String get revenue => 'Revenue';
+  @override
+  String get qualifiedLeads => 'Qualified Leads';
+  @override
+  String get upcomingHearings => 'Upcoming Hearings';
+  @override
+  String get overdueTasks => 'Overdue Tasks';
+  @override
+  String get employeeDashboardSubtitle => 'Here is the work currently assigned to you.';
+  @override
+  String get adminDashboardSubtitle => 'Here is what\'s happening with your legal practice today.';
+  @override
+  String get refreshing => 'Refreshing...';
+  @override
+  String get overdue => 'Overdue';
+  @override
+  String get health => 'Health';
+  @override
+  String get updated => 'Updated';
+  @override
+  String get updatedNow => 'Updated: Now';
 
   // General UI
   @override
@@ -1310,4 +1338,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearAll => 'Clear All';
   @override
   String get profileUpdatedSuccessfully => 'Profile updated successfully';
+  // Misc missing
+  @override
+  String get document => 'Document';
+  @override
+  String get lastSixMonths => 'Last 6 Months';
+  @override
+  String get pleaseContactSales => 'Please contact sales@qadaya.com';
+  @override
+  String get cannotPreviewDocumentType => 'Cannot preview this document type. File is saved at';
+  // Administration stats
+  @override
+  String get totalUsers => 'Total Users';
+  @override
+  String get totalCustomers => 'Total Customers';
+  @override
+  String get totalEmployees => 'Total Employees';
+  @override
+  String get totalTenants => 'Total Tenants';
+  @override
+  String get activeTenants => 'Active Tenants';
+  // Judicial detail
+  @override
+  String get deleteDocument => 'Delete Document';
+  @override
+  String get deleteDocumentConfirm => 'Are you sure you want to delete this document?';
+  @override
+  String get judicialDocuments => 'Judicial Documents';
+  @override
+  String get agentsCount => 'Agents Count';
+  // Trust report summary
+  @override
+  String get totalRevenue => 'Total Revenue';
+  @override
+  String get totalExpenses => 'Total Expenses';
+  @override
+  String get netBalance => 'Net Balance';
+  @override
+  String get totalInvoices => 'Total Invoices';
+  @override
+  String get paidInvoices => 'Paid Invoices';
+  @override
+  String get pendingInvoices => 'Pending Invoices';
+  @override
+  String get trustBalance => 'Trust Balance';
+  // Employee
+  @override
+  String get uploadProfilePhoto => 'Upload Profile Photo';
+  // General
+  @override
+  String get areYouSureDelete => 'Are you sure you want to delete this item?';
 }

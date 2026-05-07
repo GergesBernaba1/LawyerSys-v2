@@ -142,7 +142,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           else
             IconButton(
               icon: const Icon(Icons.add_a_photo),
-              tooltip: 'Upload Profile Photo',
+              tooltip: AppLocalizations.of(context)!.uploadProfilePhoto,
               onPressed: _uploadProfileImage,
             ),
           if (canEditSalary)

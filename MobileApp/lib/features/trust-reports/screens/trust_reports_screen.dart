@@ -225,45 +225,46 @@ class _SummaryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cards = [
       _StatCardData(
-        label: 'Total Revenue',
+        label: l.totalRevenue,
         value: _formatCurrency(summary.totalRevenue),
         color: Colors.green,
         icon: Icons.trending_up,
       ),
       _StatCardData(
-        label: 'Total Expenses',
+        label: l.totalExpenses,
         value: _formatCurrency(summary.totalExpenses),
         color: Colors.red,
         icon: Icons.trending_down,
       ),
       _StatCardData(
-        label: 'Net Balance',
+        label: l.netBalance,
         value: _formatCurrency(summary.netBalance),
         color: Colors.blue,
         icon: Icons.account_balance_outlined,
       ),
       _StatCardData(
-        label: 'Total Invoices',
+        label: l.totalInvoices,
         value: '${summary.totalInvoices}',
         color: Colors.indigo,
         icon: Icons.receipt_long_outlined,
       ),
       _StatCardData(
-        label: 'Paid Invoices',
+        label: l.paidInvoices,
         value: '${summary.paidInvoices}',
         color: Colors.teal,
         icon: Icons.check_circle_outline,
       ),
       _StatCardData(
-        label: 'Pending Invoices',
+        label: l.pendingInvoices,
         value: '${summary.pendingInvoices}',
         color: Colors.orange,
         icon: Icons.hourglass_empty_outlined,
       ),
       _StatCardData(
-        label: 'Trust Balance',
+        label: l.trustBalance,
         value: _formatCurrency(summary.trustBalance),
         color: Colors.purple,
         icon: Icons.security_outlined,

@@ -201,33 +201,36 @@ class _FinancialTab extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         children: [
           // Summary cards
-          Row(children: [
-            Expanded(
-                child: _SummaryCard(
-                    label: 'Payments',
-                    value: report.summary.totalPayments,
-                    count: report.summary.paymentsCount,
-                    color: Colors.red.shade100,),),
-            const SizedBox(width: 8),
-            Expanded(
-                child: _SummaryCard(
-                    label: 'Receipts',
-                    value: report.summary.totalReceipts,
-                    count: report.summary.receiptsCount,
-                    color: Colors.green.shade100,),),
-            const SizedBox(width: 8),
-            Expanded(
-                child: _SummaryCard(
-                    label: 'Net',
-                    value: report.summary.netCashFlow,
-                    color: report.summary.netCashFlow >= 0
-                        ? Colors.blue.shade100
-                        : Colors.orange.shade100,),),
-          ],),
+          Builder(builder: (ctx) {
+            final l = AppLocalizations.of(ctx)!;
+            return Row(children: [
+              Expanded(
+                  child: _SummaryCard(
+                      label: l.payments,
+                      value: report.summary.totalPayments,
+                      count: report.summary.paymentsCount,
+                      color: Colors.red.shade100,),),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: _SummaryCard(
+                      label: l.receipts,
+                      value: report.summary.totalReceipts,
+                      count: report.summary.receiptsCount,
+                      color: Colors.green.shade100,),),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: _SummaryCard(
+                      label: l.net,
+                      value: report.summary.netCashFlow,
+                      color: report.summary.netCashFlow >= 0
+                          ? Colors.blue.shade100
+                          : Colors.orange.shade100,),),
+            ],);
+          },),
           const SizedBox(height: 16),
 
           // 6-month trend table
-          Text('Last 6 Months',
+          Text(AppLocalizations.of(context)!.lastSixMonths,
               style: Theme.of(context)
                   .textTheme
                   .titleSmall

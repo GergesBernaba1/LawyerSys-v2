@@ -117,7 +117,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               BlocBuilder<CustomersBloc, CustomersState>(
                 builder: (context, state) {

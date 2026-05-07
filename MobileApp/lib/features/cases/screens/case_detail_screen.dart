@@ -85,14 +85,14 @@ class CaseDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text('${localizer.status}: ${caseModel.caseStatus}'),
             Text('${localizer.caseType}: ${caseModel.caseType}'),
-            Text('Code: ${caseModel.code}'),
+            Text('${localizer.caseCode}: ${caseModel.code}'),
             const SizedBox(height: 8),
             Text(
                 '${localizer.filingDate}: ${caseModel.filingDate?.toLocal().toString() ?? 'N/A'}',),
             Text('${localizer.amount}: ${caseModel.totalAmount}'),
             if (caseModel.invitionsStatment.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text('Statement: ${caseModel.invitionsStatment}'),
+              Text('${localizer.statement}: ${caseModel.invitionsStatment}'),
             ],
             if (caseModel.notes.isNotEmpty) ...[
               const SizedBox(height: 8),

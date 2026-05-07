@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:photo_view/photo_view.dart';
 
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/documents/models/document.dart';
 
 class DocumentViewerScreen extends StatelessWidget {
@@ -36,7 +37,7 @@ class DocumentViewerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(document.fileName)),
       body: Center(
-        child: Text('Cannot preview this document type. File is saved at ${documentFile.path}'),
+        child: Text('${AppLocalizations.of(context)!.cannotPreviewDocumentType} ${documentFile.path}'),
       ),
     );
   }

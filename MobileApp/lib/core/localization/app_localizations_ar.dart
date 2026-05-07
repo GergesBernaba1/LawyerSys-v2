@@ -863,6 +863,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myFollowUps => 'متابعاتي';
   @override
   String get noFollowUpsScheduled => 'لا توجد متابعات مجدولة';
+  @override
+  String get totalCases => 'إجمالي القضايا';
+  @override
+  String get files => 'الملفات';
+  @override
+  String get openCases => 'القضايا المفتوحة';
+  @override
+  String get revenue => 'الإيرادات';
+  @override
+  String get qualifiedLeads => 'الطلبات المؤهلة';
+  @override
+  String get upcomingHearings => 'الجلسات القادمة';
+  @override
+  String get overdueTasks => 'المهام المتأخرة';
+  @override
+  String get employeeDashboardSubtitle => 'إليك العمل المسند إليك حاليًا.';
+  @override
+  String get adminDashboardSubtitle => 'إليك ما يحدث في مكتبك القانوني اليوم.';
+  @override
+  String get refreshing => 'جاري التحديث...';
+  @override
+  String get overdue => 'متأخر';
+  @override
+  String get health => 'الصحة';
+  @override
+  String get updated => 'تحديث';
+  @override
+  String get updatedNow => 'تم التحديث الآن';
 
   // General UI
   @override
@@ -1310,4 +1338,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clearAll => 'مسح الكل';
   @override
   String get profileUpdatedSuccessfully => 'تم تحديث الملف الشخصي بنجاح';
+  // Misc missing
+  @override
+  String get document => 'وثيقة';
+  @override
+  String get lastSixMonths => 'آخر 6 أشهر';
+  @override
+  String get pleaseContactSales => 'يرجى التواصل على sales@qadaya.com';
+  @override
+  String get cannotPreviewDocumentType => 'لا يمكن معاينة هذا النوع من المستندات. الملف محفوظ في';
+  // Administration stats
+  @override
+  String get totalUsers => 'إجمالي المستخدمين';
+  @override
+  String get totalCustomers => 'إجمالي العملاء';
+  @override
+  String get totalEmployees => 'إجمالي الموظفين';
+  @override
+  String get totalTenants => 'إجمالي المستأجرين';
+  @override
+  String get activeTenants => 'المستأجرون النشطون';
+  // Judicial detail
+  @override
+  String get deleteDocument => 'حذف الوثيقة';
+  @override
+  String get deleteDocumentConfirm => 'هل أنت متأكد أنك تريد حذف هذه الوثيقة؟';
+  @override
+  String get judicialDocuments => 'الوثائق القضائية';
+  @override
+  String get agentsCount => 'عدد الوكلاء';
+  // Trust report summary
+  @override
+  String get totalRevenue => 'إجمالي الإيرادات';
+  @override
+  String get totalExpenses => 'إجمالي النفقات';
+  @override
+  String get netBalance => 'صافي الرصيد';
+  @override
+  String get totalInvoices => 'إجمالي الفواتير';
+  @override
+  String get paidInvoices => 'الفواتير المدفوعة';
+  @override
+  String get pendingInvoices => 'الفواتير المعلقة';
+  @override
+  String get trustBalance => 'رصيد الأمانة';
+  // Employee
+  @override
+  String get uploadProfilePhoto => 'رفع صورة الملف الشخصي';
+  // General
+  @override
+  String get areYouSureDelete => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟';
 }

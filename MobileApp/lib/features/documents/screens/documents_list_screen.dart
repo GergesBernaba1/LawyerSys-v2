@@ -153,7 +153,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               );
             } else if (state is DocumentsError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: ${state.error}')),
+                SnackBar(content: Text('${l10n.error}: ${state.error}')),
               );
             }
           },
@@ -213,7 +213,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                     TextField(
                       controller: titleController,
                       decoration: InputDecoration(
-                        labelText: l10n.description,
+                        labelText: l10n.title,
                         border: const OutlineInputBorder(),
                       ),
                     ),
@@ -362,7 +362,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               );
             } else if (state is DocumentsError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: ${state.error}')),
+                SnackBar(content: Text('${l10n.error}: ${state.error}')),
               );
             } else if (state is DocumentShareLinkLoaded) {
               _showShareSheet(context, state.url);
@@ -377,7 +377,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               return const ListSkeleton(itemCount: 6);
             }
             if (state is DocumentsError) {
-              return Center(child: Text('Error: ${state.error}'));
+              return Center(child: Text('${l10n.error}: ${state.error}'));
             }
             if (state is DocumentsLoaded) {
               final docs = state.documents;
@@ -497,7 +497,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Download failed: $e')));
+            .showSnackBar(SnackBar(content: Text('${AppLocalizations.of(context)!.downloadFailed}: $e')));
       }
       return null;
     }

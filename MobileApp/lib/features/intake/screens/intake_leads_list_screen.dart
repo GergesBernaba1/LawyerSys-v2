@@ -138,7 +138,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
               _applyFilter();
             },
             itemBuilder: (_) => [
-              PopupMenuItem(child: Text(l.noDataAvailable.replaceAll('No data available', 'All'))),
+              PopupMenuItem(child: Text(l.all)),
               ..._statuses.map((s) => PopupMenuItem(value: s, child: Text(s))),
             ],
           ),

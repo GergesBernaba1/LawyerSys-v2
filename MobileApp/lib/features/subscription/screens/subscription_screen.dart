@@ -313,9 +313,9 @@ class _PackageCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content:
-                          Text('Please contact sales@qadaya.com'),
+                          Text(AppLocalizations.of(context)!.pleaseContactSales),
                     ),
                   );
                 },

@@ -1428,7 +1428,14 @@ abstract class AppLocalizations {
   String get adminTasks;
   String get workQueue;
   String get myCases;
+  String get totalCases;
   String get myTasks;
+  String get files;
+  String get openCases;
+  String get revenue;
+  String get qualifiedLeads;
+  String get upcomingHearings;
+  String get overdueTasks;
   String get myLeads;
   String get recentCases;
   String get viewAll;
@@ -1439,6 +1446,13 @@ abstract class AppLocalizations {
   String get noOverdueTasks;
   String get myFollowUps;
   String get noFollowUpsScheduled;
+  String get employeeDashboardSubtitle;
+  String get adminDashboardSubtitle;
+  String get refreshing;
+  String get overdue;
+  String get health;
+  String get updated;
+  String get updatedNow;
 
   // General UI
   String get aboutUs;
@@ -1692,6 +1706,34 @@ abstract class AppLocalizations {
   String get notification;
   String get clearAll;
   String get profileUpdatedSuccessfully;
+  // Misc missing
+  String get document;
+  String get lastSixMonths;
+  String get pleaseContactSales;
+  String get cannotPreviewDocumentType;
+  // Administration stats
+  String get totalUsers;
+  String get totalCustomers;
+  String get totalEmployees;
+  String get totalTenants;
+  String get activeTenants;
+  // Judicial detail
+  String get deleteDocument;
+  String get deleteDocumentConfirm;
+  String get judicialDocuments;
+  String get agentsCount;
+  // Trust report summary
+  String get totalRevenue;
+  String get totalExpenses;
+  String get netBalance;
+  String get totalInvoices;
+  String get paidInvoices;
+  String get pendingInvoices;
+  String get trustBalance;
+  // Employee
+  String get uploadProfilePhoto;
+  // Requested documents
+  String get areYouSureDelete;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

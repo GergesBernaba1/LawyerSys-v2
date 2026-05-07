@@ -96,11 +96,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final activityHealthScore = s.activityHealthScore;
             final completionScore = s.completionScore;
 
+            final l = AppLocalizations.of(context)!;
             final attentionLevel = overdueCount == 0
-                ? {'label': 'On Track', 'color': colorScheme.primary}
+                ? {'label': l.onTrack, 'color': colorScheme.primary}
                 : overdueCount <= 3
-                    ? {'label': 'Needs Attention', 'color': Colors.orange}
-                    : {'label': 'Critical', 'color': colorScheme.error};
+                    ? {'label': l.needsAttention, 'color': Colors.orange}
+                    : {'label': l.critical, 'color': colorScheme.error};
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -122,9 +123,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Statistics',
-                        style: TextStyle(
+                      Text(
+                        l.statistics,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF0F172A),
@@ -141,7 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         childAspectRatio: 1.3,
                         children: [
                           _StatCard(
-                            label: isEmployeeOnly ? 'My Cases' : 'Total Cases',
+                            label: isEmployeeOnly ? l.myCases : l.totalCases,
                             value:
                                 '${isEmployeeOnly ? (s.employeeMetrics?.openCases ?? 0) : s.totalCasesCount}',
                             icon: Icons.gavel,
@@ -156,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     builder: (_) => const CasesListScreen(),),),
                           ),
                           _StatCard(
-                            label: isEmployeeOnly ? 'My Tasks' : 'Customers',
+                            label: isEmployeeOnly ? l.myTasks : l.customers,
                             value:
                                 '${isEmployeeOnly ? (s.employeeMetrics?.assignedTasks ?? 0) : s.customersCount}',
                             icon: isEmployeeOnly
@@ -179,7 +180,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         : const CustomersListScreen(),),),
                           ),
                           _StatCard(
-                            label: isEmployeeOnly ? 'My Leads' : 'Employees',
+                            label: isEmployeeOnly ? l.myLeads : l.employees,
                             value:
                                 '${isEmployeeOnly ? (s.employeeMetrics?.assignedLeads ?? 0) : s.employeesCount}',
                             icon: isEmployeeOnly
@@ -197,8 +198,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         : const EmployeesListScreen(),),),
                           ),
                           _StatCard(
-                            label:
-                                isEmployeeOnly ? 'My Consultations' : 'Files',
+                            label: isEmployeeOnly ? l.myConsultations : l.files,
                             value:
                                 '${isEmployeeOnly ? (s.employeeMetrics?.assignedConsultations ?? 0) : s.filesCount}',
                             icon: isEmployeeOnly
@@ -233,7 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         childAspectRatio: 1.4,
                         children: [
                           _SmallStatCard(
-                            label: isEmployeeOnly ? 'Open Cases' : 'Revenue',
+                            label: isEmployeeOnly ? l.openCases : l.revenue,
                             value: isEmployeeOnly
                                 ? '${s.employeeMetrics?.openCases ?? 0}'
                                 : '\$${s.revenueThisMonth.toStringAsFixed(0)}',
@@ -248,8 +248,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           _SmallStatCard(
                             label: isEmployeeOnly
-                                ? 'Qualified Leads'
-                                : 'Upcoming Hearings',
+                                ? l.qualifiedLeads
+                                : l.upcomingHearings,
                             value:
                                 '${isEmployeeOnly ? (s.employeeMetrics?.qualifiedLeads ?? 0) : s.upcomingHearingsCount}',
                             icon: isEmployeeOnly ? Icons.star : Icons.event,
@@ -257,7 +257,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             getThemeColor: _getThemeColor,
                           ),
                           _SmallStatCard(
-                            label: 'Overdue Tasks',
+                            label: l.overdueTasks,
                             value: '$overdueCount',
                             icon: Icons.warning,
                             color: _getThemeColor(context, 'error'),
@@ -436,9 +436,9 @@ class _WelcomeHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Welcome Back!',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.welcomeBack,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
@@ -448,8 +448,8 @@ class _WelcomeHeader extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       isEmployeeOnly
-                          ? 'Here is the work currently assigned to you.'
-                          : 'Here is what is happening with your legal practice today.',
+                          ? AppLocalizations.of(context)!.employeeDashboardSubtitle
+                          : AppLocalizations.of(context)!.adminDashboardSubtitle,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 13,
@@ -472,11 +472,11 @@ class _WelcomeHeader extends StatelessWidget {
                 color: attentionLevel['color'] as Color?,
               ),
               _StatusChip(
-                label: 'Overdue: $overdueCount',
+                label: '${AppLocalizations.of(context)!.overdue}: $overdueCount',
                 icon: Icons.warning,
               ),
               _StatusChip(
-                label: 'Health: ${activityHealthScore.toInt()}%',
+                label: '${AppLocalizations.of(context)!.health}: ${activityHealthScore.toInt()}%',
                 icon: Icons.favorite,
               ),
             ],
@@ -486,8 +486,8 @@ class _WelcomeHeader extends StatelessWidget {
             children: [
               _StatusChip(
                 label: lastUpdatedAt != null
-                    ? 'Updated: ${lastUpdatedAt!.hour}:${lastUpdatedAt!.minute.toString().padLeft(2, '0')}'
-                    : 'Updated: Now',
+                    ? '${AppLocalizations.of(context)!.updated}: ${lastUpdatedAt!.hour}:${lastUpdatedAt!.minute.toString().padLeft(2, '0')}'
+                    : AppLocalizations.of(context)!.updatedNow,
                 icon: Icons.access_time,
               ),
               const Spacer(),
@@ -504,7 +504,7 @@ class _WelcomeHeader extends StatelessWidget {
                         ),
                       )
                     : const Icon(Icons.refresh, size: 18),
-                label: Text(isRefreshing ? 'Refreshing...' : 'Refresh'),
+                label: Text(isRefreshing ? AppLocalizations.of(context)!.refreshing : AppLocalizations.of(context)!.refresh),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.white.withValues(alpha: 0.15),
@@ -838,7 +838,7 @@ class _OperationalFocusSection extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Operational Focus',
+                AppLocalizations.of(context)!.operationalFocus,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -870,13 +870,13 @@ class _OperationalFocusSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _ProgressBar(
-            label: 'Activity Health',
+            label: AppLocalizations.of(context)!.activityHealth,
             value: activityHealthScore,
             color: colorFunc(context, 'primary'),
           ),
           const SizedBox(height: 12),
           _ProgressBar(
-            label: 'Completion Readiness',
+            label: AppLocalizations.of(context)!.completionReadiness,
             value: completionScore,
             color: completionScore >= 70
                 ? colorFunc(context, 'success')
@@ -979,34 +979,35 @@ class _QuickActionsSection extends StatelessWidget {
 
   List<Map<String, dynamic>> _getActions(BuildContext context) {
     final colorFunc = getThemeColor ?? _getDefaultThemeColor;
+    final l = AppLocalizations.of(context)!;
     return isEmployeeOnly
         ? [
             {
-              'label': 'Work Queue',
+              'label': l.workQueue,
               'path': '/employee-workqueue',
               'icon': Icons.assignment_turned_in,
               'color': colorFunc(context, 'error'),
             },
             {
-              'label': 'My Cases',
+              'label': l.myCases,
               'path': '/cases',
               'icon': Icons.gavel,
               'color': colorFunc(context, 'primary'),
             },
             {
-              'label': 'My Tasks',
+              'label': l.myTasks,
               'path': '/tasks',
               'icon': Icons.event,
               'color': colorFunc(context, 'success'),
             },
             {
-              'label': 'My Leads',
+              'label': l.myLeads,
               'path': '/intake',
               'icon': Icons.person_search,
               'color': colorFunc(context, 'primaryLight'),
             },
             {
-              'label': 'My Consultations',
+              'label': l.myConsultations,
               'path': '/consultations',
               'icon': Icons.description,
               'color': const Color(0xFF8B5CF6),
@@ -1014,25 +1015,25 @@ class _QuickActionsSection extends StatelessWidget {
           ]
         : [
             {
-              'label': 'New Case',
+              'label': l.newCase,
               'path': '/cases',
               'icon': Icons.gavel,
               'color': colorFunc(context, 'primary'),
             },
             {
-              'label': 'New Customer',
+              'label': l.newCustomer,
               'path': '/customers',
               'icon': Icons.people,
               'color': colorFunc(context, 'primaryLight'),
             },
             {
-              'label': 'View Billing',
+              'label': l.viewBilling,
               'path': '/billing',
               'icon': Icons.receipt_long,
               'color': colorFunc(context, 'secondary'),
             },
             {
-              'label': 'Admin Tasks',
+              'label': l.adminTasks,
               'path': '/tasks',
               'icon': Icons.event,
               'color': colorFunc(context, 'success'),
@@ -1053,7 +1054,7 @@ class _QuickActionsSection extends StatelessWidget {
                   color: colorFunc(context, 'primary'), size: 20,),
               const SizedBox(width: 8),
               Text(
-                'Quick Actions',
+                AppLocalizations.of(context)!.quickActions,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -1186,7 +1187,7 @@ class _RecentCasesSection extends StatelessWidget {
               Icon(Icons.gavel, color: colorFunc(context, 'primary'), size: 20),
               const SizedBox(width: 8),
               Text(
-                'Recent Cases',
+                AppLocalizations.of(context)!.recentCases,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -1197,9 +1198,9 @@ class _RecentCasesSection extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.push(context,
                     MaterialPageRoute<void>(builder: (_) => const CasesListScreen()),),
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.viewAll,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -1221,7 +1222,7 @@ class _RecentCasesSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'No recent cases',
+                    AppLocalizations.of(context)!.noRecentCases,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -1230,7 +1231,7 @@ class _RecentCasesSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Start by creating your first case',
+                    AppLocalizations.of(context)!.startCreatingCase,
                     style: TextStyle(
                       fontSize: 12,
                       color: colorFunc(context, 'textSecondary')
@@ -1361,7 +1362,7 @@ class _RecentCaseTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    caseNumber.isNotEmpty ? caseNumber : 'No Case Number',
+                    caseNumber.isNotEmpty ? caseNumber : AppLocalizations.of(context)!.noCaseNumber,
                     style: TextStyle(
                       color: colorFunc(context, 'textSecondary'),
                       fontSize: 12,
@@ -1458,7 +1459,7 @@ class _OverdueTasksSection extends StatelessWidget {
                   color: colorFunc(context, 'error'), size: 20,),
               const SizedBox(width: 8),
               Text(
-                'My Overdue Tasks',
+                AppLocalizations.of(context)!.myOverdueTasks,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -1469,9 +1470,9 @@ class _OverdueTasksSection extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.push(context,
                     MaterialPageRoute<void>(builder: (_) => const TasksListScreen()),),
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.viewAll,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -1482,7 +1483,7 @@ class _OverdueTasksSection extends StatelessWidget {
           const SizedBox(height: 12),
           if (tasks.isEmpty)
             Text(
-              'No overdue tasks',
+              AppLocalizations.of(context)!.noOverdueTasks,
               style: TextStyle(
                 fontSize: 13,
                 color: colorFunc(context, 'textSecondary'),
@@ -1549,7 +1550,7 @@ class _FollowUpsSection extends StatelessWidget {
                   color: colorFunc(context, 'warning'), size: 20,),
               const SizedBox(width: 8),
               Text(
-                'My Follow-ups',
+                AppLocalizations.of(context)!.myFollowUps,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -1562,9 +1563,9 @@ class _FollowUpsSection extends StatelessWidget {
                     context,
                     MaterialPageRoute<void>(
                         builder: (_) => const IntakeFormScreen(),),),
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.viewAll,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -1575,7 +1576,7 @@ class _FollowUpsSection extends StatelessWidget {
           const SizedBox(height: 12),
           if (leads.isEmpty)
             Text(
-              'No follow-ups scheduled',
+              AppLocalizations.of(context)!.noFollowUpsScheduled,
               style: TextStyle(
                 fontSize: 13,
                 color: colorFunc(context, 'textSecondary'),
