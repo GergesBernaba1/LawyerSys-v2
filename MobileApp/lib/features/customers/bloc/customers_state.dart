@@ -49,7 +49,10 @@ class CustomerDetailLoaded extends CustomersState {
 
 class CustomerOperationSuccess extends CustomersState {
   final String message;
-  CustomerOperationSuccess(this.message);
+  /// ID of the created/updated customer; non-null after create so callers
+  /// can follow-up with image uploads or navigation.
+  final String? customerId;
+  CustomerOperationSuccess(this.message, {this.customerId});
 }
 
 // Case Notification Preference States

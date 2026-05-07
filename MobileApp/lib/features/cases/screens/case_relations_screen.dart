@@ -53,23 +53,19 @@ class _CaseRelationsSectionBody extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: selectedType,
-                      decoration: const InputDecoration(
-                        labelText: 'Relation Type',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'Related', child: Text('Related')),
-                        DropdownMenuItem(value: 'Appeal', child: Text('Appeal')),
-                        DropdownMenuItem(
-                            value: 'Consolidated', child: Text('Consolidated')),
-                        DropdownMenuItem(
-                            value: 'Companion', child: Text('Companion')),
-                      ],
-                      onChanged: (v) {
+                    DropdownMenu<String>(
+                      initialSelection: selectedType,
+                      label: const Text('Relation Type'),
+                      expandedInsets: EdgeInsets.zero,
+                      onSelected: (v) {
                         if (v != null) setDialogState(() => selectedType = v);
                       },
+                      dropdownMenuEntries: const [
+                        DropdownMenuEntry(value: 'Related', label: 'Related'),
+                        DropdownMenuEntry(value: 'Appeal', label: 'Appeal'),
+                        DropdownMenuEntry(value: 'Consolidated', label: 'Consolidated'),
+                        DropdownMenuEntry(value: 'Companion', label: 'Companion'),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

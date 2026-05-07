@@ -29,18 +29,31 @@ class SyncHealth {
 }
 
 class SyncService {
-  final ApiClient _apiClient;
-  final LocalDatabase _localDatabase;
+  static final SyncService _instance = SyncService._internal();
+
+  factory SyncService({ApiClient? apiClient, LocalDatabase? localDatabase}) {
+    if (apiClient != null) {
+      _instance._apiClient = apiClient;
+      // Reset counters so injected test instances start clean.
+      _instance._attempted = 0;
+      _instance._succeeded = 0;
+      _instance._failed = 0;
+    }
+    if (localDatabase != null) _instance._localDatabase = localDatabase;
+    return _instance;
+  }
+
+  SyncService._internal()
+      : _apiClient = ApiClient(),
+        _localDatabase = LocalDatabase.instance;
+
+  ApiClient _apiClient;
+  LocalDatabase _localDatabase;
 
   int _attempted = 0;
   int _succeeded = 0;
   int _failed = 0;
-  final int _canceled = 0;
-
-
-  SyncService({ApiClient? apiClient, LocalDatabase? localDatabase})
-      : _apiClient = apiClient ?? ApiClient(),
-        _localDatabase = localDatabase ?? LocalDatabase.instance;
+  int _canceled = 0;
 
   Future<void> syncPendingOperations([ConflictResolverCallback? conflictResolver]) async {
     final queue = await _localDatabase.getSyncQueueItems();

@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/auth/permissions.dart';
@@ -67,17 +69,16 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  StreamSubscription<Map<String, dynamic>>? _signalRSub;
 
   @override
   void initState() {
     super.initState();
     final bloc = context.read<NotificationsBloc>();
     bloc.add(LoadNotifications());
-    SignalRService().events.listen((event) {
+    _signalRSub = SignalRService().events.listen((event) {
       if ((event['event']?.toString() ?? '') == 'NotificationsChanged') {
-        if (mounted) {
-          bloc.add(LoadNotifications());
-        }
+        if (mounted) bloc.add(LoadNotifications());
         return;
       }
 
@@ -89,6 +90,12 @@ class _MainScreenState extends State<MainScreen> {
           notificationId: id, title: title, message: message);
       if (mounted) bloc.add(NewNotificationReceived(notification));
     });
+  }
+
+  @override
+  void dispose() {
+    _signalRSub?.cancel();
+    super.dispose();
   }
 
   List<_NavItem> _buildNavItems(AppLocalizations l, UserSession? session) {

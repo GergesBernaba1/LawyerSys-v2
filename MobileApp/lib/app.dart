@@ -122,60 +122,88 @@ import 'shared/screens/main_screen.dart';
 import 'shared/screens/splash_screen.dart';
 import 'shared/screens/unauthorized_screen.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  // Created once and reused — never recreated on rebuild.
+  late final ApiClient _apiClient;
+  late final LocalDatabase _localDatabase;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiClient = ApiClient();
+    _localDatabase = LocalDatabase.instance;
+  }
 
   bool _canAccessRoute(String? route, UserSession? session) {
     if (route == null) return false;
 
+    // Public routes — no auth needed.
+    const publicRoutes = {
+      '/', '/login', '/register', '/forgot-password', '/reset-password',
+    };
+    if (publicRoutes.contains(route)) return true;
+
+    // All other routes require at minimum an active session.
+    if (session == null) return false;
+
+    // Route → required permission (null = any authenticated user).
     final routePermissions = <String, String?>{
-      '/': null,
-      '/login': null,
-      '/register': null,
-      '/forgot-password': null,
-      '/reset-password': null,
       '/main': null,
       '/dashboard': null,
-      '/tasks': Permissions.dashboard,
+      '/tasks': null,
       '/calendar': Permissions.viewHearings,
       '/hearings': Permissions.viewHearings,
       '/courts': Permissions.viewCourts,
-      '/timetracking': Permissions.dashboard,
+      '/timetracking': null,
       '/billing': Permissions.viewBilling,
       '/trust-accounting': Permissions.viewTrustAccounting,
+      '/trust-reports': Permissions.viewBilling,
       '/client-portal-messages': Permissions.viewClientPortal,
       '/client-portal-documents': Permissions.viewClientPortal,
       '/customers': Permissions.viewCustomers,
       '/settings': null,
       '/profile': null,
-      '/users': null,
-      '/tenants': null,
-      '/documents': Permissions.dashboard,
+      '/documents': null,
       '/intake': null,
-      '/files': Permissions.dashboard,
+      '/files': null,
       '/esign': null,
       '/ai-assistant': null,
-      '/audit-logs': null,
-      '/sitings': null,
+      '/sitings': Permissions.viewHearings,
       '/about': null,
       '/contact': null,
       '/document-generation': null,
       '/court-automation': null,
       '/workqueue': null,
-      '/administration': null,
-      '/subscription': null,
-      '/trust-reports': Permissions.viewBilling,
+      // Admin / SuperAdmin only routes.
+      '/users': Permissions.manageUsers,
+      '/tenants': Permissions.manageTenants,
+      '/audit-logs': Permissions.viewAuditLogs,
+      '/administration': Permissions.manageAdministration,
+      '/subscription': Permissions.manageSubscription,
     };
 
-    final requiredPermission = routePermissions[route];
-    if (requiredPermission == null) return true;
-    return session?.hasPermission(requiredPermission) ?? false;
+    if (!routePermissions.containsKey(route)) return false;
+
+    final required = routePermissions[route];
+    if (required == null) return true;
+
+    // Admin and SuperAdmin implicitly have all admin permissions.
+    if (session.isAdmin()) return true;
+
+    return session.hasPermission(required);
   }
 
   @override
   Widget build(BuildContext context) {
-    final apiClient = ApiClient();
-    final localDatabase = LocalDatabase.instance;
+    final apiClient = _apiClient;
+    final localDatabase = _localDatabase;
 
     return MultiRepositoryProvider(
       providers: [
@@ -214,6 +242,8 @@ class App extends StatelessWidget {
         RepositoryProvider(create: (_) => AdministrationRepository(apiClient)),
         RepositoryProvider(create: (_) => SubscriptionRepository(apiClient)),
         RepositoryProvider(create: (_) => TrustReportsRepository(apiClient)),
+        RepositoryProvider(
+            create: (_) => NotificationsRepository(localDatabase, apiClient)),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -330,9 +360,9 @@ class App extends StatelessWidget {
               create: (ctx) => TrustReportsBloc(
                   repository: RepositoryProvider.of<TrustReportsRepository>(ctx))),
           BlocProvider(
-              create: (_) => NotificationsBloc(
-                  notificationsRepository: NotificationsRepository(
-                      LocalDatabase.instance, apiClient))),
+              create: (ctx) => NotificationsBloc(
+                  notificationsRepository:
+                      RepositoryProvider.of<NotificationsRepository>(ctx))),
         ],
         child: _AppInitializer(canAccessRoute: _canAccessRoute),
       ),
@@ -360,11 +390,12 @@ class _AppInitializerState extends State<_AppInitializer> {
   }
 
   Future<void> _init() async {
-    // Capture context-dependent values before any await
+    // Capture context-dependent values before any await.
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
-    final apiClient = ApiClient();
+    final notificationsRepository =
+        RepositoryProvider.of<NotificationsRepository>(context);
 
-    // Load saved locale
+    // Load saved locale.
     final langCode = await PreferencesStorage().getLanguageCode();
     if (mounted) {
       setState(() {
@@ -378,20 +409,22 @@ class _AppInitializerState extends State<_AppInitializer> {
     final pushService = PushNotificationService();
     pushService.configure(
       authRepository,
-      notificationsRepository:
-          NotificationsRepository(LocalDatabase.instance, apiClient),
+      notificationsRepository: notificationsRepository,
     );
     pushService.init();
 
     final signalRService = SignalRService();
+    String? signalRToken;
     try {
-      final token = await SecureStorage().read(SecureStorage.keyAccessToken);
-      signalRService.init(
+      signalRToken = await SecureStorage().read(SecureStorage.keyAccessToken);
+    } catch (_) {}
+    try {
+      await signalRService.init(
         '${ApiConstants.apiRoot}${ApiConstants.signalRHub}',
-        tokenFactory: token != null ? () async => token : null,
+        tokenFactory: signalRToken != null ? () async => signalRToken! : null,
       );
-    } catch (_) {
-      signalRService.init('${ApiConstants.apiRoot}${ApiConstants.signalRHub}');
+    } catch (e) {
+      debugPrint('[SignalR] init failed — backend unavailable: $e');
     }
 
     if (mounted) {

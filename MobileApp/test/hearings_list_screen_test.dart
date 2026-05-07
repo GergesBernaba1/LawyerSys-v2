@@ -53,6 +53,12 @@ class FakeHearingsRepository extends HearingsRepository {
 
 void main() {
   testWidgets('HearingsListScreen renders list and calendar view with markers', (WidgetTester tester) async {
+    // Use a taller viewport so the calendar + events list both fit.
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final repository = FakeHearingsRepository();
     final hearingsBloc = HearingsBloc(hearingsRepository: repository);
 

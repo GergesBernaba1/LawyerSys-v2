@@ -451,6 +451,10 @@ class LocalDatabase {
     await db.delete('notifications');
     await db.delete('dashboard');
     await db.delete('employees');
+    await db.delete('calendar_events');
+    await db.delete('sync_queue');
+    await db.delete('sync_activity');
+    await db.delete('sync_metrics');
   }
 
   Future<void> upsertCalendarEvent(

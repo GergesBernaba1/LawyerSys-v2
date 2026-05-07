@@ -119,8 +119,8 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
   Future<void> _onCreateCustomer(CreateCustomer event, Emitter<CustomersState> emit) async {
     emit(CustomersLoading());
     try {
-      await customersRepository.createCustomer(event.data);
-      emit(CustomerOperationSuccess('Customer created'));
+      final created = await customersRepository.createCustomer(event.data);
+      emit(CustomerOperationSuccess('Customer created', customerId: created.customerId));
       final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);
@@ -138,7 +138,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     emit(CustomersLoading());
     try {
       await customersRepository.updateCustomer(event.customerId, event.data);
-      emit(CustomerOperationSuccess('Customer updated'));
+      emit(CustomerOperationSuccess('Customer updated', customerId: event.customerId));
       final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);

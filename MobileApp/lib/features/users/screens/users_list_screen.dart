@@ -228,19 +228,18 @@ class _UsersListScreenState extends State<UsersListScreen> {
         builder: (ctx, setDialogState) {
           return AlertDialog(
             title: const Text('Change Role'), // TODO: localize
-            content: DropdownButtonFormField<String>(
-              value: selectedRole,
-              decoration: const InputDecoration(
-                labelText: 'Role', // TODO: localize
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Employee', child: Text('Employee')), // TODO: localize
-                DropdownMenuItem(value: 'Admin', child: Text('Admin')), // TODO: localize
-                DropdownMenuItem(value: 'SuperAdmin', child: Text('SuperAdmin')), // TODO: localize
-              ],
-              onChanged: (v) {
+            content: DropdownMenu<String>(
+              initialSelection: selectedRole,
+              label: const Text('Role'), // TODO: localize
+              expandedInsets: EdgeInsets.zero,
+              onSelected: (v) {
                 if (v != null) setDialogState(() => selectedRole = v);
               },
+              dropdownMenuEntries: const [
+                DropdownMenuEntry(value: 'Employee', label: 'Employee'), // TODO: localize
+                DropdownMenuEntry(value: 'Admin', label: 'Admin'), // TODO: localize
+                DropdownMenuEntry(value: 'SuperAdmin', label: 'SuperAdmin'), // TODO: localize
+              ],
             ),
             actions: [
               TextButton(

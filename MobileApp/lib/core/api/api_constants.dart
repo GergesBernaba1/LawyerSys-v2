@@ -1,6 +1,11 @@
 class ApiConstants {
-  static const baseUrl = 'http://10.0.2.2:5000/api';
-  static const apiRoot = 'http://10.0.2.2:5000';
+  static const _apiRoot = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://10.0.2.2:5000',
+  );
+
+  static const baseUrl = '$_apiRoot/api';
+  static const apiRoot = _apiRoot;
 
   // Authentication endpoints
   static const login = '/account/login';
