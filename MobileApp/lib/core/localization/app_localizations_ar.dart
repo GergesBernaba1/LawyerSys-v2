@@ -1246,4 +1246,68 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fullNameRequired => 'الاسم الكامل مطلوب';
   @override
   String get countryRequired => 'الدولة مطلوبة';
+  // Intake
+  @override
+  String get intakeLeads => 'طلبات الاستقبال';
+  @override
+  String get submitPublicLead => 'إرسال طلب عام';
+  @override
+  String get runConflictCheck => 'التحقق من التعارضات';
+  @override
+  String get qualify => 'تأهيل';
+  @override
+  String get reject => 'رفض';
+  @override
+  String get convertToCustomerAndCase => 'تحويل إلى عميل وقضية';
+  @override
+  String get assignToEmployeeLabel => 'تعيين لموظف';
+  @override
+  String get assign => 'تعيين';
+  @override
+  String get subject => 'الموضوع';
+  @override
+  String get nationalId => 'الهوية الوطنية';
+  @override
+  String get desiredCaseType => 'نوع القضية المطلوب';
+  @override
+  String get createFirstDocument => 'إنشاء أول وثيقة';
+  @override
+  String get noLeadsFoundCreate => 'لا توجد طلبات. اضغط + لإرسال طلب عام.';
+  @override
+  String get searchIntakeHint => 'ابحث بالاسم أو البريد أو الموضوع...';
+  // Reports & trust reports
+  @override
+  String get financial => 'المالية';
+  @override
+  String get outstanding => 'المستحقات';
+  @override
+  String get month => 'الشهر';
+  @override
+  String get year => 'السنة';
+  @override
+  String get net => 'الصافي';
+  @override
+  String get noFinancialData => 'لا توجد بيانات مالية';
+  @override
+  String get noOutstandingBalances => 'لا توجد أرصدة معلقة';
+  @override
+  String get selectTabToLoadData => 'اختر التبويب لتحميل البيانات';
+  // Billing form
+  @override
+  String get pleaseEnterAmount => 'يرجى إدخال المبلغ';
+  @override
+  String get pleaseEnterValidNumber => 'يرجى إدخال رقم صحيح';
+  // Misc
+  @override
+  String get pullToRefresh => 'اسحب للتحديث';
+  @override
+  String get noPackagesAvailable => 'لا توجد باقات متاحة';
+  @override
+  String get contactSales => 'تواصل مع المبيعات';
+  @override
+  String get notification => 'الإشعار';
+  @override
+  String get clearAll => 'مسح الكل';
+  @override
+  String get profileUpdatedSuccessfully => 'تم تحديث الملف الشخصي بنجاح';
 }

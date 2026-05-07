@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/cases_list_screen.dart';
 import 'package:qadaya_lawyersys/features/consultations/screens/consultations_list_screen.dart';
@@ -313,7 +314,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             );
           }
-          return const Center(child: Text('No data available'));
+          return Center(child: Text(AppLocalizations.of(context)!.noDataAvailable));
         },
       ),
     );
@@ -1241,7 +1242,7 @@ class _RecentCasesSection extends StatelessWidget {
                     onPressed: () => Navigator.push(context,
                         MaterialPageRoute<void>(builder: (_) => const CasesListScreen()),),
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('New Case'),
+                    label: Text(AppLocalizations.of(context)!.newCase),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

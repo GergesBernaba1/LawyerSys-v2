@@ -69,6 +69,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
           }
         },
         builder: (context, state) {
+          final l = AppLocalizations.of(context)!;
           if (state is BillingLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -82,17 +83,17 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                 children: [
                   TextFormField(
                     controller: _amountController,
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l.amount,
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter amount';
+                        return l.pleaseEnterAmount;
                       }
                       if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
+                        return l.pleaseEnterValidNumber;
                       }
                       return null;
                     },
@@ -100,9 +101,9 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _dateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Date',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l.dateLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     readOnly: true,
                     onTap: () async {
@@ -124,10 +125,11 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                   if (widget.isPayment)
                     // Payment form - customer selection
                     BlocBuilder<BillingBloc, BillingState>(
-                      builder: (context, state) {
+                      builder: (ctx, innerState) {
+                        final lInner = AppLocalizations.of(ctx)!;
                         List<DropdownMenuItem<int>> customerItems = [];
-                        if (state is BillingLoaded) {
-                          customerItems = state.customers
+                        if (innerState is BillingLoaded) {
+                          customerItems = innerState.customers
                               .map((customer) => DropdownMenuItem<int>(
                                     value: customer.id ?? 0,
                                     child: Text(
@@ -136,15 +138,15 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               .toList();
                         }
                         return DropdownButtonFormField<int>(
-                          decoration: const InputDecoration(
-                            labelText: 'Customer',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: lInner.customer,
+                            border: const OutlineInputBorder(),
                           ),
                           initialValue: _selectedCustomerId,
                           items: [
-                            const DropdownMenuItem<int>(
+                            DropdownMenuItem<int>(
                               value: 0,
-                              child: Text('Select a customer'),
+                              child: Text(lInner.pleaseSelectCustomer),
                             ),
                             ...customerItems,
                           ],
@@ -155,7 +157,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                           },
                           validator: (value) {
                             if (value == null || value == 0) {
-                              return 'Please select a customer';
+                              return lInner.pleaseSelectCustomer;
                             }
                             return null;
                           },
@@ -166,10 +168,11 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                   if (!widget.isPayment)
                     // Receipt form - employee selection
                     BlocBuilder<BillingBloc, BillingState>(
-                      builder: (context, state) {
+                      builder: (ctx, innerState) {
+                        final lInner = AppLocalizations.of(ctx)!;
                         List<DropdownMenuItem<int>> employeeItems = [];
-                        if (state is BillingLoaded) {
-                          employeeItems = state.employees
+                        if (innerState is BillingLoaded) {
+                          employeeItems = innerState.employees
                               .map((employee) => DropdownMenuItem<int>(
                                     value: employee.id ?? 0,
                                     child: Text(
@@ -178,15 +181,15 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               .toList();
                         }
                         return DropdownButtonFormField<int>(
-                          decoration: const InputDecoration(
-                            labelText: 'Employee',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: lInner.employee,
+                            border: const OutlineInputBorder(),
                           ),
                           initialValue: _selectedEmployeeId,
                           items: [
-                            const DropdownMenuItem<int>(
+                            DropdownMenuItem<int>(
                               value: 0,
-                              child: Text('Select an employee'),
+                              child: Text(lInner.pleaseSelectAnEmployee),
                             ),
                             ...employeeItems,
                           ],
@@ -197,7 +200,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                           },
                           validator: (value) {
                             if (value == null || value == 0) {
-                              return 'Please select an employee';
+                              return lInner.pleaseSelectAnEmployee;
                             }
                             return null;
                           },
@@ -207,9 +210,9 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _notesController,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l.notes,
+                      border: const OutlineInputBorder(),
                     ),
                     maxLines: 3,
                   ),
@@ -219,7 +222,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: Text(widget.isPayment ? 'Create Payment' : 'Create Receipt'),
+                    child: Text(widget.isPayment ? l.newPayment : l.newReceipt),
                   ),
                 ],
               ),

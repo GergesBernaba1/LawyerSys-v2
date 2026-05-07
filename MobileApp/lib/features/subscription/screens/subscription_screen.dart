@@ -71,8 +71,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   children: [
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
-                      child: const Center(
-                        child: Text('No packages available'),
+                      child: Center(
+                        child: Text(AppLocalizations.of(context)!.noPackagesAvailable),
                       ),
                     ),
                   ],
@@ -325,7 +325,7 @@ class _PackageCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Contact Sales'),
+                child: Text(AppLocalizations.of(context)!.contactSales),
               ),
             ),
           ],

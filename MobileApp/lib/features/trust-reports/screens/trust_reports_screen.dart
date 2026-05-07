@@ -116,16 +116,16 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<int?>(
-                      decoration: const InputDecoration(
-                        labelText: 'Year',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.year,
+                        border: const OutlineInputBorder(),
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
                       initialValue: _selectedYear,
                       items: [
-                        const DropdownMenuItem<int?>(
-                          child: Text('All'),
+                        DropdownMenuItem<int?>(
+                          child: Text(AppLocalizations.of(context)!.all),
                         ),
                         for (int y = _maxYear; y >= _minYear; y--)
                           DropdownMenuItem<int?>(
@@ -142,16 +142,16 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<int?>(
-                      decoration: const InputDecoration(
-                        labelText: 'Month',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.month,
+                        border: const OutlineInputBorder(),
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
                       initialValue: _selectedMonth,
                       items: [
-                        const DropdownMenuItem<int?>(
-                          child: Text('All'),
+                        DropdownMenuItem<int?>(
+                          child: Text(AppLocalizations.of(context)!.all),
                         ),
                         for (int m = 1; m <= 12; m++)
                           DropdownMenuItem<int?>(
@@ -415,10 +415,10 @@ class _OutstandingBalancesTabState extends State<_OutstandingBalancesTab> {
           if (state.balances.isEmpty) {
             return RefreshIndicator(
               onRefresh: _onRefresh,
-              child: ListView(children: const [
+              child: ListView(children: [
                 SizedBox(
                   height: 300,
-                  child: Center(child: Text('No outstanding balances')),
+                  child: Center(child: Text(AppLocalizations.of(context)!.noOutstandingBalances)),
                 ),
               ],),
             );
@@ -438,7 +438,7 @@ class _OutstandingBalancesTabState extends State<_OutstandingBalancesTab> {
         }
 
         // Initial state — waiting for tab selection trigger
-        return const Center(child: Text('Select the tab to load data'));
+        return Center(child: Text(AppLocalizations.of(context)!.selectTabToLoadData));
       },
     );
   }

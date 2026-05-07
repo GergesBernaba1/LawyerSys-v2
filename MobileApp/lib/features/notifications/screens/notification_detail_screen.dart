@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/notifications/models/notification.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
@@ -9,8 +9,9 @@ class NotificationDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Notification')), 
+      appBar: AppBar(title: Text(l.notification)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

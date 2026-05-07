@@ -1246,4 +1246,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fullNameRequired => 'Full name is required';
   @override
   String get countryRequired => 'Country is required';
+  // Intake
+  @override
+  String get intakeLeads => 'Intake Leads';
+  @override
+  String get submitPublicLead => 'Submit Public Lead';
+  @override
+  String get runConflictCheck => 'Run Conflict Check';
+  @override
+  String get qualify => 'Qualify';
+  @override
+  String get reject => 'Reject';
+  @override
+  String get convertToCustomerAndCase => 'Convert to Customer & Case';
+  @override
+  String get assignToEmployeeLabel => 'Assign to Employee';
+  @override
+  String get assign => 'Assign';
+  @override
+  String get subject => 'Subject';
+  @override
+  String get nationalId => 'National ID';
+  @override
+  String get desiredCaseType => 'Desired Case Type';
+  @override
+  String get createFirstDocument => 'Create First Document';
+  @override
+  String get noLeadsFoundCreate => 'No leads found. Tap + to submit a public lead.';
+  @override
+  String get searchIntakeHint => 'Search name, email, subject...';
+  // Reports & trust reports
+  @override
+  String get financial => 'Financial';
+  @override
+  String get outstanding => 'Outstanding';
+  @override
+  String get month => 'Month';
+  @override
+  String get year => 'Year';
+  @override
+  String get net => 'Net';
+  @override
+  String get noFinancialData => 'No financial data';
+  @override
+  String get noOutstandingBalances => 'No outstanding balances';
+  @override
+  String get selectTabToLoadData => 'Select the tab to load data';
+  // Billing form
+  @override
+  String get pleaseEnterAmount => 'Please enter amount';
+  @override
+  String get pleaseEnterValidNumber => 'Please enter a valid number';
+  // Misc
+  @override
+  String get pullToRefresh => 'Pull to refresh';
+  @override
+  String get noPackagesAvailable => 'No packages available';
+  @override
+  String get contactSales => 'Contact Sales';
+  @override
+  String get notification => 'Notification';
+  @override
+  String get clearAll => 'Clear All';
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully';
 }

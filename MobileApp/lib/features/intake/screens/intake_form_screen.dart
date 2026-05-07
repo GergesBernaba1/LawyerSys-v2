@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/intake/bloc/intake_bloc.dart';
 import 'package:qadaya_lawyersys/features/intake/bloc/intake_event.dart';
 import 'package:qadaya_lawyersys/features/intake/bloc/intake_state.dart';
@@ -62,11 +62,11 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Intake Leads'),
+        title: Text(AppLocalizations.of(context)!.intakeLeads),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: 'Submit Public Lead',
+            tooltip: AppLocalizations.of(context)!.submitPublicLead,
             onPressed: _showPublicForm,
           ),
         ],
@@ -82,7 +82,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search name, email, subject...',
+                      hintText: AppLocalizations.of(context)!.searchIntakeHint,
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -104,9 +104,9 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
                 const SizedBox(width: 8),
                 DropdownButton<String?>(
                   value: _selectedStatus,
-                  hint: const Text('All'),
+                  hint: Text(AppLocalizations.of(context)!.all),
                   items: [
-                    const DropdownMenuItem(child: Text('All')),
+                    DropdownMenuItem(child: Text(AppLocalizations.of(context)!.all)),
                     ..._statuses.map((s) =>
                         DropdownMenuItem(value: s, child: Text(s)),),
                   ],
@@ -137,7 +137,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
                 }
                 if (state is IntakeLoaded) {
                   if (state.leads.isEmpty) {
-                    return const Center(child: Text('No leads found'));
+                    return Center(child: Text(AppLocalizations.of(context)!.noLeadsFound));
                   }
                   return RefreshIndicator(
                     onRefresh: () async =>
@@ -326,7 +326,7 @@ class _LeadActionsSheet extends StatelessWidget {
               // Conflict check
               OutlinedButton.icon(
                 icon: const Icon(Icons.search),
-                label: const Text('Run Conflict Check'),
+                label: Text(AppLocalizations.of(context)!.runConflictCheck),
                 onPressed: () {
                   bloc.add(RunIntakeConflictCheck(lead.id));
                   Navigator.pop(context);
@@ -344,7 +344,7 @@ class _LeadActionsSheet extends StatelessWidget {
                             isQualified: true,),);
                         Navigator.pop(context);
                       },
-                      child: const Text('Qualify'),
+                      child: Text(AppLocalizations.of(context)!.qualify),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -355,7 +355,7 @@ class _LeadActionsSheet extends StatelessWidget {
                             isQualified: false,),);
                         Navigator.pop(context);
                       },
-                      child: const Text('Reject'),
+                      child: Text(AppLocalizations.of(context)!.reject),
                     ),
                   ),
                 ],),
@@ -372,7 +372,7 @@ class _LeadActionsSheet extends StatelessWidget {
                 const SizedBox(height: 8),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.transform),
-                  label: const Text('Convert to Customer & Case'),
+                  label: Text(AppLocalizations.of(context)!.convertToCustomerAndCase),
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,),
                   onPressed: () {
@@ -444,8 +444,8 @@ class _AssignSectionState extends State<_AssignSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<int>(
-          decoration: const InputDecoration(
-              labelText: 'Assign to Employee', isDense: true,),
+          decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.assignToEmployeeLabel, isDense: true,),
           initialValue: _selectedEmployeeId,
           items: widget.options
               .map((o) => DropdownMenuItem(
@@ -465,7 +465,7 @@ class _AssignSectionState extends State<_AssignSection> {
                       ),);
                   Navigator.pop(context);
                 },
-          child: const Text('Assign'),
+          child: Text(AppLocalizations.of(context)!.assign),
         ),
       ],
     );
@@ -540,63 +540,71 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Submit Intake Request',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _fullNameCtrl,
-                decoration: const InputDecoration(labelText: 'Full Name *'),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _subjectCtrl,
-                decoration: const InputDecoration(labelText: 'Subject *'),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _phoneCtrl,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _nationalIdCtrl,
-                decoration: const InputDecoration(labelText: 'National ID'),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _caseTypeCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Desired Case Type'),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _descriptionCtrl,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 20),
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                    onPressed: _submit, child: const Text('Submit'),),
-              ],),
+              Builder(builder: (ctx) {
+                final l = AppLocalizations.of(ctx)!;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(l.submitPublicLead,
+                        style: Theme.of(ctx)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _fullNameCtrl,
+                      decoration: InputDecoration(labelText: '${l.fullName} *'),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? l.requiredField : null,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _subjectCtrl,
+                      decoration: InputDecoration(labelText: '${l.subject} *'),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? l.requiredField : null,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _emailCtrl,
+                      decoration: InputDecoration(labelText: l.email),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _phoneCtrl,
+                      decoration: InputDecoration(labelText: l.phoneNumber),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _nationalIdCtrl,
+                      decoration: InputDecoration(labelText: l.nationalId),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _caseTypeCtrl,
+                      decoration: InputDecoration(labelText: l.desiredCaseType),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _descriptionCtrl,
+                      decoration: InputDecoration(labelText: l.description),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: Text(l.cancel),),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                          onPressed: _submit, child: Text(l.submit),),
+                    ],),
+                  ],
+                );
+              },),
             ],
           ),
         ),

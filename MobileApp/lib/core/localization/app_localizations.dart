@@ -1658,6 +1658,40 @@ abstract class AppLocalizations {
   String get usernameRequired;
   String get fullNameRequired;
   String get countryRequired;
+  // Intake
+  String get intakeLeads;
+  String get submitPublicLead;
+  String get runConflictCheck;
+  String get qualify;
+  String get reject;
+  String get convertToCustomerAndCase;
+  String get assignToEmployeeLabel;
+  String get assign;
+  String get subject;
+  String get nationalId;
+  String get desiredCaseType;
+  String get createFirstDocument;
+  String get noLeadsFoundCreate;
+  String get searchIntakeHint;
+  // Reports & trust reports
+  String get financial;
+  String get outstanding;
+  String get month;
+  String get year;
+  String get net;
+  String get noFinancialData;
+  String get noOutstandingBalances;
+  String get selectTabToLoadData;
+  // Billing form
+  String get pleaseEnterAmount;
+  String get pleaseEnterValidNumber;
+  // Misc
+  String get pullToRefresh;
+  String get noPackagesAvailable;
+  String get contactSales;
+  String get notification;
+  String get clearAll;
+  String get profileUpdatedSuccessfully;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

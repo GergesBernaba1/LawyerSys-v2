@@ -157,9 +157,9 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
               context.read<AdministrationBloc>().add(LoadAdminOverview());
             },
             child: ListView(
-              children: const [
-                SizedBox(height: 200),
-                Center(child: Text('Pull to refresh')),
+              children: [
+                const SizedBox(height: 200),
+                Center(child: Text(AppLocalizations.of(context)!.pullToRefresh)),
               ],
             ),
           );

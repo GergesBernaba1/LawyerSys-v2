@@ -122,17 +122,18 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
                 }
                 if (state is JudicialDocumentsLoaded) {
                   if (state.documents.isEmpty) {
+                    final l = AppLocalizations.of(context)!;
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.description_outlined, size: 48, color: Colors.grey),
                           const SizedBox(height: 12),
-                          const Text('No documents found'),
+                          Text(l.noDocumentsFound),
                           const SizedBox(height: 12),
                           ElevatedButton(
                             onPressed: _showForm,
-                            child: const Text('Create First Document'),
+                            child: Text(l.createFirstDocument),
                           ),
                         ],
                       ),

@@ -30,7 +30,7 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            tooltip: 'Clear All',
+            tooltip: localizer.clearAll,
             onPressed: () {
               context.read<NotificationsBloc>().add(ClearNotifications());
             },

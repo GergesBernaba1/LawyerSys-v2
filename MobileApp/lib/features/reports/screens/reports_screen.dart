@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/reports/bloc/reports_bloc.dart';
 import 'package:qadaya_lawyersys/features/reports/bloc/reports_event.dart';
 import 'package:qadaya_lawyersys/features/reports/bloc/reports_state.dart';
@@ -49,21 +49,22 @@ class _ReportsScreenState extends State<ReportsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reports'),
+        title: Text(l.reports),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refresh,
-            tooltip: 'Refresh',
+            tooltip: l.refresh,
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.bar_chart), text: 'Financial'),
-            Tab(icon: Icon(Icons.account_balance_wallet), text: 'Outstanding'),
+          tabs: [
+            Tab(icon: const Icon(Icons.bar_chart), text: l.financial),
+            Tab(icon: const Icon(Icons.account_balance_wallet), text: l.outstanding),
           ],
         ),
       ),
@@ -87,15 +88,16 @@ class _ReportsScreenState extends State<ReportsScreen>
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (state is ReportsError) {
+                  final lErr = AppLocalizations.of(context)!;
                   return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Error: ${state.message}',
+                        Text('${lErr.error}: ${state.message}',
                             textAlign: TextAlign.center,),
                         const SizedBox(height: 12),
                         ElevatedButton(
-                            onPressed: _load, child: const Text('Retry'),),
+                            onPressed: _load, child: Text(lErr.retry),),
                       ],
                     ),
                   );
@@ -139,6 +141,7 @@ class _FilterBar extends StatelessWidget {
     final now = DateTime.now();
     final years = [now.year - 1, now.year, now.year + 1];
 
+    final l = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: Row(
@@ -147,8 +150,8 @@ class _FilterBar extends StatelessWidget {
           Expanded(
             child: DropdownButtonFormField<int>(
               initialValue: year,
-              decoration: const InputDecoration(
-                  labelText: 'Year', isDense: true,),
+              decoration: InputDecoration(
+                  labelText: l.year, isDense: true,),
               items: years
                   .map((y) =>
                       DropdownMenuItem(value: y, child: Text('$y')),)
@@ -161,8 +164,8 @@ class _FilterBar extends StatelessWidget {
           Expanded(
             child: DropdownButtonFormField<int>(
               initialValue: month,
-              decoration: const InputDecoration(
-                  labelText: 'Month', isDense: true,),
+              decoration: InputDecoration(
+                  labelText: l.month, isDense: true,),
               items: List.generate(
                   12,
                   (i) => DropdownMenuItem(
@@ -187,7 +190,7 @@ class _FinancialTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final report = state.financialReport;
     if (report == null) {
-      return const Center(child: Text('No financial data'));
+      return Center(child: Text(AppLocalizations.of(context)!.noFinancialData));
     }
 
     return RefreshIndicator(
@@ -242,11 +245,11 @@ class _FinancialTab extends StatelessWidget {
                 dataRowMinHeight: 32,
                 dataRowMaxHeight: 40,
                 columnSpacing: 20,
-                columns: const [
-                  DataColumn(label: Text('Month')),
-                  DataColumn(label: Text('Payments'), numeric: true),
-                  DataColumn(label: Text('Receipts'), numeric: true),
-                  DataColumn(label: Text('Net'), numeric: true),
+                columns: [
+                  DataColumn(label: Text(AppLocalizations.of(context)!.month)),
+                  DataColumn(label: Text(AppLocalizations.of(context)!.payments), numeric: true),
+                  DataColumn(label: Text(AppLocalizations.of(context)!.receipts), numeric: true),
+                  DataColumn(label: Text(AppLocalizations.of(context)!.net), numeric: true),
                 ],
                 rows: report.last6Months
                     .map((p) => DataRow(cells: [
@@ -298,9 +301,9 @@ class _OutstandingTab extends StatelessWidget {
           await Future<void>.delayed(const Duration(milliseconds: 500));
         },
         child: ListView(
-          children: const [
-            SizedBox(height: 200),
-            Center(child: Text('No outstanding balances')),
+          children: [
+            const SizedBox(height: 200),
+            Center(child: Text(AppLocalizations.of(context)!.noOutstandingBalances)),
           ],
         ),
       );
