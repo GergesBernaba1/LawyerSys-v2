@@ -65,7 +65,7 @@ void main() {
     final sub = bloc.stream.listen(states.add);
 
     bloc.add(LoadHearings());
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(states.last, isA<HearingsLoaded>());
 
     final newHearing = Hearing(
@@ -81,7 +81,7 @@ void main() {
     );
 
     bloc.add(CreateHearing(newHearing));
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(repo.getHearings().then((list) => list.length), completion(2));
     expect(states.last, isA<HearingOperationSuccess>());
 
@@ -98,11 +98,11 @@ void main() {
     );
 
     bloc.add(UpdateHearing(updatedHearing));
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
     expect((await repo.getHearings()).firstWhere((h) => h.hearingId == 'H2').judgeName, 'Judge B Updated');
 
     bloc.add(DeleteHearing('H2'));
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(repo.getHearings().then((list) => list.any((h) => h.hearingId == 'H2')), completion(isFalse));
 
     await sub.cancel();

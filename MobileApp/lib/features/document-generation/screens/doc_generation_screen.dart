@@ -491,7 +491,7 @@ class _DraftsTab extends StatelessWidget {
     final formKey = GlobalKey<FormState>();
 
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: Text(l10n.newDraft),
@@ -549,7 +549,7 @@ class _DraftsTab extends StatelessWidget {
 
   void _confirmDelete(BuildContext context, DocDraft draft) {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: Text(l10n.deleteDraft),

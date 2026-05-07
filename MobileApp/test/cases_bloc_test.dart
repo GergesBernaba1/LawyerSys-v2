@@ -65,7 +65,7 @@ void main() {
     final sub = bloc.stream.listen(states.add);
 
     bloc.add(LoadCases());
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     expect(states.last, isA<CasesLoaded>());
 
@@ -83,7 +83,7 @@ void main() {
     );
 
     bloc.add(CreateCase(newCase));
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     expect(repo.getCases().then((list) => list.length), completion(2));
 
@@ -101,13 +101,13 @@ void main() {
     );
 
     bloc.add(UpdateCase(updatedCase));
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     final updated = await repo.getCases();
     expect(updated.firstWhere((c) => c.caseId == '2').caseStatus, 'Closed');
 
     bloc.add(DeleteCase('2'));
-    await Future.delayed(const Duration(milliseconds: 50));
+    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     final afterDelete = await repo.getCases();
     expect(afterDelete.any((c) => c.caseId == '2'), isFalse);

@@ -39,7 +39,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
       appBar: AppBar(title: Text(localizer.contenders)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (_) => const ContenderFormScreen()));
+          await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const ContenderFormScreen()));
           if (context.mounted) context.read<ContendersBloc>().add(RefreshContenders());
         },
         child: const Icon(Icons.add),
@@ -85,7 +85,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                   return RefreshIndicator(
                     onRefresh: () async {
                       context.read<ContendersBloc>().add(RefreshContenders());
-                      await Future.delayed(const Duration(milliseconds: 500));
+                      await Future<void>.delayed(const Duration(milliseconds: 500));
                     },
                     child: ListView.builder(
                       itemCount: contenders.length,
@@ -94,7 +94,7 @@ class _ContendersListScreenState extends State<ContendersListScreen> {
                         return ListTile(
                           title: Text(contender.fullName),
                           subtitle: Text('${contender.contenderType} • ${contender.ssn}'),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContenderDetailScreen(contender: contender))),
+                          onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => ContenderDetailScreen(contender: contender))),
                         );
                       },
                     ),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
-import 'package:qadaya_lawyersys/features/dashboard/models/dashboard_summary.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/cases_list_screen.dart';
 import 'package:qadaya_lawyersys/features/consultations/screens/consultations_list_screen.dart';
 import 'package:qadaya_lawyersys/features/customers/screens/customers_list_screen.dart';
 import 'package:qadaya_lawyersys/features/dashboard/bloc/dashboard_bloc.dart';
 import 'package:qadaya_lawyersys/features/dashboard/bloc/dashboard_event.dart';
 import 'package:qadaya_lawyersys/features/dashboard/bloc/dashboard_state.dart';
+import 'package:qadaya_lawyersys/features/dashboard/models/dashboard_summary.dart';
 import 'package:qadaya_lawyersys/features/employees/screens/employees_list_screen.dart';
 import 'package:qadaya_lawyersys/features/intake/screens/intake_form_screen.dart';
 import 'package:qadaya_lawyersys/features/tasks/screens/tasks_list_screen.dart';
@@ -151,7 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             trend: isEmployeeOnly ? null : s.casesTrend,
                             onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(
+                                MaterialPageRoute<void>(
                                     builder: (_) => const CasesListScreen(),),),
                           ),
                           _StatCard(
@@ -172,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ],
                             onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(
+                                MaterialPageRoute<void>(
                                     builder: (_) => isEmployeeOnly
                                         ? const TasksListScreen()
                                         : const CustomersListScreen(),),),
@@ -190,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                             onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(
+                                MaterialPageRoute<void>(
                                     builder: (_) => isEmployeeOnly
                                         ? const IntakeFormScreen()
                                         : const EmployeesListScreen(),),),
@@ -209,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                             onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(
+                                MaterialPageRoute<void>(
                                     builder: (_) =>
                                         const ConsultationsListScreen(),),),
                           ),
@@ -1195,7 +1195,7 @@ class _RecentCasesSection extends StatelessWidget {
               const Spacer(),
               TextButton(
                 onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const CasesListScreen()),),
+                    MaterialPageRoute<void>(builder: (_) => const CasesListScreen()),),
                 child: const Text(
                   'View All',
                   style: TextStyle(
@@ -1239,7 +1239,7 @@ class _RecentCasesSection extends StatelessWidget {
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     onPressed: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const CasesListScreen()),),
+                        MaterialPageRoute<void>(builder: (_) => const CasesListScreen()),),
                     icon: const Icon(Icons.add, size: 16),
                     label: const Text('New Case'),
                     style: OutlinedButton.styleFrom(
@@ -1252,13 +1252,13 @@ class _RecentCasesSection extends StatelessWidget {
             )
           else
             ...recentCases.take(5).map((c) => _RecentCaseTile(
-                  caseName: c.caseName ?? 'Case ${c.caseId}',
-                  caseNumber: c.caseNumber ?? '',
-                  caseType: c.caseType ?? '',
-                  status: c.status ?? 'Active',
+                  caseName: c.caseName,
+                  caseNumber: c.caseNumber,
+                  caseType: c.caseType,
+                  status: c.status,
                   onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      MaterialPageRoute<void>(
                           builder: (_) => const CasesListScreen(),),),
                   getThemeColor: colorFunc,
                 ),),
@@ -1467,7 +1467,7 @@ class _OverdueTasksSection extends StatelessWidget {
               const Spacer(),
               TextButton(
                 onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const TasksListScreen()),),
+                    MaterialPageRoute<void>(builder: (_) => const TasksListScreen()),),
                 child: const Text(
                   'View All',
                   style: TextStyle(
@@ -1559,7 +1559,7 @@ class _FollowUpsSection extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                         builder: (_) => const IntakeFormScreen(),),),
                 child: const Text(
                   'View All',
@@ -1582,9 +1582,9 @@ class _FollowUpsSection extends StatelessWidget {
             )
           else
             ...leads.take(5).map((lead) => _LeadTile(
-                  fullName: lead.fullName ?? 'Lead',
+                  fullName: lead.fullName,
                   followUpAt: lead.nextFollowUpAt,
-                  status: lead.status ?? 'Pending',
+                  status: lead.status,
                   color: colorFunc(context, 'warning'),
                   getThemeColor: colorFunc,
                 ),),

@@ -146,7 +146,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
           final bloc = context.read<IntakeBloc>();
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const IntakeFormScreen()),
+            MaterialPageRoute<void>(builder: (_) => const IntakeFormScreen()),
           );
           if (mounted) bloc.add(RefreshIntakeLeads());
         },
@@ -240,7 +240,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                             final bloc = context.read<IntakeBloc>();
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (_) =>
                                     IntakeLeadDetailScreen(lead: lead),
                               ),

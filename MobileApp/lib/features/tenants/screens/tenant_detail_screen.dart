@@ -31,7 +31,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
     bool isActive = _tenant.isActive;
     final formKey = GlobalKey<FormState>();
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {

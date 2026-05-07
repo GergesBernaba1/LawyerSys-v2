@@ -5,19 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/api/api_constants.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
 import 'package:qadaya_lawyersys/features/documents/bloc/documents_bloc.dart';
 import 'package:qadaya_lawyersys/features/documents/bloc/documents_event.dart';
 import 'package:qadaya_lawyersys/features/documents/bloc/documents_state.dart';
-import 'package:qadaya_lawyersys/core/api/api_constants.dart';
-import 'package:qadaya_lawyersys/core/storage/local_database.dart';
 import 'package:qadaya_lawyersys/features/documents/models/document.dart';
 import 'package:qadaya_lawyersys/features/documents/repositories/documents_repository.dart';
 import 'package:qadaya_lawyersys/features/documents/screens/document_viewer_screen.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DocumentsListScreen extends StatefulWidget {
   const DocumentsListScreen({super.key});
@@ -62,7 +61,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
 
   void _showShareSheet(BuildContext context, String url) {
     final l10n = AppLocalizations.of(context)!;
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -135,7 +134,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     final descriptionController = TextEditingController();
     final l10n = AppLocalizations.of(context)!;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -444,7 +443,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                         if (downloaded != null && context.mounted) {
                           Navigator.push(
                               context,
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                   builder: (_) => DocumentViewerScreen(
                                       documentFile: downloaded,
                                       document: document,),),);

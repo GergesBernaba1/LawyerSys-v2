@@ -37,7 +37,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
     final titleController = TextEditingController();
     final bloc = context.read<ClientPortalBloc>();
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

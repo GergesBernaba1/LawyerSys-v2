@@ -336,7 +336,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                           .add(SelectEmployee(employee.id));
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(
+                                        MaterialPageRoute<void>(
                                           builder: (context) =>
                                               EmployeeDetailScreen(
                                                   employeeModel: employee,),
@@ -358,7 +358,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                   .add(SelectEmployee(employee.id));
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
+                                MaterialPageRoute<void>(
                                   builder: (context) => EmployeeDetailScreen(
                                       employeeModel: employee,),
                                 ),

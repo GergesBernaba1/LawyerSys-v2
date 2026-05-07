@@ -72,7 +72,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   void _navigateToNotificationSettings(int caseCode) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => CaseNotificationSettingsScreen(caseCode: caseCode),
       ),
     );
@@ -81,7 +81,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   void _navigateToPaymentProof(int caseCode) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => PaymentProofSubmissionScreen(caseCode: caseCode),
       ),
     );
@@ -90,7 +90,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   void _navigateToRequestedDocuments(int caseCode) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => RequestedDocumentsScreen(caseCode: caseCode),
       ),
     );

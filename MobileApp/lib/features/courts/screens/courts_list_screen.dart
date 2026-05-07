@@ -38,7 +38,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
       appBar: AppBar(title: Text(localizer.courts)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (_) => const CourtFormScreen()));
+          await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const CourtFormScreen()));
           if (context.mounted) context.read<CourtsBloc>().add(RefreshCourts());
         },
         child: const Icon(Icons.add),
@@ -93,7 +93,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) async {
                               if (value == 'edit') {
-                                await Navigator.push(context, MaterialPageRoute(builder: (_) => CourtFormScreen(court: court)));
+                                await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CourtFormScreen(court: court)));
                                 if (context.mounted) context.read<CourtsBloc>().add(RefreshCourts());
                               } else if (value == 'delete') {
                                 final confirmed = await showDialog<bool>(
@@ -119,7 +119,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
                           ),
                           onTap: () {
                             context.read<CourtsBloc>().add(SelectCourt(court.courtId));
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => CourtDetailScreen(court: court)));
+                            Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CourtDetailScreen(court: court)));
                           },
                         );
                       },

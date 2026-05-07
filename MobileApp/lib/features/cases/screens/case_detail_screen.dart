@@ -40,7 +40,7 @@ class CaseDetailScreen extends StatelessWidget {
               onPressed: () async {
                 await Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                         builder: (_) => CaseFormScreen(caseModel: caseModel),),);
                 if (context.mounted) {
                   context.read<CasesBloc>().add(RefreshCases());

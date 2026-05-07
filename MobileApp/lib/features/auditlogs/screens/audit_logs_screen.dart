@@ -184,7 +184,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
   }
 
   Widget _buildLogsList(BuildContext context, List<AuditLog> logs) {
-    final l10n = AppLocalizations.of(context)!;
+    // final l10n = AppLocalizations.of(context)!;
     if (logs.isEmpty) {
       return RefreshIndicator(
         onRefresh: () async =>

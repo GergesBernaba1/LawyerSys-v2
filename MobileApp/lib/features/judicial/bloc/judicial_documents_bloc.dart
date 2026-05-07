@@ -15,7 +15,7 @@ class JudicialDocumentsBloc extends Bloc<JudicialDocumentsEvent, JudicialDocumen
   }
   final JudicialDocumentsRepository repository;
 
-  static const int _pageSize = 20;
+  // static const int _pageSize = 20;
 
   Future<void> _onLoad(LoadJudicialDocuments event, Emitter<JudicialDocumentsState> emit) async {
     emit(JudicialDocumentsLoading());

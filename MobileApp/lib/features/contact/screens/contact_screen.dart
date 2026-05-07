@@ -32,7 +32,7 @@ class _ContactScreenState extends State<ContactScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
     // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
     setState(() => _isSubmitting = false);

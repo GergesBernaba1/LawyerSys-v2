@@ -98,7 +98,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => HearingDetailScreen(hearing: hearing)),
+            MaterialPageRoute<void>(builder: (_) => HearingDetailScreen(hearing: hearing)),
           );
         },
       ),

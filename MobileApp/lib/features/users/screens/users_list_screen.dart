@@ -59,7 +59,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
     final formKey = GlobalKey<FormState>();
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
@@ -222,7 +222,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
     final l10n = AppLocalizations.of(context)!;
     String selectedRole = 'Employee';
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {

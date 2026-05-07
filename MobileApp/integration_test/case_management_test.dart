@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:qadaya_lawyersys/main.dart' as app;
 
+import 'test_helpers.dart';
+
 /// Test credentials - update these to match your test environment
 const String testEmail = 'test@example.com';
 const String testPassword = 'Test123!';
@@ -30,11 +32,11 @@ Future<void> loginAsTestUser(WidgetTester tester) async {
 /// Helper function to navigate to cases screen
 Future<void> navigateToCasesScreen(WidgetTester tester) async {
   // Look for Cases navigation item (could be in bottom nav or drawer)
-  final casesNav = find.text(RegExp('Cases|القضايا', caseSensitive: false));
+  final casesNav = findTextByPattern('Cases|القضايا', caseSensitive: false);
   
   if (casesNav.evaluate().isEmpty) {
     // Try finding by icon
-    final casesIcon = find.byIcon(Icons.gavel).or(find.byIcon(Icons.work));
+    final casesIcon = findAnyOf([find.byIcon(Icons.gavel), find.byIcon(Icons.work)]);
     if (casesIcon.evaluate().isNotEmpty) {
       await tester.tap(casesIcon.first);
       await tester.pumpAndSettle();
@@ -58,7 +60,7 @@ void main() {
 
       // Verify cases list or loading indicator is shown
       expect(
-        find.byType(ListView).or(find.byType(CircularProgressIndicator)),
+        findAnyOf([find.byType(ListView), find.byType(CircularProgressIndicator)]),
         findsOneWidget,
         reason: 'Cases screen should show list or loading indicator',
       );
@@ -68,8 +70,10 @@ void main() {
 
       // Verify cases are displayed (or "no cases" message)
       expect(
-        find.byType(ListTile)
-            .or(find.textContaining(RegExp('No cases|لا توجد قضايا'))),
+        findAnyOf([
+          find.byType(ListTile),
+          findTextContaining('No cases|لا توجد قضايا'),
+        ]),
         findsWidgets,
         reason: 'Should show cases or empty state',
       );
@@ -81,32 +85,33 @@ void main() {
       await navigateToCasesScreen(tester);
 
       // Find and tap the "add case" button
-      final addButton = find.byIcon(Icons.add).or(
+      final addButton = findAnyOf([
+        find.byIcon(Icons.add),
         find.widgetWithIcon(FloatingActionButton, Icons.add),
-      );
+      ]);
       await tester.tap(addButton);
       await tester.pumpAndSettle();
 
       // Verify case form is displayed
       expect(
-        find.text(RegExp('New Case|Create Case|قضية جديدة')),
+        findTextByPattern('New Case|Create Case|قضية جديدة'),
         findsOneWidget,
         reason: 'Case creation form should be displayed',
       );
 
       // Fill in case details
-      final caseNumberField = find.widgetWithText(
-        TextField,
-        RegExp('Case Number|رقم القضية'),
+      final caseNumberField = find.ancestor(
+        of: findTextByPattern('Case Number|رقم القضية'),
+        matching: find.byType(TextField),
       );
       if (caseNumberField.evaluate().isNotEmpty) {
         await tester.enterText(caseNumberField, 'TEST-${DateTime.now().millisecondsSinceEpoch}');
         await tester.pumpAndSettle();
       }
 
-      final titleField = find.widgetWithText(
-        TextField,
-        RegExp('Title|العنوان'),
+      final titleField = find.ancestor(
+        of: findTextByPattern('Title|العنوان'),
+        matching: find.byType(TextField),
       );
       if (titleField.evaluate().isNotEmpty) {
         await tester.enterText(titleField, 'Integration Test Case');
@@ -114,16 +119,18 @@ void main() {
       }
 
       // Tap save/create button
-      final saveButton = find.widgetWithText(
-        ElevatedButton,
-        RegExp('Save|Create|حفظ|إنشاء'),
+      final saveButton = findWidgetWithTextPattern<ElevatedButton>(
+        'Save|Create|حفظ|إنشاء',
       );
       await tester.tap(saveButton.first);
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Verify success message
       expect(
-        find.byType(SnackBar).or(find.textContaining(RegExp('success|created|تم'))),
+        findAnyOf([
+          find.byType(SnackBar),
+          findTextContaining('success|created|تم'),
+        ]),
         findsOneWidget,
         reason: 'Success message should be displayed after creating case',
       );
@@ -145,14 +152,14 @@ void main() {
 
       // Verify case detail screen is displayed
       expect(
-        find.text(RegExp('Case Details|تفاصيل القضية')),
+        findTextByPattern('Case Details|تفاصيل القضية'),
         findsOneWidget,
         reason: 'Case details screen should be displayed',
       );
 
       // Verify key details are shown
       expect(
-        find.textContaining(RegExp('Status|Case Number|Client', caseSensitive: false)),
+        findTextContaining('Status|Case Number|Client', caseSensitive: false),
         findsWidgets,
         reason: 'Case details should be visible',
       );
@@ -177,9 +184,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find and tap edit button
-      final editButton = find.byIcon(Icons.edit).or(
-        find.widgetWithText(IconButton, RegExp('Edit|تعديل')),
-      );
+      final editButton = findAnyOf([
+        find.byIcon(Icons.edit),
+        findWidgetWithTextPattern<IconButton>('Edit|تعديل'),
+      ]);
       await tester.tap(editButton.first);
       await tester.pumpAndSettle();
 
@@ -189,16 +197,18 @@ void main() {
       await tester.pumpAndSettle();
 
       // Save changes
-      final saveButton = find.widgetWithText(
-        ElevatedButton,
-        RegExp('Save|Update|حفظ|تحديث'),
+      final saveButton = findWidgetWithTextPattern<ElevatedButton>(
+        'Save|Update|حفظ|تحديث',
       );
       await tester.tap(saveButton.first);
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Verify success message
       expect(
-        find.byType(SnackBar).or(find.textContaining(RegExp('updated|success'))),
+        findAnyOf([
+          find.byType(SnackBar),
+          findTextContaining('updated|success'),
+        ]),
         findsOneWidget,
         reason: 'Success message should be displayed after update',
       );
@@ -211,9 +221,9 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Find search field
-      final searchField = find.widgetWithText(
-        TextField,
-        RegExp('Search|بحث'),
+      final searchField = find.ancestor(
+        of: findTextByPattern('Search|بحث'),
+        matching: find.byType(TextField),
       );
       expect(searchField, findsOneWidget, reason: 'Search field should be visible');
 
@@ -230,7 +240,10 @@ void main() {
 
       // Verify results are filtered
       expect(
-        find.byType(ListView).or(find.textContaining(RegExp('No.*found'))),
+        findAnyOf([
+          find.byType(ListView),
+          findTextContaining('No.*found'),
+        ]),
         findsOneWidget,
         reason: 'Search results should be displayed',
       );
@@ -258,23 +271,26 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find and tap delete button
-      final deleteButton = find.byIcon(Icons.delete).or(
-        find.widgetWithText(IconButton, RegExp('Delete|حذف')),
-      );
+      final deleteButton = findAnyOf([
+        find.byIcon(Icons.delete),
+        findWidgetWithTextPattern<IconButton>('Delete|حذف'),
+      ]);
       await tester.tap(deleteButton.first);
       await tester.pumpAndSettle();
 
       // Confirm deletion in dialog
-      final confirmButton = find.widgetWithText(
-        TextButton,
-        RegExp('Delete|Confirm|Yes|نعم|تأكيد'),
+      final confirmButton = findWidgetWithTextPattern<TextButton>(
+        'Delete|Confirm|Yes|نعم|تأكيد',
       );
       await tester.tap(confirmButton);
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Verify success message
       expect(
-        find.byType(SnackBar).or(find.textContaining(RegExp('deleted|removed'))),
+        findAnyOf([
+          find.byType(SnackBar),
+          findTextContaining('deleted|removed'),
+        ]),
         findsOneWidget,
         reason: 'Delete success message should be displayed',
       );
@@ -304,7 +320,10 @@ void main() {
 
       // Verify loading indicator appears or more items loaded
       expect(
-        find.byType(CircularProgressIndicator).or(find.byType(ListTile)),
+        findAnyOf([
+          find.byType(CircularProgressIndicator),
+          find.byType(ListTile),
+        ]),
         findsWidgets,
         reason: 'Should show loading indicator or more items',
       );
@@ -339,7 +358,10 @@ void main() {
 
       // Verify refresh indicator
       expect(
-        find.byType(RefreshIndicator).or(find.byType(CircularProgressIndicator)),
+        findAnyOf([
+          find.byType(RefreshIndicator),
+          find.byType(CircularProgressIndicator),
+        ]),
         findsOneWidget,
         reason: 'Refresh indicator should be shown',
       );

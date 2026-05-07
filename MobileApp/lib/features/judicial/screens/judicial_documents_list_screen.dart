@@ -34,7 +34,7 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
   }
 
   void _showForm({JudicialDocument? doc}) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -190,7 +190,7 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
                                 isThreeLine: doc.customerName != null && doc.docDetails.isNotEmpty,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(
+                                  MaterialPageRoute<void>(
                                     builder: (_) => BlocProvider.value(
                                       value: context.read<JudicialDocumentsBloc>(),
                                       child: JudicialDocumentDetailScreen(document: doc),

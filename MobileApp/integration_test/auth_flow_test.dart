@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:qadaya_lawyersys/main.dart' as app;
 
+import 'test_helpers.dart';
+
 /// Test credentials - update these to match your test environment
 const String testEmail = 'test@example.com';
 const String testPassword = 'Test123!';
@@ -49,7 +51,7 @@ void main() {
 
       // Verify we're on the main screen (look for navigation elements)
       expect(
-        find.byType(BottomNavigationBar).or(find.byType(NavigationBar)),
+        findAnyOf([find.byType(BottomNavigationBar), find.byType(NavigationBar)]),
         findsOneWidget,
         reason: 'Main screen should have navigation bar after successful login',
       );
@@ -76,7 +78,7 @@ void main() {
 
       // Verify error message is shown
       expect(
-        find.byType(SnackBar).or(find.text('Invalid credentials')),
+        findAnyOf([find.byType(SnackBar), find.text('Invalid credentials')]),
         findsOneWidget,
         reason: 'Error should be displayed for invalid login',
       );
@@ -101,16 +103,17 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Find and tap profile/settings icon
-      final profileIcon = find.byIcon(Icons.person).or(
+      final profileIcon = findAnyOf([
+        find.byIcon(Icons.person),
         find.byIcon(Icons.account_circle),
-      );
+      ]);
       await tester.tap(profileIcon);
       await tester.pumpAndSettle();
 
       // Find and tap logout button
-      final logoutButton = find.widgetWithText(
-        ElevatedButton,
-        RegExp('Logout|Sign Out', caseSensitive: false),
+      final logoutButton = findWidgetWithTextPattern<ElevatedButton>(
+        'Logout|Sign Out',
+        caseSensitive: false,
       );
       await tester.tap(logoutButton);
       await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -132,7 +135,7 @@ void main() {
 
       // Verify validation errors are shown
       expect(
-        find.textContaining(RegExp('required|empty', caseSensitive: false)),
+        findTextContaining('required|empty', caseSensitive: false),
         findsAtLeastNWidgets(1),
         reason: 'Validation errors should be shown for empty fields',
       );
@@ -144,9 +147,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Look for biometric authentication button
-      final biometricButton = find.byIcon(Icons.fingerprint).or(
+      final biometricButton = findAnyOf([
+        find.byIcon(Icons.fingerprint),
         find.byIcon(Icons.face),
-      );
+      ]);
 
       if (biometricButton.evaluate().isNotEmpty) {
         // Tap biometric button
@@ -180,7 +184,7 @@ void main() {
 
       // Verify we're still logged in (main screen should be visible)
       expect(
-        find.byType(BottomNavigationBar).or(find.byType(NavigationBar)),
+        findAnyOf([find.byType(BottomNavigationBar), find.byType(NavigationBar)]),
         findsOneWidget,
         reason: 'User should remain logged in after app restart',
       );

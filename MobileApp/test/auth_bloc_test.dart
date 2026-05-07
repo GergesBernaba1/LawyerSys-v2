@@ -91,7 +91,7 @@ void main() {
       final subscription = bloc.stream.listen(states.add);
 
       bloc.add(BiometricLoginRequested());
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       await subscription.cancel();
 
       expect(states.length, 2);
@@ -123,7 +123,7 @@ void main() {
       final subscription = bloc.stream.listen(states.add);
 
       bloc.add(BiometricLoginRequested());
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       await subscription.cancel();
 
       expect(states.length, 2);
@@ -154,7 +154,7 @@ void main() {
       final subscription = bloc.stream.listen(states.add);
 
       bloc.add(SessionRestored());
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       await subscription.cancel();
 
       expect(states.length, 2);
@@ -185,7 +185,7 @@ void main() {
       final subscription = bloc.stream.listen(states.add);
 
       bloc.add(SessionRestored());
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       await subscription.cancel();
 
       expect(states.length, 2);

@@ -60,7 +60,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: _kPrimary,
         onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (_) => const GovernmentFormScreen()));
+          await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const GovernmentFormScreen()));
           if (context.mounted) context.read<GovernmentsBloc>().add(RefreshGovernments());
         },
         child: const Icon(Icons.add),
@@ -210,7 +210,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                           ),
                           onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                               builder: (_) => GovernmentDetailScreen(government: gov),
                             ),
                           ),
@@ -218,7 +218,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                             onSelected: (value) async {
                               final gov = _filtered[index];
                               if (value == 'edit') {
-                                await Navigator.push(context, MaterialPageRoute(builder: (_) => GovernmentFormScreen(government: gov)));
+                                await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => GovernmentFormScreen(government: gov)));
                                 if (context.mounted) context.read<GovernmentsBloc>().add(RefreshGovernments());
                               } else if (value == 'delete') {
                                 final confirmed = await showDialog<bool>(

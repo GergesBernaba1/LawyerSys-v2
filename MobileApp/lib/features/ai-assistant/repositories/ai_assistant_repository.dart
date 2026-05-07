@@ -42,7 +42,7 @@ class AiAssistantRepository {
     final data = response.data;
     if (data is List) {
       return data
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((e) =>
               AiDeadlineSuggestion.fromJson(Map<String, dynamic>.from(e)),)
           .toList();
@@ -51,7 +51,7 @@ class AiAssistantRepository {
       final items = data['items'] ?? data['Items'];
       if (items is List) {
         return items
-            .whereType<Map>()
+            .whereType<Map<String, dynamic>>()
             .map((e) =>
                 AiDeadlineSuggestion.fromJson(Map<String, dynamic>.from(e)),)
             .toList();

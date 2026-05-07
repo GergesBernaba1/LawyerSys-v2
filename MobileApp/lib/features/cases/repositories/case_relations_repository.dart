@@ -8,9 +8,9 @@ class CaseRelationsRepository {
   Future<List<CaseRelation>> getRelations(int caseId) async {
     final response = await apiClient.get('/CaseRelations', queryParameters: {'caseId': caseId});
     final data = response.data;
-    final list = data is List ? data : (data is Map ? (data['items'] ?? data['data'] ?? []) : []);
+    final list = data is List ? data : (data is Map ? (data['items'] ?? data['data'] ?? <dynamic>[]) : <dynamic>[]);
     return (list as List)
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((e) => CaseRelation.fromJson(Map<String, dynamic>.from(e)))
         .toList();
   }

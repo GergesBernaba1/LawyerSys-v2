@@ -11,7 +11,7 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
   final JudicialDocument document;
 
   void _showForm(BuildContext context, {JudicialDocument? doc}) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

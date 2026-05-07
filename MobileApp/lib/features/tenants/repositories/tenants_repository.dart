@@ -23,7 +23,7 @@ class TenantsRepository {
 
     final rawItems = data['items'];
     final items = rawItems is List
-        ? rawItems.whereType<Map>().map(Map<String, dynamic>.from).toList()
+        ? rawItems.whereType<Map<String, dynamic>>().map(Map<String, dynamic>.from).toList()
         : <Map<String, dynamic>>[];
 
     return TenantSelection(

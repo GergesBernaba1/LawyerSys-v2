@@ -43,7 +43,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
     final filePathController = TextEditingController();
     final notesController = TextEditingController();
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => BlocProvider.value(
         value: context.read<CustomersBloc>(),

@@ -97,7 +97,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(LoadWorkqueue());
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states.length, greaterThanOrEqualTo(2));
       expect(states[0], isA<WorkqueueLoading>());
@@ -114,7 +114,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(LoadWorkqueue(status: 'Pending'));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states[0], isA<WorkqueueLoading>());
       expect(states[1], isA<WorkqueueLoaded>());
@@ -133,7 +133,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(CompleteTask(1));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states, containsAllInOrder([
         isA<WorkqueueTaskUpdated>(),

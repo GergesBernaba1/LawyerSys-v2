@@ -92,7 +92,7 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
 
   Future<void> _onRefresh() async {
     _dispatchLoad();
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future<void>.delayed(const Duration(milliseconds: 600));
   }
 
   @override
@@ -380,7 +380,7 @@ class _OutstandingBalancesTab extends StatefulWidget {
 class _OutstandingBalancesTabState extends State<_OutstandingBalancesTab> {
   Future<void> _onRefresh() async {
     context.read<TrustReportsBloc>().add(LoadOutstandingBalances());
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future<void>.delayed(const Duration(milliseconds: 600));
   }
 
   @override

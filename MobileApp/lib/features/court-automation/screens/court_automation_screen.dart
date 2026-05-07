@@ -85,7 +85,7 @@ class _PacksTab extends StatelessWidget {
   const _PacksTab();
 
   void _openPackSheet(BuildContext context, AutomationPack pack) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -267,7 +267,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
     }
 
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: Text(l10n.submit),

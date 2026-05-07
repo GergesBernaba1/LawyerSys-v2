@@ -69,9 +69,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _openForm({model.CalendarEvent? event}) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => CalendarEventFormScreen(
           event: event,
           fromDate: _fromDate,
@@ -79,7 +79,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
       ),
     );
-    if (result == true && mounted) _loadCalendarEvents();
+    if (mounted) _loadCalendarEvents();
   }
 
   Future<void> _confirmDelete(
@@ -111,7 +111,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       BuildContext context, String date, List<model.CalendarEvent> dayEvents,) {
     final l = AppLocalizations.of(context)!;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

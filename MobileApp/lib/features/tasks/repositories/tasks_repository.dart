@@ -9,7 +9,7 @@ class TasksRepository {
   List<Task> _parseTasks(dynamic data) {
     if (data is List) {
       return data
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((json) => Task.fromJson(Map<String, dynamic>.from(json)))
           .toList();
     }
@@ -18,7 +18,7 @@ class TasksRepository {
       final items = data['items'] ?? data['Items'];
       if (items is List) {
         return items
-            .whereType<Map>()
+            .whereType<Map<String, dynamic>>()
             .map((json) => Task.fromJson(Map<String, dynamic>.from(json)))
             .toList();
       }

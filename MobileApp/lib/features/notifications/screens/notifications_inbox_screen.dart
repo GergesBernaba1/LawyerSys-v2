@@ -71,7 +71,7 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
                       context.read<NotificationsBloc>().add(MarkNotificationRead(notif.notificationId));
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => NotificationDetailScreen(notification: notif)),
+                        MaterialPageRoute<void>(builder: (_) => NotificationDetailScreen(notification: notif)),
                       );
                     },
                   );

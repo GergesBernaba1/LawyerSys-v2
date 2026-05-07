@@ -69,7 +69,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const TimeTrackingFormScreen()),
+                        MaterialPageRoute<void>(builder: (_) => const TimeTrackingFormScreen()),
                       ),
                       child: Text(localizer.startTrackingTime),
                     ),
@@ -162,7 +162,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const TimeTrackingFormScreen()),
+          MaterialPageRoute<void>(builder: (_) => const TimeTrackingFormScreen()),
         ),
         tooltip: localizer.startTrackingTime,
         child: const Icon(Icons.add),

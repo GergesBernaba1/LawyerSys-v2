@@ -102,7 +102,7 @@ class AuthRepository {
     if (raw is! List) return const [];
 
     return raw
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map(Map<String, dynamic>.from)
         .toList();
   }

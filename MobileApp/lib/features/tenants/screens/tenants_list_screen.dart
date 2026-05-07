@@ -30,7 +30,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
     bool isActive = !isEdit || tenant.isActive;
     final formKey = GlobalKey<FormState>();
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
@@ -198,7 +198,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                   return ListTile(
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      MaterialPageRoute<void>(
                         builder: (_) => BlocProvider.value(
                           value: context.read<TenantsBloc>(),
                           child: TenantDetailScreen(tenant: tenant),

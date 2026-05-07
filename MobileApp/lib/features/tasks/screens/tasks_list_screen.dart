@@ -74,7 +74,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                           ElevatedButton(
                             onPressed: () => Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const TaskFormScreen()),
+                              MaterialPageRoute<void>(builder: (_) => const TaskFormScreen()),
                             ),
                             child: Text(localizer.createFirstTask),
                           ),
@@ -95,7 +95,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                             if (value == 1) {
                               await Navigator.push(
                                 context,
-                                MaterialPageRoute(
+                                MaterialPageRoute<void>(
                                   builder: (_) => TaskFormScreen(task: task),
                                 ),
                               );
@@ -164,7 +164,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const TaskFormScreen()),
+            MaterialPageRoute<void>(builder: (_) => const TaskFormScreen()),
           );
           if (context.mounted) context.read<TasksBloc>().add(LoadTasks());
         },

@@ -29,7 +29,7 @@ class AuditLogsRepository {
 
     final raw = normalizeJsonList(response.data);
     return raw
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((e) => AuditLog.fromJson(Map<String, dynamic>.from(e)))
         .toList();
   }

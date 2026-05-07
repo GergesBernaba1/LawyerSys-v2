@@ -111,7 +111,7 @@ void main() {
       final sub = freshBloc.stream.listen(states.add);
 
       freshBloc.add(LoadCustomers());
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states.last, isA<CustomersLoaded>());
       final loaded = states.last as CustomersLoaded;
@@ -127,7 +127,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(SearchCustomers('Alice'));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states.length, greaterThanOrEqualTo(2));
       expect(states[0], isA<CustomersLoading>());
@@ -147,7 +147,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(CreateCustomer({'customerId': 'c3', 'fullName': 'Carol White'}));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states, containsAllInOrder([
         isA<CustomersLoading>(),
@@ -168,7 +168,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(DeleteCustomer('c1'));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states, containsAllInOrder([
         isA<CustomersLoading>(),

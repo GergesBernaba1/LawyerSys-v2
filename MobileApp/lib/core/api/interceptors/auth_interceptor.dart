@@ -45,7 +45,7 @@ class AuthInterceptor extends Interceptor {
             connectTimeout: const Duration(seconds: 15),
             receiveTimeout: const Duration(seconds: 15),
           ),);
-          final retryResponse = await retryDio.fetch(retryOptions);
+          final retryResponse = await retryDio.fetch<dynamic>(retryOptions);
           handler.resolve(retryResponse);
           return;
         }
@@ -84,7 +84,7 @@ class AuthInterceptor extends Interceptor {
       headers: {'Content-Type': 'application/json'},
     ),);
 
-    final response = await refreshDio.post(
+    final response = await refreshDio.post<Map<String, dynamic>>(
       ApiConstants.refreshToken,
       data: {'refreshToken': refreshToken},
     );

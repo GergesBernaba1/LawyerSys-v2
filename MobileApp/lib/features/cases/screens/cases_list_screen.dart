@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
-import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 import 'package:qadaya_lawyersys/features/cases/bloc/cases_bloc.dart';
 import 'package:qadaya_lawyersys/features/cases/bloc/cases_event.dart';
 import 'package:qadaya_lawyersys/features/cases/bloc/cases_state.dart';
 import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/case_detail_screen.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -113,11 +112,11 @@ class _CasesListScreenState extends State<CasesListScreen> {
                   borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: _kPrimary, width: 2),
                 ),
-                ),
-                onSubmitted: (v) => context.read<CasesBloc>().add(SearchCases(v)),
-                onChanged: (_) => setState(() {}),
               ),
+              onSubmitted: (v) => context.read<CasesBloc>().add(SearchCases(v)),
+              onChanged: (_) => setState(() {}),
             ),
+          ),
           ),
 
           // List
@@ -219,7 +218,7 @@ class _CaseTile extends StatelessWidget {
           context.read<CasesBloc>().add(SelectCase(caseItem.caseId));
           Navigator.push(
             context,
-            MaterialPageRoute(
+            MaterialPageRoute<void>(
                 builder: (_) => CaseDetailScreen(caseModel: caseItem),),
           );
         },
@@ -295,9 +294,14 @@ class _CaseTile extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
+
+
+
+
 
 
 

@@ -559,7 +559,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (_) => ConsultationDetailScreen(
                                   consultation: item,
                                 ),

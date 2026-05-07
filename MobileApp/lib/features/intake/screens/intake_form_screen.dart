@@ -46,7 +46,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   }
 
   void _showLeadActions(IntakeForm lead, List<IntakeAssignmentOption> options) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -167,7 +167,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   }
 
   void _showPublicForm() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

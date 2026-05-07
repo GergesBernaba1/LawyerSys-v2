@@ -514,7 +514,7 @@ class _AppInitializerState extends State<_AppInitializer> {
             authState is AuthAuthenticated ? authState.session : null;
 
         if (!widget.canAccessRoute(settings.name, session)) {
-          return MaterialPageRoute(builder: (_) => const UnauthorizedScreen());
+          return MaterialPageRoute<void>(builder: (_) => const UnauthorizedScreen());
         }
 
         // ── Deep-link / parameterized route handling ──────────────────────────────
@@ -527,7 +527,7 @@ class _AppInitializerState extends State<_AppInitializer> {
             case 'cases':
               // CaseDetailScreen requires a full CaseModel, not just an ID.
               // Fall back to the cases list screen for deep links.
-              return MaterialPageRoute(
+              return MaterialPageRoute<void>(
                 settings: settings,
                 builder: (_) => const CasesListScreen(),
               );
@@ -537,111 +537,111 @@ class _AppInitializerState extends State<_AppInitializer> {
 
         switch (settings.name) {
           case '/':
-            return MaterialPageRoute(builder: (_) => const SplashScreen());
+            return MaterialPageRoute<void>(builder: (_) => const SplashScreen());
           case '/login':
-            return MaterialPageRoute(builder: (_) => const LoginScreen());
+            return MaterialPageRoute<void>(builder: (_) => const LoginScreen());
           case '/register':
-            return MaterialPageRoute(builder: (_) => const RegisterScreen());
+            return MaterialPageRoute<void>(builder: (_) => const RegisterScreen());
           case '/forgot-password':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const ForgotPasswordScreen(),);
           case '/reset-password':
-            return MaterialPageRoute(builder: (_) => const _ResetScreen());
+            return MaterialPageRoute<void>(builder: (_) => const _ResetScreen());
           case '/main':
-            return MaterialPageRoute(builder: (_) => const MainScreen());
+            return MaterialPageRoute<void>(builder: (_) => const MainScreen());
           case '/dashboard':
-            return MaterialPageRoute(builder: (_) => const DashboardScreen());
+            return MaterialPageRoute<void>(builder: (_) => const DashboardScreen());
           case '/cases':
-            return MaterialPageRoute(builder: (_) => const CasesListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const CasesListScreen());
           case '/tasks':
-            return MaterialPageRoute(builder: (_) => const TasksListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const TasksListScreen());
           case '/calendar':
-            return MaterialPageRoute(builder: (_) => const CalendarScreen());
+            return MaterialPageRoute<void>(builder: (_) => const CalendarScreen());
           case '/hearings':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const HearingsListScreen(),);
           case '/courts':
-            return MaterialPageRoute(builder: (_) => const CourtsListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const CourtsListScreen());
           case '/timetracking':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const TimeTrackingListScreen(),);
           case '/billing':
-            return MaterialPageRoute(builder: (_) => const BillingListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const BillingListScreen());
           case '/trust-accounting':
-            return MaterialPageRoute(builder: (_) => const TrustListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const TrustListScreen());
           case '/client-portal-messages':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const PortalMessagesScreen(),);
           case '/client-portal-documents':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const PortalDocumentsScreen(),);
           case '/customers':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const CustomersListScreen(),);
           case '/governments':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const GovernmentsListScreen(),);
           case '/employees':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const EmployeesListScreen(),);
           case '/contenders':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const ContendersListScreen(),);
           case '/judicial':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const JudicialDocumentsListScreen(),);
           case '/consultations':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const ConsultationsListScreen(),);
           case '/reports':
-            return MaterialPageRoute(builder: (_) => const ReportsScreen());
+            return MaterialPageRoute<void>(builder: (_) => const ReportsScreen());
           case '/notifications':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const NotificationsInboxScreen(),);
           case '/settings':
-            return MaterialPageRoute(builder: (_) => const SettingsScreen());
+            return MaterialPageRoute<void>(builder: (_) => const SettingsScreen());
           case '/profile':
-            return MaterialPageRoute(builder: (_) => const ProfileScreen());
+            return MaterialPageRoute<void>(builder: (_) => const ProfileScreen());
           case '/users':
-            return MaterialPageRoute(builder: (_) => const UsersListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const UsersListScreen());
           case '/tenants':
-            return MaterialPageRoute(builder: (_) => const TenantsListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const TenantsListScreen());
           case '/documents':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const DocumentsListScreen(),);
           case '/intake':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const IntakeLeadsListScreen(),);
           case '/files':
-            return MaterialPageRoute(builder: (_) => const FilesListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const FilesListScreen());
           case '/esign':
-            return MaterialPageRoute(builder: (_) => const ESignListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const ESignListScreen());
           case '/ai-assistant':
-            return MaterialPageRoute(builder: (_) => const AiAssistantScreen());
+            return MaterialPageRoute<void>(builder: (_) => const AiAssistantScreen());
           case '/audit-logs':
-            return MaterialPageRoute(builder: (_) => const AuditLogsScreen());
+            return MaterialPageRoute<void>(builder: (_) => const AuditLogsScreen());
           case '/sitings':
-            return MaterialPageRoute(builder: (_) => const SitingsListScreen());
+            return MaterialPageRoute<void>(builder: (_) => const SitingsListScreen());
           case '/about':
-            return MaterialPageRoute(builder: (_) => const AboutScreen());
+            return MaterialPageRoute<void>(builder: (_) => const AboutScreen());
           case '/contact':
-            return MaterialPageRoute(builder: (_) => const ContactScreen());
+            return MaterialPageRoute<void>(builder: (_) => const ContactScreen());
           case '/document-generation':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const DocGenerationScreen(),);
           case '/court-automation':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const CourtAutomationScreen(),);
           case '/workqueue':
-            return MaterialPageRoute(builder: (_) => const WorkqueueScreen());
+            return MaterialPageRoute<void>(builder: (_) => const WorkqueueScreen());
           case '/administration':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const AdministrationScreen(),);
           case '/subscription':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const SubscriptionScreen(),);
           case '/trust-reports':
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
                 builder: (_) => const TrustReportsScreen(),);
           default:
             return null;

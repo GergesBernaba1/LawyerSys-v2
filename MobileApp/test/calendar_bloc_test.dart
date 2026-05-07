@@ -94,7 +94,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(bloc_event.LoadCalendarEvents(fromDate: fromDate, toDate: toDate));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states.length, greaterThanOrEqualTo(2));
       expect(states[0], isA<CalendarLoading>());
@@ -116,7 +116,7 @@ void main() {
         fromDate: fromDate,
         toDate: toDate,
       ),);
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states, containsAllInOrder([
         isA<CalendarLoading>(),
@@ -136,7 +136,7 @@ void main() {
       final sub = bloc.stream.listen(states.add);
 
       bloc.add(bloc_event.DeleteCalendarEvent('e1', fromDate: fromDate, toDate: toDate));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(states, containsAllInOrder([
         isA<CalendarLoading>(),

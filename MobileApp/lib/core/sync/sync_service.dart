@@ -86,7 +86,7 @@ class SyncService {
         }
 
         final backoffMs = 500 * (1 << (nextRetryCount - 1));
-        await Future.delayed(Duration(milliseconds: backoffMs));
+        await Future<void>.delayed(Duration(milliseconds: backoffMs));
       }
     }
 

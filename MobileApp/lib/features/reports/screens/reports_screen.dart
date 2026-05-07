@@ -295,7 +295,7 @@ class _OutstandingTab extends StatelessWidget {
           context.read<ReportsBloc>().add(
                 RefreshReports(year: year, month: month),
               );
-          await Future.delayed(const Duration(milliseconds: 500));
+          await Future<void>.delayed(const Duration(milliseconds: 500));
         },
         child: ListView(
           children: const [
@@ -311,7 +311,7 @@ class _OutstandingTab extends StatelessWidget {
         context.read<ReportsBloc>().add(
               RefreshReports(year: year, month: month),
             );
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future<void>.delayed(const Duration(milliseconds: 500));
       },
       child: ListView.separated(
         padding: const EdgeInsets.all(12),

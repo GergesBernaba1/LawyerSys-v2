@@ -139,7 +139,7 @@ class ErrorHandler {
   }
 
   /// Handle HTTP response errors
-  static Failure _handleResponseError(Response? response) {
+  static Failure _handleResponseError(Response<dynamic>? response) {
     if (response == null) {
       return const UnknownFailure(
         message: 'An unexpected error occurred.',

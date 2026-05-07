@@ -86,7 +86,7 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
         button: true,
         child: FloatingActionButton(
           onPressed: () async {
-            await Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerFormScreen()));
+            await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const CustomerFormScreen()));
             if (context.mounted) context.read<CustomersBloc>().add(RefreshCustomers());
           },
           child: const Icon(Icons.add),
@@ -169,7 +169,7 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                               } else if (value == 'message') {
                                 _sms(customer.phoneNumber ?? '');
                               } else if (value == 'edit') {
-                                await Navigator.push(context, MaterialPageRoute(builder: (_) => CustomerFormScreen(customer: customer)));
+                                await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CustomerFormScreen(customer: customer)));
                                 if (context.mounted) context.read<CustomersBloc>().add(RefreshCustomers());
                               } else if (value == 'delete') {
                                 final confirmed = await showDialog<bool>(
@@ -199,7 +199,7 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                             final casesRepository = RepositoryProvider.of<CasesRepository>(context);
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (_) => CustomerDetailScreen(
                                   customerId: customer.customerId,
                                   casesRepository: casesRepository,

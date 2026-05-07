@@ -29,7 +29,7 @@ class ConsultationsRepository {
     },);
     final data = _asList(response.data);
     return data
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((e) => ConsultationModel.fromJson(Map<String, dynamic>.from(e)))
         .toList();
   }
@@ -62,7 +62,7 @@ class ConsultationsRepository {
     final response = await apiClient.get('/consulations', queryParameters: {'search': keyword});
     final data = _asList(response.data);
     return data
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((e) => ConsultationModel.fromJson(Map<String, dynamic>.from(e)))
         .toList();
   }
@@ -70,7 +70,7 @@ class ConsultationsRepository {
   Future<List<RelationOption>> getCustomerOptions() async {
     final response = await apiClient.get('/customers');
     final data = _asList(response.data);
-    return data.whereType<Map>().map((row) {
+    return data.whereType<Map<String, dynamic>>().map((row) {
       final item = Map<String, dynamic>.from(row);
       final id = int.tryParse((item['id'] ?? item['Id'] ?? 0).toString()) ?? 0;
       final user = item['user'] is Map
@@ -91,7 +91,7 @@ class ConsultationsRepository {
   Future<List<RelationOption>> getEmployeeOptions() async {
     final response = await apiClient.get('/employees');
     final data = _asList(response.data);
-    return data.whereType<Map>().map((row) {
+    return data.whereType<Map<String, dynamic>>().map((row) {
       final item = Map<String, dynamic>.from(row);
       final id = int.tryParse((item['id'] ?? item['Id'] ?? 0).toString()) ?? 0;
       final user = item['user'] is Map
@@ -123,7 +123,7 @@ class ConsultationsRepository {
     final data = response.data;
     if (data is! List) return const [];
     return data
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((row) => int.tryParse(
                 (row['customerId'] ?? row['CustomerId'] ?? 0).toString(),) ??
             0,)
@@ -136,7 +136,7 @@ class ConsultationsRepository {
     final data = response.data;
     if (data is! List) return const [];
     return data
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((row) => int.tryParse(
                 (row['employeeId'] ?? row['EmployeeId'] ?? 0).toString(),) ??
             0,)
