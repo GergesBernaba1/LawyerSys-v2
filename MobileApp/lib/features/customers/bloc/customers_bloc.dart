@@ -28,8 +28,9 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     emit(CustomersLoading());
     try {
       final customers = await customersRepository.getCustomers(pageSize: _pageSize);
-      _customers.clear();
-      _customers.addAll(customers);
+      _customers
+        ..clear()
+        ..addAll(customers);
       emit(CustomersLoaded(
         customers,
         hasMore: customers.length >= _pageSize,
@@ -86,8 +87,9 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
   Future<void> _onRefreshCustomers(RefreshCustomers event, Emitter<CustomersState> emit) async {
     try {
       final customers = await customersRepository.getCustomers(pageSize: _pageSize);
-      _customers.clear();
-      _customers.addAll(customers);
+      _customers
+        ..clear()
+        ..addAll(customers);
       emit(CustomersLoaded(
         customers,
         hasMore: customers.length >= _pageSize,
@@ -117,8 +119,9 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
       final created = await customersRepository.createCustomer(event.data);
       emit(CustomerOperationSuccess('Customer created', customerId: created.customerId));
       final customers = await customersRepository.getCustomers(pageSize: _pageSize);
-      _customers.clear();
-      _customers.addAll(customers);
+      _customers
+        ..clear()
+        ..addAll(customers);
       emit(CustomersLoaded(
         customers,
         hasMore: customers.length >= _pageSize,
@@ -134,8 +137,9 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
       await customersRepository.updateCustomer(event.customerId, event.data);
       emit(CustomerOperationSuccess('Customer updated', customerId: event.customerId));
       final customers = await customersRepository.getCustomers(pageSize: _pageSize);
-      _customers.clear();
-      _customers.addAll(customers);
+      _customers
+        ..clear()
+        ..addAll(customers);
       emit(CustomersLoaded(
         customers,
         hasMore: customers.length >= _pageSize,
@@ -151,8 +155,9 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
       await customersRepository.deleteCustomer(event.customerId);
       emit(CustomerOperationSuccess('Customer deleted'));
       final customers = await customersRepository.getCustomers(pageSize: _pageSize);
-      _customers.clear();
-      _customers.addAll(customers);
+      _customers
+        ..clear()
+        ..addAll(customers);
       emit(CustomersLoaded(
         customers,
         hasMore: customers.length >= _pageSize,
@@ -235,5 +240,4 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     }
   }
 }
-
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -425,7 +427,7 @@ class _AppInitializerState extends State<_AppInitializer> {
       authRepository,
       notificationsRepository: notificationsRepository,
     );
-    pushService.init();
+    unawaited(pushService.init());
 
     final signalRService = SignalRService();
     String? signalRToken;
@@ -442,20 +444,21 @@ class _AppInitializerState extends State<_AppInitializer> {
     }
 
     if (mounted) {
-      SyncService()
-          .syncPendingOperations(
-        (local, remote) => showDialog<Map<String, dynamic>>(
-          context: context,
-          builder: (_) => ConflictResolverWidget(
-            entityName: 'Case',
-            localData: local,
-            remoteData: remote,
+      unawaited(
+        SyncService().syncPendingOperations(
+          (local, remote) => showDialog<Map<String, dynamic>>(
+            context: context,
+            builder: (_) => ConflictResolverWidget(
+              entityName: 'Case',
+              localData: local,
+              remoteData: remote,
+            ),
           ),
-        ),
-      )
-          .catchError((Object error) {
-        debugPrint('Startup sync failed: $error');
-      });
+        ).catchError((Object error) {
+          debugPrint('Startup sync failed: $error');
+          return null;
+        }),
+      );
     }
 
     ConnectivityService().startListening();
@@ -665,6 +668,3 @@ class _ResetScreen extends StatelessWidget {
         email: args['email'] ?? '', token: args['token'] ?? '',);
   }
 }
-
-
-

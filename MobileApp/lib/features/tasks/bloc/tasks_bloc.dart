@@ -21,8 +21,9 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     emit(TasksLoading());
     try {
       final tasks = await tasksRepository.getTasks();
-      _tasks.clear();
-      _tasks.addAll(tasks);
+      _tasks
+        ..clear()
+        ..addAll(tasks);
       emit(TasksLoaded(tasks));
     } catch (e) {
       emit(TasksError(e.toString()));
@@ -42,8 +43,9 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   Future<void> _onRefreshTasks(RefreshTasks event, Emitter<TasksState> emit) async {
     try {
       final tasks = await tasksRepository.getTasks();
-      _tasks.clear();
-      _tasks.addAll(tasks);
+      _tasks
+        ..clear()
+        ..addAll(tasks);
       emit(TasksLoaded(tasks));
     } catch (e) {
       emit(TasksError(e.toString()));
@@ -56,8 +58,9 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       await tasksRepository.addTask(event.task);
       // Reload tasks to get the updated list
       final tasks = await tasksRepository.getTasks();
-      _tasks.clear();
-      _tasks.addAll(tasks);
+      _tasks
+        ..clear()
+        ..addAll(tasks);
       emit(TasksLoaded(_tasks));
     } catch (e) {
       emit(TasksError(e.toString()));
@@ -70,8 +73,9 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       await tasksRepository.updateTask(event.task);
       // Reload tasks to get the updated list
       final tasks = await tasksRepository.getTasks();
-      _tasks.clear();
-      _tasks.addAll(tasks);
+      _tasks
+        ..clear()
+        ..addAll(tasks);
       emit(TasksLoaded(_tasks));
     } catch (e) {
       emit(TasksError(e.toString()));
@@ -84,8 +88,9 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
       await tasksRepository.deleteTask(event.taskId);
       // Reload tasks to get the updated list
       final tasks = await tasksRepository.getTasks();
-      _tasks.clear();
-      _tasks.addAll(tasks);
+      _tasks
+        ..clear()
+        ..addAll(tasks);
       emit(TasksLoaded(_tasks));
     } catch (e) {
       emit(TasksError(e.toString()));

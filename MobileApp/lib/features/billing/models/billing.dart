@@ -84,15 +84,12 @@ class CustomerItem {
   });
 
   factory CustomerItem.fromJson(Map<String, dynamic> json) {
+    final identity = json['identity'] as Map<String, dynamic>?;
     return CustomerItem(
       id: json['id'] as int?,
       usersId: json['usersId'] as int?,
-      fullName: json['identity'] != null
-          ? json['identity']['fullName'] as String?
-          : null,
-      email: json['identity'] != null
-          ? json['identity']['email'] as String?
-          : null,
+      fullName: identity?['fullName'] as String?,
+      email: identity?['email'] as String?,
     );
   }
   final int? id;
@@ -122,15 +119,12 @@ class EmployeeItem {
   });
 
   factory EmployeeItem.fromJson(Map<String, dynamic> json) {
+    final identity = json['identity'] as Map<String, dynamic>?;
     return EmployeeItem(
       id: json['id'] as int?,
       usersId: json['usersId'] as int?,
-      fullName: json['identity'] != null
-          ? json['identity']['fullName'] as String?
-          : null,
-      email: json['identity'] != null
-          ? json['identity']['email'] as String?
-          : null,
+      fullName: identity?['fullName'] as String?,
+      email: identity?['email'] as String?,
     );
   }
   final int? id;

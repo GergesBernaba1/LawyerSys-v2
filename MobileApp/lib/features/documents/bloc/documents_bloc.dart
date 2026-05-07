@@ -24,8 +24,9 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
       final docs = await documentsRepository.getDocuments(
         search: event.search,
       );
-      _documents.clear();
-      _documents.addAll(docs);
+      _documents
+        ..clear()
+        ..addAll(docs);
       emit(DocumentsLoaded(
         docs,
         hasMore: docs.length >= _pageSize,
@@ -74,8 +75,9 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     try {
       await documentsRepository.downloadDocument(event.document);
       final docs = await documentsRepository.getDocuments();
-      _documents.clear();
-      _documents.addAll(docs);
+      _documents
+        ..clear()
+        ..addAll(docs);
       emit(DocumentsLoaded(
         docs,
         hasMore: docs.length >= _pageSize,
@@ -95,8 +97,9 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
       );
       emit(DocumentsUploadSuccess());
       final docs = await documentsRepository.getDocuments();
-      _documents.clear();
-      _documents.addAll(docs);
+      _documents
+        ..clear()
+        ..addAll(docs);
       emit(DocumentsLoaded(
         docs,
         hasMore: docs.length >= _pageSize,
@@ -124,8 +127,9 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
       await documentsRepository.renameDocument(event.documentId, event.newName);
       emit(DocumentRenamed());
       final docs = await documentsRepository.getDocuments();
-      _documents.clear();
-      _documents.addAll(docs);
+      _documents
+        ..clear()
+        ..addAll(docs);
       emit(DocumentsLoaded(
         docs,
         hasMore: docs.length >= _pageSize,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -199,7 +200,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.folder_open),
                           onPressed: () {
-                            // TODO: replace with FilePicker when file_picker is added to pubspec.yaml
+                            // File picker not implemented - manual path entry required
                             setSheetState(() {});
                           },
                         ),
@@ -441,12 +442,17 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                       if (document.isPdf || document.isImage) {
                         final downloaded = await _downloadOrReuse(document);
                         if (downloaded != null && context.mounted) {
-                          Navigator.push(
+                          unawaited(
+                            Navigator.push(
                               context,
                               MaterialPageRoute<void>(
-                                  builder: (_) => DocumentViewerScreen(
-                                      documentFile: downloaded,
-                                      document: document,),),);
+                                builder: (_) => DocumentViewerScreen(
+                                  documentFile: downloaded,
+                                  document: document,
+                                ),
+                              ),
+                            ),
+                          );
                         }
                       } else {
                         final url =
@@ -470,7 +476,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
   Future<File?> _downloadOrReuse(Document document) async {
     final directory = await getApplicationDocumentsDirectory();
     final localFile = File('${directory.path}/${document.fileName}');
-    if (await localFile.exists()) {
+    if (localFile.existsSync()) {
       return localFile;
     }
 

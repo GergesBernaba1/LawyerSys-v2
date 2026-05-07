@@ -24,8 +24,9 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     emit(CasesLoading());
     try {
       final cases = await casesRepository.getCases();
-      _cases.clear();
-      _cases.addAll(cases);
+      _cases
+        ..clear()
+        ..addAll(cases);
       emit(CasesLoaded(
         cases,
         hasMore: cases.length >= _pageSize,
@@ -81,8 +82,9 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
   Future<void> _onRefreshCases(RefreshCases event, Emitter<CasesState> emit) async {
     try {
       final cases = await casesRepository.getCases();
-      _cases.clear();
-      _cases.addAll(cases);
+      _cases
+        ..clear()
+        ..addAll(cases);
       emit(CasesLoaded(
         cases,
         hasMore: cases.length >= _pageSize,
@@ -109,8 +111,9 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     try {
       await casesRepository.createCase(event.caseModel);
       final cases = await casesRepository.getCases();
-      _cases.clear();
-      _cases.addAll(cases);
+      _cases
+        ..clear()
+        ..addAll(cases);
       emit(CasesLoaded(
         _cases,
         hasMore: cases.length >= _pageSize,
@@ -125,8 +128,9 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     try {
       await casesRepository.updateCase(event.caseModel);
       final cases = await casesRepository.getCases();
-      _cases.clear();
-      _cases.addAll(cases);
+      _cases
+        ..clear()
+        ..addAll(cases);
       emit(CasesLoaded(
         _cases,
         hasMore: cases.length >= _pageSize,
@@ -141,8 +145,9 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     try {
       await casesRepository.deleteCase(event.caseId);
       final cases = await casesRepository.getCases();
-      _cases.clear();
-      _cases.addAll(cases);
+      _cases
+        ..clear()
+        ..addAll(cases);
       emit(CasesLoaded(
         _cases,
         hasMore: cases.length >= _pageSize,
@@ -153,6 +158,5 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     }
   }
 }
-
 
 

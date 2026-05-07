@@ -70,21 +70,21 @@ void main() {
 
   group('AuthBloc biometric and session flow', () {
     test('BiometricLoginRequested success emits AuthAuthenticated', () async {
-      final repository = FakeAuthRepository();
-      repository.currentSession = UserSession(
-        userId: 'u1',
-        email: 'test@example.com',
-        fullName: 'Test User',
-        tenantId: 't1',
-        tenantName: 'Tenant One',
-        accessToken: 'tk',
-        refreshToken: 'rt',
-        tokenExpiresAt: now,
-        roles: [],
-        permissions: [],
-        languageCode: 'en',
-        biometricEnabled: true,
-      );
+      final repository = FakeAuthRepository()
+        ..currentSession = UserSession(
+          userId: 'u1',
+          email: 'test@example.com',
+          fullName: 'Test User',
+          tenantId: 't1',
+          tenantName: 'Tenant One',
+          accessToken: 'tk',
+          refreshToken: 'rt',
+          tokenExpiresAt: now,
+          roles: [],
+          permissions: [],
+          languageCode: 'en',
+          biometricEnabled: true,
+        );
       final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService());
 
       final states = <AuthState>[];
@@ -102,21 +102,21 @@ void main() {
     });
 
     test('BiometricLoginRequested unavailable emits AuthUnauthenticated', () async {
-      final repository = FakeAuthRepository();
-      repository.currentSession = UserSession(
-        userId: 'u1',
-        email: 'test@example.com',
-        fullName: 'Test User',
-        tenantId: 't1',
-        tenantName: 'Tenant One',
-        accessToken: 'tk',
-        refreshToken: 'rt',
-        tokenExpiresAt: now,
-        roles: [],
-        permissions: [],
-        languageCode: 'en',
-        biometricEnabled: true,
-      );
+      final repository = FakeAuthRepository()
+        ..currentSession = UserSession(
+          userId: 'u1',
+          email: 'test@example.com',
+          fullName: 'Test User',
+          tenantId: 't1',
+          tenantName: 'Tenant One',
+          accessToken: 'tk',
+          refreshToken: 'rt',
+          tokenExpiresAt: now,
+          roles: [],
+          permissions: [],
+          languageCode: 'en',
+          biometricEnabled: true,
+        );
       final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService(available: false, authenticated: false));
 
       final states = <AuthState>[];
@@ -133,21 +133,21 @@ void main() {
     });
 
     test('SessionRestored with biometric on and authenticate success emits AuthAuthenticated', () async {
-      final repository = FakeAuthRepository();
-      repository.currentSession = UserSession(
-        userId: 'u1',
-        email: 'test@example.com',
-        fullName: 'Test User',
-        tenantId: 't1',
-        tenantName: 'Tenant One',
-        accessToken: 'tk',
-        refreshToken: 'rt',
-        tokenExpiresAt: now,
-        roles: [],
-        permissions: [],
-        languageCode: 'en',
-        biometricEnabled: true,
-      );
+      final repository = FakeAuthRepository()
+        ..currentSession = UserSession(
+          userId: 'u1',
+          email: 'test@example.com',
+          fullName: 'Test User',
+          tenantId: 't1',
+          tenantName: 'Tenant One',
+          accessToken: 'tk',
+          refreshToken: 'rt',
+          tokenExpiresAt: now,
+          roles: [],
+          permissions: [],
+          languageCode: 'en',
+          biometricEnabled: true,
+        );
       final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService());
 
       final states = <AuthState>[];
@@ -164,21 +164,21 @@ void main() {
     });
 
     test('SessionRestored with biometric off emits AuthAuthenticated directly', () async {
-      final repository = FakeAuthRepository();
-      repository.currentSession = UserSession(
-        userId: 'u1',
-        email: 'test@example.com',
-        fullName: 'Test User',
-        tenantId: 't1',
-        tenantName: 'Tenant One',
-        accessToken: 'tk',
-        refreshToken: 'rt',
-        tokenExpiresAt: now,
-        roles: [],
-        permissions: [],
-        languageCode: 'en',
-        biometricEnabled: false,
-      );
+      final repository = FakeAuthRepository()
+        ..currentSession = UserSession(
+          userId: 'u1',
+          email: 'test@example.com',
+          fullName: 'Test User',
+          tenantId: 't1',
+          tenantName: 'Tenant One',
+          accessToken: 'tk',
+          refreshToken: 'rt',
+          tokenExpiresAt: now,
+          roles: [],
+          permissions: [],
+          languageCode: 'en',
+          biometricEnabled: false,
+        );
       final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService(authenticated: false));
 
       final states = <AuthState>[];

@@ -39,7 +39,7 @@ class SitingsBloc extends Bloc<SitingsEvent, SitingsState> {
     emit(SitingsLoading());
     try {
       await repository.createSiting(event.data);
-      emit(SitingOperationSuccess('Court sitting created successfully')); // TODO localize
+      emit(SitingOperationSuccess('Court sitting created successfully'));
       final sitings = await repository.getSitings(search: _lastSearch);
       emit(SitingsLoaded(sitings));
     } catch (e) {
@@ -51,7 +51,7 @@ class SitingsBloc extends Bloc<SitingsEvent, SitingsState> {
     emit(SitingsLoading());
     try {
       await repository.updateSiting(event.id, event.data);
-      emit(SitingOperationSuccess('Court sitting updated successfully')); // TODO localize
+      emit(SitingOperationSuccess('Court sitting updated successfully'));
       final sitings = await repository.getSitings(search: _lastSearch);
       emit(SitingsLoaded(sitings));
     } catch (e) {
@@ -63,7 +63,7 @@ class SitingsBloc extends Bloc<SitingsEvent, SitingsState> {
     emit(SitingsLoading());
     try {
       await repository.deleteSiting(event.id);
-      emit(SitingOperationSuccess('Court sitting deleted successfully')); // TODO localize
+      emit(SitingOperationSuccess('Court sitting deleted successfully'));
       final sitings = await repository.getSitings(search: _lastSearch);
       emit(SitingsLoaded(sitings));
     } catch (e) {

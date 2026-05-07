@@ -12,6 +12,8 @@ import 'package:qadaya_lawyersys/features/consultations/models/consultation.dart
 import 'package:qadaya_lawyersys/features/consultations/repositories/consultations_repository.dart';
 import 'package:qadaya_lawyersys/features/consultations/screens/consultation_detail_screen.dart';
 
+typedef RelationToggleCallback = void Function(int id, {required bool selected});
+
 class ConsultationsListScreen extends StatefulWidget {
   const ConsultationsListScreen({super.key});
 
@@ -341,7 +343,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                 title: localizer.customers,
                 options: _allCustomers,
                 selectedIds: _selectedCustomerIds,
-                onToggle: (id, selected) {
+                onToggle: (id, {required selected}) {
                   setModalState(() {
                     if (selected) {
                       _selectedCustomerIds.add(id);
@@ -358,7 +360,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                   title: localizer.employees,
                   options: _allEmployees,
                   selectedIds: _selectedEmployeeIds,
-                  onToggle: (id, selected) {
+                  onToggle: (id, {required selected}) {
                     setModalState(() {
                       if (selected) {
                         _selectedEmployeeIds.add(id);
@@ -394,7 +396,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     required String title,
     required List<RelationOption> options,
     required Set<int> selectedIds,
-    required void Function(int id, bool selected) onToggle,
+    required RelationToggleCallback onToggle,
     required AppLocalizations localizer,
   }) {
     return Column(
@@ -423,7 +425,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                       value: selectedIds.contains(option.id),
                       title: Text(option.name),
                       onChanged: (checked) =>
-                          onToggle(option.id, checked ?? false),
+                          onToggle(option.id, selected: checked ?? false),
                     );
                   }).toList(),
                 ),
@@ -599,6 +601,4 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     );
   }
 }
-
-
 

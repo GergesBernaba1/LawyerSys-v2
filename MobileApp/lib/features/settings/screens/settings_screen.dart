@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qadaya_lawyersys/core/auth/biometric_auth.dart';
@@ -77,7 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _language = languageCode;
     });
-    Navigator.pushReplacementNamed(context, '/');
+    unawaited(Navigator.pushReplacementNamed(context, '/'));
   }
 
   Future<void> _setBiometricEnabled(bool enabled) async {
@@ -118,23 +120,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(localizer.language),
             subtitle: Text(_language == 'ar' ? localizer.arabic : localizer.english),
           ),
-          ListTile(
-            title: Text(localizer.english),
-            leading: RadioGroup<String>(
-              groupValue: _language,
-              onChanged: (value) { if (value != null) _setLanguage(value); },
-              child: const Radio<String>(value: 'en'),
+          RadioGroup<String>(
+            groupValue: _language,
+            onChanged: (value) { if (value != null) _setLanguage(value); },
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text(localizer.english),
+                  leading: const Radio<String>(value: 'en'),
+                  onTap: () => _setLanguage('en'),
+                ),
+                ListTile(
+                  title: Text(localizer.arabic),
+                  leading: const Radio<String>(value: 'ar'),
+                  onTap: () => _setLanguage('ar'),
+                ),
+              ],
             ),
-            onTap: () => _setLanguage('en'),
-          ),
-          ListTile(
-            title: Text(localizer.arabic),
-            leading: RadioGroup<String>(
-              groupValue: _language,
-              onChanged: (value) { if (value != null) _setLanguage(value); },
-              child: const Radio<String>(value: 'ar'),
-            ),
-            onTap: () => _setLanguage('ar'),
           ),
           const SizedBox(height: 16),
           const Divider(),
@@ -148,23 +150,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Text(_getThemeModeLabel(themeMode, localizer)),
                     leading: const Icon(Icons.brightness_6),
                   ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(localizer.lightMode),
-                    value: ThemeMode.light,
+                  RadioGroup<ThemeMode>(
                     groupValue: themeMode,
-                    onChanged: (_) => context.read<ThemeCubit>().setLightMode(),
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(localizer.darkMode),
-                    value: ThemeMode.dark,
-                    groupValue: themeMode,
-                    onChanged: (_) => context.read<ThemeCubit>().setDarkMode(),
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(localizer.systemDefault),
-                    value: ThemeMode.system,
-                    groupValue: themeMode,
-                    onChanged: (_) => context.read<ThemeCubit>().setSystemMode(),
+                    onChanged: (value) {
+                      if (value == ThemeMode.light) {
+                        context.read<ThemeCubit>().setLightMode();
+                      } else if (value == ThemeMode.dark) {
+                        context.read<ThemeCubit>().setDarkMode();
+                      } else if (value == ThemeMode.system) {
+                        context.read<ThemeCubit>().setSystemMode();
+                      }
+                    },
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(localizer.lightMode),
+                          leading: const Radio<ThemeMode>(value: ThemeMode.light),
+                          onTap: () => context.read<ThemeCubit>().setLightMode(),
+                        ),
+                        ListTile(
+                          title: Text(localizer.darkMode),
+                          leading: const Radio<ThemeMode>(value: ThemeMode.dark),
+                          onTap: () => context.read<ThemeCubit>().setDarkMode(),
+                        ),
+                        ListTile(
+                          title: Text(localizer.systemDefault),
+                          leading: const Radio<ThemeMode>(value: ThemeMode.system),
+                          onTap: () => context.read<ThemeCubit>().setSystemMode(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               );
@@ -203,5 +218,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-
 
