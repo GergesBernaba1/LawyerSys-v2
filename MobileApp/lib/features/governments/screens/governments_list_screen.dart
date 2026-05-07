@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:qadaya_lawyersys/core/localization/l10n/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/governments/bloc/governments_bloc.dart';
 import 'package:qadaya_lawyersys/features/governments/bloc/governments_event.dart';
 import 'package:qadaya_lawyersys/features/governments/bloc/governments_state.dart';

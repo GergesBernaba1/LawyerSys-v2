@@ -230,7 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
-                        childAspectRatio: 1.4,
+                        childAspectRatio: 0.9,
                         children: [
                           _SmallStatCard(
                             label: isEmployeeOnly ? l.openCases : l.revenue,
