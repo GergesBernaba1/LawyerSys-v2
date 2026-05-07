@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/trust_accounting_repository.dart';
-import 'trust_accounting_event.dart';
-import 'trust_accounting_state.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_event.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_state.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/repositories/trust_accounting_repository.dart';
 
 class TrustAccountingBloc extends Bloc<TrustAccountingEvent, TrustAccountingState> {
-  final TrustAccountingRepository trustAccountingRepository;
 
   TrustAccountingBloc({required this.trustAccountingRepository}) : super(TrustAccountingInitial()) {
     on<LoadTrustTransactions>(_onLoadTrustTransactions);
@@ -16,6 +14,7 @@ class TrustAccountingBloc extends Bloc<TrustAccountingEvent, TrustAccountingStat
     on<UpdateTrustTransaction>(_onUpdateTrustTransaction);
     on<DeleteTrustTransaction>(_onDeleteTrustTransaction);
   }
+  final TrustAccountingRepository trustAccountingRepository;
 
   Future<void> _onLoadTrustTransactions(LoadTrustTransactions event, Emitter<TrustAccountingState> emit) async {
     emit(TrustAccountingLoading());

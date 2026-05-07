@@ -1,8 +1,8 @@
 class AiSummaryRequest {
-  final String text;
-  final String? language;
 
   AiSummaryRequest({required this.text, this.language});
+  final String text;
+  final String? language;
 
   Map<String, dynamic> toJson() => {
         'text': text,
@@ -11,7 +11,6 @@ class AiSummaryRequest {
 }
 
 class AiSummaryResult {
-  final String summary;
 
   AiSummaryResult({required this.summary});
 
@@ -20,14 +19,15 @@ class AiSummaryResult {
       summary: (json['summary'] ?? json['result'] ?? '').toString(),
     );
   }
+  final String summary;
 }
 
 class AiDraftRequest {
+
+  AiDraftRequest({required this.prompt, this.documentType, this.language});
   final String prompt;
   final String? documentType;
   final String? language;
-
-  AiDraftRequest({required this.prompt, this.documentType, this.language});
 
   Map<String, dynamic> toJson() => {
         'prompt': prompt,
@@ -37,8 +37,6 @@ class AiDraftRequest {
 }
 
 class AiDraftResult {
-  final String content;
-  final String? documentType;
 
   AiDraftResult({required this.content, this.documentType});
 
@@ -48,12 +46,11 @@ class AiDraftResult {
       documentType: json['documentType']?.toString(),
     );
   }
+  final String content;
+  final String? documentType;
 }
 
 class AiDeadlineSuggestion {
-  final String taskName;
-  final String? suggestedDeadline;
-  final String? reason;
 
   AiDeadlineSuggestion({
     required this.taskName,
@@ -68,4 +65,7 @@ class AiDeadlineSuggestion {
       reason: json['reason']?.toString(),
     );
   }
+  final String taskName;
+  final String? suggestedDeadline;
+  final String? reason;
 }

@@ -53,7 +53,7 @@ void main() {
         findsOneWidget,
         reason: 'Main screen should have navigation bar after successful login',
       );
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Login with invalid credentials shows error', (tester) async {
       // Launch the app
@@ -83,7 +83,7 @@ void main() {
 
       // Verify we're still on login screen
       expect(find.text('Login'), findsWidgets);
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Logout flow returns to login screen', (tester) async {
       // Launch the app and login first
@@ -110,7 +110,7 @@ void main() {
       // Find and tap logout button
       final logoutButton = find.widgetWithText(
         ElevatedButton,
-        RegExp(r'Logout|Sign Out', caseSensitive: false),
+        RegExp('Logout|Sign Out', caseSensitive: false),
       );
       await tester.tap(logoutButton);
       await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -118,7 +118,7 @@ void main() {
       // Verify we're back on login screen
       expect(find.text('Login'), findsWidgets);
       expect(find.byType(TextField), findsAtLeastNWidgets(2));
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Empty email/password shows validation error', (tester) async {
       // Launch the app
@@ -132,7 +132,7 @@ void main() {
 
       // Verify validation errors are shown
       expect(
-        find.textContaining(RegExp(r'required|empty', caseSensitive: false)),
+        find.textContaining(RegExp('required|empty', caseSensitive: false)),
         findsAtLeastNWidgets(1),
         reason: 'Validation errors should be shown for empty fields',
       );
@@ -157,7 +157,7 @@ void main() {
         // We just verify the button is accessible
         expect(biometricButton, findsOneWidget);
       }
-    }, skip: true); // Enable when biometric is configured
+    }, skip: true,); // Enable when biometric is configured
 
     testWidgets('Session persistence - app restart maintains login', (tester) async {
       // Login first
@@ -184,11 +184,11 @@ void main() {
         findsOneWidget,
         reason: 'User should remain logged in after app restart',
       );
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Token expiration triggers re-authentication', (tester) async {
       // This test would require backend support to expire tokens
       // and verify the app handles it gracefully
-    }, skip: true); // Requires backend token expiration simulation
+    }, skip: true,); // Requires backend token expiration simulation
   });
 }

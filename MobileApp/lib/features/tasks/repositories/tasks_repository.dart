@@ -1,10 +1,10 @@
-import '../../../core/api/api_client.dart';
-import '../models/task.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/features/tasks/models/task.dart';
 
 class TasksRepository {
-  final ApiClient apiClient;
 
   TasksRepository(this.apiClient);
+  final ApiClient apiClient;
 
   List<Task> _parseTasks(dynamic data) {
     if (data is List) {
@@ -28,7 +28,7 @@ class TasksRepository {
   }
 
   Future<List<Task>> getTasks(
-      {int page = 1, int pageSize = 10, String? search}) async {
+      {int page = 1, int pageSize = 10, String? search,}) async {
     final queryParameters = {
       'page': page,
       'pageSize': pageSize,
@@ -45,7 +45,7 @@ class TasksRepository {
       'page': 1,
       'pageSize': 100, // Get more items for search
       'search': query,
-    });
+    },);
 
     return _parseTasks(response.data);
   }

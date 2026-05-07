@@ -80,7 +80,7 @@ void main() {
     // ── Step 1-3: login + session persisted in secure storage ─────────────────
 
     testWidgets('login + persistence + settings toggle + restore',
-        (WidgetTester tester) async {
+        (tester) async {
       final session = makeSession();
 
       // AuthRepository stubs
@@ -104,12 +104,12 @@ void main() {
           '/main': (_) => const Scaffold(body: Text('MainScreen')),
           '/settings': (_) => SettingsScreen(biometricAuthService: mockBiometric),
         },
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       // ── Step 2: enter credentials and tap login ──────────────────────────────
       await tester.enterText(
-          find.byType(TextField).at(0), 'test@example.com');
+          find.byType(TextField).at(0), 'test@example.com',);
       await tester.enterText(find.byType(TextField).at(1), 'password123');
 
       // Tap the ElevatedButton (login button)
@@ -140,7 +140,7 @@ void main() {
         authRepository: mockAuthRepo,
         biometricService: mockBiometric,
         home: SettingsScreen(biometricAuthService: mockBiometric),
-      ));
+      ),);
       await tester.pumpAndSettle();
 
       // Find the biometric SwitchListTile and toggle it on
@@ -168,7 +168,7 @@ void main() {
           '/main': (_) => const Scaffold(body: Text('MainScreen')),
           '/login': (_) => const Scaffold(body: Text('LoginScreen')),
         },
-      ));
+      ),);
 
       // SplashScreen.initState dispatches SessionRestored.
       await tester.pumpAndSettle();

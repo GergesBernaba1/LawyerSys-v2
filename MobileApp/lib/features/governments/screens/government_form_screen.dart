@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/l10n/app_localizations.dart';
-import '../bloc/governments_bloc.dart';
-import '../bloc/governments_event.dart';
-import '../bloc/governments_state.dart';
-import '../models/government.dart';
+import 'package:qadaya_lawyersys/core/localization/l10n/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_bloc.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_event.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_state.dart';
+import 'package:qadaya_lawyersys/features/governments/models/government.dart';
 
 class GovernmentFormScreen extends StatefulWidget {
-  final Government? government;
 
   const GovernmentFormScreen({super.key, this.government});
+  final Government? government;
 
   @override
   State<GovernmentFormScreen> createState() => _GovernmentFormScreenState();
@@ -66,7 +66,7 @@ class _GovernmentFormScreenState extends State<GovernmentFormScreen> {
           if (state is GovernmentsError) {
             setState(() => _isSaving = false);
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
         },
         child: _isSaving
@@ -82,7 +82,7 @@ class _GovernmentFormScreenState extends State<GovernmentFormScreen> {
                         controller: _nameController,
                         decoration: InputDecoration(
                             labelText: l.governmentName,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
                       ),

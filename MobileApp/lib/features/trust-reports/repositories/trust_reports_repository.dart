@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/trust_report_models.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/models/trust_report_models.dart';
 
 class TrustReportsRepository {
-  final ApiClient apiClient;
 
   TrustReportsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<FinancialSummary> getFinancialSummary({int? year, int? month}) async {
     final queryParameters = <String, dynamic>{};
@@ -17,7 +17,7 @@ class TrustReportsRepository {
       queryParameters: queryParameters.isEmpty ? null : queryParameters,
     );
     return FinancialSummary.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   Future<List<OutstandingBalance>> getOutstandingBalances() async {

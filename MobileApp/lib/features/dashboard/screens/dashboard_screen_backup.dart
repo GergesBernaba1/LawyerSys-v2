@@ -1,16 +1,16 @@
+// ignore_for_file: argument_type_not_assignable, avoid_dynamic_calls, inference_failure_on_instance_creation
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../bloc/dashboard_bloc.dart';
-import '../bloc/dashboard_event.dart';
-import '../bloc/dashboard_state.dart';
-import '../../cases/screens/cases_list_screen.dart';
-import '../../tasks/screens/tasks_list_screen.dart';
-import '../../customers/screens/customers_list_screen.dart';
-import '../../employees/screens/employees_list_screen.dart';
-import '../../intake/screens/intake_form_screen.dart';
-import '../../consultations/screens/consultations_list_screen.dart';
-import '../../../features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/cases/screens/cases_list_screen.dart';
+import 'package:qadaya_lawyersys/features/consultations/screens/consultations_list_screen.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/customers_list_screen.dart';
+import 'package:qadaya_lawyersys/features/dashboard/bloc/dashboard_bloc.dart';
+import 'package:qadaya_lawyersys/features/dashboard/bloc/dashboard_event.dart';
+import 'package:qadaya_lawyersys/features/dashboard/bloc/dashboard_state.dart';
+import 'package:qadaya_lawyersys/features/employees/screens/employees_list_screen.dart';
+import 'package:qadaya_lawyersys/features/intake/screens/intake_form_screen.dart';
+import 'package:qadaya_lawyersys/features/tasks/screens/tasks_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -77,12 +77,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         builder: (context, state) {
           if (state is DashboardLoading) {
             return Center(
-                child: CircularProgressIndicator(color: colorScheme.primary));
+                child: CircularProgressIndicator(color: colorScheme.primary),);
           }
           if (state is DashboardError) {
             return Center(
               child: Text('Error: ${state.message}',
-                  style: TextStyle(color: colorScheme.error)),
+                  style: TextStyle(color: colorScheme.error),),
             );
           }
           if (state is DashboardLoaded) {
@@ -141,13 +141,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: Icons.gavel,
                       gradient: [
                         _getThemeColor(context, 'primary'),
-                        _getThemeColor(context, 'primaryLight')
+                        _getThemeColor(context, 'primaryLight'),
                       ],
                       trend: isEmployeeOnly ? null : s.casesTrend,
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const CasesListScreen())),
+                              builder: (_) => const CasesListScreen(),),),
                     ),
                     _StatCard(
                       label: isEmployeeOnly ? 'My Tasks' : 'Customers',
@@ -157,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       gradient: isEmployeeOnly
                           ? [
                               _getThemeColor(context, 'warning'),
-                              Colors.orange.shade200
+                              Colors.orange.shade200,
                             ]
                           : [const Color(0xFF0EA5E9), const Color(0xFF38BDF8)],
                       onTap: () => Navigator.push(
@@ -165,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           MaterialPageRoute(
                               builder: (_) => isEmployeeOnly
                                   ? const TasksListScreen()
-                                  : const CustomersListScreen())),
+                                  : const CustomersListScreen(),),),
                     ),
                     _StatCard(
                       label: isEmployeeOnly ? 'My Leads' : 'Employees',
@@ -174,14 +174,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: isEmployeeOnly ? Icons.person_search : Icons.badge,
                       gradient: [
                         _getThemeColor(context, 'secondary'),
-                        const Color(0xFFD4A15A)
+                        const Color(0xFFD4A15A),
                       ],
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (_) => isEmployeeOnly
                                   ? const IntakeFormScreen()
-                                  : const EmployeesListScreen())),
+                                  : const EmployeesListScreen(),),),
                     ),
                     _StatCard(
                       label: isEmployeeOnly ? 'My Consultations' : 'Files',
@@ -190,12 +190,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: isEmployeeOnly ? Icons.description : Icons.folder,
                       gradient: [
                         _getThemeColor(context, 'success'),
-                        const Color(0xFF34D399)
+                        const Color(0xFF34D399),
                       ],
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const ConsultationsListScreen())),
+                              builder: (_) => const ConsultationsListScreen(),),),
                     ),
                   ],
                 ),
@@ -250,7 +250,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 1,
                       child: _QuickActionsSection(
                         isEmployeeOnly: isEmployeeOnly,
                         isRTL: isRTL,
@@ -298,15 +297,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _WelcomeHeader extends StatelessWidget {
-  final dynamic summary;
-  final Map<String, dynamic> attentionLevel;
-  final int overdueCount;
-  final double activityHealthScore;
-  final DateTime? lastUpdatedAt;
-  final bool isRefreshing;
-  final VoidCallback onRefresh;
-  final bool isEmployeeOnly;
-  final bool isRTL;
 
   const _WelcomeHeader({
     required this.summary,
@@ -319,6 +309,15 @@ class _WelcomeHeader extends StatelessWidget {
     required this.isEmployeeOnly,
     required this.isRTL,
   });
+  final dynamic summary;
+  final Map<String, dynamic> attentionLevel;
+  final int overdueCount;
+  final double activityHealthScore;
+  final DateTime? lastUpdatedAt;
+  final bool isRefreshing;
+  final VoidCallback onRefresh;
+  final bool isEmployeeOnly;
+  final bool isRTL;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -352,7 +351,7 @@ class _WelcomeHeader extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             _getThemeColor(context, 'primary'),
-            _getThemeColor(context, 'primaryLight')
+            _getThemeColor(context, 'primaryLight'),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -467,15 +466,15 @@ class _WelcomeHeader extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color? color;
 
   const _StatusChip({
     required this.label,
     required this.icon,
     this.color,
   });
+  final String label;
+  final IconData icon;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -506,12 +505,6 @@ class _StatusChip extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final List<Color> gradient;
-  final VoidCallback onTap;
-  final double? trend;
 
   const _StatCard({
     required this.label,
@@ -521,6 +514,12 @@ class _StatCard extends StatelessWidget {
     required this.onTap,
     this.trend,
   });
+  final String label;
+  final String value;
+  final IconData icon;
+  final List<Color> gradient;
+  final VoidCallback onTap;
+  final double? trend;
 
   @override
   Widget build(BuildContext context) {
@@ -600,11 +599,6 @@ class _StatCard extends StatelessWidget {
 }
 
 class _SmallStatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final double? trend;
 
   const _SmallStatCard({
     required this.label,
@@ -613,6 +607,11 @@ class _SmallStatCard extends StatelessWidget {
     required this.color,
     this.trend,
   });
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+  final double? trend;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -711,10 +710,6 @@ class _SmallStatCard extends StatelessWidget {
 }
 
 class _OperationalFocusSection extends StatelessWidget {
-  final double activityHealthScore;
-  final double completionScore;
-  final Map<String, dynamic> attentionLevel;
-  final bool isRTL;
 
   const _OperationalFocusSection({
     required this.activityHealthScore,
@@ -722,6 +717,10 @@ class _OperationalFocusSection extends StatelessWidget {
     required this.attentionLevel,
     required this.isRTL,
   });
+  final double activityHealthScore;
+  final double completionScore;
+  final Map<String, dynamic> attentionLevel;
+  final bool isRTL;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -755,7 +754,7 @@ class _OperationalFocusSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: (attentionLevel['color'] as Color).withValues(alpha: 0.15)),
+            color: (attentionLevel['color'] as Color).withValues(alpha: 0.15),),
         boxShadow: [
           BoxShadow(
             color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
@@ -793,7 +792,7 @@ class _OperationalFocusSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                       color: (attentionLevel['color'] as Color)
-                          .withValues(alpha: 0.2)),
+                          .withValues(alpha: 0.2),),
                 ),
                 child: Text(
                   attentionLevel['label'],
@@ -829,15 +828,15 @@ class _OperationalFocusSection extends StatelessWidget {
 }
 
 class _ProgressBar extends StatelessWidget {
-  final String label;
-  final double value;
-  final Color color;
 
   const _ProgressBar({
     required this.label,
     required this.value,
     required this.color,
   });
+  final String label;
+  final double value;
+  final Color color;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -905,13 +904,13 @@ class _ProgressBar extends StatelessWidget {
 }
 
 class _QuickActionsSection extends StatelessWidget {
-  final bool isEmployeeOnly;
-  final bool isRTL;
 
   const _QuickActionsSection({
     required this.isEmployeeOnly,
     required this.isRTL,
   });
+  final bool isEmployeeOnly;
+  final bool isRTL;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -943,31 +942,31 @@ class _QuickActionsSection extends StatelessWidget {
             'label': 'Work Queue',
             'path': '/employee-workqueue',
             'icon': Icons.assignment_turned_in,
-            'color': _getThemeColor(context, 'error')
+            'color': _getThemeColor(context, 'error'),
           },
           {
             'label': 'My Cases',
             'path': '/cases',
             'icon': Icons.gavel,
-            'color': _getThemeColor(context, 'primary')
+            'color': _getThemeColor(context, 'primary'),
           },
           {
             'label': 'My Tasks',
             'path': '/tasks',
             'icon': Icons.event,
-            'color': _getThemeColor(context, 'success')
+            'color': _getThemeColor(context, 'success'),
           },
           {
             'label': 'My Leads',
             'path': '/intake',
             'icon': Icons.person_search,
-            'color': _getThemeColor(context, 'primaryLight')
+            'color': _getThemeColor(context, 'primaryLight'),
           },
           {
             'label': 'My Consultations',
             'path': '/consultations',
             'icon': Icons.description,
-            'color': const Color(0xFF8B5CF6)
+            'color': const Color(0xFF8B5CF6),
           },
         ]
       : [
@@ -975,25 +974,25 @@ class _QuickActionsSection extends StatelessWidget {
             'label': 'New Case',
             'path': '/cases',
             'icon': Icons.gavel,
-            'color': _getThemeColor(context, 'primary')
+            'color': _getThemeColor(context, 'primary'),
           },
           {
             'label': 'New Customer',
             'path': '/customers',
             'icon': Icons.people,
-            'color': _getThemeColor(context, 'primaryLight')
+            'color': _getThemeColor(context, 'primaryLight'),
           },
           {
             'label': 'View Billing',
             'path': '/billing',
             'icon': Icons.receipt_long,
-            'color': _getThemeColor(context, 'secondary')
+            'color': _getThemeColor(context, 'secondary'),
           },
           {
             'label': 'Admin Tasks',
             'path': '/tasks',
             'icon': Icons.event,
-            'color': _getThemeColor(context, 'success')
+            'color': _getThemeColor(context, 'success'),
           },
         ];
 
@@ -1005,7 +1004,7 @@ class _QuickActionsSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08),),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A000000),
@@ -1020,7 +1019,7 @@ class _QuickActionsSection extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.open_in_new,
-                  color: _getThemeColor(context, 'primary'), size: 20),
+                  color: _getThemeColor(context, 'primary'), size: 20,),
               const SizedBox(width: 8),
               Text(
                 'Quick Actions',
@@ -1042,7 +1041,7 @@ class _QuickActionsSection extends StatelessWidget {
                   isRTL: isRTL,
                   onTap: () => Navigator.pushNamed(context, action['path']),
                 ),
-              )),
+              ),),
         ],
       ),
     );
@@ -1050,11 +1049,6 @@ class _QuickActionsSection extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final bool isRTL;
-  final VoidCallback onTap;
 
   const _ActionButton({
     required this.label,
@@ -1063,6 +1057,11 @@ class _ActionButton extends StatelessWidget {
     required this.isRTL,
     required this.onTap,
   });
+  final String label;
+  final IconData icon;
+  final Color color;
+  final bool isRTL;
+  final VoidCallback onTap;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -1134,13 +1133,13 @@ class _ActionButton extends StatelessWidget {
 }
 
 class _RecentCasesSection extends StatelessWidget {
-  final List<dynamic> recentCases;
-  final bool isRTL;
 
   const _RecentCasesSection({
     required this.recentCases,
     required this.isRTL,
   });
+  final List<dynamic> recentCases;
+  final bool isRTL;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -1174,7 +1173,7 @@ class _RecentCasesSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08),),
         boxShadow: [
           BoxShadow(
             color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
@@ -1189,7 +1188,7 @@ class _RecentCasesSection extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.gavel,
-                  color: _getThemeColor(context, 'primary'), size: 20),
+                  color: _getThemeColor(context, 'primary'), size: 20,),
               const SizedBox(width: 8),
               Text(
                 'Recent Cases',
@@ -1202,7 +1201,7 @@ class _RecentCasesSection extends StatelessWidget {
               const Spacer(),
               TextButton(
                 onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const CasesListScreen())),
+                    MaterialPageRoute(builder: (_) => const CasesListScreen()),),
                 child: const Text(
                   'View All',
                   style: TextStyle(
@@ -1255,8 +1254,8 @@ class _RecentCasesSection extends StatelessWidget {
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const CasesListScreen())),
-                )),
+                          builder: (_) => const CasesListScreen(),),),
+                ),),
         ],
       ),
     );
@@ -1264,11 +1263,6 @@ class _RecentCasesSection extends StatelessWidget {
 }
 
 class _RecentCaseTile extends StatelessWidget {
-  final String caseName;
-  final String caseNumber;
-  final String caseType;
-  final String status;
-  final VoidCallback onTap;
 
   const _RecentCaseTile({
     required this.caseName,
@@ -1277,6 +1271,11 @@ class _RecentCaseTile extends StatelessWidget {
     required this.status,
     required this.onTap,
   });
+  final String caseName;
+  final String caseNumber;
+  final String caseType;
+  final String status;
+  final VoidCallback onTap;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -1324,7 +1323,7 @@ class _RecentCaseTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
               color:
-                  _getThemeColor(context, 'primary').withValues(alpha: 0.06)),
+                  _getThemeColor(context, 'primary').withValues(alpha: 0.06),),
         ),
         child: Row(
           children: [
@@ -1337,7 +1336,7 @@ class _RecentCaseTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(Icons.gavel,
-                  color: _getThemeColor(context, 'primary'), size: 18),
+                  color: _getThemeColor(context, 'primary'), size: 18,),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1405,13 +1404,13 @@ class _RecentCaseTile extends StatelessWidget {
 }
 
 class _OverdueTasksSection extends StatelessWidget {
-  final List<dynamic> tasks;
-  final bool isRTL;
 
   const _OverdueTasksSection({
     required this.tasks,
     required this.isRTL,
   });
+  final List<dynamic> tasks;
+  final bool isRTL;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -1445,7 +1444,7 @@ class _OverdueTasksSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08),),
         boxShadow: [
           BoxShadow(
             color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
@@ -1460,7 +1459,7 @@ class _OverdueTasksSection extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.event_busy,
-                  color: _getThemeColor(context, 'error'), size: 20),
+                  color: _getThemeColor(context, 'error'), size: 20,),
               const SizedBox(width: 8),
               Text(
                 'My Overdue Tasks',
@@ -1473,7 +1472,7 @@ class _OverdueTasksSection extends StatelessWidget {
               const Spacer(),
               TextButton(
                 onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const TasksListScreen())),
+                    MaterialPageRoute(builder: (_) => const TasksListScreen()),),
                 child: const Text(
                   'View All',
                   style: TextStyle(
@@ -1498,7 +1497,7 @@ class _OverdueTasksSection extends StatelessWidget {
                   taskName: task.taskName ?? task.task_Name ?? 'Task',
                   reminderDate: task.taskReminderDate,
                   color: _getThemeColor(context, 'error'),
-                )),
+                ),),
         ],
       ),
     );
@@ -1506,13 +1505,13 @@ class _OverdueTasksSection extends StatelessWidget {
 }
 
 class _FollowUpsSection extends StatelessWidget {
-  final List<dynamic> leads;
-  final bool isRTL;
 
   const _FollowUpsSection({
     required this.leads,
     required this.isRTL,
   });
+  final List<dynamic> leads;
+  final bool isRTL;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -1546,7 +1545,7 @@ class _FollowUpsSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08)),
+            color: _getThemeColor(context, 'primary').withValues(alpha: 0.08),),
         boxShadow: [
           BoxShadow(
             color: _getThemeColor(context, 'text').withValues(alpha: 0.04),
@@ -1561,7 +1560,7 @@ class _FollowUpsSection extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.people_outline,
-                  color: _getThemeColor(context, 'warning'), size: 20),
+                  color: _getThemeColor(context, 'warning'), size: 20,),
               const SizedBox(width: 8),
               Text(
                 'My Follow-ups',
@@ -1576,7 +1575,7 @@ class _FollowUpsSection extends StatelessWidget {
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const IntakeFormScreen())),
+                        builder: (_) => const IntakeFormScreen(),),),
                 child: const Text(
                   'View All',
                   style: TextStyle(
@@ -1602,7 +1601,7 @@ class _FollowUpsSection extends StatelessWidget {
                   followUpAt: lead.nextFollowUpAt,
                   status: lead.status ?? 'Pending',
                   color: _getThemeColor(context, 'warning'),
-                )),
+                ),),
         ],
       ),
     );
@@ -1610,15 +1609,15 @@ class _FollowUpsSection extends StatelessWidget {
 }
 
 class _TaskTile extends StatelessWidget {
-  final String taskName;
-  final String? reminderDate;
-  final Color color;
 
   const _TaskTile({
     required this.taskName,
     required this.reminderDate,
     required this.color,
   });
+  final String taskName;
+  final String? reminderDate;
+  final Color color;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);
@@ -1701,10 +1700,6 @@ class _TaskTile extends StatelessWidget {
 }
 
 class _LeadTile extends StatelessWidget {
-  final String fullName;
-  final String? followUpAt;
-  final String status;
-  final Color color;
 
   const _LeadTile({
     required this.fullName,
@@ -1712,6 +1707,10 @@ class _LeadTile extends StatelessWidget {
     required this.status,
     required this.color,
   });
+  final String fullName;
+  final String? followUpAt;
+  final String status;
+  final Color color;
 
   Color _getThemeColor(BuildContext context, String colorType) {
     final theme = Theme.of(context);

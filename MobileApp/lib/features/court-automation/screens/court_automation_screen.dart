@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/court_automation_bloc.dart';
-import '../bloc/court_automation_event.dart';
-import '../bloc/court_automation_state.dart';
-import '../models/court_automation_models.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/court-automation/bloc/court_automation_bloc.dart';
+import 'package:qadaya_lawyersys/features/court-automation/bloc/court_automation_event.dart';
+import 'package:qadaya_lawyersys/features/court-automation/bloc/court_automation_state.dart';
+import 'package:qadaya_lawyersys/features/court-automation/models/court_automation_models.dart';
 
 class CourtAutomationScreen extends StatefulWidget {
   const CourtAutomationScreen({super.key});
@@ -61,7 +61,7 @@ class _CourtAutomationScreenState extends State<CourtAutomationScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                   content: Text(
-                      '${AppLocalizations.of(context)!.submit}: ${state.submission.submissionId}')),
+                      '${AppLocalizations.of(context)!.submit}: ${state.submission.submissionId}',),),
             );
           }
         },
@@ -120,7 +120,7 @@ class _PacksTab extends StatelessWidget {
                 const Icon(Icons.gavel, size: 48, color: Colors.grey),
                 const SizedBox(height: 12),
                 Text(AppLocalizations.of(context)!.noData,
-                    style: const TextStyle(color: Colors.grey)),
+                    style: const TextStyle(color: Colors.grey),),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () => context
@@ -188,11 +188,11 @@ class _PacksTab extends StatelessWidget {
                           Text(AppLocalizations.of(context)!.viewAll,
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor,
-                                  fontSize: 12)),
+                                  fontSize: 12,),),
                           const SizedBox(width: 4),
                           Icon(Icons.arrow_forward_ios,
                               size: 12,
-                              color: Theme.of(context).primaryColor),
+                              color: Theme.of(context).primaryColor,),
                         ],
                       ),
                     ],
@@ -212,8 +212,8 @@ class _PacksTab extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _PackBottomSheet extends StatefulWidget {
-  final AutomationPack pack;
   const _PackBottomSheet({required this.pack});
+  final AutomationPack pack;
 
   @override
   State<_PackBottomSheet> createState() => _PackBottomSheetState();
@@ -361,13 +361,13 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                   Row(
                     children: [
                       const Icon(Icons.folder_special,
-                          color: Colors.indigo, size: 28),
+                          color: Colors.indigo, size: 28,),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           widget.pack.name,
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18, fontWeight: FontWeight.bold,),
                         ),
                       ),
                     ],
@@ -384,7 +384,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                   if (widget.pack.description != null) ...[
                     const SizedBox(height: 8),
                     Text(widget.pack.description!,
-                        style: TextStyle(color: Colors.grey[700])),
+                        style: TextStyle(color: Colors.grey[700]),),
                   ],
 
                   const Divider(height: 32),
@@ -418,7 +418,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                                 .first
                             : AppLocalizations.of(context)!.selectADate,
                         style: TextStyle(
-                            color: _filingDate != null ? null : Colors.grey),
+                            color: _filingDate != null ? null : Colors.grey,),
                       ),
                     ),
                   ),
@@ -437,7 +437,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                               width: 16,
                               height: 16,
                               child:
-                                  CircularProgressIndicator(strokeWidth: 2))
+                                  CircularProgressIndicator(strokeWidth: 2),)
                           : const Icon(Icons.calculate),
                       label: Text(AppLocalizations.of(context)!.calculateDeadlines),
                     ),
@@ -448,13 +448,13 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                     const SizedBox(height: 16),
                     Text(AppLocalizations.of(context)!.deadlines,
                         style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold)),
+                            fontSize: 15, fontWeight: FontWeight.bold,),),
                     const SizedBox(height: 8),
                     ..._deadlines.map((item) => Card(
                           margin: const EdgeInsets.only(bottom: 6),
                           child: ListTile(
                             leading: const Icon(Icons.event,
-                                color: Colors.orange),
+                                color: Colors.orange,),
                             title: Text(item.label),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,20 +463,20 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                                   Text(
                                     '${AppLocalizations.of(context)!.due}: ${item.deadline}',
                                     style: const TextStyle(
-                                        fontWeight: FontWeight.w600),
+                                        fontWeight: FontWeight.w600,),
                                   ),
                                 if (item.description != null)
                                   Text(item.description!),
                               ],
                             ),
                           ),
-                        )),
+                        ),),
                   ],
 
                   if (_deadlinesLoaded && _deadlines.isEmpty) ...[
                     const SizedBox(height: 12),
                     Text(AppLocalizations.of(context)!.noDeadlinesReturned,
-                        style: const TextStyle(color: Colors.grey)),
+                        style: const TextStyle(color: Colors.grey),),
                   ],
 
                   const SizedBox(height: 24),
@@ -556,7 +556,7 @@ class _FilingsTab extends StatelessWidget {
                       const Icon(Icons.assignment, size: 48, color: Colors.grey),
                       const SizedBox(height: 12),
                       Text(AppLocalizations.of(context)!.noFilingsYet,
-                          style: const TextStyle(color: Colors.grey)),
+                          style: const TextStyle(color: Colors.grey),),
                     ],
                   ),
                 ),
@@ -594,17 +594,17 @@ class _FilingsTab extends StatelessWidget {
                                     '${AppLocalizations.of(context)!.caseLabel}: ${filing.caseCode}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 15),
+                                        fontSize: 15,),
                                   ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 4),
+                                      horizontal: 10, vertical: 4,),
                                   decoration: BoxDecoration(
                                     color: statusColor.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                        color: statusColor.withValues(alpha: 0.4)),
+                                        color: statusColor.withValues(alpha: 0.4),),
                                   ),
                                   child: Text(
                                     filing.status,
@@ -619,7 +619,7 @@ class _FilingsTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text('${AppLocalizations.of(context)!.packLabel}: ${filing.packKey}',
-                                style: TextStyle(color: Colors.grey[600])),
+                                style: TextStyle(color: Colors.grey[600]),),
                             const SizedBox(height: 2),
                             Text(
                               '${AppLocalizations.of(context)!.submittedLabel}: ${filing.submittedAt.toLocal().toString().split('.').first}',

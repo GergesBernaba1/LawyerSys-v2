@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/customer_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/customer_form_screen.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../bloc/customers_bloc.dart';
-import '../bloc/customers_event.dart';
-import '../bloc/customers_state.dart';
-import 'customer_detail_screen.dart';
-import 'customer_form_screen.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../../cases/repositories/cases_repository.dart';
 
 class CustomersListScreen extends StatefulWidget {
   const CustomersListScreen({super.key});
@@ -96,7 +95,7 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: Semantics(
               label: 'Search customers',
               hint: 'Enter customer name or phone to search',
@@ -184,7 +183,7 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                                     ],
                                   ),
                                 );
-                                if (confirmed == true && context.mounted) {
+                                if ((confirmed ?? false) && context.mounted) {
                                   context.read<CustomersBloc>().add(DeleteCustomer(customer.customerId));
                                 }
                               }

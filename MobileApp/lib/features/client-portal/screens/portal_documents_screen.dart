@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_bloc.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_event.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_state.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/client_portal_bloc.dart';
-import '../bloc/client_portal_event.dart';
-import '../bloc/client_portal_state.dart';
 
 class PortalDocumentsScreen extends StatefulWidget {
   const PortalDocumentsScreen({super.key});
@@ -120,12 +119,12 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                                     width: 18,
                                     height: 18,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2, color: Colors.white),
+                                        strokeWidth: 2, color: Colors.white,),
                                   )
                                 : const Icon(Icons.upload),
                             label: Text(isUploading
                                 ? AppLocalizations.of(context)!.uploadDocument
-                                : AppLocalizations.of(context)!.uploadDocument),
+                                : AppLocalizations.of(context)!.uploadDocument,),
                             onPressed: isUploading
                                 ? null
                                 : () {
@@ -133,7 +132,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                                     if (path.isEmpty) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                            content: Text(AppLocalizations.of(context)!.pleaseEnterFilePath)),
+                                            content: Text(AppLocalizations.of(context)!.pleaseEnterFilePath),),
                                       );
                                       return;
                                     }
@@ -177,7 +176,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
         listener: (context, state) {
           if (state is ClientPortalError) {
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
           if (state is PortalDocumentUrlReady) {
             _openUrl(state.url);
@@ -206,7 +205,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                     leading: const Icon(Icons.description),
                     title: Text(doc.subject),
                     subtitle: Text(
-                        '${doc.from} • ${doc.sentAt.toLocal().toIso8601String().split('T').first}'),
+                        '${doc.from} • ${doc.sentAt.toLocal().toIso8601String().split('T').first}',),
                     trailing: IconButton(
                       icon: const Icon(Icons.download),
                       tooltip: l.downloadStarted,

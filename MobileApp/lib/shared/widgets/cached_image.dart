@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 
 /// A widget for displaying profile images with caching
 class CachedProfileImage extends StatelessWidget {
-  final String? imageUrl;
-  final double size;
-  final IconData placeholderIcon;
-  final Color? backgroundColor;
-  final Color? iconColor;
 
   const CachedProfileImage({
     super.key,
@@ -17,11 +12,16 @@ class CachedProfileImage extends StatelessWidget {
     this.backgroundColor,
     this.iconColor,
   });
+  final String? imageUrl;
+  final double size;
+  final IconData placeholderIcon;
+  final Color? backgroundColor;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     final bgColor = backgroundColor ?? Theme.of(context).colorScheme.surface;
-    final icColor = iconColor ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
+    final icColor = iconColor ?? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
 
     if (imageUrl == null || imageUrl!.isEmpty) {
       return CircleAvatar(
@@ -68,13 +68,6 @@ class CachedProfileImage extends StatelessWidget {
 
 /// A widget for displaying square cached images (e.g., case images, documents)
 class CachedSquareImage extends StatelessWidget {
-  final String? imageUrl;
-  final double width;
-  final double height;
-  final BoxFit fit;
-  final Widget? placeholder;
-  final Widget? errorWidget;
-  final BorderRadius? borderRadius;
 
   const CachedSquareImage({
     super.key,
@@ -86,6 +79,13 @@ class CachedSquareImage extends StatelessWidget {
     this.errorWidget,
     this.borderRadius,
   });
+  final String? imageUrl;
+  final double width;
+  final double height;
+  final BoxFit fit;
+  final Widget? placeholder;
+  final Widget? errorWidget;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class CachedSquareImage extends StatelessWidget {
             Icon(
               Icons.image_not_supported,
               size: width * 0.4,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             ),
       );
     }
@@ -132,7 +132,7 @@ class CachedSquareImage extends StatelessWidget {
               child: Icon(
                 Icons.broken_image,
                 size: width * 0.4,
-                color: Theme.of(context).colorScheme.error.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.6),
               ),
             ),
       ),
@@ -142,11 +142,6 @@ class CachedSquareImage extends StatelessWidget {
 
 /// A widget for displaying thumbnails with caching
 class CachedThumbnail extends StatelessWidget {
-  final String? imageUrl;
-  final double size;
-  final IconData defaultIcon;
-  final Color? backgroundColor;
-  final VoidCallback? onTap;
 
   const CachedThumbnail({
     super.key,
@@ -156,10 +151,15 @@ class CachedThumbnail extends StatelessWidget {
     this.backgroundColor,
     this.onTap,
   });
+  final String? imageUrl;
+  final double size;
+  final IconData defaultIcon;
+  final Color? backgroundColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? Theme.of(context).colorScheme.surfaceVariant;
+    final bgColor = backgroundColor ?? Theme.of(context).colorScheme.surfaceContainerHighest;
 
     final Widget imageWidget = CachedSquareImage(
       imageUrl: imageUrl,

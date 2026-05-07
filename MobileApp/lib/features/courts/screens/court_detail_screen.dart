@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../models/court.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/courts/models/court.dart';
 
 class CourtDetailScreen extends StatelessWidget {
-  final CourtModel court;
 
   const CourtDetailScreen({super.key, required this.court});
+  final CourtModel court;
 
   @override
   Widget build(BuildContext context) {

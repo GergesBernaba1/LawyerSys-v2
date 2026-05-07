@@ -1,16 +1,4 @@
 class CaseModel {
-  final int id;
-  final int code;
-  final String invitionsStatment;
-  final String invitionType;
-  final DateTime? invitionDate;
-  final int totalAmount;
-  final String notes;
-  final int status;
-  final String tenantId;
-  final List<EmployeeAssignment> assignedEmployees;
-  final DateTime? lastSyncedAt;
-  final bool isDirty;
 
   CaseModel({
     required this.id,
@@ -26,6 +14,42 @@ class CaseModel {
     this.lastSyncedAt,
     this.isDirty = false,
   });
+
+  factory CaseModel.fromJson(Map<String, dynamic> json) => CaseModel(
+        id: _asInt(json['id'] ?? json['Id']),
+        code: _asInt(
+            json['code'] ?? json['Code'] ?? json['caseId'] ?? json['caseCode'],),
+        invitionsStatment:
+            (json['invitionsStatment'] ?? json['InvitionsStatment'] ?? '')
+                .toString(),
+        invitionType:
+            (json['invitionType'] ?? json['InvitionType'] ?? '').toString(),
+        invitionDate: _parseDate(
+            json['invitionDate'] ?? json['InvitionDate'] ?? json['filingDate'],),
+        totalAmount: _asInt(json['totalAmount'] ?? json['TotalAmount']),
+        notes: (json['notes'] ?? json['Notes'] ?? '').toString(),
+        status: _asInt(json['status'] ?? json['Status']),
+        tenantId: (json['tenantId'] ?? json['TenantId'] ?? '').toString(),
+        assignedEmployees: (json['assignedEmployees'] as List<dynamic>?)
+                ?.map((e) =>
+                    EmployeeAssignment.fromJson(e as Map<String, dynamic>),)
+                .toList() ??
+            [],
+        lastSyncedAt: _parseDate(json['lastSyncedAt']),
+        isDirty: (json['isDirty'] as bool?) ?? false,
+      );
+  final int id;
+  final int code;
+  final String invitionsStatment;
+  final String invitionType;
+  final DateTime? invitionDate;
+  final int totalAmount;
+  final String notes;
+  final int status;
+  final String tenantId;
+  final List<EmployeeAssignment> assignedEmployees;
+  final DateTime? lastSyncedAt;
+  final bool isDirty;
 
   // Backward-compatible aliases for existing UI code.
   String get caseId => code.toString();
@@ -73,30 +97,6 @@ class CaseModel {
     return null;
   }
 
-  factory CaseModel.fromJson(Map<String, dynamic> json) => CaseModel(
-        id: _asInt(json['id'] ?? json['Id']),
-        code: _asInt(
-            json['code'] ?? json['Code'] ?? json['caseId'] ?? json['caseCode']),
-        invitionsStatment:
-            (json['invitionsStatment'] ?? json['InvitionsStatment'] ?? '')
-                .toString(),
-        invitionType:
-            (json['invitionType'] ?? json['InvitionType'] ?? '').toString(),
-        invitionDate: _parseDate(
-            json['invitionDate'] ?? json['InvitionDate'] ?? json['filingDate']),
-        totalAmount: _asInt(json['totalAmount'] ?? json['TotalAmount']),
-        notes: (json['notes'] ?? json['Notes'] ?? '').toString(),
-        status: _asInt(json['status'] ?? json['Status']),
-        tenantId: (json['tenantId'] ?? json['TenantId'] ?? '').toString(),
-        assignedEmployees: (json['assignedEmployees'] as List<dynamic>?)
-                ?.map((e) =>
-                    EmployeeAssignment.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        lastSyncedAt: _parseDate(json['lastSyncedAt']),
-        isDirty: json['isDirty'] ?? false,
-      );
-
   Map<String, dynamic> toJson() => {
         'id': id,
         'code': code,
@@ -114,14 +114,11 @@ class CaseModel {
 }
 
 class EmployeeAssignment {
-  final String employeeId;
-  final String employeeName;
-  final String role;
 
   EmployeeAssignment(
       {required this.employeeId,
       required this.employeeName,
-      required this.role});
+      required this.role,});
 
   factory EmployeeAssignment.fromJson(Map<String, dynamic> json) =>
       EmployeeAssignment(
@@ -129,6 +126,9 @@ class EmployeeAssignment {
         employeeName: (json['employeeName'] ?? '').toString(),
         role: (json['role'] ?? '').toString(),
       );
+  final String employeeId;
+  final String employeeName;
+  final String role;
 
   Map<String, dynamic> toJson() => {
         'employeeId': employeeId,

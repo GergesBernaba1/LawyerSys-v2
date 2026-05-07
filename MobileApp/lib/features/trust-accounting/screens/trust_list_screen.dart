@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/auth/permissions.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../../authentication/models/user_session.dart';
-import '../bloc/trust_accounting_bloc.dart';
-import '../bloc/trust_accounting_event.dart';
-import '../bloc/trust_accounting_state.dart';
-import '../models/trust_transaction.dart';
-import 'trust_form_screen.dart';
+import 'package:qadaya_lawyersys/core/auth/permissions.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_bloc.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_event.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_state.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/models/trust_transaction.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/screens/trust_form_screen.dart';
 
 class TrustListScreen extends StatefulWidget {
   const TrustListScreen({super.key});

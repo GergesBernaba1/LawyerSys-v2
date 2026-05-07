@@ -1,22 +1,22 @@
 import 'dart:convert';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/storage/local_database.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/hearing.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
 
 class HearingsRepository {
-  final ApiClient apiClient;
-  final LocalDatabase localDatabase;
 
   HearingsRepository(this.apiClient, this.localDatabase);
+  final ApiClient apiClient;
+  final LocalDatabase localDatabase;
 
   Future<List<Hearing>> getHearings(
       {String? tenantId,
       int page = 1,
       int pageSize = 50,
       DateTime? startDate,
-      DateTime? endDate}) async {
+      DateTime? endDate,}) async {
     try {
       final queryParams = {
         'page': page,
@@ -34,16 +34,16 @@ class HearingsRepository {
 
       for (final hearing in items) {
         await localDatabase.upsertHearing(hearing.hearingId, hearing.toJson(),
-            tenantId: hearing.tenantId, isDirty: false);
+            tenantId: hearing.tenantId,);
       }
 
       return items;
     } catch (_) {
       final cached = await localDatabase.getHearings(
-          tenantId: tenantId, limit: pageSize, offset: (page - 1) * pageSize);
+          tenantId: tenantId, limit: pageSize, offset: (page - 1) * pageSize,);
       return cached
           .map((row) => Hearing.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .toList();
     }
   }
@@ -53,17 +53,17 @@ class HearingsRepository {
       final response = await apiClient.get('/api/sitings/$hearingId');
       if (response.data == null) return null;
       final hearing =
-          Hearing.fromJson(Map<String, dynamic>.from(response.data));
+          Hearing.fromJson(Map<String, dynamic>.from(response.data as Map));
       await localDatabase.upsertHearing(hearing.hearingId, hearing.toJson(),
-          tenantId: hearing.tenantId, isDirty: false);
+          tenantId: hearing.tenantId,);
       return hearing;
     } catch (_) {
       final cached = await localDatabase.getHearings();
       return cached
           .map((row) => Hearing.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .firstWhere((e) => e.hearingId == hearingId,
-              orElse: () => throw StateError('Hearing not found'));
+              orElse: () => throw StateError('Hearing not found'),);
     }
   }
 
@@ -72,12 +72,12 @@ class HearingsRepository {
       final response =
           await apiClient.post('/api/sitings', data: hearing.toJson());
       final created =
-          Hearing.fromJson(Map<String, dynamic>.from(response.data));
+          Hearing.fromJson(Map<String, dynamic>.from(response.data as Map));
       await localDatabase.upsertHearing(created.hearingId, created.toJson(),
-          tenantId: created.tenantId, isDirty: false);
+          tenantId: created.tenantId,);
     } catch (_) {
       await localDatabase.upsertHearing(hearing.hearingId, hearing.toJson(),
-          tenantId: hearing.tenantId, isDirty: true);
+          tenantId: hearing.tenantId, isDirty: true,);
       rethrow;
     }
   }
@@ -85,12 +85,12 @@ class HearingsRepository {
   Future<void> updateHearing(Hearing hearing) async {
     try {
       await apiClient.put('/api/sitings/${hearing.hearingId}',
-          data: hearing.toJson());
+          data: hearing.toJson(),);
       await localDatabase.upsertHearing(hearing.hearingId, hearing.toJson(),
-          tenantId: hearing.tenantId, isDirty: false);
+          tenantId: hearing.tenantId,);
     } catch (_) {
       await localDatabase.upsertHearing(hearing.hearingId, hearing.toJson(),
-          tenantId: hearing.tenantId, isDirty: true);
+          tenantId: hearing.tenantId, isDirty: true,);
       rethrow;
     }
   }
@@ -119,10 +119,10 @@ class HearingsRepository {
           await localDatabase.getHearings(tenantId: tenantId, limit: 200);
       return cached
           .map((row) => Hearing.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .where((h) =>
               h.caseNumber.toLowerCase().contains(query.toLowerCase()) ||
-              h.judgeName.toLowerCase().contains(query.toLowerCase()))
+              h.judgeName.toLowerCase().contains(query.toLowerCase()),)
           .toList();
     }
   }

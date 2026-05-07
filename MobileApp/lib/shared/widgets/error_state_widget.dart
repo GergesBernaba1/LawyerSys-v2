@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
 class ErrorStateWidget extends StatelessWidget {
-  final String message;
-  final VoidCallback? onRetry;
 
   const ErrorStateWidget({super.key, required this.message, this.onRetry});
+  final String message;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {

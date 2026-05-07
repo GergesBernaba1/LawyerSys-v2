@@ -1,4 +1,4 @@
-import '../models/portal_message.dart';
+import 'package:qadaya_lawyersys/features/client-portal/models/portal_message.dart';
 
 abstract class ClientPortalState {}
 
@@ -6,35 +6,35 @@ class ClientPortalInitial extends ClientPortalState {}
 class ClientPortalLoading extends ClientPortalState {}
 
 class ClientPortalMessagesLoaded extends ClientPortalState {
-  final List<PortalMessageModel> messages;
   ClientPortalMessagesLoaded(this.messages);
+  final List<PortalMessageModel> messages;
 }
 
 class ClientPortalDocumentsLoaded extends ClientPortalState {
-  final List<PortalMessageModel> documents;
   ClientPortalDocumentsLoaded(this.documents);
+  final List<PortalMessageModel> documents;
 }
 
 class ClientPortalError extends ClientPortalState {
-  final String message;
   ClientPortalError(this.message);
+  final String message;
 }
 
 class PortalMessageSelected extends ClientPortalState {
-  final PortalMessageModel message;
   PortalMessageSelected(this.message);
+  final PortalMessageModel message;
 }
 
 class PortalMessageMarkedAsRead extends ClientPortalState {
-  final String messageId;
   PortalMessageMarkedAsRead(this.messageId);
+  final String messageId;
 }
 
 class PortalMessageSent extends ClientPortalState {}
 
 class PortalDocumentUrlReady extends ClientPortalState {
-  final String url;
   PortalDocumentUrlReady(this.url);
+  final String url;
 }
 
 class PortalDocumentUploading extends ClientPortalState {}

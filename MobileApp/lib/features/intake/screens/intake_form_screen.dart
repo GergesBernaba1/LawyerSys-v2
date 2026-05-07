@@ -1,10 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/intake_bloc.dart';
-import '../bloc/intake_event.dart';
-import '../bloc/intake_state.dart';
-import '../models/intake_form.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_bloc.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_event.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_state.dart';
+import 'package:qadaya_lawyersys/features/intake/models/intake_form.dart';
 
 class IntakeFormScreen extends StatefulWidget {
   const IntakeFormScreen({super.key});
@@ -42,7 +42,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
       backgroundColor: error ? Colors.red : null,
-    ));
+    ),);
   }
 
   void _showLeadActions(IntakeForm lead, List<IntakeAssignmentOption> options) {
@@ -50,7 +50,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),),
       builder: (_) => BlocProvider.value(
         value: context.read<IntakeBloc>(),
         child: _LeadActionsSheet(lead: lead, assignmentOptions: options),
@@ -67,7 +67,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Submit Public Lead',
-            onPressed: () => _showPublicForm(),
+            onPressed: _showPublicForm,
           ),
         ],
       ),
@@ -106,9 +106,9 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
                   value: _selectedStatus,
                   hint: const Text('All'),
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    const DropdownMenuItem(child: Text('All')),
                     ..._statuses.map((s) =>
-                        DropdownMenuItem(value: s, child: Text(s))),
+                        DropdownMenuItem(value: s, child: Text(s)),),
                   ],
                   onChanged: (v) {
                     setState(() => _selectedStatus = v);
@@ -171,7 +171,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),),
       builder: (_) => BlocProvider.value(
         value: context.read<IntakeBloc>(),
         child: const _PublicIntakeForm(),
@@ -183,14 +183,14 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
 // Lead tile
 
 class _LeadTile extends StatelessWidget {
-  final IntakeForm lead;
-  final Color statusColor;
-  final VoidCallback onTap;
 
   const _LeadTile(
       {required this.lead,
       required this.statusColor,
-      required this.onTap});
+      required this.onTap,});
+  final IntakeForm lead;
+  final Color statusColor;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -201,16 +201,16 @@ class _LeadTile extends StatelessWidget {
         child: Icon(Icons.person_outline, color: statusColor, size: 20),
       ),
       title: Text(lead.fullName,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+          style: const TextStyle(fontWeight: FontWeight.w600),),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(lead.subject,
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+              maxLines: 1, overflow: TextOverflow.ellipsis,),
           if (lead.email != null || lead.phoneNumber != null)
             Text(lead.email ?? lead.phoneNumber ?? '',
                 style:
-                    const TextStyle(fontSize: 11, color: Colors.grey)),
+                    const TextStyle(fontSize: 11, color: Colors.grey),),
         ],
       ),
       trailing: Column(
@@ -220,7 +220,7 @@ class _LeadTile extends StatelessWidget {
           Chip(
             label: Text(lead.status,
                 style:
-                    const TextStyle(fontSize: 11, color: Colors.white)),
+                    const TextStyle(fontSize: 11, color: Colors.white),),
             backgroundColor: statusColor,
             padding: EdgeInsets.zero,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -241,11 +241,11 @@ class _LeadTile extends StatelessWidget {
 // Lead actions bottom sheet
 
 class _LeadActionsSheet extends StatelessWidget {
-  final IntakeForm lead;
-  final List<IntakeAssignmentOption> assignmentOptions;
 
   const _LeadActionsSheet(
-      {required this.lead, required this.assignmentOptions});
+      {required this.lead, required this.assignmentOptions,});
+  final IntakeForm lead;
+  final List<IntakeAssignmentOption> assignmentOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -273,16 +273,16 @@ class _LeadActionsSheet extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold)),
+                            ?.copyWith(fontWeight: FontWeight.bold),),
                     Text(lead.subject,
-                        style: const TextStyle(color: Colors.grey)),
+                        style: const TextStyle(color: Colors.grey),),
                   ],
                 ),
               ),
               IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context)),
-            ]),
+                  onPressed: () => Navigator.pop(context),),
+            ],),
             const Divider(),
 
             // Details
@@ -292,32 +292,32 @@ class _LeadActionsSheet extends StatelessWidget {
               _DetailRow(icon: Icons.phone, text: lead.phoneNumber!),
             if (lead.desiredCaseType != null)
               _DetailRow(
-                  icon: Icons.gavel, text: 'Type: ${lead.desiredCaseType}'),
+                  icon: Icons.gavel, text: 'Type: ${lead.desiredCaseType}',),
             if (lead.description != null)
               _DetailRow(
-                  icon: Icons.notes, text: lead.description!, maxLines: 3),
+                  icon: Icons.notes, text: lead.description!, maxLines: 3,),
             if (lead.conflictDetails != null)
               _DetailRow(
                   icon: lead.hasConflict
                       ? Icons.warning
                       : Icons.check_circle,
                   text: lead.conflictDetails!,
-                  color: lead.hasConflict ? Colors.red : Colors.green),
+                  color: lead.hasConflict ? Colors.red : Colors.green,),
             if (lead.assignedEmployeeName != null)
               _DetailRow(
                   icon: Icons.assignment_ind,
-                  text: 'Assigned: ${lead.assignedEmployeeName}'),
+                  text: 'Assigned: ${lead.assignedEmployeeName}',),
             if (lead.nextFollowUpAt != null)
               _DetailRow(
                   icon: Icons.schedule,
                   text:
-                      'Follow-up: ${lead.nextFollowUpAt!.toLocal().toString().substring(0, 16)}'),
+                      'Follow-up: ${lead.nextFollowUpAt!.toLocal().toString().substring(0, 16)}',),
             if (lead.convertedCaseCode != null)
               _DetailRow(
                   icon: Icons.check_circle,
                   text:
                       'Converted -> Case #${lead.convertedCaseCode}, Customer #${lead.convertedCustomerId}',
-                  color: Colors.green),
+                  color: Colors.green,),
 
             const SizedBox(height: 12),
 
@@ -341,7 +341,7 @@ class _LeadActionsSheet extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         bloc.add(QualifyIntakeLead(lead.id,
-                            isQualified: true));
+                            isQualified: true,),);
                         Navigator.pop(context);
                       },
                       child: const Text('Qualify'),
@@ -352,19 +352,19 @@ class _LeadActionsSheet extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () {
                         bloc.add(QualifyIntakeLead(lead.id,
-                            isQualified: false));
+                            isQualified: false,),);
                         Navigator.pop(context);
                       },
                       child: const Text('Reject'),
                     ),
                   ),
-                ]),
+                ],),
 
               // Assign
               if (assignmentOptions.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 _AssignSection(
-                    leadId: lead.id, options: assignmentOptions),
+                    leadId: lead.id, options: assignmentOptions,),
               ],
 
               // Convert (qualified + no conflict)
@@ -374,10 +374,10 @@ class _LeadActionsSheet extends StatelessWidget {
                   icon: const Icon(Icons.transform),
                   label: const Text('Convert to Customer & Case'),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green),
+                      backgroundColor: Colors.green,),
                   onPressed: () {
                     bloc.add(ConvertIntakeLead(lead.id,
-                        caseType: lead.desiredCaseType));
+                        caseType: lead.desiredCaseType,),);
                     Navigator.pop(context);
                   },
                 ),
@@ -391,16 +391,16 @@ class _LeadActionsSheet extends StatelessWidget {
 }
 
 class _DetailRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final Color? color;
-  final int maxLines;
 
   const _DetailRow(
       {required this.icon,
       required this.text,
       this.color,
-      this.maxLines = 1});
+      this.maxLines = 1,});
+  final IconData icon;
+  final String text;
+  final Color? color;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -415,7 +415,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(text,
                 maxLines: maxLines,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: color)),
+                style: TextStyle(color: color),),
           ),
         ],
       ),
@@ -424,11 +424,11 @@ class _DetailRow extends StatelessWidget {
 }
 
 class _AssignSection extends StatefulWidget {
-  final int leadId;
-  final List<IntakeAssignmentOption> options;
 
   const _AssignSection(
-      {required this.leadId, required this.options});
+      {required this.leadId, required this.options,});
+  final int leadId;
+  final List<IntakeAssignmentOption> options;
 
   @override
   State<_AssignSection> createState() => _AssignSectionState();
@@ -445,11 +445,11 @@ class _AssignSectionState extends State<_AssignSection> {
       children: [
         DropdownButtonFormField<int>(
           decoration: const InputDecoration(
-              labelText: 'Assign to Employee', isDense: true),
+              labelText: 'Assign to Employee', isDense: true,),
           initialValue: _selectedEmployeeId,
           items: widget.options
               .map((o) => DropdownMenuItem(
-                  value: o.employeeId, child: Text(o.name)))
+                  value: o.employeeId, child: Text(o.name),),)
               .toList(),
           onChanged: (v) => setState(() => _selectedEmployeeId = v),
         ),
@@ -462,7 +462,7 @@ class _AssignSectionState extends State<_AssignSection> {
                         widget.leadId,
                         assignedEmployeeId: _selectedEmployeeId!,
                         nextFollowUpAt: _followUpAt,
-                      ));
+                      ),);
                   Navigator.pop(context);
                 },
           child: const Text('Assign'),
@@ -520,7 +520,7 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
       'desiredCaseType': _caseTypeCtrl.text.trim().isEmpty
           ? null
           : _caseTypeCtrl.text.trim(),
-    }));
+    }),);
     Navigator.pop(context);
   }
 
@@ -544,7 +544,7 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+                      ?.copyWith(fontWeight: FontWeight.bold),),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _fullNameCtrl,
@@ -592,11 +592,11 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel')),
+                    child: const Text('Cancel'),),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                    onPressed: _submit, child: const Text('Submit')),
-              ]),
+                    onPressed: _submit, child: const Text('Submit'),),
+              ],),
             ],
           ),
         ),
@@ -604,5 +604,6 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
     );
   }
 }
+
 
 

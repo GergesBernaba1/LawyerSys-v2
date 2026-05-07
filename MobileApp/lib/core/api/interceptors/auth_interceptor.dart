@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../api/api_constants.dart';
-import '../../storage/secure_storage.dart';
+import 'package:qadaya_lawyersys/core/api/api_constants.dart';
+import 'package:qadaya_lawyersys/core/storage/secure_storage.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorage _secureStorage = SecureStorage();
@@ -13,7 +13,7 @@ class AuthInterceptor extends Interceptor {
   static Future<String?>? _refreshFuture;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     try {
       final token = await _secureStorage.read(SecureStorage.keyAccessToken);
       if (token != null && token.isNotEmpty) {
@@ -27,7 +27,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     final statusCode = err.response?.statusCode;
     final requestPath = err.requestOptions.path;
 
@@ -44,7 +44,7 @@ class AuthInterceptor extends Interceptor {
             baseUrl: ApiConstants.baseUrl,
             connectTimeout: const Duration(seconds: 15),
             receiveTimeout: const Duration(seconds: 15),
-          ));
+          ),);
           final retryResponse = await retryDio.fetch(retryOptions);
           handler.resolve(retryResponse);
           return;
@@ -82,7 +82,7 @@ class AuthInterceptor extends Interceptor {
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
       headers: {'Content-Type': 'application/json'},
-    ));
+    ),);
 
     final response = await refreshDio.post(
       ApiConstants.refreshToken,

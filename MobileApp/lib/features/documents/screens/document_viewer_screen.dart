@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:photo_view/photo_view.dart';
 
-import '../models/document.dart';
+import 'package:qadaya_lawyersys/features/documents/models/document.dart';
 
 class DocumentViewerScreen extends StatelessWidget {
-  final File documentFile;
-  final Document document;
 
   const DocumentViewerScreen({super.key, required this.documentFile, required this.document});
+  final File documentFile;
+  final Document document;
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +19,6 @@ class DocumentViewerScreen extends StatelessWidget {
         appBar: AppBar(title: Text(document.fileName)),
         body: PDFView(
           filePath: documentFile.path,
-          enableSwipe: true,
-          swipeHorizontal: false,
-          autoSpacing: true,
-          pageFling: true,
         ),
       );
     }

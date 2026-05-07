@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../../authentication/models/user_session.dart';
-import '../bloc/users_bloc.dart';
-import '../bloc/users_event.dart';
-import '../bloc/users_state.dart';
-import '../models/user_model.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/users/bloc/users_bloc.dart';
+import 'package:qadaya_lawyersys/features/users/bloc/users_event.dart';
+import 'package:qadaya_lawyersys/features/users/bloc/users_state.dart';
+import 'package:qadaya_lawyersys/features/users/models/user_model.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({super.key});
@@ -45,17 +45,17 @@ class _UsersListScreenState extends State<UsersListScreen> {
     final isEdit = user != null;
 
     final firstNameController = TextEditingController(
-        text: isEdit ? (user.fullName.split(' ').firstOrNull ?? '') : '');
+        text: isEdit ? (user.fullName.split(' ').firstOrNull ?? '') : '',);
     final lastNameController = TextEditingController(
         text: isEdit
             ? (user.fullName.split(' ').skip(1).join(' '))
-            : '');
+            : '',);
     final emailController = TextEditingController(text: isEdit ? (user.email ?? '') : '');
     final passwordController = TextEditingController();
     final phoneController = TextEditingController(text: user?.phoneNumber ?? '');
     final jobController = TextEditingController(text: user?.job ?? '');
     String selectedRole = 'Employee';
-    bool isActive = isEdit ? user.isActive : true;
+    bool isActive = !isEdit || user.isActive;
 
     final formKey = GlobalKey<FormState>();
 
@@ -135,9 +135,9 @@ class _UsersListScreenState extends State<UsersListScreen> {
                           ),
                           items: [
                             DropdownMenuItem(
-                                value: 'Employee', child: Text(l10n.employee)),
+                                value: 'Employee', child: Text(l10n.employee),),
                             DropdownMenuItem(
-                                value: 'Admin', child: Text(l10n.admin)),
+                                value: 'Admin', child: Text(l10n.admin),),
                           ],
                           onChanged: (v) {
                             if (v != null) {
@@ -183,7 +183,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                 ? null
                                 : jobController.text.trim(),
                             isActive: isActive,
-                          ));
+                          ),);
                     } else {
                       context.read<UsersBloc>().add(CreateUser(
                             email: emailController.text.trim(),
@@ -197,7 +197,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                 ? null
                                 : jobController.text.trim(),
                             role: selectedRole,
-                          ));
+                          ),);
                     }
                     Navigator.pop(ctx);
                   },
@@ -269,19 +269,19 @@ class _UsersListScreenState extends State<UsersListScreen> {
       builder: (ctx) => AlertDialog(
         title: Text(l10n.deleteUser),
         content: Text(
-            '${l10n.delete} "${user.fullName.isNotEmpty ? user.fullName : user.userName}"?'),
+            '${l10n.delete} "${user.fullName.isNotEmpty ? user.fullName : user.userName}"?',),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.cancel)),
+              child: Text(l10n.cancel),),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(l10n.delete,
-                  style: const TextStyle(color: Colors.red))),
+                  style: const TextStyle(color: Colors.red),),),
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if ((confirmed ?? false) && context.mounted) {
       context.read<UsersBloc>().add(DeleteUser(user.id));
     }
   }
@@ -298,7 +298,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
               .showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is UsersError) {
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${l.error}: ${state.message}')));
+              SnackBar(content: Text('${l.error}: ${state.message}')),);
         }
       },
       child: Scaffold(
@@ -339,14 +339,14 @@ class _UsersListScreenState extends State<UsersListScreen> {
                     return ListView(children: [
                       const SizedBox(height: 80),
                       Center(child: Text('${l.error}: ${state.message}')),
-                    ]);
+                    ],);
                   }
                   if (state is UsersLoaded) {
                     if (state.users.isEmpty) {
                       return ListView(children: [
                         const SizedBox(height: 80),
                         Center(child: Text(l.noUsersFound)),
-                      ]);
+                      ],);
                     }
                     return RefreshIndicator(
                       onRefresh: () async =>
@@ -383,7 +383,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                   user.phoneNumber!.isNotEmpty)
                                 user.phoneNumber!,
                               if (!user.isActive) l.status,
-                            ].join(' • ')),
+                            ].join(' • '),),
                             trailing: isAdmin
                                 ? PopupMenuButton<String>(
                                     onSelected: (v) {
@@ -402,7 +402,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                           const Icon(Icons.edit, size: 18),
                                           const SizedBox(width: 8),
                                           Text(l.edit),
-                                        ]),
+                                        ],),
                                       ),
                                       PopupMenuItem(
                                         value: 'change_role',
@@ -410,17 +410,17 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                           const Icon(Icons.manage_accounts, size: 18),
                                           const SizedBox(width: 8),
                                           Text(l.changeRole),
-                                        ]),
+                                        ],),
                                       ),
                                       PopupMenuItem(
                                         value: 'delete',
                                         child: Row(children: [
                                           const Icon(Icons.delete,
-                                              size: 18, color: Colors.red),
+                                              size: 18, color: Colors.red,),
                                           const SizedBox(width: 8),
                                           Text(l.delete,
-                                              style: const TextStyle(color: Colors.red)),
-                                        ]),
+                                              style: const TextStyle(color: Colors.red),),
+                                        ],),
                                       ),
                                     ],
                                   )

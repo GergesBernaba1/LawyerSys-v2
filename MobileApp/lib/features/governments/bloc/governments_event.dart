@@ -5,17 +5,17 @@ class LoadGovernments extends GovernmentsEvent {}
 class RefreshGovernments extends GovernmentsEvent {}
 
 class CreateGovernment extends GovernmentsEvent {
-  final Map<String, dynamic> data;
   CreateGovernment(this.data);
+  final Map<String, dynamic> data;
 }
 
 class UpdateGovernment extends GovernmentsEvent {
+  UpdateGovernment(this.id, this.data);
   final String id;
   final Map<String, dynamic> data;
-  UpdateGovernment(this.id, this.data);
 }
 
 class DeleteGovernment extends GovernmentsEvent {
-  final String id;
   DeleteGovernment(this.id);
+  final String id;
 }

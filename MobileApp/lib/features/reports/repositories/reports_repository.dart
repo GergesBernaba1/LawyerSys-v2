@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/report.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/reports/models/report.dart';
 
 class ReportsRepository {
-  final ApiClient apiClient;
 
   ReportsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<FinancialReport> getFinancialSummary({
     required int year,
@@ -20,7 +20,7 @@ class ReportsRepository {
       queryParameters: params,
     );
     return FinancialReport.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   Future<List<OutstandingBalance>> getOutstandingBalances() async {
@@ -29,15 +29,15 @@ class ReportsRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map((e) =>
-            OutstandingBalance.fromJson(Map<String, dynamic>.from(e as Map)))
+            OutstandingBalance.fromJson(Map<String, dynamic>.from(e as Map)),)
         .toList();
   }
 
   Future<CustomerBillingHistory> getCustomerBillingHistory(
-      int customerId) async {
+      int customerId,) async {
     final response = await apiClient
         .get('/api/Reports/customers/$customerId/billing-history');
     return CustomerBillingHistory.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 }

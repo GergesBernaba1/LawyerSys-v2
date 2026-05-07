@@ -7,11 +7,11 @@ import 'package:qadaya_lawyersys/features/calendar/models/calendar_event.dart';
 import 'package:qadaya_lawyersys/features/calendar/repositories/calendar_repository.dart';
 
 class FakeCalendarRepository extends CalendarRepository {
-  List<CalendarEvent> _events;
-  bool createCalled = false;
-  String? deletedId;
 
   FakeCalendarRepository(this._events) : super(ApiClient());
+  final List<CalendarEvent> _events;
+  bool createCalled = false;
+  String? deletedId;
 
   @override
   Future<List<CalendarEvent>> getEvents({
@@ -115,14 +115,14 @@ void main() {
         {'id': 'e3', 'title': 'Deposition', 'type': 'Deposition', 'start': '2025-06-10T09:00:00'},
         fromDate: fromDate,
         toDate: toDate,
-      ));
+      ),);
       await Future.delayed(const Duration(milliseconds: 50));
 
       expect(states, containsAllInOrder([
         isA<CalendarLoading>(),
         isA<CalendarOperationSuccess>(),
         isA<CalendarLoaded>(),
-      ]));
+      ]),);
 
       expect(repo.createCalled, isTrue);
       expect(await repo.getEvents(fromDate: fromDate, toDate: toDate), hasLength(3));
@@ -142,7 +142,7 @@ void main() {
         isA<CalendarLoading>(),
         isA<CalendarOperationSuccess>(),
         isA<CalendarLoaded>(),
-      ]));
+      ]),);
 
       expect(repo.deletedId, 'e1');
       expect(await repo.getEvents(fromDate: fromDate, toDate: toDate), hasLength(1));

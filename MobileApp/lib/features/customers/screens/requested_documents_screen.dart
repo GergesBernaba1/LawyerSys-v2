@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../core/localization/app_localizations.dart';
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../bloc/customers_bloc.dart';
-import '../bloc/customers_event.dart';
-import '../bloc/customers_state.dart';
-import '../models/customer_requested_document.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer_requested_document.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 
 class RequestedDocumentsScreen extends StatefulWidget {
-  final int caseCode;
 
   const RequestedDocumentsScreen({super.key, required this.caseCode});
+  final int caseCode;
 
   @override
   State<RequestedDocumentsScreen> createState() =>
@@ -54,7 +53,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
               Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text('Document submitted successfully')),
+                    content: Text('Document submitted successfully'),),
               );
               // Reload the list
               context
@@ -82,7 +81,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                     Text(
                       'Due: ${document.dueDate!.year}-${document.dueDate!.month.toString().padLeft(2, '0')}-${document.dueDate!.day.toString().padLeft(2, '0')}',
                       style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.w600),
+                          fontSize: 12, fontWeight: FontWeight.w600,),
                     ),
                   ],
                   const SizedBox(height: 16),
@@ -126,7 +125,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content:
-                                        Text('Please enter a file path')),
+                                        Text('Please enter a file path'),),
                               );
                               return;
                             }
@@ -182,7 +181,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
       body: BlocBuilder<CustomersBloc, CustomersState>(
         builder: (context, state) {
           if (state is CustomersLoading) {
-            return const ListSkeleton(itemCount: 5);
+            return const ListSkeleton();
           }
 
           if (state is CustomersError) {
@@ -201,7 +200,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.description_outlined,
-                        size: 64, color: Colors.grey),
+                        size: 64, color: Colors.grey,),
                     SizedBox(height: 12),
                     Text(
                       'No requested documents',
@@ -221,7 +220,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _statusColor(doc.status).withOpacity(0.2),
+                      backgroundColor: _statusColor(doc.status).withValues(alpha: 0.2),
                       child: Icon(
                         doc.isApproved
                             ? Icons.check_circle
@@ -246,10 +245,10 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                  horizontal: 8, vertical: 2,),
                               decoration: BoxDecoration(
                                 color: _statusColor(doc.status)
-                                    .withOpacity(0.1),
+                                    .withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -263,9 +262,9 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                             ),
                             if (doc.dueDate != null) ...[
                               const SizedBox(width: 8),
-                              Text(
-                                'Due: \${doc.dueDate!.month}/\${doc.dueDate!.day}',
-                                style: const TextStyle(fontSize: 11),
+                              const Text(
+                                r'Due: ${doc.dueDate!.month}/${doc.dueDate!.day}',
+                                style: TextStyle(fontSize: 11),
                               ),
                             ],
                           ],

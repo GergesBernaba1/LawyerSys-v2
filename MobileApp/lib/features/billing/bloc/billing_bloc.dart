@@ -1,11 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/billing.dart';
-import '../repositories/billing_repository.dart';
-import 'billing_event.dart';
-import 'billing_state.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_event.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_state.dart';
+import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
+import 'package:qadaya_lawyersys/features/billing/repositories/billing_repository.dart';
 
 class BillingBloc extends Bloc<BillingEvent, BillingState> {
-  final BillingRepository billingRepository;
 
   BillingBloc({required this.billingRepository})
       : super(BillingInitial()) {
@@ -19,9 +18,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     on<DeletePayment>(_onDeletePayment);
     on<DeleteReceipt>(_onDeleteReceipt);
   }
+  final BillingRepository billingRepository;
 
   Future<void> _onLoadPayments(
-      LoadPayments event, Emitter<BillingState> emit) async {
+      LoadPayments event, Emitter<BillingState> emit,) async {
     if (state is! BillingLoading) {
       emit(BillingLoading());
     }
@@ -34,7 +34,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onLoadReceipts(
-      LoadReceipts event, Emitter<BillingState> emit) async {
+      LoadReceipts event, Emitter<BillingState> emit,) async {
     if (state is! BillingLoading) {
       emit(BillingLoading());
     }
@@ -47,7 +47,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onLoadCustomers(
-      LoadCustomers event, Emitter<BillingState> emit) async {
+      LoadCustomers event, Emitter<BillingState> emit,) async {
     if (state is! BillingLoading) {
       emit(BillingLoading());
     }
@@ -60,7 +60,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onLoadEmployees(
-      LoadEmployees event, Emitter<BillingState> emit) async {
+      LoadEmployees event, Emitter<BillingState> emit,) async {
     if (state is! BillingLoading) {
       emit(BillingLoading());
     }
@@ -73,7 +73,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onLoadSummary(
-      LoadSummary event, Emitter<BillingState> emit) async {
+      LoadSummary event, Emitter<BillingState> emit,) async {
     if (state is! BillingLoading) {
       emit(BillingLoading());
     }
@@ -86,7 +86,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onCreatePayment(
-      CreatePayment event, Emitter<BillingState> emit) async {
+      CreatePayment event, Emitter<BillingState> emit,) async {
     try {
       await billingRepository.createPayment(event.payment);
       if (!isClosed) {
@@ -99,7 +99,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onCreateReceipt(
-      CreateReceipt event, Emitter<BillingState> emit) async {
+      CreateReceipt event, Emitter<BillingState> emit,) async {
     try {
       await billingRepository.createReceipt(event.receipt);
       if (!isClosed) {
@@ -112,7 +112,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onDeletePayment(
-      DeletePayment event, Emitter<BillingState> emit) async {
+      DeletePayment event, Emitter<BillingState> emit,) async {
     try {
       await billingRepository.deletePayment(event.id);
       if (!isClosed) {
@@ -125,7 +125,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
   }
 
   Future<void> _onDeleteReceipt(
-      DeleteReceipt event, Emitter<BillingState> emit) async {
+      DeleteReceipt event, Emitter<BillingState> emit,) async {
     try {
       await billingRepository.deleteReceipt(event.id);
       if (!isClosed) {

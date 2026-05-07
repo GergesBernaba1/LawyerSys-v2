@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/api/api_constants.dart';
-import '../../../core/storage/secure_storage.dart';
-import '../models/login_request.dart';
-import '../models/user_session.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/api/api_constants.dart';
+import 'package:qadaya_lawyersys/core/storage/secure_storage.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/login_request.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
 
 class AuthRepository {
-  final ApiClient apiClient;
-  final SecureStorage _secureStorage = SecureStorage();
 
   AuthRepository(this.apiClient);
+  final ApiClient apiClient;
+  final SecureStorage _secureStorage = SecureStorage();
 
   Future<UserSession> login(LoginRequest request) async {
     final response = await apiClient.post(ApiConstants.login, data: request.toJson());
@@ -59,7 +59,7 @@ class AuthRepository {
       'userName': email,
       'newPassword': password,
       'token': token,
-    });
+    },);
   }
 
   Future<void> logout() async {
@@ -81,14 +81,14 @@ class AuthRepository {
     await apiClient.post(ApiConstants.registerDeviceToken, data: {
       'token': deviceToken,
       'platform': platform ?? Platform.operatingSystem,
-    });
+    },);
   }
 
   Future<void> unregisterDeviceToken(String deviceToken) async {
     await apiClient.post(ApiConstants.unregisterDeviceToken, data: {
       'token': deviceToken,
       'platform': Platform.operatingSystem,
-    });
+    },);
   }
 
   Future<Map<String, dynamic>> getMyProfile() async {
@@ -103,7 +103,7 @@ class AuthRepository {
 
     return raw
         .whereType<Map>()
-        .map((item) => Map<String, dynamic>.from(item))
+        .map(Map<String, dynamic>.from)
         .toList();
   }
 
@@ -128,7 +128,7 @@ class AuthRepository {
       'jobTitle': jobTitle ?? '',
       'tenantName': tenantName ?? '',
       'tenantPhoneNumber': tenantPhoneNumber ?? '',
-    });
+    },);
 
     final data = Map<String, dynamic>.from(response.data as Map);
     await updateStoredSession(
@@ -171,7 +171,7 @@ class AuthRepository {
         biometricEnabled: current.biometricEnabled,
       );
       await _secureStorage.write(
-          SecureStorage.keyUserSession, jsonEncode(updated.toJson()));
+          SecureStorage.keyUserSession, jsonEncode(updated.toJson()),);
     } catch (_) {
       // keep old session if parsing fails
     }
@@ -185,7 +185,7 @@ class AuthRepository {
   }
 
   UserSession _mapLoginResponseToSession(
-      Map<String, dynamic> responseData, String fallbackUserNameOrEmail) {
+      Map<String, dynamic> responseData, String fallbackUserNameOrEmail,) {
     final token = (responseData['token'] ?? responseData['accessToken'] ?? '').toString();
     if (token.isEmpty) {
       throw const FormatException('Login response does not include an access token.');
@@ -287,4 +287,5 @@ class AuthRepository {
     return true;
   }
 }
+
 

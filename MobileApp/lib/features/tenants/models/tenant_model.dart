@@ -1,11 +1,4 @@
 class TenantModel {
-  final int id;
-  final String name;
-  final String countryName;
-  final bool isActive;
-  final int userCount;
-  final String packageName;
-  final bool isCurrent;
 
   TenantModel({
     required this.id,
@@ -33,16 +26,23 @@ class TenantModel {
       isCurrent: currentTenantId != null && id == currentTenantId,
     );
   }
+  final int id;
+  final String name;
+  final String countryName;
+  final bool isActive;
+  final int userCount;
+  final String packageName;
+  final bool isCurrent;
 }
 
 class TenantSelectionModel {
-  final int? currentTenantId;
-  final bool isSuperAdmin;
-  final List<TenantModel> tenants;
 
   TenantSelectionModel({
     required this.currentTenantId,
     required this.isSuperAdmin,
     required this.tenants,
   });
+  final int? currentTenantId;
+  final bool isSuperAdmin;
+  final List<TenantModel> tenants;
 }

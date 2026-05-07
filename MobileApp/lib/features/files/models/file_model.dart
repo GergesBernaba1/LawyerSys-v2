@@ -1,13 +1,4 @@
 class FileModel {
-  final String id;
-  final String title;
-  final String? description;
-  final String? category;
-  final String? fileExtension;
-  final String? mimeType;
-  final int? fileSize;
-  final DateTime createdAt;
-  final String? createdBy;
 
   FileModel({
     required this.id,
@@ -38,6 +29,15 @@ class FileModel {
       createdBy: json['createdBy']?.toString(),
     );
   }
+  final String id;
+  final String title;
+  final String? description;
+  final String? category;
+  final String? fileExtension;
+  final String? mimeType;
+  final int? fileSize;
+  final DateTime createdAt;
+  final String? createdBy;
 
   Map<String, dynamic> toJson() {
     return {

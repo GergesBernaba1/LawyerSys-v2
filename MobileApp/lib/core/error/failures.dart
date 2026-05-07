@@ -3,15 +3,15 @@ import 'package:equatable/equatable.dart';
 
 /// Base class for all app failures
 abstract class Failure extends Equatable {
-  final String message;
-  final int? code;
-  final dynamic originalError;
 
   const Failure({
     required this.message,
     this.code,
     this.originalError,
   });
+  final String message;
+  final int? code;
+  final dynamic originalError;
 
   @override
   List<Object?> get props => [message, code];
@@ -46,7 +46,6 @@ class AuthFailure extends Failure {
 
 /// Validation failures
 class ValidationFailure extends Failure {
-  final Map<String, String>? fieldErrors;
 
   const ValidationFailure({
     required super.message,
@@ -54,6 +53,7 @@ class ValidationFailure extends Failure {
     super.originalError,
     this.fieldErrors,
   });
+  final Map<String, String>? fieldErrors;
 
   @override
   List<Object?> get props => [message, code, fieldErrors];
@@ -131,7 +131,6 @@ class ErrorHandler {
         );
 
       case DioExceptionType.unknown:
-      default:
         return UnknownFailure(
           message: 'An unexpected error occurred. Please try again.',
           originalError: error,
@@ -153,7 +152,7 @@ class ErrorHandler {
     // Extract error message from response
     String message = 'An error occurred.';
     if (data is Map<String, dynamic>) {
-      message = data['message'] ?? data['error'] ?? data['title'] ?? message;
+      message = (data['message'] as String?) ?? (data['error'] as String?) ?? (data['title'] as String?) ?? message;
     }
 
     switch (statusCode) {

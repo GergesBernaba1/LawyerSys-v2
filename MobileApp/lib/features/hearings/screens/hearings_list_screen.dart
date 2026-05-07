@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_bloc.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_event.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_state.dart';
+import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
+import 'package:qadaya_lawyersys/features/hearings/screens/hearing_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/hearings/screens/hearing_form_screen.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../bloc/hearings_bloc.dart';
-import '../bloc/hearings_event.dart';
-import '../bloc/hearings_state.dart';
-import '../models/hearing.dart';
-import 'hearing_form_screen.dart';
-import '../screens/hearing_detail_screen.dart';
-import '../../../core/localization/app_localizations.dart';
 
 class HearingsListScreen extends StatefulWidget {
   const HearingsListScreen({super.key});
@@ -71,7 +70,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => HearingFormScreen(hearing: hearing)),
               );
-              if (result == true && mounted) {
+              if ((result ?? false) && mounted) {
                 context.read<HearingsBloc>().add(LoadHearings());
               }
             } else if (value == 'delete') {
@@ -86,7 +85,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                   ],
                 ),
               );
-              if (confirmed == true && mounted) {
+              if ((confirmed ?? false) && mounted) {
                 context.read<HearingsBloc>().add(DeleteHearing(hearing.hearingId));
               }
             }
@@ -118,7 +117,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
             context,
             MaterialPageRoute(builder: (_) => const HearingFormScreen()),
           );
-          if (created == true && context.mounted) {
+          if ((created ?? false) && context.mounted) {
             context.read<HearingsBloc>().add(LoadHearings());
           }
         },
@@ -128,7 +127,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -148,7 +147,6 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 TextButton.icon(
                   icon: Icon(_calendarView ? Icons.list : Icons.calendar_today),
@@ -193,7 +191,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                     return Column(
                       children: [
                         TableCalendar<Hearing>(
-                          firstDay: DateTime.utc(2000, 1, 1),
+                          firstDay: DateTime.utc(2000),
                           lastDay: DateTime.utc(2100, 12, 31),
                           focusedDay: _focusedDay,
                           headerStyle: const HeaderStyle(formatButtonVisible: false),
@@ -212,7 +210,6 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                           onPageChanged: (focusedDay) {
                             _focusedDay = focusedDay;
                           },
-                          calendarFormat: CalendarFormat.month,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -221,7 +218,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
                         ),
                         if (selectedDayEvents.isEmpty)
                           Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16),
                             child: Text(localizer.noData),
                           )
                         else
@@ -264,4 +261,5 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
     );
   }
 }
+
 

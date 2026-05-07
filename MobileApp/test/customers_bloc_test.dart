@@ -7,12 +7,12 @@ import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
 import 'package:qadaya_lawyersys/features/customers/repositories/customers_repository.dart';
 
 class FakeCustomersRepository extends CustomersRepository {
-  List<Customer> _items;
+
+  FakeCustomersRepository(this._items) : super(ApiClient());
+  final List<Customer> _items;
   String? lastSearchQuery;
   bool createCalled = false;
   String? deletedId;
-
-  FakeCustomersRepository(this._items) : super(ApiClient());
 
   @override
   Future<List<Customer>> getCustomers({int page = 1, int pageSize = 50}) async {
@@ -25,7 +25,7 @@ class FakeCustomersRepository extends CustomersRepository {
     return _items
         .where((c) =>
             c.fullName.toLowerCase().contains(query.toLowerCase()) ||
-            (c.phoneNumber ?? '').contains(query))
+            (c.phoneNumber ?? '').contains(query),)
         .toList();
   }
 
@@ -58,7 +58,7 @@ class FakeCustomersRepository extends CustomersRepository {
 
   @override
   Future<Customer> updateCustomer(
-      String customerId, Map<String, dynamic> data) async {
+      String customerId, Map<String, dynamic> data,) async {
     final index = _items.indexWhere((c) => c.customerId == customerId);
     final updated = Customer(
       customerId: customerId,
@@ -153,7 +153,7 @@ void main() {
         isA<CustomersLoading>(),
         isA<CustomerOperationSuccess>(),
         isA<CustomersLoaded>(),
-      ]));
+      ]),);
 
       expect(repo.createCalled, isTrue);
       // after create the repo now has 3 items
@@ -174,7 +174,7 @@ void main() {
         isA<CustomersLoading>(),
         isA<CustomerOperationSuccess>(),
         isA<CustomersLoaded>(),
-      ]));
+      ]),);
 
       expect(repo.deletedId, 'c1');
       expect(await repo.getCustomers(), hasLength(1));

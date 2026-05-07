@@ -7,11 +7,11 @@ import 'package:qadaya_lawyersys/features/workqueue/models/workqueue_task.dart';
 import 'package:qadaya_lawyersys/features/workqueue/repositories/workqueue_repository.dart';
 
 class FakeWorkqueueRepository extends WorkqueueRepository {
-  List<WorkqueueTask> _tasks;
-  String? lastStatusFilter;
-  int? completedTaskId;
 
   FakeWorkqueueRepository(this._tasks) : super(ApiClient());
+  final List<WorkqueueTask> _tasks;
+  String? lastStatusFilter;
+  int? completedTaskId;
 
   @override
   Future<List<WorkqueueTask>> getMyTasks({String? status}) async {
@@ -138,7 +138,7 @@ void main() {
       expect(states, containsAllInOrder([
         isA<WorkqueueTaskUpdated>(),
         isA<WorkqueueLoaded>(),
-      ]));
+      ]),);
 
       expect(repo.completedTaskId, 1);
 

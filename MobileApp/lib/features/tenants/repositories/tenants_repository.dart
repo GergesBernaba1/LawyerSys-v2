@@ -1,21 +1,21 @@
-import '../../../core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
 
 class TenantSelection {
-  final int? currentTenantId;
-  final bool isSuperAdmin;
-  final List<Map<String, dynamic>> items;
 
   const TenantSelection({
     required this.currentTenantId,
     required this.isSuperAdmin,
     required this.items,
   });
+  final int? currentTenantId;
+  final bool isSuperAdmin;
+  final List<Map<String, dynamic>> items;
 }
 
 class TenantsRepository {
-  final ApiClient apiClient;
 
   TenantsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<TenantSelection> getAvailableTenants() async {
     final response = await apiClient.get('/tenants/available');
@@ -23,7 +23,7 @@ class TenantsRepository {
 
     final rawItems = data['items'];
     final items = rawItems is List
-        ? rawItems.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()
+        ? rawItems.whereType<Map>().map(Map<String, dynamic>.from).toList()
         : <Map<String, dynamic>>[];
 
     return TenantSelection(

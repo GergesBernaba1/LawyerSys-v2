@@ -1,22 +1,21 @@
 import 'package:dio/dio.dart';
-
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/customer.dart';
-import '../models/case_notification_preference.dart';
-import '../models/customer_payment_proof.dart';
-import '../models/customer_requested_document.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/customers/models/case_notification_preference.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer_payment_proof.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer_requested_document.dart';
 
 class CustomersRepository {
-  final ApiClient apiClient;
 
   CustomersRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<Customer>> getCustomers({int page = 1, int pageSize = 50}) async {
     final response = await apiClient.get('/api/customers', queryParameters: {
       'page': page,
       'pageSize': pageSize,
-    });
+    },);
 
     final data = normalizeJsonList(response.data);
     if (data.isEmpty) return [];
@@ -70,21 +69,21 @@ class CustomersRepository {
 
   // Case Notification Preferences
   Future<CaseNotificationPreference> getCaseNotificationPreference(
-      int caseCode) async {
+      int caseCode,) async {
     final response = await apiClient
         .get('/api/cases/$caseCode/notification-preferences');
     return CaseNotificationPreference.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   Future<CaseNotificationPreference> updateCaseNotificationPreference(
-      int caseCode, bool notificationsEnabled) async {
+      int caseCode, bool notificationsEnabled,) async {
     final response = await apiClient.put(
       '/api/cases/$caseCode/notification-preferences',
       data: {'notificationsEnabled': notificationsEnabled},
     );
     return CaseNotificationPreference.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   // Payment Proofs
@@ -110,12 +109,12 @@ class CustomersRepository {
       data: formData,
     );
     return CustomerPaymentProof.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   // Requested Documents
   Future<List<CustomerRequestedDocument>> getRequestedDocuments(
-      int caseCode) async {
+      int caseCode,) async {
     // This would typically come from the client portal endpoint
     // For now, we'll assume it's part of the case detail
     final response = await apiClient
@@ -125,7 +124,7 @@ class CustomersRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map((raw) =>
-            CustomerRequestedDocument.fromJson(Map<String, dynamic>.from(raw as Map)))
+            CustomerRequestedDocument.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 
@@ -148,6 +147,6 @@ class CustomersRepository {
       data: formData,
     );
     return CustomerRequestedDocument.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 }

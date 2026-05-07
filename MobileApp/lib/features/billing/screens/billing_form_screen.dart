@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/billing_bloc.dart';
-import '../bloc/billing_event.dart';
-import '../bloc/billing_state.dart';
-import '../models/billing.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_bloc.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_event.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_state.dart';
+import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
 
-class BillingFormScreen extends StatefulWidget {
-  final bool isPayment; // true for payment, false for receipt
+class BillingFormScreen extends StatefulWidget { // true for payment, false for receipt
 
   const BillingFormScreen({
     super.key,
     required this.isPayment,
   });
+  final bool isPayment;
 
   @override
   State<BillingFormScreen> createState() => _BillingFormScreenState();
@@ -127,8 +127,8 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               .map((customer) => DropdownMenuItem<int>(
                                     value: customer.id ?? 0,
                                     child: Text(
-                                        customer.fullName ?? customer.email ?? 'Unknown'),
-                                  ))
+                                        customer.fullName ?? customer.email ?? 'Unknown',),
+                                  ),)
                               .toList();
                         }
                         return DropdownButtonFormField<int>(
@@ -142,7 +142,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               value: 0,
                               child: Text('Select a customer'),
                             ),
-                            ...customerItems
+                            ...customerItems,
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -169,8 +169,8 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               .map((employee) => DropdownMenuItem<int>(
                                     value: employee.id ?? 0,
                                     child: Text(
-                                        employee.fullName ?? employee.email ?? 'Unknown'),
-                                  ))
+                                        employee.fullName ?? employee.email ?? 'Unknown',),
+                                  ),)
                               .toList();
                         }
                         return DropdownButtonFormField<int>(
@@ -184,7 +184,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                               value: 0,
                               child: Text('Select an employee'),
                             ),
-                            ...employeeItems
+                            ...employeeItems,
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -254,7 +254,6 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
         dateOfOperation: date,
         notes: notes,
         customerId: _selectedCustomerId!,
-        customerName: null,
       );
       context.read<BillingBloc>().add(CreatePayment(payment));
     } else {

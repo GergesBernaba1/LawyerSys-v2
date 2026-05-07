@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../core/auth/permissions.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../bloc/billing_bloc.dart';
-import '../bloc/billing_event.dart';
-import '../bloc/billing_state.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../models/billing.dart';
-import '../../authentication/models/user_session.dart';
-import 'billing_form_screen.dart';
+import 'package:qadaya_lawyersys/core/auth/permissions.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_bloc.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_event.dart';
+import 'package:qadaya_lawyersys/features/billing/bloc/billing_state.dart';
+import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
+import 'package:qadaya_lawyersys/features/billing/screens/billing_form_screen.dart';
 
 class BillingListScreen extends StatefulWidget {
   const BillingListScreen({super.key});
@@ -72,18 +71,18 @@ class _BillingListScreenState extends State<BillingListScreen> {
                       children: [
                         Expanded(
                           child: _buildSummaryCard(
-                              localizer.payments, '\$${(summary.totalPayments ?? 0).toStringAsFixed(2)}', Colors.red),
+                              localizer.payments, '\$${(summary.totalPayments ?? 0).toStringAsFixed(2)}', Colors.red,),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildSummaryCard(
-                              localizer.receipts, '\$${(summary.totalReceipts ?? 0).toStringAsFixed(2)}', Colors.green),
+                              localizer.receipts, '\$${(summary.totalReceipts ?? 0).toStringAsFixed(2)}', Colors.green,),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: _buildSummaryCard(
                               localizer.balance, '\$${(summary.balance ?? 0).toStringAsFixed(2)}',
-                              (summary.balance ?? 0) >= 0 ? Colors.green : Colors.red),
+                              (summary.balance ?? 0) >= 0 ? Colors.green : Colors.red,),
                         ),
                       ],
                     ),
@@ -143,7 +142,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
                         ),
                         icon: const Icon(Icons.add),
                         label: Text(
-                            _selectedTab == 0 ? localizer.payments : localizer.receipts),
+                            _selectedTab == 0 ? localizer.payments : localizer.receipts,),
                       ),
                     ),
                   ),

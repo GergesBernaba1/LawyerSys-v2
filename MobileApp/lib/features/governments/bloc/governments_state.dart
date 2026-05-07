@@ -1,4 +1,4 @@
-import '../models/government.dart';
+import 'package:qadaya_lawyersys/features/governments/models/government.dart';
 
 abstract class GovernmentsState {}
 
@@ -7,16 +7,16 @@ class GovernmentsInitial extends GovernmentsState {}
 class GovernmentsLoading extends GovernmentsState {}
 
 class GovernmentsLoaded extends GovernmentsState {
-  final List<Government> governments;
   GovernmentsLoaded(this.governments);
+  final List<Government> governments;
 }
 
 class GovernmentsError extends GovernmentsState {
-  final String message;
   GovernmentsError(this.message);
+  final String message;
 }
 
 class GovernmentOperationSuccess extends GovernmentsState {
-  final String message;
   GovernmentOperationSuccess(this.message);
+  final String message;
 }

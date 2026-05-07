@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  final String email;
-  final String token;
 
   const ResetPasswordScreen({
     super.key,
     required this.email,
     required this.token,
   });
+  final String email;
+  final String token;
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -38,7 +38,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(localizer.resetPassword)),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthResetPasswordSuccess) {

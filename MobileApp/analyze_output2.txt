@@ -37,9 +37,7 @@
 warning - The type argument(s) of the function 'fetch' can't be inferred - lib\core\api\interceptors\auth_interceptor.dart:48:48 - inference_failure_on_function_invocation
 warning - The type argument(s) of the function 'post' can't be inferred - lib\core\api\interceptors\auth_interceptor.dart:87:39 - inference_failure_on_function_invocation
    info - Missing a newline at the end of the file - lib\core\api\interceptors\tenant_interceptor.dart:20:2 - eol_at_end_of_file
-warning - This default clause is covered by the previous cases - lib\core\error\failures.dart:134:7 - unreachable_switch_default
-warning - The generic type 'Response<dynamic>?' should have explicit type arguments but doesn't - lib\core\error\failures.dart:143:39 - strict_raw_type
-  error - A value of type 'dynamic' can't be assigned to a variable of type 'String' - lib\core\error\failures.dart:156:17 - invalid_assignment
+warning - The generic type 'Response<dynamic>?' should have explicit type arguments but doesn't - lib\core\error\failures.dart:142:39 - strict_raw_type
    info - Missing an 'await' for the 'Future' computed by this expression - lib\core\notifications\push_notification_service.dart:66:29 - unawaited_futures
    info - Missing a newline at the end of the file - lib\core\notifications\push_notification_service.dart:119:2 - eol_at_end_of_file
    info - Missing a newline at the end of the file - lib\core\storage\local_database.dart:494:2 - eol_at_end_of_file
@@ -49,27 +47,12 @@ warning - The generic type 'Response<dynamic>?' should have explicit type argume
 warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - lib\core\sync\sync_service.dart:89:15 - inference_failure_on_instance_creation
    info - Method invocation or property access on a 'dynamic' target - lib\core\sync\sync_service.dart:232:19 - avoid_dynamic_calls
    info - Missing a newline at the end of the file - lib\core\sync\sync_service.dart:281:2 - eol_at_end_of_file
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\administration\models\admin_overview.dart:15:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\administration\models\admin_overview.dart:16:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\administration\models\admin_overview.dart:17:23 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\administration\models\admin_overview.dart:18:23 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\administration\models\admin_overview.dart:19:21 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\administration\models\admin_overview.dart:20:22 - argument_type_not_assignable
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\ai-assistant\repositories\ai_assistant_repository.dart:45:22 - strict_raw_type
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\ai-assistant\repositories\ai_assistant_repository.dart:54:24 - strict_raw_type
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\auditlogs\repositories\audit_logs_repository.dart:32:20 - strict_raw_type
 warning - The value of the local variable 'l10n' isn't used - lib\features\auditlogs\screens\audit_logs_screen.dart:187:11 - unused_local_variable
    info - Missing a newline at the end of the file - lib\features\authentication\bloc\auth_bloc.dart:166:2 - eol_at_end_of_file
    info - Missing a newline at the end of the file - lib\features\authentication\models\login_request.dart:11:2 - eol_at_end_of_file
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:19:13 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:20:12 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:21:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:22:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:23:17 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:24:18 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:25:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\authentication\models\user_session.dart:29:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\authentication\models\user_session.dart:30:23 - argument_type_not_assignable
    info - Missing a newline at the end of the file - lib\features\authentication\models\user_session.dart:78:2 - eol_at_end_of_file
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\authentication\repositories\auth_repository.dart:105:20 - strict_raw_type
    info - 'bool' parameters should be named parameters - lib\features\authentication\repositories\auth_repository.dart:267:36 - avoid_positional_boolean_parameters
@@ -79,7 +62,6 @@ warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arg
    info - Method invocation or property access on a 'dynamic' target - lib\features\billing\models\billing.dart:94:13 - avoid_dynamic_calls
    info - Method invocation or property access on a 'dynamic' target - lib\features\billing\models\billing.dart:129:13 - avoid_dynamic_calls
    info - Method invocation or property access on a 'dynamic' target - lib\features\billing\models\billing.dart:132:13 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<String, dynamic>'.  - lib\features\billing\repositories\billing_repository.dart:48:36 - argument_type_not_assignable
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\billing\screens\billing_list_screen.dart:137:27 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\calendar\screens\calendar_screen.dart:74:7 - inference_failure_on_instance_creation
 warning - The type argument(s) of the function 'showModalBottomSheet' can't be inferred - lib\features\calendar\screens\calendar_screen.dart:114:5 - inference_failure_on_function_invocation
@@ -89,20 +71,14 @@ warning - The type argument(s) of the function 'showModalBottomSheet' can't be i
    info - Unnecessary duplication of receiver - lib\features\cases\bloc\cases_bloc.dart:129:7 - cascade_invocations
    info - Unnecessary duplication of receiver - lib\features\cases\bloc\cases_bloc.dart:145:7 - cascade_invocations
    info - Missing a newline at the end of the file - lib\features\cases\bloc\cases_bloc.dart:155:2 - eol_at_end_of_file
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\cases\models\case.dart:39:18 - argument_type_not_assignable
 warning - The type argument(s) of 'List' can't be inferred - lib\features\cases\repositories\case_relations_repository.dart:11:89 - inference_failure_on_collection_literal
 warning - The type argument(s) of 'List' can't be inferred - lib\features\cases\repositories\case_relations_repository.dart:11:95 - inference_failure_on_collection_literal
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\cases\repositories\case_relations_repository.dart:13:20 - strict_raw_type
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\cases\repositories\cases_repository.dart:55:58 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\cases\repositories\cases_repository.dart:76:56 - argument_type_not_assignable
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\cases\screens\case_detail_screen.dart:43:21 - inference_failure_on_instance_creation
    info - Sort directive sections alphabetically - lib\features\cases\screens\cases_list_screen.dart:6:1 - directives_ordering
-  error - Expected an identifier - lib\features\cases\screens\cases_list_screen.dart:182:9 - missing_identifier
-  error - Expected an identifier - lib\features\cases\screens\cases_list_screen.dart:182:10 - missing_identifier
-  error - Expected an identifier - lib\features\cases\screens\cases_list_screen.dart:182:11 - missing_identifier
-  error - Expected an identifier - lib\features\cases\screens\cases_list_screen.dart:182:12 - missing_identifier
-   info - Missing a required trailing comma - lib\features\cases\screens\cases_list_screen.dart:182:13 - require_trailing_commas
-  error - Expected to find ')' - lib\features\cases\screens\cases_list_screen.dart:182:13 - expected_token
+  error - Too many positional arguments: 0 expected, but 1 found - lib\features\cases\screens\cases_list_screen.dart:123:11 - extra_positional_arguments_could_be_named
+   info - Missing a required trailing comma - lib\features\cases\screens\cases_list_screen.dart:182:9 - require_trailing_commas
+  error - Expected to find ')' - lib\features\cases\screens\cases_list_screen.dart:182:9 - expected_token
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\cases\screens\cases_list_screen.dart:221:13 - inference_failure_on_instance_creation
   error - Expected to find ')' - lib\features\cases\screens\cases_list_screen.dart:297:6 - expected_token
    info - Missing a newline at the end of the file - lib\features\cases\screens\cases_list_screen.dart:299:2 - eol_at_end_of_file
@@ -134,24 +110,8 @@ warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be i
    info - 'bool' parameters should be named parameters - lib\features\customers\bloc\customers_event.dart:47:51 - avoid_positional_boolean_parameters
    info - Missing a newline at the end of the file - lib\features\customers\bloc\customers_event.dart:87:2 - eol_at_end_of_file
    info - Missing a newline at the end of the file - lib\features\customers\bloc\customers_state.dart:88:2 - eol_at_end_of_file
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\customers\models\case_notification_preference.dart:10:17 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\customers\models\case_notification_preference.dart:11:29 - argument_type_not_assignable
    info - Method invocation or property access on a 'dynamic' target - lib\features\customers\models\customer.dart:52:13 - avoid_dynamic_calls
    info - Missing a newline at the end of the file - lib\features\customers\models\customer.dart:60:2 - eol_at_end_of_file
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\customers\models\customer_payment_proof.dart:23:11 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\customers\models\customer_payment_proof.dart:24:19 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\customers\models\customer_payment_proof.dart:27:15 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'double'.  - lib\features\customers\models\customer_payment_proof.dart:27:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_payment_proof.dart:29:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_payment_proof.dart:39:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_payment_proof.dart:42:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\customers\models\customer_requested_document.dart:25:11 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\customers\models\customer_requested_document.dart:26:17 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\customers\models\customer_requested_document.dart:27:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_requested_document.dart:31:57 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_requested_document.dart:40:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_requested_document.dart:43:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\customers\models\customer_requested_document.dart:46:28 - argument_type_not_assignable
    info - 'bool' parameters should be named parameters - lib\features\customers\repositories\customers_repository.dart:80:21 - avoid_positional_boolean_parameters
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\customers\screens\customer_detail_screen.dart:75:7 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\customers\screens\customer_detail_screen.dart:84:7 - inference_failure_on_instance_creation
@@ -165,122 +125,24 @@ warning - The type argument(s) of the function 'showDialog' can't be inferred - 
    info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\customers\screens\requested_documents_screen.dart:223:65 - deprecated_member_use
    info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\customers\screens\requested_documents_screen.dart:251:38 - deprecated_member_use
    info - Missing a newline at the end of the file - lib\features\dashboard\bloc\dashboard_bloc.dart:32:2 - eol_at_end_of_file
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:26:22 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:27:23 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:28:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:29:24 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:30:21 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:31:21 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:32:17 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\models\dashboard_summary.dart:33:17 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'double'.  - lib\features\dashboard\models\dashboard_summary.dart:33:17 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\models\dashboard_summary.dart:34:23 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'double'.  - lib\features\dashboard\models\dashboard_summary.dart:34:23 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\models\dashboard_summary.dart:35:19 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'double'.  - lib\features\dashboard\models\dashboard_summary.dart:35:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:36:19 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\models\dashboard_summary.dart:37:26 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'double'.  - lib\features\dashboard\models\dashboard_summary.dart:37:26 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\models\dashboard_summary.dart:38:22 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'double'.  - lib\features\dashboard\models\dashboard_summary.dart:38:22 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:39:21 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<String, dynamic>'.  - lib\features\dashboard\models\dashboard_summary.dart:42:81 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:97:20 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:98:20 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:99:28 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:100:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:101:16 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:102:21 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:138:13 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:139:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:140:17 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:141:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:142:13 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:168:9 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:169:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String?'.  - lib\features\dashboard\models\dashboard_summary.dart:170:23 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'int'.  - lib\features\dashboard\models\dashboard_summary.dart:193:9 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:194:15 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String?'.  - lib\features\dashboard\models\dashboard_summary.dart:195:21 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\dashboard_summary.dart:196:13 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\recent_activity.dart:6:9 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\recent_activity.dart:7:12 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\recent_activity.dart:8:18 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\models\recent_activity.dart:9:31 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\dashboard\repositories\dashboard_repository.dart:17:75 - argument_type_not_assignable
   error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\dashboard\repositories\dashboard_repository.dart:24:68 - argument_type_not_assignable
    info - Missing a newline at the end of the file - lib\features\dashboard\repositories\dashboard_repository.dart:29:2 - eol_at_end_of_file
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:153:33 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:174:33 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:192:33 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:211:33 - inference_failure_on_instance_creation
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:468:24 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Color?'.  - lib\features\dashboard\screens\dashboard_screen.dart:470:24 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:859:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1067:26 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'IconData'.  - lib\features\dashboard\screens\dashboard_screen.dart:1068:25 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Color'.  - lib\features\dashboard\screens\dashboard_screen.dart:1069:26 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1071:61 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1197:21 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1241:25 - inference_failure_on_instance_creation
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1254:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1254:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1254:51 - avoid_dynamic_calls
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1255:31 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1255:31 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1256:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1256:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1257:27 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1257:27 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1260:23 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1469:21 - inference_failure_on_instance_creation
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1491:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1491:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1491:46 - avoid_dynamic_calls
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1492:33 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String?'.  - lib\features\dashboard\screens\dashboard_screen.dart:1492:33 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1561:21 - inference_failure_on_instance_creation
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1584:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1584:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1585:31 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String?'.  - lib\features\dashboard\screens\dashboard_screen.dart:1585:31 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen.dart:1586:27 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen.dart:1586:27 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:148:27 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:164:27 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:180:27 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:196:27 - inference_failure_on_instance_creation
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:409:24 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Color?'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:411:24 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:797:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1037:26 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'IconData'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1038:25 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Color'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1039:26 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1041:61 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:1203:21 - inference_failure_on_instance_creation
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1249:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1249:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1249:51 - avoid_dynamic_calls
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1250:31 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1250:31 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1251:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1251:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1252:27 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1252:27 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:1255:23 - inference_failure_on_instance_creation
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:1474:21 - inference_failure_on_instance_creation
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1496:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1496:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1496:46 - avoid_dynamic_calls
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1497:33 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String?'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1497:33 - argument_type_not_assignable
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen_backup.dart:1576:21 - inference_failure_on_instance_creation
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1599:29 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1599:29 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1600:31 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String?'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1600:31 - argument_type_not_assignable
-   info - Method invocation or property access on a 'dynamic' target - lib\features\dashboard\screens\dashboard_screen_backup.dart:1601:27 - avoid_dynamic_calls
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\dashboard\screens\dashboard_screen_backup.dart:1601:27 - argument_type_not_assignable
+   info - Sort directive sections alphabetically - lib\features\dashboard\screens\dashboard_screen.dart:5:1 - directives_ordering
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:154:33 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:175:33 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:193:33 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:212:33 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1198:21 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1242:25 - inference_failure_on_instance_creation
+warning - The left operand can't be null, so the right operand is never executed - lib\features\dashboard\screens\dashboard_screen.dart:1255:43 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\dashboard\screens\dashboard_screen.dart:1256:47 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\dashboard\screens\dashboard_screen.dart:1257:43 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\dashboard\screens\dashboard_screen.dart:1258:39 - dead_null_aware_expression
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1261:23 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1470:21 - inference_failure_on_instance_creation
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\dashboard\screens\dashboard_screen.dart:1562:21 - inference_failure_on_instance_creation
+warning - The left operand can't be null, so the right operand is never executed - lib\features\dashboard\screens\dashboard_screen.dart:1585:46 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\dashboard\screens\dashboard_screen.dart:1587:42 - dead_null_aware_expression
 warning - The type argument(s) of the function 'showDialog' can't be inferred - lib\features\document-generation\screens\doc_generation_screen.dart:494:5 - inference_failure_on_function_invocation
 warning - The type argument(s) of the function 'showDialog' can't be inferred - lib\features\document-generation\screens\doc_generation_screen.dart:552:5 - inference_failure_on_function_invocation
    info - Unnecessary duplication of receiver - lib\features\documents\bloc\documents_bloc.dart:28:7 - cascade_invocations
@@ -292,44 +154,14 @@ warning - The type argument(s) of the function 'showDialog' can't be inferred - 
    info - Sort directive sections alphabetically - lib\features\documents\screens\documents_list_screen.dart:16:1 - directives_ordering
 warning - The type argument(s) of the function 'showModalBottomSheet' can't be inferred - lib\features\documents\screens\documents_list_screen.dart:65:5 - inference_failure_on_function_invocation
 warning - The type argument(s) of the function 'showModalBottomSheet' can't be inferred - lib\features\documents\screens\documents_list_screen.dart:138:5 - inference_failure_on_function_invocation
-  error - The body might complete normally, causing 'null' to be returned, but the return type, 'Widget', is a potentially non-nullable type - lib\features\documents\screens\documents_list_screen.dart:375:37 - body_might_complete_normally
-warning - Dead code - lib\features\documents\screens\documents_list_screen.dart:386:15 - dead_code
-   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\documents\screens\documents_list_screen.dart:444:37 - unawaited_futures
-warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\documents\screens\documents_list_screen.dart:446:31 - inference_failure_on_instance_creation
-  error - Expected to find ';' - lib\features\documents\screens\documents_list_screen.dart:464:11 - expected_token
-  error - Expected an identifier - lib\features\documents\screens\documents_list_screen.dart:464:12 - missing_identifier
-  error - Expected to find ';' - lib\features\documents\screens\documents_list_screen.dart:464:12 - expected_token
-  error - Unexpected text ';' - lib\features\documents\screens\documents_list_screen.dart:464:12 - unexpected_token
-  error - Expected an identifier - lib\features\documents\screens\documents_list_screen.dart:465:9 - missing_identifier
-  error - Expected to find ';' - lib\features\documents\screens\documents_list_screen.dart:465:9 - expected_token
-  error - Unexpected text ';' - lib\features\documents\screens\documents_list_screen.dart:465:9 - unexpected_token
-  error - Expected an identifier - lib\features\documents\screens\documents_list_screen.dart:465:10 - missing_identifier
-  error - Expected to find ';' - lib\features\documents\screens\documents_list_screen.dart:465:10 - expected_token
-  error - Unexpected text ';' - lib\features\documents\screens\documents_list_screen.dart:465:10 - unexpected_token
-  error - Expected an identifier - lib\features\documents\screens\documents_list_screen.dart:465:11 - missing_identifier
-  error - Expected to find ';' - lib\features\documents\screens\documents_list_screen.dart:465:11 - expected_token
-  error - Unexpected text ';' - lib\features\documents\screens\documents_list_screen.dart:465:11 - unexpected_token
-  error - Expected an identifier - lib\features\documents\screens\documents_list_screen.dart:465:12 - missing_identifier
-  error - Unexpected text ';' - lib\features\documents\screens\documents_list_screen.dart:465:12 - unexpected_token
-   info - Missing a required trailing comma - lib\features\documents\screens\documents_list_screen.dart:465:13 - require_trailing_commas
-  error - Expected to find '}' - lib\features\documents\screens\documents_list_screen.dart:465:13 - expected_token
-   info - Use of an async 'dart:io' method - lib\features\documents\screens\documents_list_screen.dart:473:15 - avoid_slow_async_io
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\employees\models\employee.dart:37:33 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\employees\models\employee.dart:39:18 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\employees\models\employee.dart:136:13 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\employees\models\employee.dart:137:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\employees\models\employee.dart:138:16 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\employees\models\employee.dart:139:19 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\employees\models\employee.dart:140:25 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\employees\models\employee.dart:141:32 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\employees\repositories\employees_repository.dart:56:62 - argument_type_not_assignable
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\documents\screens\documents_list_screen.dart:445:37 - unawaited_futures
+warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\documents\screens\documents_list_screen.dart:447:31 - inference_failure_on_instance_creation
+   info - Use of an async 'dart:io' method - lib\features\documents\screens\documents_list_screen.dart:474:15 - avoid_slow_async_io
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\employees\screens\employees_list_screen.dart:339:41 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\employees\screens\employees_list_screen.dart:361:33 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\governments\screens\governments_list_screen.dart:63:41 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\governments\screens\governments_list_screen.dart:213:29 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\governments\screens\governments_list_screen.dart:221:63 - inference_failure_on_instance_creation
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\hearings\repositories\hearings_repository.dart:56:54 - argument_type_not_assignable
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'Map<dynamic, dynamic>'.  - lib\features\hearings\repositories\hearings_repository.dart:75:54 - argument_type_not_assignable
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\hearings\screens\hearings_list_screen.dart:101:13 - inference_failure_on_instance_creation
    info - Missing a newline at the end of the file - lib\features\hearings\screens\hearings_list_screen.dart:263:2 - eol_at_end_of_file
 warning - The type argument(s) of the function 'showModalBottomSheet' can't be inferred - lib\features\intake\screens\intake_form_screen.dart:49:5 - inference_failure_on_function_invocation
@@ -374,12 +206,10 @@ warning - The type argument(s) of the function 'showDialog' can't be inferred - 
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\tenants\screens\tenants_list_screen.dart:201:23 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\timetracking\screens\timetracking_list_screen.dart:72:25 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\timetracking\screens\timetracking_list_screen.dart:165:11 - inference_failure_on_instance_creation
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'String'.  - lib\features\timetracking\screens\timetracking_list_screen.dart:227:43 - argument_type_not_assignable
 warning - The type argument(s) of the constructor 'MaterialPageRoute' can't be inferred - lib\features\trust-accounting\screens\trust_list_screen.dart:51:47 - inference_failure_on_instance_creation
    info - Unnecessary duplication of receiver - lib\features\trust-reports\screens\trust_reports_screen.dart:40:5 - cascade_invocations
 warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - lib\features\trust-reports\screens\trust_reports_screen.dart:95:11 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - lib\features\trust-reports\screens\trust_reports_screen.dart:383:11 - inference_failure_on_instance_creation
-  error - The argument type 'dynamic' can't be assigned to the parameter type 'bool'.  - lib\features\users\models\user_model.dart:20:19 - argument_type_not_assignable
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\users\repositories\users_repository.dart:18:29 - strict_raw_type
 warning - The generic type 'Map<dynamic, dynamic>' should have explicit type arguments but doesn't - lib\features\users\repositories\users_repository.dart:24:32 - strict_raw_type
 warning - The type argument(s) of the function 'showDialog' can't be inferred - lib\features\users\screens\users_list_screen.dart:62:11 - inference_failure_on_function_invocation
@@ -390,7 +220,6 @@ warning - The type argument(s) of the function 'showDialog' can't be inferred - 
    info - Unnecessary duplication of receiver - lib\shared\screens\main_screen.dart:77:5 - cascade_invocations
    info - Missing a newline at the end of the file - lib\shared\screens\main_screen.dart:532:2 - eol_at_end_of_file
    info - Missing a newline at the end of the file - lib\shared\screens\splash_screen.dart:88:2 - eol_at_end_of_file
-   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\shared\widgets\cached_image.dart:104:62 - deprecated_member_use
    info - Unnecessary duplication of receiver - test\auth_bloc_test.dart:74:7 - cascade_invocations
 warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - test\auth_bloc_test.dart:94:13 - inference_failure_on_instance_creation
    info - Unnecessary duplication of receiver - test\auth_bloc_test.dart:106:7 - cascade_invocations
@@ -422,10 +251,10 @@ warning - The type argument(s) of the constructor 'Future.delayed' can't be infe
 warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - test\workqueue_bloc_test.dart:117:13 - inference_failure_on_instance_creation
 warning - The type argument(s) of the constructor 'Future.delayed' can't be inferred - test\workqueue_bloc_test.dart:136:13 - inference_failure_on_instance_creation
 
-flutter : 421 issues found. (ran in 5.0s)
+flutter : 250 issues found. (ran in 5.2s)
 At line:1 char:46
 + ... E:\Gerges Files\LawyerSys-v2\MobileApp"; flutter analyze 2>&1 | Out-F ...
 +                                              ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (421 issues found. (ran in 5.0s):String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (250 issues found. (ran in 5.2s):String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  

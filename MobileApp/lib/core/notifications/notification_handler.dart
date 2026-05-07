@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../core/notifications/push_notification_service.dart';
+import 'package:qadaya_lawyersys/core/notifications/push_notification_service.dart';
 
 class NotificationHandler {
   static void onMessage(RemoteMessage message) {

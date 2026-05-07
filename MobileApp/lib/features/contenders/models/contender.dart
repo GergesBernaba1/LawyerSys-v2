@@ -1,13 +1,4 @@
 class ContenderModel {
-  final String contenderId;
-  final String fullName;
-  final String ssn;
-  final DateTime? birthDate;
-  final String phone;
-  final String email;
-  final String address;
-  final String contenderType;
-  final String notes;
 
   ContenderModel({
     required this.contenderId,
@@ -32,6 +23,15 @@ class ContenderModel {
         contenderType: json['contenderType']?.toString() ?? '',
         notes: json['notes']?.toString() ?? '',
       );
+  final String contenderId;
+  final String fullName;
+  final String ssn;
+  final DateTime? birthDate;
+  final String phone;
+  final String email;
+  final String address;
+  final String contenderType;
+  final String notes;
 
   Map<String, dynamic> toJson() => {
         'contenderId': contenderId,

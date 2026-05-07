@@ -1,19 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/administration_repository.dart';
-import 'administration_event.dart';
-import 'administration_state.dart';
+import 'package:qadaya_lawyersys/features/administration/bloc/administration_event.dart';
+import 'package:qadaya_lawyersys/features/administration/bloc/administration_state.dart';
+import 'package:qadaya_lawyersys/features/administration/repositories/administration_repository.dart';
 
 class AdministrationBloc extends Bloc<AdministrationEvent, AdminState> {
-  final AdministrationRepository repository;
 
   AdministrationBloc({required this.repository}) : super(AdminInitial()) {
     on<LoadAdminOverview>(_onLoadAdminOverview);
     on<RefreshAdminOverview>(_onRefreshAdminOverview);
   }
+  final AdministrationRepository repository;
 
   Future<void> _onLoadAdminOverview(
-      LoadAdminOverview event, Emitter<AdminState> emit) async {
+      LoadAdminOverview event, Emitter<AdminState> emit,) async {
     emit(AdminLoading());
     try {
       final overview = await repository.getOverview();
@@ -24,7 +23,7 @@ class AdministrationBloc extends Bloc<AdministrationEvent, AdminState> {
   }
 
   Future<void> _onRefreshAdminOverview(
-      RefreshAdminOverview event, Emitter<AdminState> emit) async {
+      RefreshAdminOverview event, Emitter<AdminState> emit,) async {
     try {
       final overview = await repository.getOverview();
       emit(AdminLoaded(overview));

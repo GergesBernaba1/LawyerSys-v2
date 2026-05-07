@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/case_notification_settings_screen.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/payment_proof_submission_screen.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/requested_documents_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../cases/repositories/cases_repository.dart';
-import '../models/customer.dart';
-import '../bloc/customers_bloc.dart';
-import '../bloc/customers_event.dart';
-import '../bloc/customers_state.dart';
-import 'case_notification_settings_screen.dart';
-import 'payment_proof_submission_screen.dart';
-import 'requested_documents_screen.dart';
-import '../../../core/localization/app_localizations.dart';
-
 class CustomerDetailScreen extends StatefulWidget {
-  final String customerId;
-  final CasesRepository casesRepository;
 
   const CustomerDetailScreen({super.key, required this.customerId, required this.casesRepository});
+  final String customerId;
+  final CasesRepository casesRepository;
 
   @override
   State<CustomerDetailScreen> createState() => _CustomerDetailScreenState();

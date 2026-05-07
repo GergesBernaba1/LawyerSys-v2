@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/courts_bloc.dart';
-import '../bloc/courts_event.dart';
-import '../bloc/courts_state.dart';
-import '../models/court.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_bloc.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_event.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_state.dart';
+import 'package:qadaya_lawyersys/features/courts/models/court.dart';
 
 class CourtFormScreen extends StatefulWidget {
-  final CourtModel? court;
 
   const CourtFormScreen({super.key, this.court});
+  final CourtModel? court;
 
   @override
   State<CourtFormScreen> createState() => _CourtFormScreenState();
@@ -85,7 +85,7 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
           if (state is CourtsError) {
             setState(() => _isSaving = false);
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
         },
         child: _isSaving
@@ -101,7 +101,7 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                         controller: _nameController,
                         decoration: InputDecoration(
                             labelText: l.courtName,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
                       ),
@@ -110,7 +110,7 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                         controller: _addressController,
                         decoration: InputDecoration(
                             labelText: l.address,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
                       ),
@@ -119,7 +119,7 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                         controller: _governorateController,
                         decoration: InputDecoration(
                             labelText: l.governorate,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
                       ),
@@ -129,7 +129,7 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                             labelText: l.phone,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -137,7 +137,7 @@ class _CourtFormScreenState extends State<CourtFormScreen> {
                         maxLines: 3,
                         decoration: InputDecoration(
                             labelText: l.notes,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(

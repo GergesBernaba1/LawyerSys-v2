@@ -1,12 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../models/user_model.dart';
-import '../repositories/users_repository.dart';
-import 'users_event.dart';
-import 'users_state.dart';
+import 'package:qadaya_lawyersys/features/users/bloc/users_event.dart';
+import 'package:qadaya_lawyersys/features/users/bloc/users_state.dart';
+import 'package:qadaya_lawyersys/features/users/models/user_model.dart';
+import 'package:qadaya_lawyersys/features/users/repositories/users_repository.dart';
 
 class UsersBloc extends Bloc<UsersEvent, UsersState> {
-  final UsersRepository usersRepository;
 
   UsersBloc({required this.usersRepository}) : super(UsersInitial()) {
     on<LoadUsers>(_onLoad);
@@ -17,6 +15,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     on<DeleteUser>(_onDeleteUser);
     on<ChangeUserRole>(_onChangeUserRole);
   }
+  final UsersRepository usersRepository;
 
   Future<void> _onLoad(LoadUsers event, Emitter<UsersState> emit) async {
     emit(UsersLoading());

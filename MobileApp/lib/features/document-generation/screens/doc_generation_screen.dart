@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/doc_generation_bloc.dart';
-import '../bloc/doc_generation_event.dart';
-import '../bloc/doc_generation_state.dart';
-import '../models/doc_gen_models.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/document-generation/bloc/doc_generation_bloc.dart';
+import 'package:qadaya_lawyersys/features/document-generation/bloc/doc_generation_event.dart';
+import 'package:qadaya_lawyersys/features/document-generation/bloc/doc_generation_state.dart';
+import 'package:qadaya_lawyersys/features/document-generation/models/doc_gen_models.dart';
 
 class DocGenerationScreen extends StatefulWidget {
   const DocGenerationScreen({super.key});
@@ -222,7 +222,7 @@ class _GenerateTabState extends State<_GenerateTab> {
 
               // Template list
               Text(AppLocalizations.of(context)!.selectTemplate,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
               const SizedBox(height: 8),
 
               if (state is DocGenLoading && templates.isEmpty)
@@ -230,7 +230,7 @@ class _GenerateTabState extends State<_GenerateTab> {
 
               if (templates.isEmpty && state is! DocGenLoading)
                 Text(AppLocalizations.of(context)!.noTemplatesFound,
-                    style: const TextStyle(color: Colors.grey)),
+                    style: const TextStyle(color: Colors.grey),),
 
               RadioGroup<String>(
                 groupValue: _selectedTemplate?.id,
@@ -250,7 +250,7 @@ class _GenerateTabState extends State<_GenerateTab> {
                       child: RadioListTile<String>(
                         value: template.id,
                         title: Text(template.name,
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                            style: const TextStyle(fontWeight: FontWeight.w600),),
                         subtitle: template.description != null
                             ? Text(template.description!)
                             : null,
@@ -264,9 +264,9 @@ class _GenerateTabState extends State<_GenerateTab> {
               if (_selectedTemplate != null) ...[
                 const Divider(height: 32),
                 Text(AppLocalizations.of(context)!.fillInFields,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
                 const SizedBox(height: 8),
-                ..._selectedTemplate!.fields.map((field) => _buildField(field)),
+                ..._selectedTemplate!.fields.map(_buildField),
                 const SizedBox(height: 16),
               ],
 
@@ -278,7 +278,7 @@ class _GenerateTabState extends State<_GenerateTab> {
                   child: ListTile(
                     leading: const Icon(Icons.check_circle, color: Colors.green),
                     title: Text(state.doc.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontWeight: FontWeight.bold),),
                     subtitle: Text(
                       '${AppLocalizations.of(context)!.generatedOn}: ${state.doc.generatedAt.toLocal().toString().split('.').first}',
                     ),
@@ -428,7 +428,7 @@ class _HistoryTab extends StatelessWidget {
                         const Icon(Icons.history, size: 48, color: Colors.grey),
                         const SizedBox(height: 12),
                         Text(AppLocalizations.of(context)!.noDocumentsFound,
-                            style: const TextStyle(color: Colors.grey)),
+                            style: const TextStyle(color: Colors.grey),),
                       ],
                     ),
                   ),
@@ -449,7 +449,7 @@ class _HistoryTab extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.description, color: Colors.blue),
                     title: Text(doc.title,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: const TextStyle(fontWeight: FontWeight.w600),),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -458,7 +458,7 @@ class _HistoryTab extends StatelessWidget {
                         if (doc.caseCode != null)
                           Text('${AppLocalizations.of(context)!.caseLabel}: ${doc.caseCode}'),
                         Text(
-                            '${AppLocalizations.of(context)!.generatedLabel}: ${doc.generatedAt.toLocal().toString().split('.').first}'),
+                            '${AppLocalizations.of(context)!.generatedLabel}: ${doc.generatedAt.toLocal().toString().split('.').first}',),
                       ],
                     ),
                   ),
@@ -577,7 +577,7 @@ class _DraftsTab extends StatelessWidget {
     return BlocBuilder<DocGenerationBloc, DocGenState>(
       builder: (context, state) {
         List<DocDraft> drafts = [];
-        bool isLoading = state is DocGenLoading;
+        final bool isLoading = state is DocGenLoading;
 
         if (state is DocDraftsLoaded) {
           drafts = state.drafts;
@@ -599,7 +599,7 @@ class _DraftsTab extends StatelessWidget {
                       const Icon(Icons.drafts, size: 48, color: Colors.grey),
                       const SizedBox(height: 12),
                       Text(AppLocalizations.of(context)!.noData,
-                          style: const TextStyle(color: Colors.grey)),
+                          style: const TextStyle(color: Colors.grey),),
                     ],
                   ),
                 ),
@@ -620,7 +620,7 @@ class _DraftsTab extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.edit_document, color: Colors.orange),
                     title: Text(draft.title,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: const TextStyle(fontWeight: FontWeight.w600),),
                     subtitle: Text(
                       '${AppLocalizations.of(context)!.generatedOn}: ${draft.createdAt.toLocal().toString().split('.').first}',
                     ),

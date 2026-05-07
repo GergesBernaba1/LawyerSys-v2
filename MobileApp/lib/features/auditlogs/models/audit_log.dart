@@ -1,11 +1,4 @@
 class AuditLog {
-  final int id;
-  final String action;
-  final String entityName;
-  final String? entityId;
-  final String? performedBy;
-  final DateTime performedAt;
-  final String? changes;
 
   AuditLog({
     required this.id,
@@ -38,4 +31,11 @@ class AuditLog {
       changes: json['changes']?.toString(),
     );
   }
+  final int id;
+  final String action;
+  final String entityName;
+  final String? entityId;
+  final String? performedBy;
+  final DateTime performedAt;
+  final String? changes;
 }

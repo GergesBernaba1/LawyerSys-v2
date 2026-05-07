@@ -1,4 +1,4 @@
-import '../models/contender.dart';
+import 'package:qadaya_lawyersys/features/contenders/models/contender.dart';
 
 abstract class ContendersState {}
 
@@ -6,21 +6,21 @@ class ContendersInitial extends ContendersState {}
 class ContendersLoading extends ContendersState {}
 
 class ContendersLoaded extends ContendersState {
-  final List<ContenderModel> contenders;
   ContendersLoaded(this.contenders);
+  final List<ContenderModel> contenders;
 }
 
 class ContendersError extends ContendersState {
-  final String message;
   ContendersError(this.message);
+  final String message;
 }
 
 class ContenderDetailLoaded extends ContendersState {
-  final ContenderModel contender;
   ContenderDetailLoaded(this.contender);
+  final ContenderModel contender;
 }
 
 class ContenderOperationSuccess extends ContendersState {
-  final String message;
   ContenderOperationSuccess(this.message);
+  final String message;
 }

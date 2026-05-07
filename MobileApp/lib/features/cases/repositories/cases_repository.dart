@@ -1,16 +1,16 @@
 import 'dart:convert';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/storage/local_database.dart';
-import '../../../core/sync/sync_queue_item.dart';
-import '../models/case.dart';
-import '../../customers/models/customer.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/core/sync/sync_queue_item.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
 
 class CasesRepository {
-  final ApiClient apiClient;
-  final LocalDatabase localDatabase;
 
   CasesRepository(this.apiClient, this.localDatabase);
+  final ApiClient apiClient;
+  final LocalDatabase localDatabase;
 
   List<dynamic> _asList(dynamic data) {
     if (data is List<dynamic>) return data;
@@ -22,17 +22,16 @@ class CasesRepository {
   }
 
   Future<List<CaseModel>> getCases(
-      {String? tenantId, int page = 1, int pageSize = 20}) async {
+      {String? tenantId, int page = 1, int pageSize = 20,}) async {
     try {
       final response = await apiClient.get('/api/cases',
-          queryParameters: {'page': page, 'pageSize': pageSize});
+          queryParameters: {'page': page, 'pageSize': pageSize},);
       final list = _asList(response.data)
           .map((e) => CaseModel.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList();
       for (final c in list) {
         await localDatabase.upsertCase(c.caseId, c.toJson(),
-            tenantId: c.tenantId.isNotEmpty ? c.tenantId : tenantId,
-            isDirty: false);
+            tenantId: c.tenantId.isNotEmpty ? c.tenantId : tenantId,);
       }
       return list;
     } catch (_) {
@@ -40,10 +39,10 @@ class CasesRepository {
       final cached = await localDatabase.getCases(
           tenantId: tenantId,
           limit: pageSize,
-          offset: (safePage - 1) * pageSize);
+          offset: (safePage - 1) * pageSize,);
       return cached
           .map((row) => CaseModel.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .toList();
     }
   }
@@ -53,9 +52,9 @@ class CasesRepository {
       final response = await apiClient.get('/api/cases/$caseId');
       if (response.data != null) {
         final model =
-            CaseModel.fromJson(Map<String, dynamic>.from(response.data));
+            CaseModel.fromJson(Map<String, dynamic>.from(response.data as Map));
         await localDatabase.upsertCase(model.caseId, model.toJson(),
-            tenantId: model.tenantId, isDirty: false);
+            tenantId: model.tenantId,);
         return model;
       }
       return null;
@@ -63,9 +62,9 @@ class CasesRepository {
       final cached = await localDatabase.getCases();
       return cached
           .map((row) => CaseModel.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .firstWhere((e) => e.caseId == caseId,
-              orElse: () => throw StateError('Case not found'));
+              orElse: () => throw StateError('Case not found'),);
     }
   }
 
@@ -74,20 +73,20 @@ class CasesRepository {
       final response =
           await apiClient.post('/api/cases', data: caseModel.toJson());
       final created =
-          CaseModel.fromJson(Map<String, dynamic>.from(response.data));
+          CaseModel.fromJson(Map<String, dynamic>.from(response.data as Map));
       await localDatabase.upsertCase(created.caseId, created.toJson(),
-          tenantId: created.tenantId, isDirty: false);
+          tenantId: created.tenantId,);
     } catch (_) {
       // fallback offline create
       await localDatabase.upsertCase(caseModel.caseId, caseModel.toJson(),
-          tenantId: caseModel.tenantId, isDirty: true);
+          tenantId: caseModel.tenantId, isDirty: true,);
       await localDatabase.addSyncQueueItem(SyncQueueItem(
         id: 'create_case_${caseModel.caseId}_${DateTime.now().millisecondsSinceEpoch}',
         operationType: 'create_case',
         entityType: 'case',
         entityId: caseModel.caseId,
         payload: caseModel.toJson(),
-      ));
+      ),);
       rethrow;
     }
   }
@@ -95,19 +94,19 @@ class CasesRepository {
   Future<void> updateCase(CaseModel caseModel) async {
     try {
       await apiClient.put('/api/cases/${caseModel.caseId}',
-          data: caseModel.toJson());
+          data: caseModel.toJson(),);
       await localDatabase.upsertCase(caseModel.caseId, caseModel.toJson(),
-          tenantId: caseModel.tenantId, isDirty: false);
+          tenantId: caseModel.tenantId,);
     } catch (_) {
       await localDatabase.upsertCase(caseModel.caseId, caseModel.toJson(),
-          tenantId: caseModel.tenantId, isDirty: true);
+          tenantId: caseModel.tenantId, isDirty: true,);
       await localDatabase.addSyncQueueItem(SyncQueueItem(
         id: 'update_case_${caseModel.caseId}_${DateTime.now().millisecondsSinceEpoch}',
         operationType: 'update_case',
         entityType: 'case',
         entityId: caseModel.caseId,
         payload: caseModel.toJson(),
-      ));
+      ),);
       rethrow;
     }
   }
@@ -124,7 +123,7 @@ class CasesRepository {
         entityType: 'case',
         entityId: caseId,
         payload: {},
-      ));
+      ),);
       rethrow;
     }
   }
@@ -141,17 +140,17 @@ class CasesRepository {
           await localDatabase.getCases(tenantId: tenantId, limit: 200);
       return cached
           .map((row) => CaseModel.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .where((c) =>
               c.caseNumber.toLowerCase().contains(query.toLowerCase()) ||
               c.invitionType.toLowerCase().contains(query.toLowerCase()) ||
-              c.invitionsStatment.toLowerCase().contains(query.toLowerCase()))
+              c.invitionsStatment.toLowerCase().contains(query.toLowerCase()),)
           .toList();
     }
   }
 
   Future<List<CustomerCaseHistoryItem>> getCasesByCustomerId(String customerId,
-      {String? tenantId}) async {
+      {String? tenantId,}) async {
     // Prefer backend profile endpoint for exact customer-case relationships.
     try {
       final response =
@@ -161,7 +160,7 @@ class CasesRepository {
         if (casesData is List<dynamic>) {
           return casesData
               .map((e) => CustomerCaseHistoryItem.fromJson(
-                  Map<String, dynamic>.from(e as Map)))
+                  Map<String, dynamic>.from(e as Map),),)
               .toList();
         }
       }
@@ -170,10 +169,10 @@ class CasesRepository {
     }
 
     final cached =
-        await localDatabase.getCases(tenantId: tenantId, limit: 200, offset: 0);
+        await localDatabase.getCases(tenantId: tenantId, limit: 200);
     return cached
         .map((row) => CaseModel.fromJson(
-            jsonDecode(row['data'] as String) as Map<String, dynamic>))
+            jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
         .where((c) => c.customerId == customerId)
         .map((caseModel) => CustomerCaseHistoryItem(
               caseId: caseModel.caseId,
@@ -182,7 +181,7 @@ class CasesRepository {
               assignedEmployeeName: caseModel.assignedEmployees.isNotEmpty
                   ? caseModel.assignedEmployees.first.employeeName
                   : '',
-            ))
+            ),)
         .toList();
   }
 }

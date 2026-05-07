@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/core/storage/local_database.dart';
 import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_bloc.dart';
 import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
 import 'package:qadaya_lawyersys/features/hearings/repositories/hearings_repository.dart';
 import 'package:qadaya_lawyersys/features/hearings/screens/hearings_list_screen.dart';
-import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class FakeHearingsRepository extends HearingsRepository {
   FakeHearingsRepository() : super(ApiClient(), LocalDatabase.instance);
@@ -32,7 +32,7 @@ class FakeHearingsRepository extends HearingsRepository {
       Hearing(
         hearingId: 'H2',
         tenantId: '',
-        hearingDate: DateTime(now.year, now.month, now.day + 1, 14, 0),
+        hearingDate: DateTime(now.year, now.month, now.day + 1, 14),
         caseId: 'C2',
         caseNumber: 'CASE-002',
         judgeName: 'Judge Ali',
@@ -52,7 +52,7 @@ class FakeHearingsRepository extends HearingsRepository {
 }
 
 void main() {
-  testWidgets('HearingsListScreen renders list and calendar view with markers', (WidgetTester tester) async {
+  testWidgets('HearingsListScreen renders list and calendar view with markers', (tester) async {
     // Use a taller viewport so the calendar + events list both fit.
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;

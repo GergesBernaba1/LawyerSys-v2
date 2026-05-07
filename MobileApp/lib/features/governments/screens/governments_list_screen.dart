@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/l10n/app_localizations.dart';
-import '../bloc/governments_bloc.dart';
-import '../bloc/governments_event.dart';
-import '../bloc/governments_state.dart';
-import '../models/government.dart';
-import 'government_detail_screen.dart';
-import 'government_form_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/l10n/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_bloc.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_event.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_state.dart';
+import 'package:qadaya_lawyersys/features/governments/models/government.dart';
+import 'package:qadaya_lawyersys/features/governments/screens/government_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/governments/screens/government_form_screen.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -108,7 +108,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
               builder: (context, state) {
                 if (state is GovernmentsLoading) {
                   return const Center(
-                      child: CircularProgressIndicator(color: _kPrimary));
+                      child: CircularProgressIndicator(color: _kPrimary),);
                 }
                 if (state is GovernmentsError) {
                   return Center(
@@ -116,10 +116,10 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.error_outline,
-                            size: 48, color: _kTextSecondary),
+                            size: 48, color: _kTextSecondary,),
                         const SizedBox(height: 16),
                         Text('${l.error}: ${state.message}',
-                            style: const TextStyle(color: Colors.red)),
+                            style: const TextStyle(color: Colors.red),),
                       ],
                     ),
                   );
@@ -128,7 +128,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(state.message)));
+                          SnackBar(content: Text(state.message)),);
                     }
                   });
                 }
@@ -139,7 +139,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                       children: [
                         Icon(Icons.location_city,
                             size: 64,
-                            color: _kTextSecondary.withValues(alpha: 0.5)),
+                            color: _kTextSecondary.withValues(alpha: 0.5),),
                         const SizedBox(height: 16),
                         Text(
                           l.noGovernmentsFound,
@@ -182,7 +182,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                         ),
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                              horizontal: 16, vertical: 12,),
                           leading: Container(
                             width: 48,
                             height: 48,
@@ -191,7 +191,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(Icons.location_city,
-                                color: _kPrimary, size: 24),
+                                color: _kPrimary, size: 24,),
                           ),
                           title: Text(
                             gov.governorateName,
@@ -232,7 +232,7 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                                     ],
                                   ),
                                 );
-                                if (confirmed == true && context.mounted) {
+                                if ((confirmed ?? false) && context.mounted) {
                                   context.read<GovernmentsBloc>().add(DeleteGovernment(gov.governorateId));
                                 }
                               }

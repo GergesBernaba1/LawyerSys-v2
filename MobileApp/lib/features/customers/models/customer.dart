@@ -1,10 +1,4 @@
 class Customer {
-  final String customerId;
-  final String fullName;
-  final String? phoneNumber;
-  final String? ssn;
-  final String? email;
-  final String? address;
 
   Customer({
     required this.customerId,
@@ -23,6 +17,12 @@ class Customer {
         email: json['email']?.toString(),
         address: json['address']?.toString(),
       );
+  final String customerId;
+  final String fullName;
+  final String? phoneNumber;
+  final String? ssn;
+  final String? email;
+  final String? address;
 
   Map<String, dynamic> toJson() => {
         'customerId': customerId,
@@ -35,10 +35,6 @@ class Customer {
 }
 
 class CustomerCaseHistoryItem {
-  final String caseId;
-  final String caseName;
-  final String caseCode;
-  final String assignedEmployeeName;
 
   CustomerCaseHistoryItem({
     required this.caseId,
@@ -57,5 +53,10 @@ class CustomerCaseHistoryItem {
           : '',
     );
   }
+  final String caseId;
+  final String caseName;
+  final String caseCode;
+  final String assignedEmployeeName;
 }
+
 

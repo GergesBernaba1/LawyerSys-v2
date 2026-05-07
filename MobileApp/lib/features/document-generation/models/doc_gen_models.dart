@@ -1,9 +1,4 @@
-class DocTemplateField {
-  final String key;
-  final String label;
-  final String fieldType; // text, date, number, select
-  final bool required;
-  final List<String>? options; // for select type
+class DocTemplateField { // for select type
 
   DocTemplateField({
     required this.key,
@@ -24,14 +19,14 @@ class DocTemplateField {
           .toList(),
     );
   }
+  final String key;
+  final String label;
+  final String fieldType; // text, date, number, select
+  final bool required;
+  final List<String>? options;
 }
 
 class DocTemplate {
-  final String id;
-  final String name;
-  final String? description;
-  final String? language;
-  final List<DocTemplateField> fields;
 
   DocTemplate({
     required this.id,
@@ -53,14 +48,14 @@ class DocTemplate {
           .toList(),
     );
   }
+  final String id;
+  final String name;
+  final String? description;
+  final String? language;
+  final List<DocTemplateField> fields;
 }
 
 class GeneratedDoc {
-  final String id;
-  final String title;
-  final DateTime generatedAt;
-  final String? templateName;
-  final String? caseCode;
 
   GeneratedDoc({
     required this.id,
@@ -79,13 +74,14 @@ class GeneratedDoc {
       caseCode: json['caseCode'] as String?,
     );
   }
+  final String id;
+  final String title;
+  final DateTime generatedAt;
+  final String? templateName;
+  final String? caseCode;
 }
 
 class DocDraft {
-  final String id;
-  final String title;
-  final String? content;
-  final DateTime createdAt;
 
   DocDraft({
     required this.id,
@@ -102,4 +98,8 @@ class DocDraft {
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
+  final String id;
+  final String title;
+  final String? content;
+  final DateTime createdAt;
 }

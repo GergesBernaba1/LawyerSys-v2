@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../models/government.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/governments/models/government.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kText = Color(0xFF0F172A);
 const _kTextSecondary = Color(0xFF5F7085);
 
 class GovernmentDetailScreen extends StatelessWidget {
-  final Government government;
 
   const GovernmentDetailScreen({super.key, required this.government});
+  final Government government;
 
   @override
   Widget build(BuildContext context) {
@@ -75,15 +75,15 @@ class GovernmentDetailScreen extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
 
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
   });
+  final IconData icon;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {

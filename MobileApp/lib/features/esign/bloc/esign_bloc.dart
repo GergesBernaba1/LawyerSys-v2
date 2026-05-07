@@ -1,14 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repositories/esign_repository.dart';
-import 'esign_event.dart';
-import 'esign_state.dart';
+import 'package:qadaya_lawyersys/features/esign/bloc/esign_event.dart';
+import 'package:qadaya_lawyersys/features/esign/bloc/esign_state.dart';
+import 'package:qadaya_lawyersys/features/esign/repositories/esign_repository.dart';
 
 class ESignBloc extends Bloc<ESignEvent, ESignState> {
-  final ESignRepository repository;
-
-  // Keep track of the last filter so refresh can reuse it
-  String? _lastStatus;
-  String? _lastSearch;
 
   ESignBloc({required this.repository}) : super(ESignInitial()) {
     on<LoadESignRequests>(_onLoadESignRequests);
@@ -17,6 +12,11 @@ class ESignBloc extends Bloc<ESignEvent, ESignState> {
     on<UpdateESignStatus>(_onUpdateESignStatus);
     on<GetESignShareLink>(_onGetESignShareLink);
   }
+  final ESignRepository repository;
+
+  // Keep track of the last filter so refresh can reuse it
+  String? _lastStatus;
+  String? _lastSearch;
 
   Future<void> _onLoadESignRequests(
     LoadESignRequests event,

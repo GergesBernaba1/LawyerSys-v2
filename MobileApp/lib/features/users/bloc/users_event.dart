@@ -3,16 +3,13 @@ abstract class UsersEvent {}
 class LoadUsers extends UsersEvent {}
 
 class SearchUsers extends UsersEvent {
-  final String query;
   SearchUsers(this.query);
+  final String query;
 }
 
 class RefreshUsers extends UsersEvent {}
 
 class CreateUser extends UsersEvent {
-  final String email, password, firstName, lastName;
-  final String? phoneNumber, job;
-  final String role;
   CreateUser({
     required this.email,
     required this.password,
@@ -22,12 +19,12 @@ class CreateUser extends UsersEvent {
     this.job,
     this.role = 'Employee',
   });
+  final String email, password, firstName, lastName;
+  final String? phoneNumber, job;
+  final String role;
 }
 
 class UpdateUser extends UsersEvent {
-  final String id, firstName, lastName;
-  final String? phoneNumber, job;
-  final bool isActive;
   UpdateUser({
     required this.id,
     required this.firstName,
@@ -36,15 +33,18 @@ class UpdateUser extends UsersEvent {
     this.job,
     this.isActive = true,
   });
+  final String id, firstName, lastName;
+  final String? phoneNumber, job;
+  final bool isActive;
 }
 
 class DeleteUser extends UsersEvent {
-  final String id;
   DeleteUser(this.id);
+  final String id;
 }
 
 class ChangeUserRole extends UsersEvent {
+  ChangeUserRole({required this.id, required this.role});
   final String id;
   final String role;
-  ChangeUserRole({required this.id, required this.role});
 }

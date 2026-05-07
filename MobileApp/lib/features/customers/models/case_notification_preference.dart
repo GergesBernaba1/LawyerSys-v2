@@ -1,6 +1,4 @@
 class CaseNotificationPreference {
-  final int caseCode;
-  final bool notificationsEnabled;
 
   CaseNotificationPreference({
     required this.caseCode,
@@ -9,10 +7,12 @@ class CaseNotificationPreference {
 
   factory CaseNotificationPreference.fromJson(Map<String, dynamic> json) {
     return CaseNotificationPreference(
-      caseCode: json['caseCode'] ?? 0,
-      notificationsEnabled: json['notificationsEnabled'] ?? true,
+      caseCode: (json['caseCode'] as int?) ?? 0,
+      notificationsEnabled: (json['notificationsEnabled'] as bool?) ?? true,
     );
   }
+  final int caseCode;
+  final bool notificationsEnabled;
 
   Map<String, dynamic> toJson() => {
         'caseCode': caseCode,

@@ -1,17 +1,4 @@
 class Hearing {
-  final String hearingId;
-  final String tenantId;
-  final DateTime hearingDate;
-  final String caseId;
-  final String caseNumber;
-  final String judgeName;
-  final String courtId;
-  final String courtName;
-  final String courtLocation;
-  final String? hearingNotificationDetails;
-  final String? notes;
-  final DateTime? lastSyncedAt;
-  final bool isDirty;
 
   Hearing({
     required this.hearingId,
@@ -44,6 +31,19 @@ class Hearing {
         lastSyncedAt: json['lastSyncedAt'] != null ? DateTime.tryParse(json['lastSyncedAt'] as String) : null,
         isDirty: json['isDirty'] == true || json['isDirty'] == 1,
       );
+  final String hearingId;
+  final String tenantId;
+  final DateTime hearingDate;
+  final String caseId;
+  final String caseNumber;
+  final String judgeName;
+  final String courtId;
+  final String courtName;
+  final String courtLocation;
+  final String? hearingNotificationDetails;
+  final String? notes;
+  final DateTime? lastSyncedAt;
+  final bool isDirty;
 
   Map<String, dynamic> toJson() => {
         'hearingId': hearingId,

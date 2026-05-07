@@ -3,10 +3,6 @@ import 'package:shimmer/shimmer.dart';
 
 /// A reusable skeleton loading widget using shimmer effect
 class SkeletonLoader extends StatelessWidget {
-  final double? width;
-  final double height;
-  final BorderRadius? borderRadius;
-  final EdgeInsets? margin;
 
   const SkeletonLoader({
     super.key,
@@ -15,6 +11,10 @@ class SkeletonLoader extends StatelessWidget {
     this.borderRadius,
     this.margin,
   });
+  final double? width;
+  final double height;
+  final BorderRadius? borderRadius;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,9 @@ class SkeletonLoader extends StatelessWidget {
 
 /// Shimmer wrapper for skeleton loaders
 class ShimmerWrapper extends StatelessWidget {
-  final Widget child;
 
   const ShimmerWrapper({super.key, required this.child});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,6 @@ class ListItemSkeleton extends StatelessWidget {
                 children: [
                   SkeletonLoader(
                     width: MediaQuery.of(context).size.width * 0.6,
-                    height: 16,
                   ),
                   const SizedBox(height: 8),
                   SkeletonLoader(
@@ -94,9 +93,9 @@ class ListItemSkeleton extends StatelessWidget {
 
 /// Card skeleton
 class CardSkeleton extends StatelessWidget {
-  final double? height;
 
   const CardSkeleton({super.key, this.height});
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -116,14 +115,14 @@ class CardSkeleton extends StatelessWidget {
 
 /// List skeleton with multiple items
 class ListSkeleton extends StatelessWidget {
-  final int itemCount;
-  final Widget Function(BuildContext, int)? itemBuilder;
 
   const ListSkeleton({
     super.key,
     this.itemCount = 5,
     this.itemBuilder,
   });
+  final int itemCount;
+  final Widget Function(BuildContext, int)? itemBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -137,14 +136,14 @@ class ListSkeleton extends StatelessWidget {
 
 /// Grid skeleton
 class GridSkeleton extends StatelessWidget {
-  final int itemCount;
-  final int crossAxisCount;
 
   const GridSkeleton({
     super.key,
     this.itemCount = 6,
     this.crossAxisCount = 2,
   });
+  final int itemCount;
+  final int crossAxisCount;
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +154,6 @@ class GridSkeleton extends StatelessWidget {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1,
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) {
@@ -174,9 +172,9 @@ class GridSkeleton extends StatelessWidget {
 
 /// Form field skeleton
 class FormFieldSkeleton extends StatelessWidget {
-  final double? width;
 
   const FormFieldSkeleton({super.key, this.width});
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +220,6 @@ class ProfileHeaderSkeleton extends StatelessWidget {
           const SizedBox(height: 8),
           SkeletonLoader(
             width: MediaQuery.of(context).size.width * 0.3,
-            height: 16,
           ),
         ],
       ),
@@ -232,9 +229,9 @@ class ProfileHeaderSkeleton extends StatelessWidget {
 
 /// Table row skeleton
 class TableRowSkeleton extends StatelessWidget {
-  final int columns;
 
   const TableRowSkeleton({super.key, this.columns = 4});
+  final int columns;
 
   @override
   Widget build(BuildContext context) {

@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/subscription_package.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/subscription/models/subscription_package.dart';
 
 class SubscriptionRepository {
-  final ApiClient apiClient;
 
   SubscriptionRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<SubscriptionPackage>> getPublicPackages() async {
     final response = await apiClient.get('/subscriptionpackages/public');

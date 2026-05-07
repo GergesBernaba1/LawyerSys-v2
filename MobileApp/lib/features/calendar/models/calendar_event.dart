@@ -1,13 +1,4 @@
 class CalendarEvent {
-  final String id;
-  final String type;
-  final String title;
-  final String start;
-  final String? end;
-  final String? notes;
-  final int? caseCode;
-  final int? entityId;
-  final bool isReminderEvent;
 
   CalendarEvent({
     required this.id,
@@ -34,6 +25,15 @@ class CalendarEvent {
       isReminderEvent: json['isReminderEvent'] as bool? ?? false,
     );
   }
+  final String id;
+  final String type;
+  final String title;
+  final String start;
+  final String? end;
+  final String? notes;
+  final int? caseCode;
+  final int? entityId;
+  final bool isReminderEvent;
 
   Map<String, dynamic> toJson() {
     return {

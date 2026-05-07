@@ -1,11 +1,4 @@
 class AppNotification {
-  final String notificationId;
-  final String title;
-  final String message;
-  final bool isRead;
-  final String? category;
-  final String? route;
-  final DateTime? timestamp;
 
   AppNotification({
     required this.notificationId,
@@ -28,6 +21,13 @@ class AppNotification {
             ? DateTime.tryParse(json['timestamp'].toString())
             : null,
       );
+  final String notificationId;
+  final String title;
+  final String message;
+  final bool isRead;
+  final String? category;
+  final String? route;
+  final DateTime? timestamp;
 
   Map<String, dynamic> toJson() => {
         'notificationId': notificationId,

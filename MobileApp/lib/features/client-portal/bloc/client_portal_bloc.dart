@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/client_portal_repository.dart';
-import 'client_portal_event.dart';
-import 'client_portal_state.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_event.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_state.dart';
+import 'package:qadaya_lawyersys/features/client-portal/repositories/client_portal_repository.dart';
 
 class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
-  final ClientPortalRepository clientPortalRepository;
 
   ClientPortalBloc({required this.clientPortalRepository}) : super(ClientPortalInitial()) {
     on<LoadPortalMessages>(_onLoadPortalMessages);
@@ -19,6 +17,7 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
     on<DownloadPortalDocument>(_onDownloadDocument);
     on<UploadPortalDocument>(_onUploadDocument);
   }
+  final ClientPortalRepository clientPortalRepository;
 
   Future<void> _onLoadPortalMessages(LoadPortalMessages event, Emitter<ClientPortalState> emit) async {
     emit(ClientPortalLoading());

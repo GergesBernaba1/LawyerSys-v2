@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../bloc/calendar_bloc.dart';
-import '../bloc/calendar_event.dart';
-import '../bloc/calendar_state.dart';
-import '../models/calendar_event.dart' as model;
-import '../../../core/localization/app_localizations.dart';
-import 'calendar_event_form_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_bloc.dart';
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_event.dart';
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_state.dart';
+import 'package:qadaya_lawyersys/features/calendar/models/calendar_event.dart' as model;
+import 'package:qadaya_lawyersys/features/calendar/screens/calendar_event_form_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -44,7 +43,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           DateTime(base.year, base.month, base.day - base.weekday + 1);
       return _toDateOnly(start);
     }
-    return _toDateOnly(DateTime(base.year, base.month, 1));
+    return _toDateOnly(DateTime(base.year, base.month));
   }
 
   String _getToDate(String view, DateTime anchorDate) {
@@ -84,7 +83,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _confirmDelete(
-      model.CalendarEvent event, AppLocalizations l) async {
+      model.CalendarEvent event, AppLocalizations l,) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -93,23 +92,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l.cancel)),
+              child: Text(l.cancel),),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l.delete)),
+              child: Text(l.delete),),
         ],
       ),
     );
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       context.read<CalendarBloc>().add(
             DeleteCalendarEvent(event.id,
-                fromDate: _fromDate, toDate: _toDate),
+                fromDate: _fromDate, toDate: _toDate,),
           );
     }
   }
 
   void _showDayEventsSheet(
-      BuildContext context, String date, List<model.CalendarEvent> dayEvents) {
+      BuildContext context, String date, List<model.CalendarEvent> dayEvents,) {
     final l = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
@@ -121,7 +120,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       builder: (sheetCtx) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.5,
           minChildSize: 0.3,
           maxChildSize: 0.85,
           builder: (_, scrollController) {
@@ -197,26 +195,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                     Container(
                                       margin: const EdgeInsetsDirectional.only(start: 6),
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
+                                          horizontal: 6, vertical: 2,),
                                       decoration: BoxDecoration(
                                         color: Colors.orange
                                             .withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: Colors.orange
-                                                .withValues(alpha: 0.5)),
+                                                .withValues(alpha: 0.5),),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           const Icon(Icons.notifications,
-                                              size: 12, color: Colors.orange),
+                                              size: 12, color: Colors.orange,),
                                           const SizedBox(width: 2),
                                           Text(
                                             l.calendarReminderEvent,
                                             style: const TextStyle(
                                                 fontSize: 10,
-                                                color: Colors.orange),
+                                                color: Colors.orange,),
                                           ),
                                         ],
                                       ),
@@ -229,7 +227,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit,
-                                        size: 20),
+                                        size: 20,),
                                     tooltip: l.edit,
                                     onPressed: () {
                                       Navigator.pop(sheetCtx);
@@ -238,7 +236,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete,
-                                        size: 20, color: Colors.red),
+                                        size: 20, color: Colors.red,),
                                     tooltip: l.delete,
                                     onPressed: () async {
                                       Navigator.pop(sheetCtx);
@@ -278,7 +276,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           }
           if (state is CalendarError) {
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
         },
         builder: (context, state) {
@@ -311,9 +309,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         value: _view,
                         items: [
                           DropdownMenuItem(
-                              value: 'month', child: Text(l.calendarView)),
+                              value: 'month', child: Text(l.calendarView),),
                           DropdownMenuItem(
-                              value: 'week', child: Text(l.listView)),
+                              value: 'week', child: Text(l.listView),),
                         ],
                         onChanged: (v) {
                           if (v != null) {
@@ -325,7 +323,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       TextButton.icon(
                         icon: const Icon(Icons.calendar_today, size: 16),
                         label: Text(
-                            '${_anchorDate.year}-${_anchorDate.month.toString().padLeft(2, '0')}'),
+                            '${_anchorDate.year}-${_anchorDate.month.toString().padLeft(2, '0')}',),
                         onPressed: () async {
                           final picked = await showDatePicker(
                             context: context,
@@ -355,14 +353,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               final dayEvents = grouped[date]!;
                               return Card(
                                 margin: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
+                                    horizontal: 12, vertical: 6,),
                                 child: ExpansionTile(
                                   title: InkWell(
                                     onTap: () => _showDayEventsSheet(
-                                        context, date, dayEvents),
+                                        context, date, dayEvents,),
                                     child: Text(date,
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                            fontWeight: FontWeight.bold,),),
                                   ),
                                   initiallyExpanded: true,
                                   children: dayEvents
@@ -376,9 +374,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             ),
                                             title: Text(event.title),
                                             subtitle: Text(
-                                                '${event.type} • ${_formatTime(event.start)}'),
+                                                '${event.type} • ${_formatTime(event.start)}',),
                                             onTap: () => _showDayEventsSheet(
-                                                context, date, dayEvents),
+                                                context, date, dayEvents,),
                                             trailing: PopupMenuButton<String>(
                                               onSelected: (v) {
                                                 if (v == 'edit') {
@@ -390,13 +388,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                               itemBuilder: (_) => [
                                                 PopupMenuItem(
                                                     value: 'edit',
-                                                    child: Text(l.edit)),
+                                                    child: Text(l.edit),),
                                                 PopupMenuItem(
                                                     value: 'delete',
-                                                    child: Text(l.delete)),
+                                                    child: Text(l.delete),),
                                               ],
                                             ),
-                                          ))
+                                          ),)
                                       .toList(),
                                 ),
                               );

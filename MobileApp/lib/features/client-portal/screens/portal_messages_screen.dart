@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/client_portal_bloc.dart';
-import '../bloc/client_portal_event.dart';
-import '../bloc/client_portal_state.dart';
-import '../models/portal_message.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_bloc.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_event.dart';
+import 'package:qadaya_lawyersys/features/client-portal/bloc/client_portal_state.dart';
+import 'package:qadaya_lawyersys/features/client-portal/models/portal_message.dart';
 
 class PortalMessagesScreen extends StatefulWidget {
   const PortalMessagesScreen({super.key});
@@ -142,7 +142,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
               listener: (context, state) {
                 if (state is ClientPortalError) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${l.error}: ${state.message}')));
+                      SnackBar(content: Text('${l.error}: ${state.message}')),);
                 }
                 if (state is PortalMessageMarkedAsRead) {
                   ScaffoldMessenger.of(context)
@@ -159,7 +159,7 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
                 }
                 if (state is ClientPortalError) {
                   return Center(
-                      child: Text('${l.error}: ${state.message}'));
+                      child: Text('${l.error}: ${state.message}'),);
                 }
                 if (state is ClientPortalMessagesLoaded) {
                   final messages = state.messages;
@@ -185,9 +185,9 @@ class _PortalMessagesScreenState extends State<PortalMessagesScreen> {
                               style: TextStyle(
                                   fontWeight: msg.isRead
                                       ? FontWeight.normal
-                                      : FontWeight.bold)),
+                                      : FontWeight.bold,),),
                           subtitle: Text(
-                              '${msg.from} • ${msg.sentAt.toLocal().toIso8601String().split('T').first}'),
+                              '${msg.from} • ${msg.sentAt.toLocal().toIso8601String().split('T').first}',),
                           onTap: () => _viewMessage(msg, l),
                         );
                       },

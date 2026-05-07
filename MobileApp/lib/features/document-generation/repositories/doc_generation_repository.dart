@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/doc_gen_models.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/document-generation/models/doc_gen_models.dart';
 
 class DocGenerationRepository {
-  final ApiClient apiClient;
 
   DocGenerationRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<DocTemplate>> getTemplates({String? language}) async {
     final response = await apiClient.get(

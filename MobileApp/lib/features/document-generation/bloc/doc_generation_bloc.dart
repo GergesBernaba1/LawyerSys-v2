@@ -1,10 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repositories/doc_generation_repository.dart';
-import 'doc_generation_event.dart';
-import 'doc_generation_state.dart';
+import 'package:qadaya_lawyersys/features/document-generation/bloc/doc_generation_event.dart';
+import 'package:qadaya_lawyersys/features/document-generation/bloc/doc_generation_state.dart';
+import 'package:qadaya_lawyersys/features/document-generation/repositories/doc_generation_repository.dart';
 
 class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
-  final DocGenerationRepository repository;
 
   DocGenerationBloc({required this.repository}) : super(DocGenInitial()) {
     on<LoadDocTemplates>(_onLoadDocTemplates);
@@ -14,9 +13,10 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
     on<CreateDocDraft>(_onCreateDocDraft);
     on<DeleteDocDraft>(_onDeleteDocDraft);
   }
+  final DocGenerationRepository repository;
 
   Future<void> _onLoadDocTemplates(
-      LoadDocTemplates event, Emitter<DocGenState> emit) async {
+      LoadDocTemplates event, Emitter<DocGenState> emit,) async {
     emit(DocGenLoading());
     try {
       final templates = await repository.getTemplates(language: event.language);
@@ -27,7 +27,7 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
   }
 
   Future<void> _onGenerateDocument(
-      GenerateDocument event, Emitter<DocGenState> emit) async {
+      GenerateDocument event, Emitter<DocGenState> emit,) async {
     emit(DocGenLoading());
     try {
       final doc = await repository.generateDocument(
@@ -43,7 +43,7 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
   }
 
   Future<void> _onLoadDocHistory(
-      LoadDocHistory event, Emitter<DocGenState> emit) async {
+      LoadDocHistory event, Emitter<DocGenState> emit,) async {
     emit(DocGenLoading());
     try {
       final history = await repository.getHistory(caseCode: event.caseCode);
@@ -54,7 +54,7 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
   }
 
   Future<void> _onLoadDocDrafts(
-      LoadDocDrafts event, Emitter<DocGenState> emit) async {
+      LoadDocDrafts event, Emitter<DocGenState> emit,) async {
     emit(DocGenLoading());
     try {
       final drafts = await repository.getDrafts();
@@ -65,7 +65,7 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
   }
 
   Future<void> _onCreateDocDraft(
-      CreateDocDraft event, Emitter<DocGenState> emit) async {
+      CreateDocDraft event, Emitter<DocGenState> emit,) async {
     emit(DocGenLoading());
     try {
       await repository.createDraft(
@@ -81,7 +81,7 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
   }
 
   Future<void> _onDeleteDocDraft(
-      DeleteDocDraft event, Emitter<DocGenState> emit) async {
+      DeleteDocDraft event, Emitter<DocGenState> emit,) async {
     emit(DocGenLoading());
     try {
       await repository.deleteDraft(event.id);

@@ -1,17 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/ai_assistant_repository.dart';
-import 'ai_assistant_event.dart';
-import 'ai_assistant_state.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/bloc/ai_assistant_event.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/bloc/ai_assistant_state.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/repositories/ai_assistant_repository.dart';
 
 class AiAssistantBloc extends Bloc<AiAssistantEvent, AiAssistantState> {
-  final AiAssistantRepository repository;
 
   AiAssistantBloc({required this.repository}) : super(AiAssistantInitial()) {
     on<SummarizeText>(_onSummarizeText);
     on<DraftDocument>(_onDraftDocument);
     on<LoadDeadlineSuggestions>(_onLoadDeadlineSuggestions);
   }
+  final AiAssistantRepository repository;
 
   Future<void> _onSummarizeText(
     SummarizeText event,

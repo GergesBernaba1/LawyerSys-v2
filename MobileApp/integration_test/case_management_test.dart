@@ -30,7 +30,7 @@ Future<void> loginAsTestUser(WidgetTester tester) async {
 /// Helper function to navigate to cases screen
 Future<void> navigateToCasesScreen(WidgetTester tester) async {
   // Look for Cases navigation item (could be in bottom nav or drawer)
-  final casesNav = find.text(RegExp(r'Cases|القضايا', caseSensitive: false));
+  final casesNav = find.text(RegExp('Cases|القضايا', caseSensitive: false));
   
   if (casesNav.evaluate().isEmpty) {
     // Try finding by icon
@@ -69,11 +69,11 @@ void main() {
       // Verify cases are displayed (or "no cases" message)
       expect(
         find.byType(ListTile)
-            .or(find.textContaining(RegExp(r'No cases|لا توجد قضايا'))),
+            .or(find.textContaining(RegExp('No cases|لا توجد قضايا'))),
         findsWidgets,
         reason: 'Should show cases or empty state',
       );
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Create new case flow', (tester) async {
       // Login and navigate to cases
@@ -89,7 +89,7 @@ void main() {
 
       // Verify case form is displayed
       expect(
-        find.text(RegExp(r'New Case|Create Case|قضية جديدة')),
+        find.text(RegExp('New Case|Create Case|قضية جديدة')),
         findsOneWidget,
         reason: 'Case creation form should be displayed',
       );
@@ -97,7 +97,7 @@ void main() {
       // Fill in case details
       final caseNumberField = find.widgetWithText(
         TextField,
-        RegExp(r'Case Number|رقم القضية'),
+        RegExp('Case Number|رقم القضية'),
       );
       if (caseNumberField.evaluate().isNotEmpty) {
         await tester.enterText(caseNumberField, 'TEST-${DateTime.now().millisecondsSinceEpoch}');
@@ -106,7 +106,7 @@ void main() {
 
       final titleField = find.widgetWithText(
         TextField,
-        RegExp(r'Title|العنوان'),
+        RegExp('Title|العنوان'),
       );
       if (titleField.evaluate().isNotEmpty) {
         await tester.enterText(titleField, 'Integration Test Case');
@@ -116,21 +116,21 @@ void main() {
       // Tap save/create button
       final saveButton = find.widgetWithText(
         ElevatedButton,
-        RegExp(r'Save|Create|حفظ|إنشاء'),
+        RegExp('Save|Create|حفظ|إنشاء'),
       );
       await tester.tap(saveButton.first);
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Verify success message
       expect(
-        find.byType(SnackBar).or(find.textContaining(RegExp(r'success|created|تم'))),
+        find.byType(SnackBar).or(find.textContaining(RegExp('success|created|تم'))),
         findsOneWidget,
         reason: 'Success message should be displayed after creating case',
       );
 
       // Verify we're back on cases list
       expect(find.byType(ListView), findsOneWidget);
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('View case details', (tester) async {
       // Login and navigate to cases
@@ -145,14 +145,14 @@ void main() {
 
       // Verify case detail screen is displayed
       expect(
-        find.text(RegExp(r'Case Details|تفاصيل القضية')),
+        find.text(RegExp('Case Details|تفاصيل القضية')),
         findsOneWidget,
         reason: 'Case details screen should be displayed',
       );
 
       // Verify key details are shown
       expect(
-        find.textContaining(RegExp(r'Status|Case Number|Client', caseSensitive: false)),
+        find.textContaining(RegExp('Status|Case Number|Client', caseSensitive: false)),
         findsWidgets,
         reason: 'Case details should be visible',
       );
@@ -163,7 +163,7 @@ void main() {
 
       // Verify we're back on cases list
       expect(find.byType(ListView), findsOneWidget);
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Edit case details', (tester) async {
       // Login and navigate to cases
@@ -178,7 +178,7 @@ void main() {
 
       // Find and tap edit button
       final editButton = find.byIcon(Icons.edit).or(
-        find.widgetWithText(IconButton, RegExp(r'Edit|تعديل')),
+        find.widgetWithText(IconButton, RegExp('Edit|تعديل')),
       );
       await tester.tap(editButton.first);
       await tester.pumpAndSettle();
@@ -191,18 +191,18 @@ void main() {
       // Save changes
       final saveButton = find.widgetWithText(
         ElevatedButton,
-        RegExp(r'Save|Update|حفظ|تحديث'),
+        RegExp('Save|Update|حفظ|تحديث'),
       );
       await tester.tap(saveButton.first);
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Verify success message
       expect(
-        find.byType(SnackBar).or(find.textContaining(RegExp(r'updated|success'))),
+        find.byType(SnackBar).or(find.textContaining(RegExp('updated|success'))),
         findsOneWidget,
         reason: 'Success message should be displayed after update',
       );
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Search cases', (tester) async {
       // Login and navigate to cases
@@ -213,7 +213,7 @@ void main() {
       // Find search field
       final searchField = find.widgetWithText(
         TextField,
-        RegExp(r'Search|بحث'),
+        RegExp('Search|بحث'),
       );
       expect(searchField, findsOneWidget, reason: 'Search field should be visible');
 
@@ -230,7 +230,7 @@ void main() {
 
       // Verify results are filtered
       expect(
-        find.byType(ListView).or(find.textContaining(RegExp(r'No.*found'))),
+        find.byType(ListView).or(find.textContaining(RegExp('No.*found'))),
         findsOneWidget,
         reason: 'Search results should be displayed',
       );
@@ -241,7 +241,7 @@ void main() {
         await tester.tap(clearButton);
         await tester.pumpAndSettle();
       }
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Delete case', (tester) async {
       // Login and navigate to cases
@@ -259,7 +259,7 @@ void main() {
 
       // Find and tap delete button
       final deleteButton = find.byIcon(Icons.delete).or(
-        find.widgetWithText(IconButton, RegExp(r'Delete|حذف')),
+        find.widgetWithText(IconButton, RegExp('Delete|حذف')),
       );
       await tester.tap(deleteButton.first);
       await tester.pumpAndSettle();
@@ -267,14 +267,14 @@ void main() {
       // Confirm deletion in dialog
       final confirmButton = find.widgetWithText(
         TextButton,
-        RegExp(r'Delete|Confirm|Yes|نعم|تأكيد'),
+        RegExp('Delete|Confirm|Yes|نعم|تأكيد'),
       );
       await tester.tap(confirmButton);
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Verify success message
       expect(
-        find.byType(SnackBar).or(find.textContaining(RegExp(r'deleted|removed'))),
+        find.byType(SnackBar).or(find.textContaining(RegExp('deleted|removed'))),
         findsOneWidget,
         reason: 'Delete success message should be displayed',
       );
@@ -287,7 +287,7 @@ void main() {
         lessThan(initialCaseCount),
         reason: 'Case count should decrease after deletion',
       );
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
 
     testWidgets('Pagination - scroll to load more cases', (tester) async {
       // Login and navigate to cases
@@ -320,12 +320,12 @@ void main() {
         greaterThanOrEqualTo(initialCount),
         reason: 'Should maintain or increase case count after scroll',
       );
-    }, skip: true); // Enable when backend has sufficient test data
+    }, skip: true,); // Enable when backend has sufficient test data
 
     testWidgets('Offline mode - displays cached cases', (tester) async {
       // This test would require disabling network access
       // and verifying cached cases are shown
-    }, skip: true); // Requires network simulation
+    }, skip: true,); // Requires network simulation
 
     testWidgets('Pull to refresh cases list', (tester) async {
       // Login and navigate to cases
@@ -349,6 +349,6 @@ void main() {
 
       // Verify list is still displayed
       expect(find.byType(ListView), findsOneWidget);
-    }, skip: true); // Enable when backend is available
+    }, skip: true,); // Enable when backend is available
   });
 }

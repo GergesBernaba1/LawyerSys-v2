@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/judicial_documents_bloc.dart';
-import '../bloc/judicial_documents_event.dart';
-import '../models/judicial_document.dart';
+import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_bloc.dart';
+import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_event.dart';
+import 'package:qadaya_lawyersys/features/judicial/models/judicial_document.dart';
 
 class JudicialDocumentDetailScreen extends StatelessWidget {
-  final JudicialDocument document;
 
   const JudicialDocumentDetailScreen({super.key, required this.document});
+  final JudicialDocument document;
 
   void _showForm(BuildContext context, {JudicialDocument? doc}) {
     showModalBottomSheet(
@@ -42,7 +42,7 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if ((confirmed ?? false) && context.mounted) {
       context.read<JudicialDocumentsBloc>().add(DeleteJudicialDocument(document.id));
       Navigator.pop(context);
     }
@@ -128,10 +128,6 @@ class JudicialDocumentDetailScreen extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color labelColor;
-  final bool multiline;
 
   const _InfoRow({
     required this.label,
@@ -139,6 +135,10 @@ class _InfoRow extends StatelessWidget {
     required this.labelColor,
     this.multiline = false,
   });
+  final String label;
+  final String value;
+  final Color labelColor;
+  final bool multiline;
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +152,7 @@ class _InfoRow extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: labelColor,
-                    )),
+                    ),),
                 const SizedBox(height: 4),
                 Text(value),
               ],
@@ -163,7 +163,7 @@ class _InfoRow extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: labelColor,
-                    )),
+                    ),),
                 const SizedBox(width: 8),
                 Expanded(child: Text(value, textAlign: TextAlign.end)),
               ],
@@ -175,8 +175,8 @@ class _InfoRow extends StatelessWidget {
 /// Bridge widget to access the internal _JudicialDocumentForm from list_screen.
 /// We re-expose the form by importing it and delegating to its usage pattern.
 class _JudicialDocumentFormBridge extends StatefulWidget {
-  final JudicialDocument? document;
   const _JudicialDocumentFormBridge({this.document});
+  final JudicialDocument? document;
 
   @override
   State<_JudicialDocumentFormBridge> createState() =>
@@ -204,7 +204,7 @@ class _JudicialDocumentFormBridgeState
     _docDetailsCtrl = TextEditingController(text: d?.docDetails ?? '');
     _notesCtrl = TextEditingController(text: d?.notes ?? '');
     _numOfAgentCtrl = TextEditingController(
-        text: d != null ? d.numOfAgent.toString() : '0');
+        text: d != null ? d.numOfAgent.toString() : '0',);
   }
 
   @override

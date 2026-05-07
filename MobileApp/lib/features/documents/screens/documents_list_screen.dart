@@ -7,17 +7,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../../../core/api/api_client.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/documents_bloc.dart';
-import '../bloc/documents_event.dart';
-import '../bloc/documents_state.dart';
-import '../../../core/api/api_constants.dart';
-import '../../../core/storage/local_database.dart';
-import '../models/document.dart';
-import '../repositories/documents_repository.dart';
-import 'document_viewer_screen.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/documents/bloc/documents_bloc.dart';
+import 'package:qadaya_lawyersys/features/documents/bloc/documents_event.dart';
+import 'package:qadaya_lawyersys/features/documents/bloc/documents_state.dart';
+import 'package:qadaya_lawyersys/core/api/api_constants.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/documents/models/document.dart';
+import 'package:qadaya_lawyersys/features/documents/repositories/documents_repository.dart';
+import 'package:qadaya_lawyersys/features/documents/screens/document_viewer_screen.dart';
 
 class DocumentsListScreen extends StatefulWidget {
   const DocumentsListScreen({super.key});
@@ -35,7 +35,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     super.initState();
     _bloc = DocumentsBloc(
         documentsRepository:
-            DocumentsRepository(ApiClient(), LocalDatabase.instance));
+            DocumentsRepository(ApiClient(), LocalDatabase.instance),);
     _bloc.add(LoadDocuments());
     _scrollController.addListener(_onScroll);
   }
@@ -149,7 +149,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               Navigator.pop(sheetCtx);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text(l10n.documentUploadedSuccessfully)),
+                    content: Text(l10n.documentUploadedSuccessfully),),
               );
             } else if (state is DocumentsError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -237,12 +237,12 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: Colors.white),
+                                      strokeWidth: 2, color: Colors.white,),
                                 )
                               : const Icon(Icons.upload),
                           label: Text(isUploading
                               ? l10n.uploadDocument
-                              : l10n.uploadDocument),
+                              : l10n.uploadDocument,),
                           onPressed: isUploading
                               ? null
                               : () {
@@ -252,7 +252,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text(
-                                              l10n.pleaseEnterFilePath)),
+                                              l10n.pleaseEnterFilePath,),),
                                     );
                                     return;
                                   }
@@ -266,7 +266,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                             .isEmpty
                                         ? null
                                         : descriptionController.text.trim(),
-                                  ));
+                                  ),);
                                 },
                         );
                       },
@@ -312,7 +312,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                 _bloc.add(RenameDocument(
                   documentId: doc.id,
                   newName: newName,
-                ));
+                ),);
               }
               Navigator.pop(dialogCtx);
             },
@@ -320,7 +320,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
           ),
         ],
       ),
-    ).whenComplete(() => controller.dispose());
+    ).whenComplete(controller.dispose);
   }
 
   @override
@@ -358,7 +358,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
             if (state is DocumentsUploadSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text(l10n.documentUploadedSuccessfully)),
+                    content: Text(l10n.documentUploadedSuccessfully),),
               );
             } else if (state is DocumentsError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -383,6 +383,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               final docs = state.documents;
               if (docs.isEmpty) {
                 return Center(child: Text(l10n.noDocumentsFound));
+              }
               return ListView.builder(
                 controller: _scrollController,
                 itemCount: docs.length + (state.hasMore || state.isLoadingMore ? 1 : 0),
@@ -399,10 +400,10 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                   return ListTile(
                     leading: Icon(document.isPdf
                         ? Icons.picture_as_pdf
-                        : Icons.insert_drive_file),
+                        : Icons.insert_drive_file,),
                     title: Text(document.code.isNotEmpty
                         ? document.code
-                        : document.fileName),
+                        : document.fileName,),
                     subtitle: Text(document.fileName),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -446,7 +447,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                               MaterialPageRoute(
                                   builder: (_) => DocumentViewerScreen(
                                       documentFile: downloaded,
-                                      document: document)));
+                                      document: document,),),);
                         }
                       } else {
                         final url =
@@ -477,7 +478,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     try {
       final dio = Dio(BaseOptions(
           baseUrl: ApiConstants.baseUrl,
-          headers: {'Content-Type': 'application/octet-stream'}));
+          headers: {'Content-Type': 'application/octet-stream'},),);
       final response = await dio.get<List<int>>(
         '/files/${document.id}/download',
         options: Options(responseType: ResponseType.bytes),

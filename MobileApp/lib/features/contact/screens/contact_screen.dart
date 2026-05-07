@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -92,7 +92,7 @@ class _ContactScreenState extends State<ContactScreen> {
               Center(
                 child: Text(
                   l10n.weLoveToHear,
-                  style: TextStyle(fontSize: 14, color: _kTextSecondary),
+                  style: const TextStyle(fontSize: 14, color: _kTextSecondary),
                   textAlign: TextAlign.center,
                 ),
               ),

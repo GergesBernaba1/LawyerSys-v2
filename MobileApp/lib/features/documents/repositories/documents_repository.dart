@@ -3,17 +3,17 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/api/api_constants.dart';
-import '../../../core/storage/local_database.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/document.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/api/api_constants.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/documents/models/document.dart';
 
 class DocumentsRepository {
-  final ApiClient apiClient;
-  final LocalDatabase localDatabase;
 
   DocumentsRepository(this.apiClient, this.localDatabase);
+  final ApiClient apiClient;
+  final LocalDatabase localDatabase;
 
   Future<List<Document>> getDocuments({String? search, int page = 1, int pageSize = 20}) async {
     final params = <String, dynamic>{
@@ -36,8 +36,7 @@ class DocumentsRepository {
 
     // Cache locally for offline access
     for (final doc in docs) {
-      await localDatabase.upsertDocument(doc.id.toString(), doc.toJson(),
-          tenantId: null, isDownloaded: false);
+      await localDatabase.upsertDocument(doc.id.toString(), doc.toJson(),);
     }
 
     return docs;
@@ -60,13 +59,12 @@ class DocumentsRepository {
 
     await file.writeAsBytes(bytes, flush: true);
     await localDatabase.upsertDocument(
-        document.id.toString(), document.toJson(),
-        tenantId: null, isDownloaded: true);
+        document.id.toString(), document.toJson(), isDownloaded: true,);
     return file;
   }
 
   Future<List<Document>> getCachedDocuments(
-      {String? tenantId, int limit = 100}) async {
+      {String? tenantId, int limit = 100,}) async {
     final rows =
         await localDatabase.getDocuments(tenantId: tenantId, limit: limit);
     return rows.map((row) {

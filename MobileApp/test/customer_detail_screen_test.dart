@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/core/storage/local_database.dart';
 import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
 import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
 import 'package:qadaya_lawyersys/features/customers/repositories/customers_repository.dart';
 import 'package:qadaya_lawyersys/features/customers/screens/customer_detail_screen.dart';
-import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
 
 class FakeCustomersRepository extends CustomersRepository {
   FakeCustomersRepository() : super(ApiClient());
@@ -68,7 +68,7 @@ class FakeCasesRepository extends CasesRepository {
 }
 
 void main() {
-  testWidgets('CustomerDetailScreen displays case history items', (WidgetTester tester) async {
+  testWidgets('CustomerDetailScreen displays case history items', (tester) async {
     final customersRepository = FakeCustomersRepository();
     final casesRepository = FakeCasesRepository();
     final customersBloc = CustomersBloc(customersRepository: customersRepository);
@@ -102,7 +102,7 @@ void main() {
     customersBloc.close();
   });
 
-  testWidgets('CustomerDetailScreen includes direct call and message actions', (WidgetTester tester) async {
+  testWidgets('CustomerDetailScreen includes direct call and message actions', (tester) async {
     final customersRepository = FakeCustomersRepository();
     final casesRepository = FakeCasesRepository();
     final customersBloc = CustomersBloc(customersRepository: customersRepository);

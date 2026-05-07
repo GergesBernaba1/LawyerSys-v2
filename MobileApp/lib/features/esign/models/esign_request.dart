@@ -1,8 +1,4 @@
 class ESignSigner {
-  final String email;
-  final String? name;
-  final bool hasSigned;
-  final DateTime? signedAt;
 
   ESignSigner({
     required this.email,
@@ -21,6 +17,10 @@ class ESignSigner {
           : null,
     );
   }
+  final String email;
+  final String? name;
+  final bool hasSigned;
+  final DateTime? signedAt;
 
   Map<String, dynamic> toJson() {
     return {
@@ -33,14 +33,6 @@ class ESignSigner {
 }
 
 class ESignRequest {
-  final String id;
-  final String title;
-  final String status; // Pending, Signed, Rejected, Expired
-  final List<ESignSigner> signers;
-  final DateTime? expiresAt;
-  final DateTime createdAt;
-  final String? shareLink;
-  final String? createdBy;
 
   ESignRequest({
     required this.id,
@@ -78,6 +70,14 @@ class ESignRequest {
       createdBy: json['createdBy'] as String?,
     );
   }
+  final String id;
+  final String title;
+  final String status; // Pending, Signed, Rejected, Expired
+  final List<ESignSigner> signers;
+  final DateTime? expiresAt;
+  final DateTime createdAt;
+  final String? shareLink;
+  final String? createdBy;
 
   Map<String, dynamic> toJson() {
     return {

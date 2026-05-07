@@ -1,18 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dio/dio.dart';
-
-import '../../../core/auth/biometric_auth.dart';
-import '../../../core/storage/local_database.dart';
-import '../models/login_request.dart';
-import '../repositories/auth_repository.dart';
-import 'auth_event.dart';
-import 'auth_state.dart';
+import 'package:qadaya_lawyersys/core/auth/biometric_auth.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/login_request.dart';
+import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository authRepository;
-  final BiometricAuthService biometricService;
 
   AuthBloc({required this.authRepository, BiometricAuthService? biometricService})
       : biometricService = biometricService ?? BiometricAuthService(),
@@ -25,6 +22,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SessionRestored>(_onSessionRestored);
     on<BiometricLoginRequested>(_onBiometricLoginRequested);
   }
+  final AuthRepository authRepository;
+  final BiometricAuthService biometricService;
 
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
@@ -165,4 +164,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return error.toString();
   }
 }
+
 

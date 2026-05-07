@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/esign_request.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/esign/models/esign_request.dart';
 
 class ESignRepository {
-  final ApiClient apiClient;
 
   ESignRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<ESignRequest>> getRequests({
     String? status,

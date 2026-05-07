@@ -1,14 +1,4 @@
 class TimeEntry {
-  final int? id;
-  final int? caseCode;
-  final int? customerId;
-  final String workType;
-  final String? description;
-  final String status;
-  final String? startedAt;
-  final String? endedAt;
-  final int? durationMinutes;
-  final double? suggestedAmount;
 
   TimeEntry({
     this.id,
@@ -39,6 +29,16 @@ class TimeEntry {
           : null,
     );
   }
+  final int? id;
+  final int? caseCode;
+  final int? customerId;
+  final String workType;
+  final String? description;
+  final String status;
+  final String? startedAt;
+  final String? endedAt;
+  final int? durationMinutes;
+  final double? suggestedAmount;
 
   Map<String, dynamic> toJson() {
     return {
@@ -57,10 +57,6 @@ class TimeEntry {
 }
 
 class Suggestion {
-  final int? caseCode;
-  final int? customerId;
-  final int totalMinutes;
-  final double suggestedAmount;
 
   Suggestion({
     this.caseCode,
@@ -77,6 +73,10 @@ class Suggestion {
       suggestedAmount: (json['suggestedAmount'] as num).toDouble(),
     );
   }
+  final int? caseCode;
+  final int? customerId;
+  final int totalMinutes;
+  final double suggestedAmount;
 
   Map<String, dynamic> toJson() {
     return {

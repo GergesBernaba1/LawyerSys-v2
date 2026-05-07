@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/files/bloc/files_bloc.dart';
+import 'package:qadaya_lawyersys/features/files/bloc/files_event.dart';
+import 'package:qadaya_lawyersys/features/files/bloc/files_state.dart';
+import 'package:qadaya_lawyersys/features/files/models/file_model.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/files_bloc.dart';
-import '../bloc/files_event.dart';
-import '../bloc/files_state.dart';
-import '../models/file_model.dart';
 
 class FilesListScreen extends StatefulWidget {
   const FilesListScreen({super.key});
@@ -161,7 +160,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                   'title': titleController.text.trim(),
                   'description': descController.text.trim(),
                   'category': categoryController.text.trim(),
-                }));
+                }),);
                 Navigator.of(ctx).pop();
               }
             },
@@ -222,7 +221,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                   'title': titleController.text.trim(),
                   'description': descController.text.trim(),
                   'category': categoryController.text.trim(),
-                }));
+                }),);
                 Navigator.of(ctx).pop();
               }
             },
@@ -253,7 +252,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
         ],
       ),
     );
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       context.read<FilesBloc>().add(DeleteFile(file.id));
     }
   }
@@ -419,7 +418,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 child: ListTile(
                   leading: const Icon(Icons.delete, color: Colors.red),
                   title: Text(AppLocalizations.of(context)!.delete,
-                      style: const TextStyle(color: Colors.red)),
+                      style: const TextStyle(color: Colors.red),),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),

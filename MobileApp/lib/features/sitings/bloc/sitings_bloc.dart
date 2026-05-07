@@ -1,12 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/sitings_repository.dart';
-import 'sitings_event.dart';
-import 'sitings_state.dart';
+import 'package:qadaya_lawyersys/features/sitings/bloc/sitings_event.dart';
+import 'package:qadaya_lawyersys/features/sitings/bloc/sitings_state.dart';
+import 'package:qadaya_lawyersys/features/sitings/repositories/sitings_repository.dart';
 
 class SitingsBloc extends Bloc<SitingsEvent, SitingsState> {
-  final SitingsRepository repository;
-  String? _lastSearch;
 
   SitingsBloc({required this.repository}) : super(SitingsInitial()) {
     on<LoadSitings>(_onLoadSitings);
@@ -15,6 +12,8 @@ class SitingsBloc extends Bloc<SitingsEvent, SitingsState> {
     on<UpdateSiting>(_onUpdateSiting);
     on<DeleteSiting>(_onDeleteSiting);
   }
+  final SitingsRepository repository;
+  String? _lastSearch;
 
   Future<void> _onLoadSitings(LoadSitings event, Emitter<SitingsState> emit) async {
     emit(SitingsLoading());

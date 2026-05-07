@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_bloc.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_event.dart';
+import 'package:qadaya_lawyersys/features/tasks/models/task.dart';
 
-import '../bloc/tasks_bloc.dart';
-import '../bloc/tasks_event.dart';
-import '../models/task.dart';
-import '../../../core/localization/app_localizations.dart';
-
-class TaskFormScreen extends StatefulWidget {
-  final Task? task; // If provided, we're editing; if null, we're creating
+class TaskFormScreen extends StatefulWidget { // If provided, we're editing; if null, we're creating
 
   const TaskFormScreen({
     super.key,
     this.task,
   });
+  final Task? task;
 
   @override
   State<TaskFormScreen> createState() => _TaskFormScreenState();

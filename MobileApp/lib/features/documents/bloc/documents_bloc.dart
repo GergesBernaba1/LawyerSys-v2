@@ -1,13 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/documents_repository.dart';
-import 'documents_event.dart';
-import 'documents_state.dart';
+import 'package:qadaya_lawyersys/features/documents/bloc/documents_event.dart';
+import 'package:qadaya_lawyersys/features/documents/bloc/documents_state.dart';
+import 'package:qadaya_lawyersys/features/documents/repositories/documents_repository.dart';
 
 class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
-  final DocumentsRepository documentsRepository;
-  final List<dynamic> _documents = [];
-  static const int _pageSize = 20;
 
   DocumentsBloc({required this.documentsRepository}) : super(DocumentsInitial()) {
     on<LoadDocuments>(_onLoadDocuments);
@@ -18,29 +14,29 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     on<ShareDocument>(_onShare);
     on<RenameDocument>(_onRename);
   }
+  final DocumentsRepository documentsRepository;
+  final List<dynamic> _documents = [];
+  static const int _pageSize = 20;
 
   Future<void> _onLoadDocuments(LoadDocuments event, Emitter<DocumentsState> emit) async {
     emit(DocumentsLoading());
     try {
       final docs = await documentsRepository.getDocuments(
         search: event.search,
-        page: 1,
-        pageSize: _pageSize,
       );
       _documents.clear();
       _documents.addAll(docs);
       emit(DocumentsLoaded(
         docs,
-        currentPage: 1,
         hasMore: docs.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(DocumentsError(e.toString()));
     }
   }
 
   Future<void> _onLoadMoreDocuments(
-      LoadMoreDocuments event, Emitter<DocumentsState> emit) async {
+      LoadMoreDocuments event, Emitter<DocumentsState> emit,) async {
     final currentState = state;
     if (currentState is! DocumentsLoaded || 
         currentState.isLoadingMore || 
@@ -53,8 +49,7 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     try {
       final nextPage = currentState.currentPage + 1;
       final newDocs = await documentsRepository.getDocuments(
-        page: nextPage, 
-        pageSize: _pageSize,
+        page: nextPage,
       );
       
       _documents.addAll(newDocs);
@@ -63,8 +58,7 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
         List.from(_documents),
         currentPage: nextPage,
         hasMore: newDocs.length >= _pageSize,
-        isLoadingMore: false,
-      ));
+      ),);
     } catch (e) {
       emit(currentState.copyWith(isLoadingMore: false));
       emit(DocumentsError(e.toString()));
@@ -79,14 +73,13 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     emit(DocumentsDownloading('Downloading ${event.document.fileName}...'));
     try {
       await documentsRepository.downloadDocument(event.document);
-      final docs = await documentsRepository.getDocuments(page: 1, pageSize: _pageSize);
+      final docs = await documentsRepository.getDocuments();
       _documents.clear();
       _documents.addAll(docs);
       emit(DocumentsLoaded(
         docs,
-        currentPage: 1,
         hasMore: docs.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(DocumentsError('Failed to download: ${e.toString()}'));
     }
@@ -101,14 +94,13 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
         description: event.description,
       );
       emit(DocumentsUploadSuccess());
-      final docs = await documentsRepository.getDocuments(page: 1, pageSize: _pageSize);
+      final docs = await documentsRepository.getDocuments();
       _documents.clear();
       _documents.addAll(docs);
       emit(DocumentsLoaded(
         docs,
-        currentPage: 1,
         hasMore: docs.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(DocumentsError('Failed to upload: ${e.toString()}'));
     }
@@ -131,14 +123,13 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
     try {
       await documentsRepository.renameDocument(event.documentId, event.newName);
       emit(DocumentRenamed());
-      final docs = await documentsRepository.getDocuments(page: 1, pageSize: _pageSize);
+      final docs = await documentsRepository.getDocuments();
       _documents.clear();
       _documents.addAll(docs);
       emit(DocumentsLoaded(
         docs,
-        currentPage: 1,
         hasMore: docs.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(DocumentsError(e.toString()));
     }

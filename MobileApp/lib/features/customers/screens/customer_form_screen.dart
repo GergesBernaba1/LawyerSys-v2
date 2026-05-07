@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/customers_bloc.dart';
-import '../bloc/customers_event.dart';
-import '../bloc/customers_state.dart';
-import '../models/customer.dart';
-import '../repositories/customers_repository.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
+import 'package:qadaya_lawyersys/features/customers/repositories/customers_repository.dart';
 
 class CustomerFormScreen extends StatefulWidget {
-  final Customer? customer;
 
   const CustomerFormScreen({super.key, this.customer});
+  final Customer? customer;
 
   @override
   State<CustomerFormScreen> createState() => _CustomerFormScreenState();
@@ -116,7 +116,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
             setState(() => _isSaving = false);
             if (!mounted) return;
             messenger.showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
         },
         child: _isSaving
@@ -138,7 +138,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                           child: _selectedImage == null
                               ? Icon(Icons.add_a_photo,
                                   size: 32,
-                                  color: Theme.of(context).colorScheme.primary)
+                                  color: Theme.of(context).colorScheme.primary,)
                               : null,
                         ),
                       ),
@@ -147,7 +147,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                         controller: _fullNameController,
                         decoration: InputDecoration(
                             labelText: l.fullName,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty) ? l.allFieldsAreRequired : null,
                       ),
@@ -157,7 +157,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                             labelText: l.phoneNumber,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -165,14 +165,14 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                             labelText: l.email,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _ssnController,
                         decoration: InputDecoration(
                             labelText: l.ssn,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -180,7 +180,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                         maxLines: 2,
                         decoration: InputDecoration(
                             labelText: l.address,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(

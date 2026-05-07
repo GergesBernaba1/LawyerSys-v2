@@ -1,16 +1,16 @@
-import '../models/user_session.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
 
 abstract class AuthState {}
 class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 class AuthAuthenticated extends AuthState {
-  final UserSession session;
   AuthAuthenticated(this.session);
+  final UserSession session;
 }
 class AuthUnauthenticated extends AuthState {}
 class AuthError extends AuthState {
-  final String message;
   AuthError(this.message);
+  final String message;
 }
 class AuthRegisterLoading extends AuthState {}
 class AuthRegisterSuccess extends AuthState {}

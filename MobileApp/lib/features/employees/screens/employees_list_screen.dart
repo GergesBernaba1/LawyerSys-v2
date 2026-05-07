@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../../../core/auth/permissions.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../../authentication/models/user_session.dart';
-import '../../users/repositories/users_repository.dart';
-import '../bloc/employees_bloc.dart';
-import '../bloc/employees_event.dart';
-import '../bloc/employees_state.dart';
-import '../models/employee.dart';
-import 'employee_detail_screen.dart';
+import 'package:qadaya_lawyersys/core/auth/permissions.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_bloc.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_event.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_state.dart';
+import 'package:qadaya_lawyersys/features/employees/models/employee.dart';
+import 'package:qadaya_lawyersys/features/employees/screens/employee_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/users/repositories/users_repository.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
 
 class EmployeesListScreen extends StatefulWidget {
   const EmployeesListScreen({super.key});
@@ -88,8 +87,8 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                       .map((user) => DropdownMenuItem<int>(
                             value: int.tryParse('${user['id']}'),
                             child: Text(
-                                '${user['fullName'] ?? user['email'] ?? user['userName'] ?? 'User'}'),
-                          ))
+                                '${user['fullName'] ?? user['email'] ?? user['userName'] ?? 'User'}',),
+                          ),)
                       .toList(),
                   onChanged: (value) {
                     setState(() {
@@ -182,7 +181,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
     );
 
     if (!mounted) return;
-    if (shouldDelete == true) {
+    if (shouldDelete ?? false) {
       context.read<EmployeesBloc>().add(DeleteEmployee(employeeId));
     }
   }
@@ -230,7 +229,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
           }
           if (state is EmployeesError) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('${localizer.error}: ${state.message}')));
+                content: Text('${localizer.error}: ${state.message}'),),);
           }
         },
         child: Column(
@@ -275,7 +274,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                   }
                   if (state is EmployeesError) {
                     return Center(
-                        child: Text('${localizer.error}: ${state.message}'));
+                        child: Text('${localizer.error}: ${state.message}'),);
                   }
                   if (state is EmployeesLoaded) {
                     final employees = state.employees;
@@ -293,10 +292,9 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final employee = employees[index];
-                          final fullName = employee.user?.fullName.isNotEmpty ==
-                                  true
+                          final fullName = employee.user?.fullName.isNotEmpty ?? false
                               ? employee.user!.fullName
-                              : (employee.identity?.fullName.isNotEmpty == true
+                              : (employee.identity?.fullName.isNotEmpty ?? false
                                   ? employee.identity!.fullName
                                   : (employee.identity?.email ?? 'Unknown'));
                           final email = employee.identity?.email ?? '';
@@ -323,10 +321,10 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                 Text(
                                   employee.salary.toString(),
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.w700),
+                                      fontWeight: FontWeight.w700,),
                                 ),
                                 if ((session?.hasPermission(
-                                            Permissions.editEmployees) ??
+                                            Permissions.editEmployees,) ??
                                         false) &&
                                     (session?.isAdmin() ?? false)) ...[
                                   const SizedBox(width: 12),
@@ -341,7 +339,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               EmployeeDetailScreen(
-                                                  employeeModel: employee),
+                                                  employeeModel: employee,),
                                         ),
                                       );
                                     },
@@ -362,7 +360,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => EmployeeDetailScreen(
-                                      employeeModel: employee),
+                                      employeeModel: employee,),
                                 ),
                               );
                             },

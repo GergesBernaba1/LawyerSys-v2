@@ -1,4 +1,4 @@
-import '../models/billing.dart';
+import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
 
 abstract class BillingEvent {}
 
@@ -13,25 +13,25 @@ class LoadEmployees extends BillingEvent {}
 class LoadSummary extends BillingEvent {}
 
 class CreatePayment extends BillingEvent {
-  final BillingPay payment;
 
   CreatePayment(this.payment);
+  final BillingPay payment;
 }
 
 class CreateReceipt extends BillingEvent {
-  final BillingReceipt receipt;
 
   CreateReceipt(this.receipt);
+  final BillingReceipt receipt;
 }
 
 class DeletePayment extends BillingEvent {
-  final int id;
 
   DeletePayment(this.id);
+  final int id;
 }
 
 class DeleteReceipt extends BillingEvent {
-  final int id;
 
   DeleteReceipt(this.id);
+  final int id;
 }

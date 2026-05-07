@@ -1,12 +1,4 @@
 class SitingModel {
-  final int id;
-  final String? caseCode;
-  final String? caseTitle;
-  final int? courtId;
-  final String? courtName;
-  final DateTime sitingDate;
-  final String? notes;
-  final String? status;
 
   SitingModel({
     required this.id,
@@ -31,6 +23,14 @@ class SitingModel {
       status: json['status']?.toString(),
     );
   }
+  final int id;
+  final String? caseCode;
+  final String? caseTitle;
+  final int? courtId;
+  final String? courtName;
+  final DateTime sitingDate;
+  final String? notes;
+  final String? status;
 
   Map<String, dynamic> toJson() {
     return {

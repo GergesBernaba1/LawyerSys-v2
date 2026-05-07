@@ -1,16 +1,16 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../../authentication/models/user_session.dart';
-import '../bloc/consultations_bloc.dart';
-import '../bloc/consultations_event.dart';
-import '../bloc/consultations_state.dart';
-import '../models/consultation.dart';
-import '../repositories/consultations_repository.dart';
-import 'consultation_detail_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/consultations/bloc/consultations_bloc.dart';
+import 'package:qadaya_lawyersys/features/consultations/bloc/consultations_event.dart';
+import 'package:qadaya_lawyersys/features/consultations/bloc/consultations_state.dart';
+import 'package:qadaya_lawyersys/features/consultations/models/consultation.dart';
+import 'package:qadaya_lawyersys/features/consultations/repositories/consultations_repository.dart';
+import 'package:qadaya_lawyersys/features/consultations/screens/consultation_detail_screen.dart';
 
 class ConsultationsListScreen extends StatefulWidget {
   const ConsultationsListScreen({super.key});
@@ -150,7 +150,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     final repo = context.read<ConsultationsRepository>();
     final authState = context.read<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
-    final isEmployeeOnly = session?.hasRole('Employee') == true &&
+    final isEmployeeOnly = (session?.hasRole('Employee') ?? false) &&
         session?.hasRole('Admin') != true &&
         session?.hasRole('SuperAdmin') != true;
 
@@ -250,7 +250,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     final localizer = AppLocalizations.of(context)!;
     final authState = context.read<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
-    final isEmployeeOnly = session?.hasRole('Employee') == true &&
+    final isEmployeeOnly = (session?.hasRole('Employee') ?? false) &&
         session?.hasRole('Admin') != true &&
         session?.hasRole('SuperAdmin') != true;
 
@@ -411,7 +411,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
           child: options.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(12),
                     child: Text(localizer.noOptions),
                   ),
                 )
@@ -423,7 +423,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                       value: selectedIds.contains(option.id),
                       title: Text(option.name),
                       onChanged: (checked) =>
-                          onToggle(option.id, checked == true),
+                          onToggle(option.id, checked ?? false),
                     );
                   }).toList(),
                 ),
@@ -437,7 +437,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     final localizer = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
     final session = authState is AuthAuthenticated ? authState.session : null;
-    final isEmployeeOnly = session?.hasRole('Employee') == true &&
+    final isEmployeeOnly = (session?.hasRole('Employee') ?? false) &&
         session?.hasRole('Admin') != true &&
         session?.hasRole('SuperAdmin') != true;
 
@@ -521,7 +521,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                 if (state is ConsultationsError) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                        content: Text('${localizer.error}: ${state.message}')),
+                        content: Text('${localizer.error}: ${state.message}'),),
                   );
                 }
                 if (state is ConsultationOperationSuccess) {
@@ -536,7 +536,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                 }
                 if (state is ConsultationsError) {
                   return Center(
-                      child: Text('${localizer.error}: ${state.message}'));
+                      child: Text('${localizer.error}: ${state.message}'),);
                 }
                 if (state is ConsultationsLoaded) {
                   final items = state.consultations;
@@ -555,7 +555,7 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
                         return ListTile(
                           title: Text(item.subject),
                           subtitle: Text(
-                              '${item.type} - ${item.status} - ${item.consultationDate.toLocal().toString().substring(0, 16)}'),
+                              '${item.type} - ${item.status} - ${item.consultationDate.toLocal().toString().substring(0, 16)}',),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -599,5 +599,6 @@ class _ConsultationsListScreenState extends State<ConsultationsListScreen> {
     );
   }
 }
+
 
 

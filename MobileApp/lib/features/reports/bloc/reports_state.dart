@@ -1,4 +1,4 @@
-import '../models/report.dart';
+import 'package:qadaya_lawyersys/features/reports/models/report.dart';
 
 abstract class ReportsState {}
 
@@ -7,12 +7,6 @@ class ReportsInitial extends ReportsState {}
 class ReportsLoading extends ReportsState {}
 
 class ReportsLoaded extends ReportsState {
-  final FinancialReport? financialReport;
-  final List<OutstandingBalance> outstandingBalances;
-  final CustomerBillingHistory? customerBillingHistory;
-  final int year;
-  final int month;
-  final int? customerId;
 
   ReportsLoaded({
     this.financialReport,
@@ -22,6 +16,12 @@ class ReportsLoaded extends ReportsState {
     required this.month,
     this.customerId,
   });
+  final FinancialReport? financialReport;
+  final List<OutstandingBalance> outstandingBalances;
+  final CustomerBillingHistory? customerBillingHistory;
+  final int year;
+  final int month;
+  final int? customerId;
 
   ReportsLoaded copyWith({
     FinancialReport? financialReport,
@@ -43,6 +43,6 @@ class ReportsLoaded extends ReportsState {
 }
 
 class ReportsError extends ReportsState {
-  final String message;
   ReportsError(this.message);
+  final String message;
 }

@@ -1,4 +1,4 @@
-import '../models/time_entry.dart';
+import 'package:qadaya_lawyersys/features/timetracking/models/time_entry.dart';
 
 abstract class TimeTrackingState {}
 
@@ -7,11 +7,6 @@ class TimeTrackingInitial extends TimeTrackingState {}
 class TimeTrackingLoading extends TimeTrackingState {}
 
 class TimeTrackingLoaded extends TimeTrackingState {
-  final List<TimeEntry> entries;
-  final List<Suggestion> suggestions;
-  final List<Map<String, dynamic>> caseOptions;
-  final String statusFilter;
-  final double hourlyRate;
 
   TimeTrackingLoaded({
     required this.entries,
@@ -20,9 +15,14 @@ class TimeTrackingLoaded extends TimeTrackingState {
     required this.statusFilter,
     required this.hourlyRate,
   });
+  final List<TimeEntry> entries;
+  final List<Suggestion> suggestions;
+  final List<Map<String, dynamic>> caseOptions;
+  final String statusFilter;
+  final double hourlyRate;
 }
 
 class TimeTrackingError extends TimeTrackingState {
-  final String message;
   TimeTrackingError(this.message);
+  final String message;
 }

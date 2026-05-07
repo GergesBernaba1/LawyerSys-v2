@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/notifications_repository.dart';
-import 'notifications_event.dart';
-import 'notifications_state.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_event.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_state.dart';
+import 'package:qadaya_lawyersys/features/notifications/repositories/notifications_repository.dart';
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
-  final NotificationsRepository notificationsRepository;
 
   NotificationsBloc({required this.notificationsRepository}) : super(NotificationsInitial()) {
     on<LoadNotifications>(_onLoadNotifications);
@@ -13,6 +11,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     on<MarkNotificationRead>(_onMarkNotificationRead);
     on<ClearNotifications>(_onClearNotifications);
   }
+  final NotificationsRepository notificationsRepository;
 
   Future<void> _onLoadNotifications(LoadNotifications event, Emitter<NotificationsState> emit) async {
     emit(NotificationsLoading());

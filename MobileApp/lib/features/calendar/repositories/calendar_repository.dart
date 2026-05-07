@@ -1,16 +1,16 @@
 import 'dart:convert';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/storage/local_database.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/calendar_event.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/calendar/models/calendar_event.dart';
 
 class CalendarRepository {
-  final ApiClient apiClient;
-  final LocalDatabase localDatabase;
 
   CalendarRepository(this.apiClient, [LocalDatabase? db])
       : localDatabase = db ?? LocalDatabase.instance;
+  final ApiClient apiClient;
+  final LocalDatabase localDatabase;
 
   Future<List<CalendarEvent>> getEvents({
     required String fromDate,
@@ -20,7 +20,7 @@ class CalendarRepository {
       final response = await apiClient.get('/Calendar/events', queryParameters: {
         'fromDate': fromDate,
         'toDate': toDate,
-      });
+      },);
 
       final eventsData = normalizeJsonList(response.data);
       final events = eventsData
@@ -47,7 +47,7 @@ class CalendarRepository {
       );
       return rows
           .map((row) => CalendarEvent.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .toList();
     }
   }
@@ -55,7 +55,7 @@ class CalendarRepository {
   Future<CalendarEvent> createEvent(Map<String, dynamic> data) async {
     final response = await apiClient.post('/Calendar/events', data: data);
     final created = CalendarEvent.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
     await localDatabase.upsertCalendarEvent(created.id, created.toJson());
     return created;
   }
@@ -63,7 +63,7 @@ class CalendarRepository {
   Future<CalendarEvent> updateEvent(String id, Map<String, dynamic> data) async {
     final response = await apiClient.put('/Calendar/events/$id', data: data);
     final updated = CalendarEvent.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
     await localDatabase.upsertCalendarEvent(updated.id, updated.toJson());
     return updated;
   }

@@ -1,4 +1,4 @@
-import '../models/tenant_model.dart';
+import 'package:qadaya_lawyersys/features/tenants/models/tenant_model.dart';
 
 abstract class TenantsState {}
 
@@ -7,21 +7,21 @@ class TenantsInitial extends TenantsState {}
 class TenantsLoading extends TenantsState {}
 
 class TenantsLoaded extends TenantsState {
-  final TenantSelectionModel selection;
   TenantsLoaded(this.selection);
+  final TenantSelectionModel selection;
 }
 
 class TenantsError extends TenantsState {
-  final String message;
   TenantsError(this.message);
+  final String message;
 }
 
 class TenantStatusUpdated extends TenantsState {
-  final String message;
   TenantStatusUpdated(this.message);
+  final String message;
 }
 
 class TenantOperationSuccess extends TenantsState {
-  final String message;
   TenantOperationSuccess(this.message);
+  final String message;
 }

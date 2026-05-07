@@ -1,29 +1,29 @@
 abstract class FilesEvent {}
 
 class LoadFiles extends FilesEvent {
-  final String? search;
   LoadFiles({this.search});
+  final String? search;
 }
 
 class RefreshFiles extends FilesEvent {}
 
 class SearchFiles extends FilesEvent {
-  final String query;
   SearchFiles(this.query);
+  final String query;
 }
 
 class CreateFile extends FilesEvent {
-  final Map<String, dynamic> data;
   CreateFile(this.data);
+  final Map<String, dynamic> data;
 }
 
 class UpdateFile extends FilesEvent {
+  UpdateFile(this.id, this.data);
   final String id;
   final Map<String, dynamic> data;
-  UpdateFile(this.id, this.data);
 }
 
 class DeleteFile extends FilesEvent {
-  final String id;
   DeleteFile(this.id);
+  final String id;
 }

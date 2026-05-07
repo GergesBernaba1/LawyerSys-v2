@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/governments_repository.dart';
-import 'governments_event.dart';
-import 'governments_state.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_event.dart';
+import 'package:qadaya_lawyersys/features/governments/bloc/governments_state.dart';
+import 'package:qadaya_lawyersys/features/governments/repositories/governments_repository.dart';
 
 class GovernmentsBloc extends Bloc<GovernmentsEvent, GovernmentsState> {
-  final GovernmentsRepository governmentsRepository;
 
   GovernmentsBloc({required this.governmentsRepository}) : super(GovernmentsInitial()) {
     on<LoadGovernments>(_onLoad);
@@ -14,6 +12,7 @@ class GovernmentsBloc extends Bloc<GovernmentsEvent, GovernmentsState> {
     on<UpdateGovernment>(_onUpdate);
     on<DeleteGovernment>(_onDelete);
   }
+  final GovernmentsRepository governmentsRepository;
 
   Future<void> _onLoad(LoadGovernments event, Emitter<GovernmentsState> emit) async {
     emit(GovernmentsLoading());

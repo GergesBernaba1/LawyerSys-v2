@@ -31,7 +31,6 @@ class AppTheme {
         primary: primaryBlue,
         secondary: secondaryGold,
         surface: lightSurface,
-        brightness: Brightness.light,
       ),
       
       scaffoldBackgroundColor: lightBackground,
@@ -76,7 +75,7 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
+          borderSide: const BorderSide(color: Colors.red),
         ),
       ),
       
@@ -196,7 +195,7 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          borderSide: const BorderSide(color: Colors.redAccent),
         ),
       ),
       

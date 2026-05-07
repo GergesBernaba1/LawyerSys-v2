@@ -1,11 +1,4 @@
 class AdminOverview {
-  final int totalUsers;
-  final int totalCases;
-  final int totalCustomers;
-  final int totalEmployees;
-  final int totalTenants;
-  final int activeTenants;
-  final Map<String, dynamic> extras;
 
   AdminOverview({
     required this.totalUsers,
@@ -19,13 +12,20 @@ class AdminOverview {
 
   factory AdminOverview.fromJson(Map<String, dynamic> json) {
     return AdminOverview(
-      totalUsers: json['totalUsers'] ?? 0,
-      totalCases: json['totalCases'] ?? 0,
-      totalCustomers: json['totalCustomers'] ?? 0,
-      totalEmployees: json['totalEmployees'] ?? 0,
-      totalTenants: json['totalTenants'] ?? 0,
-      activeTenants: json['activeTenants'] ?? 0,
+      totalUsers: (json['totalUsers'] as int?) ?? 0,
+      totalCases: (json['totalCases'] as int?) ?? 0,
+      totalCustomers: (json['totalCustomers'] as int?) ?? 0,
+      totalEmployees: (json['totalEmployees'] as int?) ?? 0,
+      totalTenants: (json['totalTenants'] as int?) ?? 0,
+      activeTenants: (json['activeTenants'] as int?) ?? 0,
       extras: Map<String, dynamic>.from(json),
     );
   }
+  final int totalUsers;
+  final int totalCases;
+  final int totalCustomers;
+  final int totalEmployees;
+  final int totalTenants;
+  final int activeTenants;
+  final Map<String, dynamic> extras;
 }

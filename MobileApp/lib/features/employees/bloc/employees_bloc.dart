@@ -1,10 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repositories/employees_repository.dart';
-import 'employees_event.dart';
-import 'employees_state.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_event.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_state.dart';
+import 'package:qadaya_lawyersys/features/employees/repositories/employees_repository.dart';
 
 class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
-  final EmployeesRepository employeesRepository;
 
   EmployeesBloc({required this.employeesRepository})
       : super(EmployeesInitial()) {
@@ -16,6 +15,7 @@ class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
     on<UpdateEmployee>(_onUpdateEmployee);
     on<DeleteEmployee>(_onDeleteEmployee);
   }
+  final EmployeesRepository employeesRepository;
 
   Future<void> _onLoadEmployees(LoadEmployees event, Emitter<EmployeesState> emit) async {
     emit(EmployeesLoading());

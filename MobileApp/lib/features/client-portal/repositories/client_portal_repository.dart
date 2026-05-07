@@ -1,27 +1,27 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/portal_message.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/client-portal/models/portal_message.dart';
 
 class ClientPortalRepository {
-  final ApiClient apiClient;
 
   ClientPortalRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<PortalMessageModel>> getMessages(
-      {int page = 1, int pageSize = 50}) async {
+      {int page = 1, int pageSize = 50,}) async {
     final response =
         await apiClient.get('/api/client-portal/messages', queryParameters: {
       'page': page,
       'pageSize': pageSize,
-    });
+    },);
     final data = normalizeJsonList(response.data);
     if (data.isEmpty) return [];
     return data
         .whereType<Map<String, dynamic>>()
         .map((raw) =>
-            PortalMessageModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+            PortalMessageModel.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 
@@ -30,18 +30,18 @@ class ClientPortalRepository {
   }
 
   Future<List<PortalMessageModel>> getDocuments(
-      {int page = 1, int pageSize = 50}) async {
+      {int page = 1, int pageSize = 50,}) async {
     final response =
         await apiClient.get('/api/client-portal/documents', queryParameters: {
       'page': page,
       'pageSize': pageSize,
-    });
+    },);
     final data = normalizeJsonList(response.data);
     if (data.isEmpty) return [];
     return data
         .whereType<Map<String, dynamic>>()
         .map((raw) =>
-            PortalMessageModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+            PortalMessageModel.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 
@@ -63,7 +63,7 @@ class ClientPortalRepository {
     await apiClient.post('/api/client-portal/messages', data: {
       'subject': subject,
       'body': body,
-    });
+    },);
   }
 
   Future<void> uploadPortalDocument(String filePath, {String? title}) async {

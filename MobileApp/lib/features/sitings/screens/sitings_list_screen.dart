@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/sitings_bloc.dart';
-import '../bloc/sitings_event.dart';
-import '../bloc/sitings_state.dart';
-import '../models/siting_model.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/sitings/bloc/sitings_bloc.dart';
+import 'package:qadaya_lawyersys/features/sitings/bloc/sitings_event.dart';
+import 'package:qadaya_lawyersys/features/sitings/bloc/sitings_state.dart';
+import 'package:qadaya_lawyersys/features/sitings/models/siting_model.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -43,7 +43,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
   Future<void> _showSitingDialog(SitingModel? siting) async {
     final caseCodeCtrl = TextEditingController(text: siting?.caseCode ?? '');
     final courtIdCtrl = TextEditingController(
-        text: siting?.courtId != null ? siting!.courtId.toString() : '');
+        text: siting?.courtId != null ? siting!.courtId.toString() : '',);
     final notesCtrl = TextEditingController(text: siting?.notes ?? '');
     DateTime selectedDate = siting?.sitingDate ?? DateTime.now();
     final formKey = GlobalKey<FormState>();
@@ -187,7 +187,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
         ],
       ),
     );
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       context.read<SitingsBloc>().add(DeleteSiting(siting.id));
     }
   }
@@ -352,10 +352,6 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
 }
 
 class _SitingTile extends StatelessWidget {
-  final SitingModel siting;
-  final String Function(DateTime) formatDateTime;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
 
   const _SitingTile({
     required this.siting,
@@ -363,14 +359,18 @@ class _SitingTile extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
   });
+  final SitingModel siting;
+  final String Function(DateTime) formatDateTime;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
-    final title = siting.caseTitle?.isNotEmpty == true
+    final title = siting.caseTitle?.isNotEmpty ?? false
         ? siting.caseTitle!
         : (siting.caseCode ?? 'N/A');
     final subtitle = [
-      if (siting.courtName?.isNotEmpty == true) siting.courtName!,
+      if (siting.courtName?.isNotEmpty ?? false) siting.courtName!,
       formatDateTime(siting.sitingDate),
     ].join(' · ');
 

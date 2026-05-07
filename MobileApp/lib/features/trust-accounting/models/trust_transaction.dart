@@ -1,12 +1,4 @@
 class TrustTransactionModel {
-  final String transactionId;
-  final String caseId;
-  final String accountId;
-  final DateTime date;
-  final String transactionType;
-  final double amount;
-  final String status;
-  final String notes;
 
   TrustTransactionModel({
     required this.transactionId,
@@ -29,6 +21,14 @@ class TrustTransactionModel {
         status: json['status']?.toString() ?? '',
         notes: json['notes']?.toString() ?? '',
       );
+  final String transactionId;
+  final String caseId;
+  final String accountId;
+  final DateTime date;
+  final String transactionType;
+  final double amount;
+  final String status;
+  final String notes;
 
   Map<String, dynamic> toJson() => {
         'transactionId': transactionId,

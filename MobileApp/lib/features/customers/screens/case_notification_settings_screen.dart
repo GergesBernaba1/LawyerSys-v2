@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../core/localization/app_localizations.dart';
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../bloc/customers_bloc.dart';
-import '../bloc/customers_event.dart';
-import '../bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
 
 class CaseNotificationSettingsScreen extends StatefulWidget {
-  final int caseCode;
 
   const CaseNotificationSettingsScreen({super.key, required this.caseCode});
+  final int caseCode;
 
   @override
   State<CaseNotificationSettingsScreen> createState() =>
@@ -41,7 +39,7 @@ class _CaseNotificationSettingsScreenState
           if (state is CaseNotificationPreferenceUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                  content: Text('Notification settings updated')),
+                  content: Text('Notification settings updated'),),
             );
           } else if (state is CustomersError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -64,7 +62,7 @@ class _CaseNotificationSettingsScreenState
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () => context.read<CustomersBloc>().add(
-                          LoadCaseNotificationPreference(widget.caseCode)),
+                          LoadCaseNotificationPreference(widget.caseCode),),
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retry'),
                     ),

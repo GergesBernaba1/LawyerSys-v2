@@ -2,15 +2,15 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/storage/local_database.dart';
-import '../models/employee.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/employees/models/employee.dart';
 
 class EmployeesRepository {
-  final ApiClient apiClient;
-  final LocalDatabase localDatabase;
 
   EmployeesRepository(this.apiClient, this.localDatabase);
+  final ApiClient apiClient;
+  final LocalDatabase localDatabase;
 
   List<dynamic> _asList(dynamic data) {
     if (data is List<dynamic>) return data;
@@ -22,17 +22,17 @@ class EmployeesRepository {
   }
 
   Future<List<EmployeeModel>> getEmployees(
-      {String? tenantId, int page = 1, int pageSize = 20}) async {
+      {String? tenantId, int page = 1, int pageSize = 20,}) async {
     try {
       final response = await apiClient.get('/employees',
-          queryParameters: {'page': page, 'pageSize': pageSize});
+          queryParameters: {'page': page, 'pageSize': pageSize},);
       final list = _asList(response.data)
           .map((e) =>
-              EmployeeModel.fromJson(Map<String, dynamic>.from(e as Map)))
+              EmployeeModel.fromJson(Map<String, dynamic>.from(e as Map)),)
           .toList();
       for (final emp in list) {
         await localDatabase.upsertEmployee(emp.id.toString(), emp.toJson(),
-            tenantId: tenantId, isDirty: false);
+            tenantId: tenantId,);
       }
       return list;
     } catch (_) {
@@ -40,10 +40,10 @@ class EmployeesRepository {
       final cached = await localDatabase.getEmployees(
           tenantId: tenantId,
           limit: pageSize,
-          offset: (safePage - 1) * pageSize);
+          offset: (safePage - 1) * pageSize,);
       return cached
           .map((row) => EmployeeModel.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .toList();
     }
   }
@@ -53,9 +53,8 @@ class EmployeesRepository {
       final response = await apiClient.get('/employees/$id');
       if (response.data != null) {
         final model =
-            EmployeeModel.fromJson(Map<String, dynamic>.from(response.data));
-        await localDatabase.upsertEmployee(model.id.toString(), model.toJson(),
-            isDirty: false);
+            EmployeeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
+        await localDatabase.upsertEmployee(model.id.toString(), model.toJson(),);
         return model;
       }
       return null;
@@ -63,9 +62,9 @@ class EmployeesRepository {
       final cached = await localDatabase.getEmployees();
       return cached
           .map((row) => EmployeeModel.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .firstWhere((e) => e.id == id,
-              orElse: () => throw StateError('Employee not found'));
+              orElse: () => throw StateError('Employee not found'),);
     }
   }
 
@@ -75,22 +74,20 @@ class EmployeesRepository {
           data: {
             'usersId': employee.usersId,
             'salary': employee.salary,
-          });
+          },);
       if (response.data is Map<String, dynamic>) {
         final created = EmployeeModel.fromJson(
-            Map<String, dynamic>.from(response.data as Map));
+            Map<String, dynamic>.from(response.data as Map),);
         await localDatabase.upsertEmployee(
-            created.id.toString(), created.toJson(),
-            isDirty: false);
+            created.id.toString(), created.toJson(),);
       } else {
         await localDatabase.upsertEmployee(
-            employee.id.toString(), employee.toJson(),
-            isDirty: false);
+            employee.id.toString(), employee.toJson(),);
       }
     } catch (_) {
       await localDatabase.upsertEmployee(
           employee.id.toString(), employee.toJson(),
-          isDirty: true);
+          isDirty: true,);
       rethrow;
     }
   }
@@ -101,14 +98,13 @@ class EmployeesRepository {
           data: {
             // Backend UpdateEmployeeDto accepts salary only.
             'salary': employee.salary,
-          });
+          },);
       await localDatabase.upsertEmployee(
-          employee.id.toString(), employee.toJson(),
-          isDirty: false);
+          employee.id.toString(), employee.toJson(),);
     } catch (_) {
       await localDatabase.upsertEmployee(
           employee.id.toString(), employee.toJson(),
-          isDirty: true);
+          isDirty: true,);
       rethrow;
     }
   }
@@ -129,7 +125,7 @@ class EmployeesRepository {
   }
 
   Future<List<EmployeeModel>> searchEmployees(String query,
-      {String? tenantId}) async {
+      {String? tenantId,}) async {
     final keyword = query.trim();
     if (keyword.isEmpty) {
       return getEmployees(tenantId: tenantId);
@@ -140,14 +136,14 @@ class EmployeesRepository {
           .get('/employees', queryParameters: {'search': keyword});
       return _asList(response.data)
           .map((e) =>
-              EmployeeModel.fromJson(Map<String, dynamic>.from(e as Map)))
+              EmployeeModel.fromJson(Map<String, dynamic>.from(e as Map)),)
           .toList();
     } catch (_) {
       final cached =
           await localDatabase.getEmployees(tenantId: tenantId, limit: 200);
       return cached
           .map((row) => EmployeeModel.fromJson(
-              jsonDecode(row['data'] as String) as Map<String, dynamic>))
+              jsonDecode(row['data'] as String) as Map<String, dynamic>,),)
           .where((e) =>
               (e.user?.fullName
                       .toLowerCase()
@@ -156,7 +152,7 @@ class EmployeesRepository {
               (e.user?.userName.toLowerCase().contains(keyword.toLowerCase()) ??
                   false) ||
               (e.user?.job.toLowerCase().contains(keyword.toLowerCase()) ??
-                  false))
+                  false),)
           .toList();
     }
   }

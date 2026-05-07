@@ -1,23 +1,6 @@
-import 'recent_activity.dart';
+import 'package:qadaya_lawyersys/features/dashboard/models/recent_activity.dart';
 
 class DashboardSummary {
-  final int totalCasesCount;
-  final int activeCasesCount;
-  final int upcomingHearingsCount;
-  final int pendingTasksCount;
-  final int customersCount;
-  final int employeesCount;
-  final int filesCount;
-  final double casesTrend;
-  final double revenueThisMonth;
-  final double revenueTrend;
-  final int overdueTasks;
-  final double activityHealthScore;
-  final double completionScore;
-  final String attentionLevel;
-  final List<RecentActivity> recentActivities;
-  final List<RecentCase> recentCases;
-  final EmployeeMetrics? employeeMetrics;
 
   DashboardSummary({
     required this.totalCasesCount,
@@ -40,24 +23,41 @@ class DashboardSummary {
   });
 
   factory DashboardSummary.fromJson(Map<String, dynamic> json) => DashboardSummary(
-    totalCasesCount: json['totalCasesCount'] ?? 0,
-    activeCasesCount: json['activeCasesCount'] ?? 0,
-    upcomingHearingsCount: json['upcomingHearingsCount'] ?? 0,
-    pendingTasksCount: json['pendingTasksCount'] ?? 0,
-    customersCount: json['customersCount'] ?? 0,
-    employeesCount: json['employeesCount'] ?? 0,
-    filesCount: json['filesCount'] ?? 0,
-    casesTrend: (json['casesTrend'] ?? 0).toDouble(),
-    revenueThisMonth: (json['revenueThisMonth'] ?? 0).toDouble(),
-    revenueTrend: (json['revenueTrend'] ?? 0).toDouble(),
-    overdueTasks: json['overdueTasks'] ?? 0,
-    activityHealthScore: (json['activityHealthScore'] ?? 0).toDouble(),
-    completionScore: (json['completionScore'] ?? 0).toDouble(),
-    attentionLevel: json['attentionLevel'] ?? 'On Track',
+    totalCasesCount: (json['totalCasesCount'] as int?) ?? 0,
+    activeCasesCount: (json['activeCasesCount'] as int?) ?? 0,
+    upcomingHearingsCount: (json['upcomingHearingsCount'] as int?) ?? 0,
+    pendingTasksCount: (json['pendingTasksCount'] as int?) ?? 0,
+    customersCount: (json['customersCount'] as int?) ?? 0,
+    employeesCount: (json['employeesCount'] as int?) ?? 0,
+    filesCount: (json['filesCount'] as int?) ?? 0,
+    casesTrend: (json['casesTrend'] as num? ?? 0).toDouble(),
+    revenueThisMonth: (json['revenueThisMonth'] as num? ?? 0).toDouble(),
+    revenueTrend: (json['revenueTrend'] as num? ?? 0).toDouble(),
+    overdueTasks: (json['overdueTasks'] as int?) ?? 0,
+    activityHealthScore: (json['activityHealthScore'] as num? ?? 0).toDouble(),
+    completionScore: (json['completionScore'] as num? ?? 0).toDouble(),
+    attentionLevel: (json['attentionLevel'] as String?) ?? 'On Track',
     recentActivities: (json['recentActivities'] as List<dynamic>?)?.map((e) => RecentActivity.fromJson(e as Map<String, dynamic>)).toList() ?? [],
     recentCases: (json['recentCases'] as List<dynamic>?)?.map((e) => RecentCase.fromJson(e as Map<String, dynamic>)).toList() ?? [],
-    employeeMetrics: json['employeeMetrics'] != null ? EmployeeMetrics.fromJson(json['employeeMetrics']) : null,
+    employeeMetrics: json['employeeMetrics'] != null ? EmployeeMetrics.fromJson(json['employeeMetrics'] as Map<String, dynamic>) : null,
   );
+  final int totalCasesCount;
+  final int activeCasesCount;
+  final int upcomingHearingsCount;
+  final int pendingTasksCount;
+  final int customersCount;
+  final int employeesCount;
+  final int filesCount;
+  final double casesTrend;
+  final double revenueThisMonth;
+  final double revenueTrend;
+  final int overdueTasks;
+  final double activityHealthScore;
+  final double completionScore;
+  final String attentionLevel;
+  final List<RecentActivity> recentActivities;
+  final List<RecentCase> recentCases;
+  final EmployeeMetrics? employeeMetrics;
 
   Map<String, dynamic> toJson() => {
     'totalCasesCount': totalCasesCount,
@@ -81,14 +81,6 @@ class DashboardSummary {
 }
 
 class EmployeeMetrics {
-  final int assignedTasks;
-  final int assignedLeads;
-  final int assignedConsultations;
-  final int overdueTasks;
-  final int openCases;
-  final int qualifiedLeads;
-  final List<Task> overdueTaskList;
-  final List<Lead> followUps;
 
   EmployeeMetrics({
     required this.assignedTasks,
@@ -102,15 +94,23 @@ class EmployeeMetrics {
   });
 
   factory EmployeeMetrics.fromJson(Map<String, dynamic> json) => EmployeeMetrics(
-    assignedTasks: json['assignedTasks'] ?? 0,
-    assignedLeads: json['assignedLeads'] ?? 0,
-    assignedConsultations: json['assignedConsultations'] ?? 0,
-    overdueTasks: json['overdueTasks'] ?? 0,
-    openCases: json['openCases'] ?? 0,
-    qualifiedLeads: json['qualifiedLeads'] ?? 0,
+    assignedTasks: (json['assignedTasks'] as int?) ?? 0,
+    assignedLeads: (json['assignedLeads'] as int?) ?? 0,
+    assignedConsultations: (json['assignedConsultations'] as int?) ?? 0,
+    overdueTasks: (json['overdueTasks'] as int?) ?? 0,
+    openCases: (json['openCases'] as int?) ?? 0,
+    qualifiedLeads: (json['qualifiedLeads'] as int?) ?? 0,
     overdueTaskList: (json['overdueTaskList'] as List<dynamic>?)?.map((e) => Task.fromJson(e as Map<String, dynamic>)).toList() ?? [],
     followUps: (json['followUps'] as List<dynamic>?)?.map((e) => Lead.fromJson(e as Map<String, dynamic>)).toList() ?? [],
   );
+  final int assignedTasks;
+  final int assignedLeads;
+  final int assignedConsultations;
+  final int overdueTasks;
+  final int openCases;
+  final int qualifiedLeads;
+  final List<Task> overdueTaskList;
+  final List<Lead> followUps;
 
   Map<String, dynamic> toJson() => {
     'assignedTasks': assignedTasks,
@@ -125,11 +125,6 @@ class EmployeeMetrics {
 }
 
 class RecentCase {
-  final int caseId;
-  final String caseName;
-  final String caseNumber;
-  final String caseType;
-  final String status;
 
   RecentCase({
     required this.caseId,
@@ -140,12 +135,17 @@ class RecentCase {
   });
 
   factory RecentCase.fromJson(Map<String, dynamic> json) => RecentCase(
-    caseId: json['caseId'] ?? 0,
-    caseName: json['caseName'] ?? '',
-    caseNumber: json['caseNumber'] ?? '',
-    caseType: json['caseType'] ?? '',
-    status: json['status'] ?? 'Active',
+    caseId: (json['caseId'] as int?) ?? 0,
+    caseName: (json['caseName'] as String?) ?? '',
+    caseNumber: (json['caseNumber'] as String?) ?? '',
+    caseType: (json['caseType'] as String?) ?? '',
+    status: (json['status'] as String?) ?? 'Active',
   );
+  final int caseId;
+  final String caseName;
+  final String caseNumber;
+  final String caseType;
+  final String status;
 
   Map<String, dynamic> toJson() => {
     'caseId': caseId,
@@ -157,9 +157,6 @@ class RecentCase {
 }
 
 class Task {
-  final int id;
-  final String taskName;
-  final String? taskReminderDate;
 
   Task({
     required this.id,
@@ -168,10 +165,13 @@ class Task {
   });
 
   factory Task.fromJson(Map<String, dynamic> json) => Task(
-    id: json['id'] ?? 0,
-    taskName: json['taskName'] ?? json['task_Name'] ?? 'Task',
-    taskReminderDate: json['taskReminderDate'],
+    id: (json['id'] as int?) ?? 0,
+    taskName: (json['taskName'] as String?) ?? (json['task_Name'] as String?) ?? 'Task',
+    taskReminderDate: json['taskReminderDate'] as String?,
   );
+  final int id;
+  final String taskName;
+  final String? taskReminderDate;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -181,10 +181,6 @@ class Task {
 }
 
 class Lead {
-  final int id;
-  final String fullName;
-  final String? nextFollowUpAt;
-  final String status;
 
   Lead({
     required this.id,
@@ -194,11 +190,15 @@ class Lead {
   });
 
   factory Lead.fromJson(Map<String, dynamic> json) => Lead(
-    id: json['id'] ?? 0,
-    fullName: json['fullName'] ?? 'Lead',
-    nextFollowUpAt: json['nextFollowUpAt'],
-    status: json['status'] ?? 'Pending',
+    id: (json['id'] as int?) ?? 0,
+    fullName: (json['fullName'] as String?) ?? 'Lead',
+    nextFollowUpAt: json['nextFollowUpAt'] as String?,
+    status: (json['status'] as String?) ?? 'Pending',
   );
+  final int id;
+  final String fullName;
+  final String? nextFollowUpAt;
+  final String status;
 
   Map<String, dynamic> toJson() => {
     'id': id,

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../models/contender.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/contenders/models/contender.dart';
 
 class ContenderDetailScreen extends StatelessWidget {
-  final ContenderModel contender;
 
   const ContenderDetailScreen({super.key, required this.contender});
+  final ContenderModel contender;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class ContenderDetailScreen extends StatelessWidget {
             if (contender.notes.isNotEmpty) ...[
               const Divider(height: 32),
               Text(l.notes,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
               const SizedBox(height: 6),
               Text(contender.notes),
             ],
@@ -67,7 +67,7 @@ class ContenderDetailScreen extends StatelessWidget {
             SizedBox(
               width: 140,
               child: Text('$label:',
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: const TextStyle(fontWeight: FontWeight.w600),),
             ),
             Expanded(child: Text(value)),
           ],

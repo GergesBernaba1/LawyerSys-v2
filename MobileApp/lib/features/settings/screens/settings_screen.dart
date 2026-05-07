@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-
-import '../../../core/theme/theme_cubit.dart';
-import '../../../core/auth/biometric_auth.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../../../core/network/connectivity_service.dart';
-import '../../../core/notifications/push_notification_service.dart';
-import '../../../core/storage/local_database.dart';
-import '../../../core/storage/preferences_storage.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_event.dart';
-import '../../authentication/repositories/auth_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qadaya_lawyersys/core/auth/biometric_auth.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/network/connectivity_service.dart';
+import 'package:qadaya_lawyersys/core/notifications/push_notification_service.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/core/storage/preferences_storage.dart';
+import 'package:qadaya_lawyersys/core/theme/theme_cubit.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final BiometricAuthService? biometricAuthService;
 
   const SettingsScreen({super.key, this.biometricAuthService});
+  final BiometricAuthService? biometricAuthService;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -113,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(localizer.settings)),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         children: [
           ListTile(
             title: Text(localizer.language),
@@ -177,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             title: Text(localizer.pushNotifications),
             value: _pushNotificationsEnabled,
-            onChanged: (value) => _setPushNotificationsEnabled(value),
+            onChanged: _setPushNotificationsEnabled,
             secondary: const Icon(Icons.notifications_active),
           ),
           if (_biometricAvailable)
@@ -185,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: Text(localizer.biometricLogin),
               subtitle: Text(_biometricEnabled ? localizer.biometricEnabled : localizer.biometricDisabled),
               value: _biometricEnabled,
-              onChanged: (value) => _setBiometricEnabled(value),
+              onChanged: _setBiometricEnabled,
               secondary: const Icon(Icons.fingerprint),
             ),
           const SizedBox(height: 24),
@@ -204,4 +203,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
+
 

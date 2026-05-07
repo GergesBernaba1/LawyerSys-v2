@@ -1,12 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/intake_repository.dart';
-import '../models/intake_form.dart';
-import 'intake_event.dart';
-import 'intake_state.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_event.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_state.dart';
+import 'package:qadaya_lawyersys/features/intake/models/intake_form.dart';
+import 'package:qadaya_lawyersys/features/intake/repositories/intake_repository.dart';
 
 class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
-  final IntakeRepository repository;
 
   IntakeBloc({required this.repository}) : super(IntakeInitial()) {
     on<LoadIntakeLeads>(_onLoad);
@@ -19,6 +17,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
     on<ConvertIntakeLead>(_onConvert);
     on<CreatePublicIntakeLead>(_onCreatePublic);
   }
+  final IntakeRepository repository;
 
   Future<void> _onLoad(LoadIntakeLeads event, Emitter<IntakeState> emit) async {
     emit(IntakeLoading());
@@ -32,14 +31,14 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
         assignmentOptions: results[1] as List<IntakeAssignmentOption>,
         activeStatus: event.status,
         activeSearch: event.search,
-      ));
+      ),);
     } catch (e) {
       emit(IntakeError(e.toString()));
     }
   }
 
   Future<void> _onRefresh(
-      RefreshIntakeLeads event, Emitter<IntakeState> emit) async {
+      RefreshIntakeLeads event, Emitter<IntakeState> emit,) async {
     final current = state is IntakeLoaded ? state as IntakeLoaded : null;
     try {
       final leads = await repository.getLeads(
@@ -57,7 +56,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
   }
 
   Future<void> _onSearch(
-      SearchIntakeLeads event, Emitter<IntakeState> emit) async {
+      SearchIntakeLeads event, Emitter<IntakeState> emit,) async {
     final current = state is IntakeLoaded ? state as IntakeLoaded : null;
     emit(IntakeLoading());
     try {
@@ -70,14 +69,14 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
         assignmentOptions: current?.assignmentOptions ?? [],
         activeStatus: current?.activeStatus,
         activeSearch: event.query.isEmpty ? null : event.query,
-      ));
+      ),);
     } catch (e) {
       emit(IntakeError(e.toString()));
     }
   }
 
   Future<void> _onFilterStatus(
-      FilterIntakeByStatus event, Emitter<IntakeState> emit) async {
+      FilterIntakeByStatus event, Emitter<IntakeState> emit,) async {
     final current = state is IntakeLoaded ? state as IntakeLoaded : null;
     emit(IntakeLoading());
     try {
@@ -90,14 +89,14 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
         assignmentOptions: current?.assignmentOptions ?? [],
         activeStatus: event.status,
         activeSearch: current?.activeSearch,
-      ));
+      ),);
     } catch (e) {
       emit(IntakeError(e.toString()));
     }
   }
 
   Future<void> _onConflictCheck(
-      RunIntakeConflictCheck event, Emitter<IntakeState> emit) async {
+      RunIntakeConflictCheck event, Emitter<IntakeState> emit,) async {
     try {
       await repository.runConflictCheck(event.id);
       emit(IntakeActionSuccess('Conflict check complete'));
@@ -108,12 +107,12 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
   }
 
   Future<void> _onQualify(
-      QualifyIntakeLead event, Emitter<IntakeState> emit) async {
+      QualifyIntakeLead event, Emitter<IntakeState> emit,) async {
     try {
       await repository.qualify(event.id,
-          isQualified: event.isQualified, notes: event.notes);
+          isQualified: event.isQualified, notes: event.notes,);
       emit(IntakeActionSuccess(
-          event.isQualified ? 'Lead qualified' : 'Lead rejected'));
+          event.isQualified ? 'Lead qualified' : 'Lead rejected',),);
       if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
       emit(IntakeError(e.toString()));
@@ -121,11 +120,11 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
   }
 
   Future<void> _onAssign(
-      AssignIntakeLead event, Emitter<IntakeState> emit) async {
+      AssignIntakeLead event, Emitter<IntakeState> emit,) async {
     try {
       await repository.assign(event.id,
           assignedEmployeeId: event.assignedEmployeeId,
-          nextFollowUpAt: event.nextFollowUpAt);
+          nextFollowUpAt: event.nextFollowUpAt,);
       emit(IntakeActionSuccess('Lead assigned'));
       if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
@@ -134,10 +133,10 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
   }
 
   Future<void> _onConvert(
-      ConvertIntakeLead event, Emitter<IntakeState> emit) async {
+      ConvertIntakeLead event, Emitter<IntakeState> emit,) async {
     try {
       await repository.convert(event.id,
-          caseType: event.caseType, initialAmount: event.initialAmount);
+          caseType: event.caseType, initialAmount: event.initialAmount,);
       emit(IntakeActionSuccess('Lead converted to customer and case'));
       if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
@@ -146,7 +145,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
   }
 
   Future<void> _onCreatePublic(
-      CreatePublicIntakeLead event, Emitter<IntakeState> emit) async {
+      CreatePublicIntakeLead event, Emitter<IntakeState> emit,) async {
     try {
       await repository.createPublicLead(event.payload);
       emit(IntakeActionSuccess('Intake submitted successfully'));

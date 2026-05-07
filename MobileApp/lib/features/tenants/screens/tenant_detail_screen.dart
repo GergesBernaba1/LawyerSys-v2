@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/tenants_bloc.dart';
-import '../bloc/tenants_event.dart';
-import '../bloc/tenants_state.dart';
-import '../models/tenant_model.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_bloc.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_event.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_state.dart';
+import 'package:qadaya_lawyersys/features/tenants/models/tenant_model.dart';
 
 class TenantDetailScreen extends StatefulWidget {
-  final TenantModel tenant;
 
   const TenantDetailScreen({super.key, required this.tenant});
+  final TenantModel tenant;
 
   @override
   State<TenantDetailScreen> createState() => _TenantDetailScreenState();
@@ -90,7 +90,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                           'countryName': countryController.text.trim(),
                           'isActive': isActive,
                         },
-                      ));
+                      ),);
                   Navigator.pop(ctx);
                 },
                 child: Text(AppLocalizations.of(context)!.save),
@@ -127,7 +127,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
         ],
       ),
     ).then((confirmed) {
-      if (confirmed == true && context.mounted) {
+      if ((confirmed ?? false) && context.mounted) {
         context.read<TenantsBloc>().add(DeleteTenant(_tenant.id));
       }
     });
@@ -203,12 +203,12 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                         child: Text(
                           l.status,
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
+                              fontWeight: FontWeight.bold, fontSize: 14,),
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                            horizontal: 12, vertical: 4,),
                         decoration: BoxDecoration(
                           color: _tenant.isActive
                               ? Colors.green.withValues(alpha: 0.15)
@@ -240,7 +240,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.check_circle,
-                            color: Theme.of(context).colorScheme.primary),
+                            color: Theme.of(context).colorScheme.primary,),
                         const SizedBox(width: 8),
                         Text(
                           l.currentTenant,
@@ -257,7 +257,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
+                      horizontal: 16, vertical: 8,),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -295,10 +295,10 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
 }
 
 class _InfoCard extends StatelessWidget {
-  final String label;
-  final String value;
 
   const _InfoCard({required this.label, required this.value});
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
@@ -311,7 +311,7 @@ class _InfoCard extends StatelessWidget {
             Text(
               '$label: ',
               style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 14),
+                  fontWeight: FontWeight.bold, fontSize: 14,),
             ),
             Expanded(
               child: Text(value, style: const TextStyle(fontSize: 14)),

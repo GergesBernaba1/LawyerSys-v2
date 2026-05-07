@@ -1,4 +1,4 @@
-import '../models/workqueue_task.dart';
+import 'package:qadaya_lawyersys/features/workqueue/models/workqueue_task.dart';
 
 abstract class WorkqueueState {}
 
@@ -7,16 +7,16 @@ class WorkqueueInitial extends WorkqueueState {}
 class WorkqueueLoading extends WorkqueueState {}
 
 class WorkqueueLoaded extends WorkqueueState {
-  final List<WorkqueueTask> tasks;
   WorkqueueLoaded(this.tasks);
+  final List<WorkqueueTask> tasks;
 }
 
 class WorkqueueError extends WorkqueueState {
-  final String message;
   WorkqueueError(this.message);
+  final String message;
 }
 
 class WorkqueueTaskUpdated extends WorkqueueState {
-  final String message;
   WorkqueueTaskUpdated(this.message);
+  final String message;
 }

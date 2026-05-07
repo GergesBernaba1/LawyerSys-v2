@@ -1,18 +1,18 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/contender.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/contenders/models/contender.dart';
 
 class ContendersRepository {
-  final ApiClient apiClient;
 
   ContendersRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<ContenderModel>> getContenders(
-      {int page = 1, int pageSize = 50}) async {
+      {int page = 1, int pageSize = 50,}) async {
     final response = await apiClient.get('/api/contenders', queryParameters: {
       'page': page,
       'pageSize': pageSize,
-    });
+    },);
 
     final data = normalizeJsonList(response.data);
     if (data.isEmpty) return [];
@@ -20,7 +20,7 @@ class ContendersRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map((raw) =>
-            ContenderModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+            ContenderModel.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 
@@ -28,22 +28,22 @@ class ContendersRepository {
     final response = await apiClient.get('/api/contenders/$contenderId');
     if (response.data == null) return null;
     return ContenderModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   Future<ContenderModel> createContender(ContenderModel contender) async {
     final response =
         await apiClient.post('/api/contenders', data: contender.toJson());
     return ContenderModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   Future<ContenderModel> updateContender(ContenderModel contender) async {
     final response = await apiClient.put(
         '/api/contenders/${contender.contenderId}',
-        data: contender.toJson());
+        data: contender.toJson(),);
     return ContenderModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+        Map<String, dynamic>.from(response.data as Map),);
   }
 
   Future<void> deleteContender(String contenderId) async {
@@ -58,7 +58,7 @@ class ContendersRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map((raw) =>
-            ContenderModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+            ContenderModel.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 }

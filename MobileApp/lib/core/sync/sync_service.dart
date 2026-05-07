@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import '../api/api_client.dart';
-import '../storage/local_database.dart';
-import 'sync_queue_item.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/core/sync/sync_queue_item.dart';
 
 typedef ConflictResolverCallback = Future<Map<String, dynamic>?> Function(
   Map<String, dynamic> local,
@@ -11,13 +11,13 @@ typedef ConflictResolverCallback = Future<Map<String, dynamic>?> Function(
 );
 
 class SyncHealth {
+
+  SyncHealth({required this.attempted, required this.succeeded, required this.failed, required this.canceled, required this.lastSyncAt});
   final int attempted;
   final int succeeded;
   final int failed;
   final int canceled;
   final DateTime lastSyncAt;
-
-  SyncHealth({required this.attempted, required this.succeeded, required this.failed, required this.canceled, required this.lastSyncAt});
 
   Map<String, dynamic> toJson() => {
         'attempted': attempted,
@@ -29,7 +29,6 @@ class SyncHealth {
 }
 
 class SyncService {
-  static final SyncService _instance = SyncService._internal();
 
   factory SyncService({ApiClient? apiClient, LocalDatabase? localDatabase}) {
     if (apiClient != null) {
@@ -46,6 +45,7 @@ class SyncService {
   SyncService._internal()
       : _apiClient = ApiClient(),
         _localDatabase = LocalDatabase.instance;
+  static final SyncService _instance = SyncService._internal();
 
   ApiClient _apiClient;
   LocalDatabase _localDatabase;
@@ -53,7 +53,7 @@ class SyncService {
   int _attempted = 0;
   int _succeeded = 0;
   int _failed = 0;
-  int _canceled = 0;
+  final int _canceled = 0;
 
   Future<void> syncPendingOperations([ConflictResolverCallback? conflictResolver]) async {
     final queue = await _localDatabase.getSyncQueueItems();
@@ -113,14 +113,14 @@ class SyncService {
     final response = await _apiClient.post('/api/cases', data: item.payload);
     if (response.data != null && response.data is Map<String, dynamic>) {
       final caseJson = Map<String, dynamic>.from(response.data as Map);
-      await _localDatabase.upsertCase(item.entityId, caseJson, tenantId: caseJson['tenantId'] as String?, isDirty: false);
+      await _localDatabase.upsertCase(item.entityId, caseJson, tenantId: caseJson['tenantId'] as String?);
     }
   }
 
   Future<void> _updateCaseSync(SyncQueueItem item, ConflictResolverCallback? conflictResolver) async {
     try {
       await _apiClient.put('/api/cases/${item.entityId}', data: item.payload);
-      await _localDatabase.upsertCase(item.entityId, item.payload, tenantId: item.payload['tenantId'] as String? ?? '', isDirty: false);
+      await _localDatabase.upsertCase(item.entityId, item.payload, tenantId: item.payload['tenantId'] as String? ?? '');
     } on DioException catch (dioError) {
       if (dioError.response?.statusCode == 409) {
         await _handleCaseConflict(item, conflictResolver);
@@ -148,7 +148,7 @@ class SyncService {
           : local;
 
       await _apiClient.put('/api/cases/${item.entityId}', data: resolved);
-      await _localDatabase.upsertCase(item.entityId, resolved, tenantId: resolved['tenantId'] as String? ?? '', isDirty: false);
+      await _localDatabase.upsertCase(item.entityId, resolved, tenantId: resolved['tenantId'] as String? ?? '');
     } catch (error) {
       debugPrint('SyncService conflict resolution failed for case ${item.entityId}: $error');
       rethrow;
@@ -168,7 +168,7 @@ class SyncService {
         upsert: (items) async {
           for (final item in items) {
             final id = item['caseId']?.toString() ?? '';
-            if (id.isNotEmpty) await _localDatabase.upsertCase(id, item, tenantId: item['tenantId'] as String?, isDirty: false);
+            if (id.isNotEmpty) await _localDatabase.upsertCase(id, item, tenantId: item['tenantId'] as String?);
           }
         },
       ),
@@ -178,7 +178,7 @@ class SyncService {
         upsert: (items) async {
           for (final item in items) {
             final id = item['hearingId']?.toString() ?? '';
-            if (id.isNotEmpty) await _localDatabase.upsertHearing(id, item, tenantId: item['tenantId'] as String?, isDirty: false);
+            if (id.isNotEmpty) await _localDatabase.upsertHearing(id, item, tenantId: item['tenantId'] as String?);
           }
         },
       ),
@@ -198,7 +198,7 @@ class SyncService {
         upsert: (items) async {
           for (final item in items) {
             final id = item['id']?.toString() ?? '';
-            if (id.isNotEmpty) await _localDatabase.upsertDocument(id, item, tenantId: item['tenantId'] as String?, isDownloaded: false);
+            if (id.isNotEmpty) await _localDatabase.upsertDocument(id, item, tenantId: item['tenantId'] as String?);
           }
         },
       ),
@@ -213,7 +213,6 @@ class SyncService {
                 id,
                 item,
                 tenantId: item['tenantId'] as String?,
-                isDirty: false,
               );
             }
           }
@@ -280,5 +279,6 @@ class SyncService {
     );
   }
 }
+
 
 

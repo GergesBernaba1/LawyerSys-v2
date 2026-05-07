@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../bloc/notifications_bloc.dart';
-import '../bloc/notifications_event.dart';
-import '../bloc/notifications_state.dart';
-import 'notification_detail_screen.dart';
-import '../../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_bloc.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_event.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_state.dart';
+import 'package:qadaya_lawyersys/features/notifications/screens/notification_detail_screen.dart';
 
 class NotificationsInboxScreen extends StatefulWidget {
   const NotificationsInboxScreen({super.key});
@@ -35,7 +34,7 @@ class _NotificationsInboxScreenState extends State<NotificationsInboxScreen> {
             onPressed: () {
               context.read<NotificationsBloc>().add(ClearNotifications());
             },
-          )
+          ),
         ],
       ),
       body: BlocBuilder<NotificationsBloc, NotificationsState>(

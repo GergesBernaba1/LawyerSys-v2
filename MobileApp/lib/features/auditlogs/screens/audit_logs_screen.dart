@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 // ignore: unused_import
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/audit_logs_bloc.dart';
-import '../bloc/audit_logs_event.dart';
-import '../bloc/audit_logs_state.dart';
-import '../models/audit_log.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/bloc/audit_logs_bloc.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/bloc/audit_logs_event.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/bloc/audit_logs_state.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/models/audit_log.dart';
 
 class AuditLogsScreen extends StatefulWidget {
   const AuditLogsScreen({super.key});
@@ -69,7 +69,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.error_outline,
-                            size: 48, color: Colors.red),
+                            size: 48, color: Colors.red,),
                         const SizedBox(height: 12),
                         Text('${l10n.error}: ${state.message}'),
                         const SizedBox(height: 12),
@@ -129,15 +129,14 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                 child: DropdownButtonFormField<String>(
                   initialValue: _selectedEntityName,
                   isExpanded: true,
-                  isDense: true,
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.entity,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   ),
                   items: [
-                    DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.all)),
+                    DropdownMenuItem(child: Text(AppLocalizations.of(context)!.all)),
                     ...const [
                       'Case',
                       'Customer',
@@ -159,15 +158,14 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                 child: DropdownButtonFormField<String>(
                   initialValue: _selectedAction,
                   isExpanded: true,
-                  isDense: true,
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.action,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   ),
                   items: [
-                    DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.all)),
+                    DropdownMenuItem(child: Text(AppLocalizations.of(context)!.all)),
                     ..._actionOptions.map(
                       (a) => DropdownMenuItem(value: a, child: Text(a)),
                     ),
@@ -200,7 +198,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                   const Icon(Icons.history, size: 48, color: Colors.grey),
                   const SizedBox(height: 12),
                   Text(AppLocalizations.of(context)!.noAuditLogsFound,
-                      style: const TextStyle(color: Colors.grey)),
+                      style: const TextStyle(color: Colors.grey),),
                 ],
               ),
             ),
@@ -226,8 +224,8 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
 }
 
 class _AuditLogTile extends StatelessWidget {
-  final AuditLog log;
   const _AuditLogTile({required this.log});
+  final AuditLog log;
 
   Color _chipColor(String action) {
     switch (action.toLowerCase()) {

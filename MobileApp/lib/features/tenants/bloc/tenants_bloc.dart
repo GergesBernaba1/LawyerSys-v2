@@ -1,12 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../models/tenant_model.dart';
-import '../repositories/tenants_repository.dart';
-import 'tenants_event.dart';
-import 'tenants_state.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_event.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_state.dart';
+import 'package:qadaya_lawyersys/features/tenants/models/tenant_model.dart';
+import 'package:qadaya_lawyersys/features/tenants/repositories/tenants_repository.dart';
 
 class TenantsBloc extends Bloc<TenantsEvent, TenantsState> {
-  final TenantsRepository tenantsRepository;
 
   TenantsBloc({required this.tenantsRepository}) : super(TenantsInitial()) {
     on<LoadTenants>(_onLoad);
@@ -16,6 +14,7 @@ class TenantsBloc extends Bloc<TenantsEvent, TenantsState> {
     on<UpdateTenant>(_onUpdateTenant);
     on<DeleteTenant>(_onDeleteTenant);
   }
+  final TenantsRepository tenantsRepository;
 
   Future<void> _onLoad(LoadTenants event, Emitter<TenantsState> emit) async {
     emit(TenantsLoading());
@@ -82,7 +81,7 @@ class TenantsBloc extends Bloc<TenantsEvent, TenantsState> {
       tenants: raw.items.map((item) => TenantModel.fromJson(
         item,
         currentTenantId: raw.currentTenantId,
-      )).toList(),
+      ),).toList(),
     );
   }
 }

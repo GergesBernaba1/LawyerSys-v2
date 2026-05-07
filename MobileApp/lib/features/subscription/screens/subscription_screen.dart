@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/subscription_bloc.dart';
-import '../bloc/subscription_event.dart';
-import '../bloc/subscription_state.dart';
-import '../models/subscription_package.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/subscription/bloc/subscription_bloc.dart';
+import 'package:qadaya_lawyersys/features/subscription/bloc/subscription_event.dart';
+import 'package:qadaya_lawyersys/features/subscription/bloc/subscription_state.dart';
+import 'package:qadaya_lawyersys/features/subscription/models/subscription_package.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -100,9 +100,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 }
 
 class _PackageCard extends StatelessWidget {
-  final SubscriptionPackage package;
 
   const _PackageCard({required this.package});
+  final SubscriptionPackage package;
 
   String _formatStorage(int? mb) {
     if (mb == null) return 'N/A';
@@ -220,13 +220,13 @@ class _PackageCard extends StatelessWidget {
                           Text(
                             'Yearly',
                             style: TextStyle(
-                                color: Colors.grey[600], fontSize: 12),
+                                color: Colors.grey[600], fontSize: 12,),
                           ),
                           if (discount != null) ...[
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                  horizontal: 6, vertical: 2,),
                               decoration: BoxDecoration(
                                 color: Colors.green.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
@@ -293,11 +293,11 @@ class _PackageCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.check_circle_outline,
-                          size: 18, color: colorScheme.primary),
+                          size: 18, color: colorScheme.primary,),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(feature,
-                            style: const TextStyle(fontSize: 14)),
+                            style: const TextStyle(fontSize: 14),),
                       ),
                     ],
                   ),
@@ -336,10 +336,10 @@ class _PackageCard extends StatelessWidget {
 }
 
 class _LimitChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
 
   const _LimitChip({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +349,7 @@ class _LimitChip extends StatelessWidget {
         Icon(icon, size: 16, color: Colors.grey[600]),
         const SizedBox(width: 4),
         Text(label,
-            style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+            style: TextStyle(fontSize: 13, color: Colors.grey[700]),),
       ],
     );
   }

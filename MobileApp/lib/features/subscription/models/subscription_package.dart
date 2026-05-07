@@ -1,13 +1,4 @@
 class SubscriptionPackage {
-  final String officeSize;
-  final String? name;
-  final double? monthlyPrice;
-  final double? yearlyPrice;
-  final int? maxUsers;
-  final int? maxCases;
-  final int? maxStorage; // in MB
-  final List<String> features;
-  final bool isPopular;
 
   SubscriptionPackage({
     required this.officeSize,
@@ -42,6 +33,15 @@ class SubscriptionPackage {
       isPopular: json['isPopular'] as bool? ?? false,
     );
   }
+  final String officeSize;
+  final String? name;
+  final double? monthlyPrice;
+  final double? yearlyPrice;
+  final int? maxUsers;
+  final int? maxCases;
+  final int? maxStorage; // in MB
+  final List<String> features;
+  final bool isPopular;
 
   Map<String, dynamic> toJson() {
     return {

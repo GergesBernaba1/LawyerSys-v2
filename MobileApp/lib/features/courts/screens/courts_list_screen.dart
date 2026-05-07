@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/courts_bloc.dart';
-import '../bloc/courts_event.dart';
-import '../bloc/courts_state.dart';
-import '../models/court.dart';
-import 'court_detail_screen.dart';
-import 'court_form_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_bloc.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_event.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_state.dart';
+import 'package:qadaya_lawyersys/features/courts/models/court.dart';
+import 'package:qadaya_lawyersys/features/courts/screens/court_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/courts/screens/court_form_screen.dart';
 
 class CourtsListScreen extends StatefulWidget {
   const CourtsListScreen({super.key});
@@ -107,7 +107,7 @@ class _CourtsListScreenState extends State<CourtsListScreen> {
                                     ],
                                   ),
                                 );
-                                if (confirmed == true && context.mounted) {
+                                if ((confirmed ?? false) && context.mounted) {
                                   context.read<CourtsBloc>().add(DeleteCourt(court.courtId));
                                 }
                               }

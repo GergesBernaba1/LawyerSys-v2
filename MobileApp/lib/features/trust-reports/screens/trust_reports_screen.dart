@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/trust_reports_bloc.dart';
-import '../bloc/trust_reports_event.dart';
-import '../bloc/trust_reports_state.dart';
-import '../models/trust_report_models.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/bloc/trust_reports_bloc.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/bloc/trust_reports_event.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/bloc/trust_reports_state.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/models/trust_report_models.dart';
 
 class TrustReportsScreen extends StatefulWidget {
   const TrustReportsScreen({super.key});
@@ -87,7 +87,7 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
     context.read<TrustReportsBloc>().add(LoadFinancialSummary(
           year: _selectedYear,
           month: _selectedMonth,
-        ));
+        ),);
   }
 
   Future<void> _onRefresh() async {
@@ -124,7 +124,6 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
                       initialValue: _selectedYear,
                       items: [
                         const DropdownMenuItem<int?>(
-                          value: null,
                           child: Text('All'),
                         ),
                         for (int y = _maxYear; y >= _minYear; y--)
@@ -151,7 +150,6 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
                       initialValue: _selectedMonth,
                       items: [
                         const DropdownMenuItem<int?>(
-                          value: null,
                           child: Text('All'),
                         ),
                         for (int m = 1; m <= 12; m++)
@@ -192,7 +190,7 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
             height: 300,
             child: Center(child: Text('Error: ${state.message}')),
           ),
-        ]),
+        ],),
       );
     }
 
@@ -213,16 +211,16 @@ class _FinancialSummaryTabState extends State<_FinancialSummaryTab> {
   static String _monthName(int m) {
     const names = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
     return names[m - 1];
   }
 }
 
 class _SummaryGrid extends StatelessWidget {
-  final FinancialSummary summary;
 
   const _SummaryGrid({required this.summary});
+  final FinancialSummary summary;
 
   @override
   Widget build(BuildContext context) {
@@ -302,11 +300,6 @@ class _SummaryGrid extends StatelessWidget {
 }
 
 class _StatCardData {
-  final String label;
-  final String value;
-  final Color color;
-  final IconData icon;
-  final bool fullWidth;
 
   const _StatCardData({
     required this.label,
@@ -315,13 +308,18 @@ class _StatCardData {
     required this.icon,
     this.fullWidth = false,
   });
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+  final bool fullWidth;
 }
 
 class _StatCard extends StatelessWidget {
-  final _StatCardData data;
-  final bool fullWidth;
 
   const _StatCard({required this.data, this.fullWidth = false});
+  final _StatCardData data;
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -408,7 +406,7 @@ class _OutstandingBalancesTabState extends State<_OutstandingBalancesTab> {
                 height: 300,
                 child: Center(child: Text('Error: ${state.message}')),
               ),
-            ]),
+            ],),
           );
         }
 
@@ -421,7 +419,7 @@ class _OutstandingBalancesTabState extends State<_OutstandingBalancesTab> {
                   height: 300,
                   child: Center(child: Text('No outstanding balances')),
                 ),
-              ]),
+              ],),
             );
           }
 
@@ -446,10 +444,10 @@ class _OutstandingBalancesTabState extends State<_OutstandingBalancesTab> {
 }
 
 class _BalanceListTile extends StatelessWidget {
-  final OutstandingBalance balance;
-  final int rank;
 
   const _BalanceListTile({required this.balance, required this.rank});
+  final OutstandingBalance balance;
+  final int rank;
 
   @override
   Widget build(BuildContext context) {

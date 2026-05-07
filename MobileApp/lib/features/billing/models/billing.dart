@@ -1,10 +1,4 @@
 class BillingPay {
-  final int? id;
-  final double amount;
-  final String dateOfOperation;
-  final String notes;
-  final int customerId;
-  final String? customerName;
 
   BillingPay({
     this.id,
@@ -25,6 +19,12 @@ class BillingPay {
       customerName: json['customerName'] as String?,
     );
   }
+  final int? id;
+  final double amount;
+  final String dateOfOperation;
+  final String notes;
+  final int customerId;
+  final String? customerName;
 
   Map<String, dynamic> toJson() {
     return {
@@ -39,11 +39,6 @@ class BillingPay {
 }
 
 class BillingReceipt {
-  final int? id;
-  final double amount;
-  final String dateOfOperation;
-  final String notes;
-  final int employeeId;
 
   BillingReceipt({
     this.id,
@@ -62,6 +57,11 @@ class BillingReceipt {
       employeeId: json['employeeId'] as int,
     );
   }
+  final int? id;
+  final double amount;
+  final String dateOfOperation;
+  final String notes;
+  final int employeeId;
 
   Map<String, dynamic> toJson() {
     return {
@@ -75,10 +75,6 @@ class BillingReceipt {
 }
 
 class CustomerItem {
-  final int? id;
-  final int? usersId;
-  final String? fullName;
-  final String? email;
 
   CustomerItem({
     this.id,
@@ -99,6 +95,10 @@ class CustomerItem {
           : null,
     );
   }
+  final int? id;
+  final int? usersId;
+  final String? fullName;
+  final String? email;
 
   Map<String, dynamic> toJson() {
     return {
@@ -113,10 +113,6 @@ class CustomerItem {
 }
 
 class EmployeeItem {
-  final int? id;
-  final int? usersId;
-  final String? fullName;
-  final String? email;
 
   EmployeeItem({
     this.id,
@@ -137,6 +133,10 @@ class EmployeeItem {
           : null,
     );
   }
+  final int? id;
+  final int? usersId;
+  final String? fullName;
+  final String? email;
 
   Map<String, dynamic> toJson() {
     return {
@@ -151,9 +151,6 @@ class EmployeeItem {
 }
 
 class BillingSummary {
-  final double? totalPayments;
-  final double? totalReceipts;
-  final double? balance;
 
   BillingSummary({
     this.totalPayments,
@@ -168,6 +165,9 @@ class BillingSummary {
       balance: (json['balance'] as num?)?.toDouble(),
     );
   }
+  final double? totalPayments;
+  final double? totalReceipts;
+  final double? balance;
 
   Map<String, dynamic> toJson() {
     return {

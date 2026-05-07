@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/customers_bloc.dart';
-import '../bloc/customers_event.dart';
-import '../bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_bloc.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
 
 class PaymentProofSubmissionScreen extends StatefulWidget {
-  final int caseCode;
 
   const PaymentProofSubmissionScreen({super.key, required this.caseCode});
+  final int caseCode;
 
   @override
   State<PaymentProofSubmissionScreen> createState() =>
@@ -68,7 +68,7 @@ class _PaymentProofSubmissionScreenState
           paymentDate: _selectedDate,
           filePath: filePath,
           notes: _notesController.text.trim(),
-        ));
+        ),);
   }
 
   @override
@@ -83,7 +83,7 @@ class _PaymentProofSubmissionScreenState
           if (state is PaymentProofSubmitted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                  content: Text('Payment proof submitted successfully')),
+                  content: Text('Payment proof submitted successfully'),),
             );
             Navigator.pop(context, true);
           } else if (state is CustomersError) {
@@ -112,7 +112,7 @@ class _PaymentProofSubmissionScreenState
                         const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(
                       labelText: 'Amount',
-                      prefixText: '\$ ',
+                      prefixText: r'$ ',
                       border: OutlineInputBorder(),
                     ),
                     enabled: !isSubmitting,
@@ -148,7 +148,7 @@ class _PaymentProofSubmissionScreenState
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
-                                        'File picker not yet integrated. Enter path manually.'),
+                                        'File picker not yet integrated. Enter path manually.',),
                                   ),
                                 );
                               },

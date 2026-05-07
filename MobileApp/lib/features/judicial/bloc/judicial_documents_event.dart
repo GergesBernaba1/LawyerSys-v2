@@ -1,30 +1,30 @@
 abstract class JudicialDocumentsEvent {}
 
 class LoadJudicialDocuments extends JudicialDocumentsEvent {
+  LoadJudicialDocuments({this.page = 1, this.search});
   final int page;
   final String? search;
-  LoadJudicialDocuments({this.page = 1, this.search});
 }
 
 class RefreshJudicialDocuments extends JudicialDocumentsEvent {}
 
 class SearchJudicialDocuments extends JudicialDocumentsEvent {
-  final String query;
   SearchJudicialDocuments(this.query);
+  final String query;
 }
 
 class CreateJudicialDocument extends JudicialDocumentsEvent {
-  final Map<String, dynamic> payload;
   CreateJudicialDocument(this.payload);
+  final Map<String, dynamic> payload;
 }
 
 class UpdateJudicialDocument extends JudicialDocumentsEvent {
+  UpdateJudicialDocument(this.id, this.payload);
   final int id;
   final Map<String, dynamic> payload;
-  UpdateJudicialDocument(this.id, this.payload);
 }
 
 class DeleteJudicialDocument extends JudicialDocumentsEvent {
-  final int id;
   DeleteJudicialDocument(this.id);
+  final int id;
 }

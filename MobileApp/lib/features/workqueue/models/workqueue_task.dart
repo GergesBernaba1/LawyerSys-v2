@@ -1,13 +1,4 @@
 class WorkqueueTask {
-  final int id;
-  final String title;
-  final String? description;
-  final String status; // Pending, InProgress, Completed, Cancelled
-  final String? priority; // Low, Medium, High
-  final DateTime? dueDate;
-  final String? caseCode;
-  final String? assignedToName;
-  final int? assignedToId;
 
   WorkqueueTask({
     required this.id,
@@ -44,6 +35,15 @@ class WorkqueueTask {
       assignedToId: parseInt(json['assignedToId']),
     );
   }
+  final int id;
+  final String title;
+  final String? description;
+  final String status; // Pending, InProgress, Completed, Cancelled
+  final String? priority; // Low, Medium, High
+  final DateTime? dueDate;
+  final String? caseCode;
+  final String? assignedToName;
+  final int? assignedToId;
 
   Map<String, dynamic> toJson() {
     return {

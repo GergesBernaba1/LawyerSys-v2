@@ -1,25 +1,4 @@
 class IntakeForm {
-  final int id;
-  final String fullName;
-  final String? email;
-  final String? phoneNumber;
-  final String? nationalId;
-  final String subject;
-  final String? description;
-  final String? desiredCaseType;
-  final String status;
-  final String? qualificationNotes;
-  final bool conflictChecked;
-  final bool hasConflict;
-  final String? conflictDetails;
-  final int? assignedEmployeeId;
-  final String? assignedEmployeeName;
-  final DateTime? nextFollowUpAt;
-  final DateTime? assignedAt;
-  final int? convertedCustomerId;
-  final int? convertedCaseCode;
-  final DateTime createdAt;
-  final DateTime updatedAt;
 
   IntakeForm({
     required this.id,
@@ -74,6 +53,27 @@ class IntakeForm {
         updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
             DateTime.now(),
       );
+  final int id;
+  final String fullName;
+  final String? email;
+  final String? phoneNumber;
+  final String? nationalId;
+  final String subject;
+  final String? description;
+  final String? desiredCaseType;
+  final String status;
+  final String? qualificationNotes;
+  final bool conflictChecked;
+  final bool hasConflict;
+  final String? conflictDetails;
+  final int? assignedEmployeeId;
+  final String? assignedEmployeeName;
+  final DateTime? nextFollowUpAt;
+  final DateTime? assignedAt;
+  final int? convertedCustomerId;
+  final int? convertedCaseCode;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -106,8 +106,6 @@ class IntakeForm {
 }
 
 class IntakeAssignmentOption {
-  final int employeeId;
-  final String name;
 
   IntakeAssignmentOption({required this.employeeId, required this.name});
 
@@ -116,11 +114,11 @@ class IntakeAssignmentOption {
         employeeId: json['employeeId'] as int? ?? 0,
         name: json['name']?.toString() ?? '',
       );
+  final int employeeId;
+  final String name;
 }
 
 class IntakeConflictCheck {
-  final bool hasConflict;
-  final String details;
 
   IntakeConflictCheck({required this.hasConflict, required this.details});
 
@@ -129,4 +127,6 @@ class IntakeConflictCheck {
         hasConflict: json['hasConflict'] as bool? ?? false,
         details: json['details']?.toString() ?? '',
       );
+  final bool hasConflict;
+  final String details;
 }

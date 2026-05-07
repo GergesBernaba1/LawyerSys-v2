@@ -1,4 +1,4 @@
-import '../models/admin_overview.dart';
+import 'package:qadaya_lawyersys/features/administration/models/admin_overview.dart';
 
 abstract class AdminState {}
 
@@ -7,11 +7,11 @@ class AdminInitial extends AdminState {}
 class AdminLoading extends AdminState {}
 
 class AdminLoaded extends AdminState {
-  final AdminOverview overview;
   AdminLoaded(this.overview);
+  final AdminOverview overview;
 }
 
 class AdminError extends AdminState {
-  final String message;
   AdminError(this.message);
+  final String message;
 }

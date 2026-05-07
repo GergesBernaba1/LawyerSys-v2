@@ -1,24 +1,24 @@
 abstract class SitingsEvent {}
 
 class LoadSitings extends SitingsEvent {
-  final String? search;
   LoadSitings({this.search});
+  final String? search;
 }
 
 class RefreshSitings extends SitingsEvent {}
 
 class CreateSiting extends SitingsEvent {
-  final Map<String, dynamic> data;
   CreateSiting(this.data);
+  final Map<String, dynamic> data;
 }
 
 class UpdateSiting extends SitingsEvent {
+  UpdateSiting(this.id, this.data);
   final int id;
   final Map<String, dynamic> data;
-  UpdateSiting(this.id, this.data);
 }
 
 class DeleteSiting extends SitingsEvent {
-  final int id;
   DeleteSiting(this.id);
+  final int id;
 }

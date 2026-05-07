@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/storage/local_database.dart';
-import '../models/notification.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/notifications/models/notification.dart';
 
 class NotificationsRepository {
-  final LocalDatabase localDatabase;
-  final ApiClient? apiClient;
 
   NotificationsRepository(this.localDatabase, [this.apiClient]);
+  final LocalDatabase localDatabase;
+  final ApiClient? apiClient;
 
   List<dynamic> _asList(dynamic data) {
     if (data is List<dynamic>) return data;
@@ -20,7 +20,7 @@ class NotificationsRepository {
   }
 
   Future<List<AppNotification>> getNotifications(
-      {String? tenantId, int limit = 100}) async {
+      {String? tenantId, int limit = 100,}) async {
     if (apiClient != null) {
       try {
         final response = await apiClient!.get(
@@ -62,10 +62,10 @@ class NotificationsRepository {
   }
 
   Future<void> addNotification(AppNotification notification,
-      {String? tenantId}) async {
+      {String? tenantId,}) async {
     await localDatabase.upsertNotification(
         notification.notificationId, notification.toJson(),
-        tenantId: tenantId, isRead: false);
+        tenantId: tenantId,);
   }
 
   Future<void> markAsRead(String notificationId) async {

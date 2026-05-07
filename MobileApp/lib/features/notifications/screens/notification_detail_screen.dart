@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../models/notification.dart';
+import 'package:qadaya_lawyersys/features/notifications/models/notification.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
-  final AppNotification notification;
 
   const NotificationDetailScreen({super.key, required this.notification});
+  final AppNotification notification;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Notification')), 
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

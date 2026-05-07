@@ -1,12 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../models/hearing.dart';
-import '../repositories/hearings_repository.dart';
-import 'hearings_event.dart';
-import 'hearings_state.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_event.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_state.dart';
+import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
+import 'package:qadaya_lawyersys/features/hearings/repositories/hearings_repository.dart';
 
 class HearingsBloc extends Bloc<HearingsEvent, HearingsState> {
-  final HearingsRepository hearingsRepository;
 
   HearingsBloc({required this.hearingsRepository}) : super(HearingsInitial()) {
     on<LoadHearings>(_onLoadHearings);
@@ -17,6 +15,7 @@ class HearingsBloc extends Bloc<HearingsEvent, HearingsState> {
     on<UpdateHearing>(_onUpdateHearing);
     on<DeleteHearing>(_onDeleteHearing);
   }
+  final HearingsRepository hearingsRepository;
 
   Future<void> _onLoadHearings(LoadHearings event, Emitter<HearingsState> emit) async {
     emit(HearingsLoading());

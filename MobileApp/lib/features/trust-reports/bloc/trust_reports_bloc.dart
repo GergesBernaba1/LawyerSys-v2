@@ -1,20 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/trust_reports_repository.dart';
-import 'trust_reports_event.dart';
-import 'trust_reports_state.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/bloc/trust_reports_event.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/bloc/trust_reports_state.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/repositories/trust_reports_repository.dart';
 
 class TrustReportsBloc extends Bloc<TrustReportsEvent, TrustReportsState> {
-  final TrustReportsRepository repository;
 
   TrustReportsBloc({required this.repository}) : super(TrustReportsInitial()) {
     on<LoadFinancialSummary>(_onLoadFinancialSummary);
     on<LoadOutstandingBalances>(_onLoadOutstandingBalances);
     on<RefreshTrustReports>(_onRefreshTrustReports);
   }
+  final TrustReportsRepository repository;
 
   Future<void> _onLoadFinancialSummary(
-      LoadFinancialSummary event, Emitter<TrustReportsState> emit) async {
+      LoadFinancialSummary event, Emitter<TrustReportsState> emit,) async {
     emit(TrustReportsLoading());
     try {
       final summary = await repository.getFinancialSummary(
@@ -28,7 +27,7 @@ class TrustReportsBloc extends Bloc<TrustReportsEvent, TrustReportsState> {
   }
 
   Future<void> _onLoadOutstandingBalances(
-      LoadOutstandingBalances event, Emitter<TrustReportsState> emit) async {
+      LoadOutstandingBalances event, Emitter<TrustReportsState> emit,) async {
     emit(TrustReportsLoading());
     try {
       final balances = await repository.getOutstandingBalances();
@@ -40,7 +39,7 @@ class TrustReportsBloc extends Bloc<TrustReportsEvent, TrustReportsState> {
   }
 
   Future<void> _onRefreshTrustReports(
-      RefreshTrustReports event, Emitter<TrustReportsState> emit) async {
+      RefreshTrustReports event, Emitter<TrustReportsState> emit,) async {
     // Refresh based on the previous state context
     if (state is FinancialSummaryLoaded) {
       final prev = state as FinancialSummaryLoaded;

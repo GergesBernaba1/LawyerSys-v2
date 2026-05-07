@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../features/authentication/bloc/auth_bloc.dart';
-import '../../features/authentication/bloc/auth_event.dart';
-import '../../features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Navigator.pushReplacementNamed(context, '/login');
           }
         },
-        child: Container(
+        child: DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [_kPrimary, _kPrimaryLight],
@@ -86,5 +86,6 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+
 
 

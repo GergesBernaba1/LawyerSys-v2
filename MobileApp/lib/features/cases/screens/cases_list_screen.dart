@@ -1,13 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../../../shared/widgets/skeleton_loader.dart';
-import '../bloc/cases_bloc.dart';
-import '../bloc/cases_event.dart';
-import '../bloc/cases_state.dart';
-import '../models/case.dart';
-import 'case_detail_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/shared/widgets/skeleton_loader.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_bloc.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_event.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_state.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
+import 'package:qadaya_lawyersys/features/cases/screens/case_detail_screen.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -65,7 +65,7 @@ class _CasesListScreenState extends State<CasesListScreen> {
         }
         if (state is CasesError) {
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${localizer.error}: ${state.message}')));
+              SnackBar(content: Text('${localizer.error}: ${state.message}')),);
         }
       },
       child: Column(
@@ -113,9 +113,10 @@ class _CasesListScreenState extends State<CasesListScreen> {
                   borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: _kPrimary, width: 2),
                 ),
+                ),
+                onSubmitted: (v) => context.read<CasesBloc>().add(SearchCases(v)),
+                onChanged: (_) => setState(() {}),
               ),
-              onSubmitted: (v) => context.read<CasesBloc>().add(SearchCases(v)),
-              onChanged: (_) => setState(() {}),
             ),
           ),
 
@@ -129,7 +130,7 @@ class _CasesListScreenState extends State<CasesListScreen> {
                 if (state is CasesError) {
                   return Center(
                       child: Text('${localizer.error}: ${state.message}',
-                          style: const TextStyle(color: Colors.red)));
+                          style: const TextStyle(color: Colors.red),),);
                 }
                 if (state is CasesLoaded) {
                   final cases = state.cases;
@@ -140,12 +141,12 @@ class _CasesListScreenState extends State<CasesListScreen> {
                         children: [
                           Icon(Icons.folder_open,
                               size: 64,
-                              color: _kPrimary.withValues(alpha: 0.3)),
+                              color: _kPrimary.withValues(alpha: 0.3),),
                           const SizedBox(height: 12),
                           Text(localizer.noCasesFound,
                               style: const TextStyle(
                                   color: _kTextSecondary,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: FontWeight.w600,),),
                         ],
                       ),
                     );
@@ -186,8 +187,8 @@ class _CasesListScreenState extends State<CasesListScreen> {
 }
 
 class _CaseTile extends StatelessWidget {
-  final CaseModel caseItem;
   const _CaseTile({required this.caseItem});
+  final CaseModel caseItem;
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
@@ -219,7 +220,7 @@ class _CaseTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => CaseDetailScreen(caseModel: caseItem)),
+                builder: (_) => CaseDetailScreen(caseModel: caseItem),),
           );
         },
         child: Container(
@@ -271,7 +272,7 @@ class _CaseTile extends StatelessWidget {
                     style: const TextStyle(
                         color: _kTextSecondary,
                         fontSize: 13,
-                        fontWeight: FontWeight.w500),
+                        fontWeight: FontWeight.w500,),
                   ),
                 ],
               ),
@@ -297,5 +298,6 @@ class _CaseTile extends StatelessWidget {
     );
   }
 }
+
 
 

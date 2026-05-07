@@ -1,4 +1,4 @@
-import '../models/billing.dart';
+import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
 
 abstract class BillingState {}
 
@@ -7,11 +7,6 @@ class BillingInitial extends BillingState {}
 class BillingLoading extends BillingState {}
 
 class BillingLoaded extends BillingState {
-  final List<BillingPay> payments;
-  final List<BillingReceipt> receipts;
-  final List<CustomerItem> customers;
-  final List<EmployeeItem> employees;
-  final BillingSummary? summary;
 
   BillingLoaded({
     required this.payments,
@@ -20,9 +15,14 @@ class BillingLoaded extends BillingState {
     required this.employees,
     this.summary,
   });
+  final List<BillingPay> payments;
+  final List<BillingReceipt> receipts;
+  final List<CustomerItem> customers;
+  final List<EmployeeItem> employees;
+  final BillingSummary? summary;
 }
 
 class BillingError extends BillingState {
-  final String message;
   BillingError(this.message);
+  final String message;
 }

@@ -1,10 +1,4 @@
 class PortalMessageModel {
-  final String messageId;
-  final String subject;
-  final String body;
-  final String from;
-  final DateTime sentAt;
-  final bool isRead;
 
   PortalMessageModel({
     required this.messageId,
@@ -23,6 +17,12 @@ class PortalMessageModel {
         sentAt: json['sentAt'] != null ? DateTime.tryParse(json['sentAt'].toString()) ?? DateTime.now() : DateTime.now(),
         isRead: json['isRead'] == true || json['isRead']?.toString().toLowerCase() == 'true',
       );
+  final String messageId;
+  final String subject;
+  final String body;
+  final String from;
+  final DateTime sentAt;
+  final bool isRead;
 
   Map<String, dynamic> toJson() => {
         'messageId': messageId,

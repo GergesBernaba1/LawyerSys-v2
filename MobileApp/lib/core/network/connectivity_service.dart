@@ -3,18 +3,18 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 
-import '../sync/sync_service.dart';
+import 'package:qadaya_lawyersys/core/sync/sync_service.dart';
 
 class ConnectivityService {
+
+  ConnectivityService({Connectivity? connectivity, SyncService? syncService})
+      : _connectivity = connectivity ?? Connectivity(),
+        _syncService = syncService ?? SyncService();
   final Connectivity _connectivity;
   final SyncService _syncService;
 
   StreamSubscription<List<ConnectivityResult>>? _subscription;
   Timer? _metricsTimer;
-
-  ConnectivityService({Connectivity? connectivity, SyncService? syncService})
-      : _connectivity = connectivity ?? Connectivity(),
-        _syncService = syncService ?? SyncService();
 
   void startListening({Duration statsInterval = const Duration(minutes: 5)}) {
     _subscription ??= _connectivity.onConnectivityChanged.listen((results) async {
@@ -23,7 +23,7 @@ class ConnectivityService {
         debugPrint('Connectivity changed: $result');
       }
       if (result != ConnectivityResult.none) {
-        await _syncService.syncPendingOperations(null);
+        await _syncService.syncPendingOperations();
       }
     });
 
@@ -31,7 +31,7 @@ class ConnectivityService {
       if (kDebugMode) {
         debugPrint('ConnectivityService periodic sync trigger');
       }
-      await _syncService.syncPendingOperations(null);
+      await _syncService.syncPendingOperations();
     });
   }
 

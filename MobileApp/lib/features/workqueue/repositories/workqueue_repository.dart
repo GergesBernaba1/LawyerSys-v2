@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/workqueue_task.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/workqueue/models/workqueue_task.dart';
 
 class WorkqueueRepository {
-  final ApiClient apiClient;
 
   WorkqueueRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<WorkqueueTask>> getMyTasks({String? status}) async {
     final queryParameters = <String, dynamic>{
@@ -37,7 +37,7 @@ class WorkqueueRepository {
     final response = await apiClient.get('/tasks', queryParameters: {
       'assignedToId': userId,
       'pageSize': 20,
-    });
+    },);
     final items = normalizeJsonList(response.data);
     return items.whereType<Map<String, dynamic>>().map(WorkqueueTask.fromJson).toList();
   }

@@ -1,4 +1,4 @@
-import '../models/siting_model.dart';
+import 'package:qadaya_lawyersys/features/sitings/models/siting_model.dart';
 
 abstract class SitingsState {}
 
@@ -7,16 +7,16 @@ class SitingsInitial extends SitingsState {}
 class SitingsLoading extends SitingsState {}
 
 class SitingsLoaded extends SitingsState {
-  final List<SitingModel> sitings;
   SitingsLoaded(this.sitings);
+  final List<SitingModel> sitings;
 }
 
 class SitingsError extends SitingsState {
-  final String message;
   SitingsError(this.message);
+  final String message;
 }
 
 class SitingOperationSuccess extends SitingsState {
-  final String message;
   SitingOperationSuccess(this.message);
+  final String message;
 }

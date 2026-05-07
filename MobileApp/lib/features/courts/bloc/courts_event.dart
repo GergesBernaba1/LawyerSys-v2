@@ -1,4 +1,4 @@
-import '../models/court.dart';
+import 'package:qadaya_lawyersys/features/courts/models/court.dart';
 
 abstract class CourtsEvent {}
 
@@ -6,26 +6,26 @@ class LoadCourts extends CourtsEvent {}
 class RefreshCourts extends CourtsEvent {}
 
 class SearchCourts extends CourtsEvent {
-  final String query;
   SearchCourts(this.query);
+  final String query;
 }
 
 class SelectCourt extends CourtsEvent {
-  final String courtId;
   SelectCourt(this.courtId);
+  final String courtId;
 }
 
 class CreateCourt extends CourtsEvent {
-  final CourtModel court;
   CreateCourt(this.court);
+  final CourtModel court;
 }
 
 class UpdateCourt extends CourtsEvent {
-  final CourtModel court;
   UpdateCourt(this.court);
+  final CourtModel court;
 }
 
 class DeleteCourt extends CourtsEvent {
-  final String courtId;
   DeleteCourt(this.courtId);
+  final String courtId;
 }

@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 class SignalRService {
-  static final SignalRService _instance = SignalRService._internal();
 
   factory SignalRService() => _instance;
 
   SignalRService._internal();
+  static final SignalRService _instance = SignalRService._internal();
 
   HubConnection? _connection;
   StreamController<Map<String, dynamic>> _events =
@@ -17,7 +17,7 @@ class SignalRService {
   Stream<Map<String, dynamic>> get events => _events.stream;
 
   Future<void> init(String hubUrl,
-      {Future<String> Function()? tokenFactory}) async {
+      {Future<String> Function()? tokenFactory,}) async {
     if (_connection != null) {
       await stop();
     }
@@ -35,15 +35,15 @@ class SignalRService {
         .withAutomaticReconnect()
         .build();
 
-    _connection!.onclose(({Exception? error}) {
+    _connection!.onclose(({error}) {
       debugPrint('[SignalR] connection closed: $error');
     });
 
-    _connection!.onreconnecting(({Exception? error}) {
+    _connection!.onreconnecting(({error}) {
       debugPrint('[SignalR] reconnecting: $error');
     });
 
-    _connection!.onreconnected(({String? connectionId}) {
+    _connection!.onreconnected(({connectionId}) {
       debugPrint('[SignalR] reconnected: $connectionId');
     });
 

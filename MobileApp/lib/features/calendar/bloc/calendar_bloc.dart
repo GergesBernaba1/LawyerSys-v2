@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/calendar_repository.dart';
-import 'calendar_event.dart' as bloc_calendar_event;
-import 'calendar_state.dart';
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_event.dart' as bloc_calendar_event;
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_state.dart';
+import 'package:qadaya_lawyersys/features/calendar/repositories/calendar_repository.dart';
 
 class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState> {
-  final CalendarRepository calendarRepository;
 
   CalendarBloc({required this.calendarRepository}) : super(CalendarInitial()) {
     on<bloc_calendar_event.LoadCalendarEvents>(_onLoadCalendarEvents);
@@ -16,9 +14,10 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
     on<bloc_calendar_event.UpdateCalendarEvent>(_onUpdateEvent);
     on<bloc_calendar_event.DeleteCalendarEvent>(_onDeleteEvent);
   }
+  final CalendarRepository calendarRepository;
 
   Future<void> _onLoadCalendarEvents(
-      bloc_calendar_event.LoadCalendarEvents event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.LoadCalendarEvents event, Emitter<CalendarState> emit,) async {
     emit(CalendarLoading());
     try {
       final events = await calendarRepository.getEvents(
@@ -32,7 +31,7 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
   }
 
   Future<void> _onRefreshCalendarEvents(
-      bloc_calendar_event.RefreshCalendarEvents event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.RefreshCalendarEvents event, Emitter<CalendarState> emit,) async {
     try {
       final events = await calendarRepository.getEvents(
         fromDate: event.fromDate,
@@ -51,13 +50,13 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
         currentState.events,
         view: event.view,
         anchorDate: currentState.anchorDate,
-      ));
+      ),);
     } else if (state is CalendarInitial) {
       emit(CalendarLoaded(
         [],
         view: event.view,
         anchorDate: DateTime.now(),
-      ));
+      ),);
     }
   }
 
@@ -68,23 +67,22 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
         currentState.events,
         view: currentState.view,
         anchorDate: event.date,
-      ));
+      ),);
     } else if (state is CalendarInitial) {
       emit(CalendarLoaded(
         [],
-        view: 'month',
         anchorDate: event.date,
-      ));
+      ),);
     }
   }
 
   Future<void> _onCreateEvent(
-      bloc_calendar_event.CreateCalendarEvent event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.CreateCalendarEvent event, Emitter<CalendarState> emit,) async {
     emit(CalendarLoading());
     try {
       await calendarRepository.createEvent(event.data);
       final events = await calendarRepository.getEvents(
-          fromDate: event.fromDate, toDate: event.toDate);
+          fromDate: event.fromDate, toDate: event.toDate,);
       emit(CalendarOperationSuccess('Event created', events));
       emit(CalendarLoaded(events));
     } catch (e) {
@@ -93,12 +91,12 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
   }
 
   Future<void> _onUpdateEvent(
-      bloc_calendar_event.UpdateCalendarEvent event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.UpdateCalendarEvent event, Emitter<CalendarState> emit,) async {
     emit(CalendarLoading());
     try {
       await calendarRepository.updateEvent(event.id, event.data);
       final events = await calendarRepository.getEvents(
-          fromDate: event.fromDate, toDate: event.toDate);
+          fromDate: event.fromDate, toDate: event.toDate,);
       emit(CalendarOperationSuccess('Event updated', events));
       emit(CalendarLoaded(events));
     } catch (e) {
@@ -107,12 +105,12 @@ class CalendarBloc extends Bloc<bloc_calendar_event.CalendarEvent, CalendarState
   }
 
   Future<void> _onDeleteEvent(
-      bloc_calendar_event.DeleteCalendarEvent event, Emitter<CalendarState> emit) async {
+      bloc_calendar_event.DeleteCalendarEvent event, Emitter<CalendarState> emit,) async {
     emit(CalendarLoading());
     try {
       await calendarRepository.deleteEvent(event.id);
       final events = await calendarRepository.getEvents(
-          fromDate: event.fromDate, toDate: event.toDate);
+          fromDate: event.fromDate, toDate: event.toDate,);
       emit(CalendarOperationSuccess('Event deleted', events));
       emit(CalendarLoaded(events));
     } catch (e) {

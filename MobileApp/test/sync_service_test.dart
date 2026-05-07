@@ -9,16 +9,16 @@ import 'sync_service_test.mocks.dart';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 DioException _dioError(int statusCode) => DioException(
-      requestOptions: RequestOptions(path: ''),
+      requestOptions: RequestOptions(),
       response: Response(
         statusCode: statusCode,
-        requestOptions: RequestOptions(path: ''),
+        requestOptions: RequestOptions(),
       ),
       type: DioExceptionType.badResponse,
     );
 
 DioException _networkError() => DioException(
-      requestOptions: RequestOptions(path: ''),
+      requestOptions: RequestOptions(),
       type: DioExceptionType.connectionError,
     );
 
@@ -49,7 +49,7 @@ void main() {
     test('does nothing and persists zero metrics', () async {
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => []);
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verifyNever(mockApi.post(any));
       verifyNever(mockApi.put(any));
@@ -65,20 +65,20 @@ void main() {
       final item = makeQueueItem(id: 'q1', operationType: 'create_case');
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
       when(mockApi.post('/api/cases', data: anyNamed('data'))).thenAnswer(
-          (_) async => mapResponse({'caseId': 'c1', 'tenantId': 't1'}));
+          (_) async => mapResponse({'caseId': 'c1', 'tenantId': 't1'}),);
       when(mockDb.upsertCase(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockApi.post('/api/cases', data: anyNamed('data'))).called(1);
       verify(mockDb.upsertCase('c1', any,
-              tenantId: 't1', isDirty: false))
+              tenantId: 't1',),)
           .called(1);
       verify(mockDb.removeSyncQueueItem('q1')).called(1);
       verify(mockDb.addSyncActivity('q1', 'q1', 'case', 'create_case',
-              'success', 'Synced'))
+              'success', 'Synced',),)
           .called(1);
       verify(mockDb.upsertSyncMetrics(any, any, 1, 1, 0, 0)).called(1);
     });
@@ -90,11 +90,11 @@ void main() {
       when(mockApi.post(any, data: anyNamed('data')))
           .thenThrow(Exception('network error'));
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockDb.updateSyncQueueRetryCount('q1', 1)).called(1);
       verify(mockDb.addSyncActivity(
-              'q1', 'q1', 'case', 'create_case', 'failure', any))
+              'q1', 'q1', 'case', 'create_case', 'failure', any,),)
           .called(1);
       verify(mockDb.upsertSyncMetrics(any, any, 1, 0, 1, 0)).called(1);
     });
@@ -106,18 +106,18 @@ void main() {
     test('puts to /api/cases/:id and upserts locally', () async {
       final payload = {'caseId': 'c1', 'tenantId': 't1', 'title': 'Updated'};
       final item = makeQueueItem(
-          id: 'q2', operationType: 'update_case', payload: payload);
+          id: 'q2', operationType: 'update_case', payload: payload,);
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
       when(mockApi.put('/api/cases/c1', data: anyNamed('data')))
           .thenAnswer((_) async => mapResponse(payload));
       when(mockDb.upsertCase(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockApi.put('/api/cases/c1', data: anyNamed('data'))).called(1);
-      verify(mockDb.upsertCase('c1', payload, tenantId: 't1', isDirty: false))
+      verify(mockDb.upsertCase('c1', payload, tenantId: 't1'))
           .called(1);
       verify(mockDb.removeSyncQueueItem('q2')).called(1);
     });
@@ -125,24 +125,24 @@ void main() {
     test('409 conflict falls back to local payload without context', () async {
       final payload = {'caseId': 'c1', 'tenantId': 't1'};
       final item = makeQueueItem(
-          id: 'q3', operationType: 'update_case', payload: payload);
+          id: 'q3', operationType: 'update_case', payload: payload,);
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
       when(mockApi.put('/api/cases/c1', data: anyNamed('data')))
           .thenThrow(_dioError(409));
       when(mockApi.get('/api/cases/c1', queryParameters: anyNamed('queryParameters')))
           .thenAnswer((_) async =>
-              mapResponse({'caseId': 'c1', 'tenantId': 't1', 'title': 'Remote'}));
+              mapResponse({'caseId': 'c1', 'tenantId': 't1', 'title': 'Remote'}),);
       when(mockApi.put('/api/cases/c1', data: anyNamed('data')))
           .thenAnswer((_) async => mapResponse(payload));
       when(mockDb.upsertCase(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       // With null context, local payload wins — upsertCase called with local data
       verify(mockDb.upsertCase('c1', payload,
-              tenantId: 't1', isDirty: false))
+              tenantId: 't1',),)
           .called(1);
       verify(mockDb.removeSyncQueueItem('q3')).called(1);
     });
@@ -153,7 +153,7 @@ void main() {
       when(mockApi.put(any, data: anyNamed('data')))
           .thenThrow(_dioError(500));
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockDb.updateSyncQueueRetryCount('q4', 1)).called(1);
       verify(mockDb.upsertSyncMetrics(any, any, 1, 0, 1, 0)).called(1);
@@ -170,7 +170,7 @@ void main() {
           .thenAnswer((_) async => mapResponse({}));
       when(mockDb.deleteCase('c1')).thenAnswer((_) async {});
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockApi.delete('/api/cases/c1', data: anyNamed('data'))).called(1);
       verify(mockDb.deleteCase('c1')).called(1);
@@ -185,10 +185,10 @@ void main() {
       final item = makeQueueItem(id: 'q6', operationType: 'unknown_op');
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockDb.addSyncActivity(
-              'q6', 'q6', 'case', 'unknown_op', 'failure', any))
+              'q6', 'q6', 'case', 'unknown_op', 'failure', any,),)
           .called(1);
       verify(mockDb.upsertSyncMetrics(any, any, 1, 0, 1, 0)).called(1);
     });
@@ -200,12 +200,12 @@ void main() {
     test('item at retryCount=2 that fails is removed after reaching limit',
         () async {
       final item = makeQueueItem(
-          id: 'q7', operationType: 'create_case', retryCount: 2);
+          id: 'q7', operationType: 'create_case', retryCount: 2,);
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
       when(mockApi.post(any, data: anyNamed('data')))
           .thenThrow(Exception('fail'));
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       // retryCount goes to 3 → item removed
       verify(mockDb.updateSyncQueueRetryCount('q7', 3)).called(1);
@@ -215,15 +215,15 @@ void main() {
     test('item already at retryCount=3 is dropped immediately without API call',
         () async {
       final item = makeQueueItem(
-          id: 'q8', operationType: 'create_case', retryCount: 3);
+          id: 'q8', operationType: 'create_case', retryCount: 3,);
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verifyNever(mockApi.post(any));
       verify(mockDb.removeSyncQueueItem('q8')).called(1);
       verify(mockDb.addSyncActivity(
-              'q8', 'q8', 'case', 'create_case', 'max_retries', any))
+              'q8', 'q8', 'case', 'create_case', 'max_retries', any,),)
           .called(1);
       // dropped item counts as failed, not attempted
       verify(mockDb.upsertSyncMetrics(any, any, 0, 0, 1, 0)).called(1);
@@ -231,9 +231,9 @@ void main() {
 
     test('multiple items: success + failure tracked independently', () async {
       final good = makeQueueItem(
-          id: 'q9', operationType: 'create_case', entityId: 'c9');
+          id: 'q9', operationType: 'create_case', entityId: 'c9',);
       final bad = makeQueueItem(
-          id: 'q10', operationType: 'create_case', entityId: 'c10');
+          id: 'q10', operationType: 'create_case', entityId: 'c10',);
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [good, bad]);
       when(mockApi.post('/api/cases', data: anyNamed('data')))
           .thenAnswer((inv) async {
@@ -244,10 +244,10 @@ void main() {
         throw Exception('fail c10');
       });
       when(mockDb.upsertCase(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
 
       verify(mockDb.upsertSyncMetrics(any, any, 2, 1, 1, 0)).called(1);
     });
@@ -261,12 +261,12 @@ void main() {
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => [item]);
       when(mockApi.post(any, data: anyNamed('data')))
           .thenAnswer((_) async =>
-              mapResponse({'caseId': 'c1', 'tenantId': 't1'}));
+              mapResponse({'caseId': 'c1', 'tenantId': 't1'}),);
       when(mockDb.upsertCase(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
 
-      await sut.syncPendingOperations(null);
+      await sut.syncPendingOperations();
       final health = sut.getSyncHealth();
 
       expect(health.attempted, 1);
@@ -294,7 +294,7 @@ void main() {
             'failed': 2,
             'canceled': 0,
             'lastSyncAt': '2024-01-15T10:00:00.000',
-          });
+          },);
 
       final health = await sut.loadPersistedHealth();
 
@@ -313,19 +313,18 @@ void main() {
     setUp(() {
       when(mockDb.getSyncQueueItems()).thenAnswer((_) async => []);
       when(mockDb.upsertCase(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
       when(mockDb.upsertHearing(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
       when(mockDb.upsertCustomer(any, any, tenantId: anyNamed('tenantId')))
           .thenAnswer((_) async {});
       when(mockDb.upsertDocument(any, any,
-              tenantId: anyNamed('tenantId'),
-              isDownloaded: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
       when(mockDb.upsertEmployee(any, any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .thenAnswer((_) async {});
       when(mockDb.upsertDashboard(any, any, tenantId: anyNamed('tenantId')))
           .thenAnswer((_) async {});
@@ -333,147 +332,145 @@ void main() {
 
     test('fetches all 6 entity endpoints and upserts each item', () async {
       when(mockApi.get('/api/cases',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'caseId': 'c1', 'tenantId': 't1'},
                 {'caseId': 'c2', 'tenantId': 't1'},
-              ]));
+              ]),);
       when(mockApi.get('/api/sitings',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'hearingId': 'h1', 'tenantId': 't1'},
-              ]));
+              ]),);
       when(mockApi.get('/api/customers',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'customerId': 'cu1', 'tenantId': 't1'},
-              ]));
+              ]),);
       when(mockApi.get('/api/files',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'id': 'd1'},
                 {'id': 'd2'},
-              ]));
+              ]),);
       when(mockApi.get('/api/employees',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'id': 'e1', 'tenantId': 't1'},
-              ]));
+              ]),);
       when(mockApi.get('/api/dashboard',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async =>
-              mapResponse({'totalCases': 5, 'openCases': 2}));
+              mapResponse({'totalCases': 5, 'openCases': 2}),);
 
-      await sut.performFullSync(null);
+      await sut.performFullSync();
 
-      verify(mockDb.upsertCase('c1', any, tenantId: 't1', isDirty: false))
+      verify(mockDb.upsertCase('c1', any, tenantId: 't1'))
           .called(1);
-      verify(mockDb.upsertCase('c2', any, tenantId: 't1', isDirty: false))
+      verify(mockDb.upsertCase('c2', any, tenantId: 't1'))
           .called(1);
-      verify(mockDb.upsertHearing('h1', any, tenantId: 't1', isDirty: false))
+      verify(mockDb.upsertHearing('h1', any, tenantId: 't1'))
           .called(1);
       verify(mockDb.upsertCustomer('cu1', any, tenantId: 't1')).called(1);
-      verify(mockDb.upsertDocument('d1', any,
-              tenantId: null, isDownloaded: false))
+      verify(mockDb.upsertDocument('d1', any,),)
           .called(1);
-      verify(mockDb.upsertDocument('d2', any,
-              tenantId: null, isDownloaded: false))
+      verify(mockDb.upsertDocument('d2', any,),)
           .called(1);
-      verify(mockDb.upsertEmployee('e1', any, tenantId: 't1', isDirty: false))
+      verify(mockDb.upsertEmployee('e1', any, tenantId: 't1'))
           .called(1);
       verify(mockDb.upsertDashboard('default', any)).called(1);
     });
 
     test('skips items with empty id without throwing', () async {
       when(mockApi.get('/api/cases',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'caseId': '', 'tenantId': 't1'}, // empty id — must be skipped
                 {'caseId': 'c1', 'tenantId': 't1'},
-              ]));
+              ]),);
       when(mockApi.get('/api/sitings',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/customers',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/files',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/employees',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/dashboard',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => mapResponse({}));
 
-      await sut.performFullSync(null);
+      await sut.performFullSync();
 
       // Only c1 upserted, empty-id item skipped
       verify(mockDb.upsertCase('c1', any,
-              tenantId: anyNamed('tenantId'), isDirty: false))
+              tenantId: anyNamed('tenantId'),),)
           .called(1);
       verifyNever(mockDb.upsertCase('', any,
-          tenantId: anyNamed('tenantId'), isDirty: false));
+          tenantId: anyNamed('tenantId'),),);
     });
 
     test('one failing endpoint does not abort the others', () async {
       when(mockApi.get('/api/cases',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenThrow(_networkError()); // cases endpoint fails
       when(mockApi.get('/api/sitings',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([
                 {'hearingId': 'h1', 'tenantId': 't1'},
-              ]));
+              ]),);
       when(mockApi.get('/api/customers',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/files',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/employees',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/dashboard',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => mapResponse({}));
 
       // Must complete without throwing
-      await expectLater(sut.performFullSync(null), completes);
+      await expectLater(sut.performFullSync(), completes);
 
       // Hearings still upserted despite cases failing
       verify(mockDb.upsertHearing('h1', any,
-              tenantId: 't1', isDirty: false))
+              tenantId: 't1',),)
           .called(1);
       verifyNever(mockDb.upsertCase(any, any,
-          tenantId: anyNamed('tenantId'), isDirty: false));
+          tenantId: anyNamed('tenantId'),),);
     });
 
     test('dashboard endpoint returning non-map is silently ignored', () async {
       when(mockApi.get('/api/cases',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/sitings',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/customers',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/files',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/employees',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async => listResponse([]));
       when(mockApi.get('/api/dashboard',
-              queryParameters: anyNamed('queryParameters')))
+              queryParameters: anyNamed('queryParameters'),),)
           .thenAnswer((_) async =>
               Response(data: 'not-a-map', // wrong type
                   statusCode: 200,
-                  requestOptions: RequestOptions(path: '')));
+                  requestOptions: RequestOptions(),),);
 
-      await expectLater(sut.performFullSync(null), completes);
+      await expectLater(sut.performFullSync(), completes);
       verifyNever(mockDb.upsertDashboard(any, any));
     });
   });

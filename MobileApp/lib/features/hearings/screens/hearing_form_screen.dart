@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/hearings_bloc.dart';
-import '../bloc/hearings_event.dart';
-import '../models/hearing.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_bloc.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_event.dart';
+import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
 
 class HearingFormScreen extends StatefulWidget {
-  final Hearing? hearing;
 
   const HearingFormScreen({super.key, this.hearing});
+  final Hearing? hearing;
 
   @override
   State<HearingFormScreen> createState() => _HearingFormScreenState();

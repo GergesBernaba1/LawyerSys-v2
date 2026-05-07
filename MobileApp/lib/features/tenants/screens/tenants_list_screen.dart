@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/tenants_bloc.dart';
-import '../bloc/tenants_event.dart';
-import '../bloc/tenants_state.dart';
-import '../models/tenant_model.dart';
-import 'tenant_detail_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_bloc.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_event.dart';
+import 'package:qadaya_lawyersys/features/tenants/bloc/tenants_state.dart';
+import 'package:qadaya_lawyersys/features/tenants/models/tenant_model.dart';
+import 'package:qadaya_lawyersys/features/tenants/screens/tenant_detail_screen.dart';
 
 class TenantsListScreen extends StatefulWidget {
   const TenantsListScreen({super.key});
@@ -27,7 +27,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
     final nameController = TextEditingController(text: isEdit ? tenant.name : '');
     final countryController =
         TextEditingController(text: isEdit ? tenant.countryName : '');
-    bool isActive = isEdit ? tenant.isActive : true;
+    bool isActive = !isEdit || tenant.isActive;
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -37,7 +37,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
           return AlertDialog(
             title: Text(isEdit
                 ? AppLocalizations.of(context)!.editTenant
-                : AppLocalizations.of(context)!.createTenant),
+                : AppLocalizations.of(context)!.createTenant,),
             content: SingleChildScrollView(
               child: Form(
                 key: formKey,
@@ -133,7 +133,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
         ],
       ),
     ).then((confirmed) {
-      if (confirmed == true && context.mounted) {
+      if ((confirmed ?? false) && context.mounted) {
         context.read<TenantsBloc>().add(DeleteTenant(tenant.id));
       }
     });
@@ -174,7 +174,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
             return ListView(children: [
               const SizedBox(height: 80),
               Center(child: Text('${l.error}: ${state.message}')),
-            ]);
+            ],);
           }
 
           if (state is TenantsLoaded) {
@@ -184,7 +184,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
               return ListView(children: [
                 const SizedBox(height: 80),
                 Center(child: Text(l.noTenantsFound)),
-              ]);
+              ],);
             }
 
             return RefreshIndicator(
@@ -208,7 +208,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                     leading: CircleAvatar(
                       child: Text(tenant.name.isNotEmpty
                           ? tenant.name[0].toUpperCase()
-                          : 'T'),
+                          : 'T',),
                     ),
                     title: Text(
                       '${tenant.name}${tenant.isCurrent ? ' (${l.currentTenant})' : ''}',
@@ -218,7 +218,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                       'Users: ${tenant.userCount}',
                       if (tenant.packageName.isNotEmpty)
                         'Package: ${tenant.packageName}',
-                    ].join(' • ')),
+                    ].join(' • '),),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -252,20 +252,20 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                                 const Icon(Icons.edit, size: 18),
                                 const SizedBox(width: 8),
                                 Text(l.edit),
-                              ]),
+                              ],),
                             ),
                             PopupMenuItem(
                               value: 'delete',
                               child: Row(children: [
                                 const Icon(Icons.delete,
-                                    size: 18, color: Colors.red),
+                                    size: 18, color: Colors.red,),
                                 const SizedBox(width: 8),
                                 Text(
                                   l.delete,
                                   style:
                                       const TextStyle(color: Colors.red),
                                 ),
-                              ]),
+                              ],),
                             ),
                           ],
                         ),

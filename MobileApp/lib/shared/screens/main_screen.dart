@@ -1,56 +1,55 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../core/auth/permissions.dart';
-import '../../core/localization/app_localizations.dart';
-import '../../features/authentication/bloc/auth_bloc.dart';
-import '../../features/authentication/bloc/auth_event.dart';
-import '../../features/authentication/bloc/auth_state.dart';
-import '../../features/authentication/models/user_session.dart';
-import '../../features/dashboard/screens/dashboard_screen.dart';
-import '../../features/cases/screens/cases_list_screen.dart';
-import '../../features/customers/screens/customers_list_screen.dart';
-import '../../features/contenders/screens/contenders_list_screen.dart';
-import '../../features/courts/screens/courts_list_screen.dart';
-import '../../features/governments/screens/governments_list_screen.dart';
-import '../../features/judicial/screens/judicial_documents_list_screen.dart';
-import '../../features/client-portal/screens/portal_messages_screen.dart';
-import '../../features/client-portal/screens/portal_documents_screen.dart';
-import '../../features/calendar/screens/calendar_screen.dart';
-import '../../features/notifications/screens/notifications_inbox_screen.dart';
-import '../../features/settings/screens/settings_screen.dart';
-import '../../features/trust-accounting/screens/trust_list_screen.dart';
-import '../../features/billing/screens/billing_list_screen.dart';
-import '../../features/tasks/screens/tasks_list_screen.dart';
-import '../../features/timetracking/screens/timetracking_list_screen.dart';
-import '../../features/employees/screens/employees_list_screen.dart';
-import '../../features/hearings/screens/hearings_list_screen.dart';
-import '../../features/reports/screens/reports_screen.dart';
-import '../../features/consultations/screens/consultations_list_screen.dart';
-import '../../features/documents/screens/documents_list_screen.dart';
-import '../../features/tenants/screens/tenants_list_screen.dart';
+import 'package:qadaya_lawyersys/core/auth/permissions.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/realtime/signalr_service.dart';
+import 'package:qadaya_lawyersys/features/about/screens/about_screen.dart';
+import 'package:qadaya_lawyersys/features/administration/screens/administration_screen.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/screens/ai_assistant_screen.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/screens/audit_logs_screen.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/billing/screens/billing_list_screen.dart';
+import 'package:qadaya_lawyersys/features/calendar/screens/calendar_screen.dart';
+import 'package:qadaya_lawyersys/features/cases/screens/cases_list_screen.dart';
+import 'package:qadaya_lawyersys/features/client-portal/screens/portal_documents_screen.dart';
+import 'package:qadaya_lawyersys/features/client-portal/screens/portal_messages_screen.dart';
+import 'package:qadaya_lawyersys/features/consultations/screens/consultations_list_screen.dart';
+import 'package:qadaya_lawyersys/features/contact/screens/contact_screen.dart';
+import 'package:qadaya_lawyersys/features/contenders/screens/contenders_list_screen.dart';
+import 'package:qadaya_lawyersys/features/court-automation/screens/court_automation_screen.dart';
+import 'package:qadaya_lawyersys/features/courts/screens/courts_list_screen.dart';
+import 'package:qadaya_lawyersys/features/customers/screens/customers_list_screen.dart';
+import 'package:qadaya_lawyersys/features/dashboard/screens/dashboard_screen.dart';
+import 'package:qadaya_lawyersys/features/document-generation/screens/doc_generation_screen.dart';
+import 'package:qadaya_lawyersys/features/documents/screens/documents_list_screen.dart';
+import 'package:qadaya_lawyersys/features/employees/screens/employees_list_screen.dart';
+import 'package:qadaya_lawyersys/features/esign/screens/esign_list_screen.dart';
+import 'package:qadaya_lawyersys/features/files/screens/files_list_screen.dart';
+import 'package:qadaya_lawyersys/features/governments/screens/governments_list_screen.dart';
+import 'package:qadaya_lawyersys/features/hearings/screens/hearings_list_screen.dart';
+import 'package:qadaya_lawyersys/features/intake/screens/intake_leads_list_screen.dart';
+import 'package:qadaya_lawyersys/features/judicial/screens/judicial_documents_list_screen.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_bloc.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_event.dart';
+import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_state.dart';
+import 'package:qadaya_lawyersys/features/notifications/models/notification.dart' as model;
+import 'package:qadaya_lawyersys/features/notifications/screens/notifications_inbox_screen.dart';
+import 'package:qadaya_lawyersys/features/reports/screens/reports_screen.dart';
+import 'package:qadaya_lawyersys/features/settings/screens/settings_screen.dart';
+import 'package:qadaya_lawyersys/features/sitings/screens/sitings_list_screen.dart';
+import 'package:qadaya_lawyersys/features/subscription/screens/subscription_screen.dart';
+import 'package:qadaya_lawyersys/features/tasks/screens/tasks_list_screen.dart';
+import 'package:qadaya_lawyersys/features/tenants/screens/tenants_list_screen.dart';
+import 'package:qadaya_lawyersys/features/timetracking/screens/timetracking_list_screen.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/screens/trust_list_screen.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/screens/trust_reports_screen.dart';
 import 'package:qadaya_lawyersys/features/users/screens/users_list_screen.dart';
-import '../../features/intake/screens/intake_leads_list_screen.dart';
-import '../../features/files/screens/files_list_screen.dart';
-import '../../features/esign/screens/esign_list_screen.dart';
-import '../../features/ai-assistant/screens/ai_assistant_screen.dart';
-import '../../features/auditlogs/screens/audit_logs_screen.dart';
-import '../../features/sitings/screens/sitings_list_screen.dart';
-import '../../features/about/screens/about_screen.dart';
-import '../../features/contact/screens/contact_screen.dart';
-import '../../features/document-generation/screens/doc_generation_screen.dart';
-import '../../features/court-automation/screens/court_automation_screen.dart';
-import '../../features/workqueue/screens/workqueue_screen.dart';
-import '../../features/administration/screens/administration_screen.dart';
-import '../../features/subscription/screens/subscription_screen.dart';
-import '../../features/trust-reports/screens/trust_reports_screen.dart';
-import '../../core/realtime/signalr_service.dart';
-import '../../features/notifications/models/notification.dart' as model;
-import '../../features/notifications/bloc/notifications_bloc.dart';
-import '../../features/notifications/bloc/notifications_event.dart';
-import '../../features/notifications/bloc/notifications_state.dart';
+import 'package:qadaya_lawyersys/features/workqueue/screens/workqueue_screen.dart';
 
 // Theme constants matching ClientApp
 const _kPrimary = Color(0xFF14345A);
@@ -87,7 +86,7 @@ class _MainScreenState extends State<MainScreen> {
       final id = event['notificationId']?.toString() ??
           DateTime.now().millisecondsSinceEpoch.toString();
       final notification = model.AppNotification(
-          notificationId: id, title: title, message: message);
+          notificationId: id, title: title, message: message,);
       if (mounted) bloc.add(NewNotificationReceived(notification));
     });
   }
@@ -99,11 +98,11 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<_NavItem> _buildNavItems(AppLocalizations l, UserSession? session) {
-    final isCustomer = session?.hasRole('Customer') == true &&
+    final isCustomer = (session?.hasRole('Customer') ?? false) &&
         session?.hasRole('Admin') != true &&
         session?.hasRole('Employee') != true &&
         session?.hasRole('SuperAdmin') != true;
-    final isEmployee = session?.hasRole('Employee') == true &&
+    final isEmployee = (session?.hasRole('Employee') ?? false) &&
         session?.hasRole('Admin') != true &&
         session?.hasRole('SuperAdmin') != true;
 
@@ -112,54 +111,53 @@ class _MainScreenState extends State<MainScreen> {
         _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
         _NavItem(Icons.folder, l.cases, const CasesListScreen()),
         _NavItem(
-            Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
+            Icons.mail_outline, l.portalMessages, const PortalMessagesScreen(),),
         _NavItem(Icons.folder_shared, l.portalDocuments,
-            const PortalDocumentsScreen()),
+            const PortalDocumentsScreen(),),
         _NavItem(Icons.notifications, l.notifications,
-            const NotificationsInboxScreen()),
+            const NotificationsInboxScreen(),),
         _NavItem(Icons.settings, l.settings, const SettingsScreen()),
       ];
     }
 
-    final canAccessEmployees = session?.hasRole('SuperAdmin') == true ||
-        session?.hasRole('Admin') == true ||
-        session?.hasAnyPermission(
+    final canAccessEmployees = (session?.hasRole('SuperAdmin') ?? false) ||
+        (session?.hasRole('Admin') ?? false) ||
+        (session?.hasAnyPermission(
               [Permissions.createEmployees, Permissions.editEmployees],
-            ) ==
-            true;
+            ) ?? false);
     final canAccessAdminModules =
-        session?.hasRole('SuperAdmin') == true || session?.hasRole('Admin') == true;
+        (session?.hasRole('SuperAdmin') ?? false) || (session?.hasRole('Admin') ?? false);
 
     final all = <_NavItem>[
       _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
       _NavItem(Icons.gavel, l.cases, const CasesListScreen(),
-          permission: Permissions.viewCases),
+          permission: Permissions.viewCases,),
       _NavItem(Icons.people, l.customers, const CustomersListScreen(),
-          permission: Permissions.viewCustomers),
+          permission: Permissions.viewCustomers,),
       _NavItem(Icons.location_city, l.governments, const GovernmentsListScreen()),
       _NavItem(Icons.person_search, l.contenders, const ContendersListScreen()),
       if (!isEmployee && canAccessEmployees)
         _NavItem(Icons.badge, l.employees, const EmployeesListScreen()),
       _NavItem(Icons.account_balance, l.courts, const CourtsListScreen(),
-          permission: Permissions.viewCourts),
+          permission: Permissions.viewCourts,),
       _NavItem(Icons.event, l.hearings, const HearingsListScreen(),
-          permission: Permissions.viewHearings),
+          permission: Permissions.viewHearings,),
       _NavItem(Icons.description, l.judicial, const JudicialDocumentsListScreen()),
       _NavItem(Icons.calendar_today, l.calendar, const CalendarScreen(),
-          permission: Permissions.viewHearings),
+          permission: Permissions.viewHearings,),
       _NavItem(Icons.task_alt, l.tasks, const TasksListScreen()),
       _NavItem(Icons.receipt, l.billing, const BillingListScreen(),
-          permission: Permissions.viewBilling),
+          permission: Permissions.viewBilling,),
       _NavItem(Icons.savings, l.trustAccounting, const TrustListScreen(),
-          permission: Permissions.viewTrustAccounting),
+          permission: Permissions.viewTrustAccounting,),
       _NavItem(Icons.timer, l.timeTracking, const TimeTrackingListScreen()),
       _NavItem(Icons.chat_bubble_outline, l.consultations,
-          const ConsultationsListScreen()),
+          const ConsultationsListScreen(),),
       _NavItem(Icons.description, l.documents, const DocumentsListScreen()),
       _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen(),
-          permission: Permissions.viewClientPortal),
+          permission: Permissions.viewClientPortal,),
       _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen(),
-          permission: Permissions.viewClientPortal),
+          permission: Permissions.viewClientPortal,),
       _NavItem(Icons.bar_chart, l.reports, const ReportsScreen()),
       if (canAccessAdminModules)
         _NavItem(Icons.supervisor_account, 'Users', const UsersListScreen()),
@@ -183,7 +181,7 @@ class _MainScreenState extends State<MainScreen> {
       _NavItem(Icons.contact_mail, 'Contact', const ContactScreen()),
       _NavItem(Icons.notifications, l.notifications,
           const NotificationsInboxScreen(),
-          permission: Permissions.viewNotifications),
+          permission: Permissions.viewNotifications,),
       _NavItem(Icons.settings, l.settings, const SettingsScreen()),
     ];
 
@@ -206,7 +204,7 @@ class _MainScreenState extends State<MainScreen> {
         body: Center(
           child: Text(localizer.accessDenied,
               style: const TextStyle(
-                  color: _kPrimary, fontWeight: FontWeight.w700)),
+                  color: _kPrimary, fontWeight: FontWeight.w700,),),
         ),
       );
     }
@@ -248,7 +246,7 @@ class _MainScreenState extends State<MainScreen> {
             icon: Badge(
               isLabelVisible: unreadCount > 0,
               label: Text('$unreadCount',
-                  style: const TextStyle(fontSize: 10, color: Colors.white)),
+                  style: const TextStyle(fontSize: 10, color: Colors.white),),
               backgroundColor: Colors.red,
               child: Icon(Icons.notifications_outlined, color: Theme.of(context).colorScheme.onSurface),
             ),
@@ -269,14 +267,14 @@ class _MainScreenState extends State<MainScreen> {
                 radius: 18,
                 backgroundColor: _kGold,
                 child: Text(
-                  (session?.fullName.isNotEmpty == true
+                  (session?.fullName.isNotEmpty ?? false
                           ? session!.fullName[0]
                           : session?.email[0] ?? 'U')
                       .toUpperCase(),
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
-                      fontSize: 14),
+                      fontSize: 14,),
                 ),
               ),
             ),
@@ -319,11 +317,6 @@ class _MainScreenState extends State<MainScreen> {
 
 // Sidebar Drawer
 class _AppDrawer extends StatelessWidget {
-  final List<_NavItem> items;
-  final int selectedIndex;
-  final UserSession? session;
-  final ValueChanged<int> onItemTap;
-  final VoidCallback onLogout;
 
   const _AppDrawer({
     required this.items,
@@ -332,6 +325,11 @@ class _AppDrawer extends StatelessWidget {
     required this.onItemTap,
     required this.onLogout,
   });
+  final List<_NavItem> items;
+  final int selectedIndex;
+  final UserSession? session;
+  final ValueChanged<int> onItemTap;
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +361,7 @@ class _AppDrawer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.gavel,
-                          color: Colors.white, size: 24),
+                          color: Colors.white, size: 24,),
                     ),
                     const SizedBox(width: 12),
                     const Text(
@@ -382,14 +380,14 @@ class _AppDrawer extends StatelessWidget {
                   radius: 24,
                   backgroundColor: _kGold,
                   child: Text(
-                    (session?.fullName.isNotEmpty == true
+                    (session?.fullName.isNotEmpty ?? false
                             ? session!.fullName[0]
                             : session?.email[0] ?? 'U')
                         .toUpperCase(),
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        fontSize: 18),
+                        fontSize: 18,),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -398,15 +396,15 @@ class _AppDrawer extends StatelessWidget {
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
-                      fontSize: 15),
+                      fontSize: 15,),
                 ),
-                if (session?.roles.isNotEmpty == true)
+                if (session?.roles.isNotEmpty ?? false)
                   Text(
                     session!.roles.first,
                     style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.75),
                         fontSize: 12,
-                        fontWeight: FontWeight.w600),
+                        fontWeight: FontWeight.w600,),
                   ),
               ],
             ),
@@ -431,7 +429,7 @@ class _AppDrawer extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 13),
+                            horizontal: 16, vertical: 13,),
                         decoration: BoxDecoration(
                           gradient: isSelected
                               ? const LinearGradient(
@@ -448,7 +446,7 @@ class _AppDrawer extends StatelessWidget {
                                     color: _kPrimary.withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
-                                  )
+                                  ),
                                 ]
                               : null,
                         ),
@@ -499,7 +497,7 @@ class _AppDrawer extends StatelessWidget {
                     color: const Color(0xFFFEF2F2),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                        color: Colors.red.withValues(alpha: 0.2), width: 1),
+                        color: Colors.red.withValues(alpha: 0.2),),
                   ),
                   child: Row(
                     children: [
@@ -510,7 +508,7 @@ class _AppDrawer extends StatelessWidget {
                         style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.w700,
-                            fontSize: 14.5),
+                            fontSize: 14.5,),
                       ),
                     ],
                   ),
@@ -525,12 +523,13 @@ class _AppDrawer extends StatelessWidget {
 }
 
 class _NavItem {
+
+  _NavItem(this.icon, this.label, this.page, {this.permission});
   final IconData icon;
   final String label;
   final Widget page;
   final String? permission;
-
-  _NavItem(this.icon, this.label, this.page, {this.permission});
 }
+
 
 

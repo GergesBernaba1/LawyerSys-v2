@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/files_repository.dart';
-import 'files_event.dart';
-import 'files_state.dart';
+import 'package:qadaya_lawyersys/features/files/bloc/files_event.dart';
+import 'package:qadaya_lawyersys/features/files/bloc/files_state.dart';
+import 'package:qadaya_lawyersys/features/files/repositories/files_repository.dart';
 
 class FilesBloc extends Bloc<FilesEvent, FilesState> {
-  final FilesRepository filesRepository;
 
   FilesBloc({required this.filesRepository}) : super(FilesInitial()) {
     on<LoadFiles>(_onLoadFiles);
@@ -15,6 +13,7 @@ class FilesBloc extends Bloc<FilesEvent, FilesState> {
     on<UpdateFile>(_onUpdateFile);
     on<DeleteFile>(_onDeleteFile);
   }
+  final FilesRepository filesRepository;
 
   Future<void> _onLoadFiles(
     LoadFiles event,

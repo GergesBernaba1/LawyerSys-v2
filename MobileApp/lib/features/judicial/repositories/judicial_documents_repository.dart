@@ -1,10 +1,10 @@
-import '../../../core/api/api_client.dart';
-import '../models/judicial_document.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/features/judicial/models/judicial_document.dart';
 
 class JudicialDocumentsRepository {
-  final ApiClient apiClient;
 
   JudicialDocumentsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<({List<JudicialDocument> items, int totalCount})> getDocuments({
     int page = 1,

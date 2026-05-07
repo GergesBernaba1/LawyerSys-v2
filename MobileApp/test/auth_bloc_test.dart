@@ -9,9 +9,9 @@ import 'package:qadaya_lawyersys/features/authentication/models/user_session.dar
 import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 
 class FakeAuthRepository extends AuthRepository {
-  UserSession? currentSession;
 
   FakeAuthRepository() : super(ApiClient());
+  UserSession? currentSession;
 
   @override
   Future<UserSession?> getStoredSession() async => currentSession;
@@ -53,10 +53,10 @@ class FakeAuthRepository extends AuthRepository {
 }
 
 class FakeBiometricAuthService extends BiometricAuthService {
-  final bool available;
-  final bool authenticated;
 
   FakeBiometricAuthService({this.available = true, this.authenticated = true});
+  final bool available;
+  final bool authenticated;
 
   @override
   Future<bool> isBiometricAvailable() async => available;
@@ -85,7 +85,7 @@ void main() {
         languageCode: 'en',
         biometricEnabled: true,
       );
-      final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService(available: true, authenticated: true));
+      final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService());
 
       final states = <AuthState>[];
       final subscription = bloc.stream.listen(states.add);
@@ -148,7 +148,7 @@ void main() {
         languageCode: 'en',
         biometricEnabled: true,
       );
-      final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService(available: true, authenticated: true));
+      final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService());
 
       final states = <AuthState>[];
       final subscription = bloc.stream.listen(states.add);
@@ -179,7 +179,7 @@ void main() {
         languageCode: 'en',
         biometricEnabled: false,
       );
-      final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService(available: true, authenticated: false));
+      final bloc = AuthBloc(authRepository: repository, biometricService: FakeBiometricAuthService(authenticated: false));
 
       final states = <AuthState>[];
       final subscription = bloc.stream.listen(states.add);

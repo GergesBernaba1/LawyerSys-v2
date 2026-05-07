@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/contenders_bloc.dart';
-import '../bloc/contenders_event.dart';
-import '../bloc/contenders_state.dart';
-import '../models/contender.dart';
-import 'contender_detail_screen.dart';
-import 'contender_form_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_bloc.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_event.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_state.dart';
+import 'package:qadaya_lawyersys/features/contenders/models/contender.dart';
+import 'package:qadaya_lawyersys/features/contenders/screens/contender_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/contenders/screens/contender_form_screen.dart';
 
 class ContendersListScreen extends StatefulWidget {
   const ContendersListScreen({super.key});

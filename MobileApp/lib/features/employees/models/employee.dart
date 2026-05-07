@@ -1,12 +1,4 @@
 class EmployeeModel {
-  final int id;
-  final int salary;
-  final int usersId;
-  final UserModel? user;
-  final IdentityUserInfoModel? identity;
-  final String? profileImagePath;
-  final DateTime? lastSyncedAt;
-  final bool isDirty;
 
   EmployeeModel({
     required this.id,
@@ -19,13 +11,6 @@ class EmployeeModel {
     this.isDirty = false,
   });
 
-  static int _asInt(dynamic value, [int fallback = 0]) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value) ?? fallback;
-    return fallback;
-  }
-
   factory EmployeeModel.fromJson(Map<String, dynamic> json) => EmployeeModel(
         id: _asInt(json['id'] ?? json['Id']),
         salary: _asInt(json['salary'] ?? json['Salary']),
@@ -34,14 +19,14 @@ class EmployeeModel {
             ? UserModel.fromJson(Map<String, dynamic>.from(json['user'] as Map))
             : (json['User'] != null
                 ? UserModel.fromJson(
-                    Map<String, dynamic>.from(json['User'] as Map))
+                    Map<String, dynamic>.from(json['User'] as Map),)
                 : null),
         identity: json['identity'] != null
             ? IdentityUserInfoModel.fromJson(
-                Map<String, dynamic>.from(json['identity'] as Map))
+                Map<String, dynamic>.from(json['identity'] as Map),)
             : (json['Identity'] != null
                 ? IdentityUserInfoModel.fromJson(
-                    Map<String, dynamic>.from(json['Identity'] as Map))
+                    Map<String, dynamic>.from(json['Identity'] as Map),)
                 : null),
         profileImagePath: (json['profileImagePath'] ??
                 json['ProfileImagePath'] ??
@@ -49,10 +34,25 @@ class EmployeeModel {
                 (json['User'] as Map<String, dynamic>?)?['ProfileImagePath'])
             ?.toString(),
         lastSyncedAt: json['lastSyncedAt'] != null
-            ? DateTime.tryParse(json['lastSyncedAt'])
+            ? DateTime.tryParse(json['lastSyncedAt'] as String)
             : null,
-        isDirty: json['isDirty'] ?? false,
+        isDirty: (json['isDirty'] as bool?) ?? false,
       );
+  final int id;
+  final int salary;
+  final int usersId;
+  final UserModel? user;
+  final IdentityUserInfoModel? identity;
+  final String? profileImagePath;
+  final DateTime? lastSyncedAt;
+  final bool isDirty;
+
+  static int _asInt(dynamic value, [int fallback = 0]) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -67,15 +67,6 @@ class EmployeeModel {
 }
 
 class UserModel {
-  final int id;
-  final String fullName;
-  final String? address;
-  final String job;
-  final String phoneNumber;
-  final DateOnly? dateOfBirth;
-  final String ssn;
-  final String userName;
-  final String? profileImagePath;
 
   UserModel({
     required this.id,
@@ -106,6 +97,15 @@ class UserModel {
         profileImagePath:
             (json['profileImagePath'] ?? json['ProfileImagePath'])?.toString(),
       );
+  final int id;
+  final String fullName;
+  final String? address;
+  final String job;
+  final String phoneNumber;
+  final DateOnly? dateOfBirth;
+  final String ssn;
+  final String userName;
+  final String? profileImagePath;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -121,12 +121,6 @@ class UserModel {
 }
 
 class IdentityUserInfoModel {
-  final String id;
-  final String userName;
-  final String email;
-  final String fullName;
-  final bool emailConfirmed;
-  final bool requiresPasswordReset;
 
   IdentityUserInfoModel({
     required this.id,
@@ -139,13 +133,19 @@ class IdentityUserInfoModel {
 
   factory IdentityUserInfoModel.fromJson(Map<String, dynamic> json) =>
       IdentityUserInfoModel(
-        id: json['id'] ?? '',
-        userName: json['userName'] ?? '',
-        email: json['email'] ?? '',
-        fullName: json['fullName'] ?? '',
-        emailConfirmed: json['emailConfirmed'] ?? false,
-        requiresPasswordReset: json['requiresPasswordReset'] ?? false,
+        id: (json['id'] as String?) ?? '',
+        userName: (json['userName'] as String?) ?? '',
+        email: (json['email'] as String?) ?? '',
+        fullName: (json['fullName'] as String?) ?? '',
+        emailConfirmed: (json['emailConfirmed'] as bool?) ?? false,
+        requiresPasswordReset: (json['requiresPasswordReset'] as bool?) ?? false,
       );
+  final String id;
+  final String userName;
+  final String email;
+  final String fullName;
+  final bool emailConfirmed;
+  final bool requiresPasswordReset;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -158,9 +158,6 @@ class IdentityUserInfoModel {
 }
 
 class DateOnly {
-  final int year;
-  final int month;
-  final int day;
 
   DateOnly({required this.year, required this.month, required this.day});
 
@@ -179,6 +176,9 @@ class DateOnly {
       return DateOnly(year: 0, month: 0, day: 0);
     }
   }
+  final int year;
+  final int month;
+  final int day;
 
   @override
   String toString() =>

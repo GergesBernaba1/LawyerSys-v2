@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/siting_model.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/sitings/models/siting_model.dart';
 
 class SitingsRepository {
-  final ApiClient apiClient;
 
   SitingsRepository({required this.apiClient});
+  final ApiClient apiClient;
 
   Future<List<SitingModel>> getSitings({
     String? search,

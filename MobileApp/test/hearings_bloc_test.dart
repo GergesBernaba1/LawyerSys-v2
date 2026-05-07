@@ -8,9 +8,9 @@ import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
 import 'package:qadaya_lawyersys/features/hearings/repositories/hearings_repository.dart';
 
 class FakeHearingsRepository extends HearingsRepository {
-  final List<Hearing> _items;
 
   FakeHearingsRepository(this._items) : super(ApiClient(), LocalDatabase.instance);
+  final List<Hearing> _items;
 
   @override
   Future<List<Hearing>> getHearings({String? tenantId, int page = 1, int pageSize = 50, DateTime? startDate, DateTime? endDate}) async {

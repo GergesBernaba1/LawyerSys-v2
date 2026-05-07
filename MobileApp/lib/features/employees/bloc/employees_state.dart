@@ -1,4 +1,4 @@
-import '../models/employee.dart';
+import 'package:qadaya_lawyersys/features/employees/models/employee.dart';
 
 abstract class EmployeesState {}
 
@@ -7,21 +7,21 @@ class EmployeesInitial extends EmployeesState {}
 class EmployeesLoading extends EmployeesState {}
 
 class EmployeesLoaded extends EmployeesState {
-  final List<EmployeeModel> employees;
   EmployeesLoaded(this.employees);
+  final List<EmployeeModel> employees;
 }
 
 class EmployeesError extends EmployeesState {
-  final String message;
   EmployeesError(this.message);
+  final String message;
 }
 
 class EmployeeDetailLoaded extends EmployeesState {
-  final EmployeeModel employee;
   EmployeeDetailLoaded(this.employee);
+  final EmployeeModel employee;
 }
 
 class EmployeeOperationSuccess extends EmployeesState {
-  final String message;
   EmployeeOperationSuccess(this.message);
+  final String message;
 }

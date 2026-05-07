@@ -1,13 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../models/task.dart';
-import '../repositories/tasks_repository.dart';
-import 'tasks_event.dart';
-import 'tasks_state.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_event.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_state.dart';
+import 'package:qadaya_lawyersys/features/tasks/models/task.dart';
+import 'package:qadaya_lawyersys/features/tasks/repositories/tasks_repository.dart';
 
 class TasksBloc extends Bloc<TasksEvent, TasksState> {
-  final TasksRepository tasksRepository;
-  final List<Task> _tasks = [];
 
   TasksBloc({required this.tasksRepository}) : super(TasksInitial()) {
     on<LoadTasks>(_onLoadTasks);
@@ -17,6 +14,8 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     on<UpdateTask>(_onUpdateTask);
     on<DeleteTask>(_onDeleteTask);
   }
+  final TasksRepository tasksRepository;
+  final List<Task> _tasks = [];
 
   Future<void> _onLoadTasks(LoadTasks event, Emitter<TasksState> emit) async {
     emit(TasksLoading());

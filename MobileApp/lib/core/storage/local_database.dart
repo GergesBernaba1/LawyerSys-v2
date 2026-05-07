@@ -1,15 +1,14 @@
 import 'dart:convert';
 
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
-import '../sync/sync_queue_item.dart';
+import 'package:qadaya_lawyersys/core/sync/sync_queue_item.dart';
+import 'package:sqflite/sqflite.dart';
 
 class LocalDatabase {
-  static final LocalDatabase instance = LocalDatabase._();
-  Database? _db;
 
   LocalDatabase._();
+  static final LocalDatabase instance = LocalDatabase._();
+  Database? _db;
 
   Future<Database> get database async {
     if (_db != null) return _db!;
@@ -417,7 +416,7 @@ class LocalDatabase {
               entityId: row['entityId'] as String,
               payload: jsonDecode(row['payload'] as String) as Map<String, dynamic>,
               retryCount: row['retryCount'] is int ? row['retryCount'] as int : int.tryParse(row['retryCount']?.toString() ?? '0') ?? 0,
-            ))
+            ),)
         .toList();
   }
 
@@ -459,7 +458,7 @@ class LocalDatabase {
 
   Future<void> upsertCalendarEvent(
       String eventId, Map<String, dynamic> eventJson,
-      {String? fromDate, String? toDate}) async {
+      {String? fromDate, String? toDate,}) async {
     final db = await database;
     await db.insert(
       'calendar_events',
@@ -475,12 +474,13 @@ class LocalDatabase {
   }
 
   Future<List<Map<String, dynamic>>> getCalendarEvents(
-      {String? fromDate, String? toDate, int limit = 200}) async {
+      {String? fromDate, String? toDate, int limit = 200,}) async {
     final db = await database;
     if (fromDate != null && toDate != null) {
       // Return events that overlap the requested range
       return db.rawQuery(
-        '''SELECT * FROM calendar_events
+        '''
+SELECT * FROM calendar_events
            WHERE (fromDate IS NULL OR fromDate <= ?)
              AND (toDate IS NULL OR toDate >= ?)
            ORDER BY lastSyncedAt DESC
@@ -489,8 +489,9 @@ class LocalDatabase {
       );
     }
     return db.query('calendar_events',
-        orderBy: 'lastSyncedAt DESC', limit: limit);
+        orderBy: 'lastSyncedAt DESC', limit: limit,);
   }
 }
+
 
 

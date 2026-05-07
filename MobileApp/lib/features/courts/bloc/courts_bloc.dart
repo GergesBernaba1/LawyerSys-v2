@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/courts_repository.dart';
-import 'courts_event.dart';
-import 'courts_state.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_event.dart';
+import 'package:qadaya_lawyersys/features/courts/bloc/courts_state.dart';
+import 'package:qadaya_lawyersys/features/courts/repositories/courts_repository.dart';
 
 class CourtsBloc extends Bloc<CourtsEvent, CourtsState> {
-  final CourtsRepository courtsRepository;
 
   CourtsBloc({required this.courtsRepository}) : super(CourtsInitial()) {
     on<LoadCourts>(_onLoadCourts);
@@ -16,6 +14,7 @@ class CourtsBloc extends Bloc<CourtsEvent, CourtsState> {
     on<UpdateCourt>(_onUpdateCourt);
     on<DeleteCourt>(_onDeleteCourt);
   }
+  final CourtsRepository courtsRepository;
 
   Future<void> _onLoadCourts(LoadCourts event, Emitter<CourtsState> emit) async {
     emit(CourtsLoading());

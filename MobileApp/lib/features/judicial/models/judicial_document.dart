@@ -1,12 +1,4 @@
 class JudicialDocument {
-  final int id;
-  final String docType;
-  final int docNum;
-  final String docDetails;
-  final String notes;
-  final int numOfAgent;
-  final int customerId;
-  final String? customerName;
 
   JudicialDocument({
     required this.id,
@@ -29,6 +21,14 @@ class JudicialDocument {
         customerId: json['customerId'] as int? ?? 0,
         customerName: json['customerName']?.toString(),
       );
+  final int id;
+  final String docType;
+  final int docNum;
+  final String docDetails;
+  final String notes;
+  final int numOfAgent;
+  final int customerId;
+  final String? customerName;
 
   Map<String, dynamic> toJson() => {
         'id': id,

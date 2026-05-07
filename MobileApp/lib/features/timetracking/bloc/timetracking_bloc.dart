@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/timetracking_repository.dart';
-import 'timetracking_event.dart';
-import 'timetracking_state.dart';
+import 'package:qadaya_lawyersys/features/timetracking/bloc/timetracking_event.dart';
+import 'package:qadaya_lawyersys/features/timetracking/bloc/timetracking_state.dart';
+import 'package:qadaya_lawyersys/features/timetracking/repositories/timetracking_repository.dart';
 
 class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
-  final TimeTrackingRepository timeTrackingRepository;
 
   TimeTrackingBloc({required this.timeTrackingRepository})
       : super(TimeTrackingInitial()) {
@@ -17,9 +15,10 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
     on<FilterByStatus>(_onFilterByStatus);
     on<RefreshTimeTracking>(_onRefreshTimeTracking);
   }
+  final TimeTrackingRepository timeTrackingRepository;
 
    Future<void> _onLoadTimeEntries(
-       LoadTimeEntries event, Emitter<TimeTrackingState> emit) async {
+       LoadTimeEntries event, Emitter<TimeTrackingState> emit,) async {
      if (state is! TimeTrackingLoading) {
        emit(TimeTrackingLoading());
      }
@@ -39,14 +38,14 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
          hourlyRate: state is TimeTrackingLoaded
              ? (state as TimeTrackingLoaded).hourlyRate
              : 0,
-       ));
+       ),);
      } catch (e) {
        emit(TimeTrackingError(e.toString()));
      }
    }
 
    Future<void> _onLoadSuggestions(
-       LoadSuggestions event, Emitter<TimeTrackingState> emit) async {
+       LoadSuggestions event, Emitter<TimeTrackingState> emit,) async {
      try {
        final suggestions = await timeTrackingRepository.getSuggestions(
          hourlyRate: event.hourlyRate,
@@ -59,7 +58,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
            caseOptions: currentState.caseOptions,
            statusFilter: currentState.statusFilter,
            hourlyRate: event.hourlyRate,
-         ));
+         ),);
        }
      } catch (e) {
        emit(TimeTrackingError(e.toString()));
@@ -67,7 +66,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
    }
 
   Future<void> _onLoadCaseOptions(
-      LoadCaseOptions event, Emitter<TimeTrackingState> emit) async {
+      LoadCaseOptions event, Emitter<TimeTrackingState> emit,) async {
     try {
       final caseOptions = await timeTrackingRepository.getCaseOptions();
       if (state is TimeTrackingLoaded) {
@@ -78,7 +77,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
           caseOptions: caseOptions,
           statusFilter: currentState.statusFilter,
           hourlyRate: currentState.hourlyRate,
-        ));
+        ),);
       }
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
@@ -86,7 +85,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   }
 
   Future<void> _onStartTimeEntry(
-      StartTimeEntry event, Emitter<TimeTrackingState> emit) async {
+      StartTimeEntry event, Emitter<TimeTrackingState> emit,) async {
     try {
       await timeTrackingRepository.startTimeEntry(
         caseCode: event.caseCode,
@@ -103,7 +102,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   }
 
   Future<void> _onStopTimeEntry(
-      StopTimeEntry event, Emitter<TimeTrackingState> emit) async {
+      StopTimeEntry event, Emitter<TimeTrackingState> emit,) async {
     try {
       await timeTrackingRepository.stopTimeEntry(
         entryId: event.entryId,
@@ -119,12 +118,12 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   }
 
   void _onFilterByStatus(
-      FilterByStatus event, Emitter<TimeTrackingState> emit) {
+      FilterByStatus event, Emitter<TimeTrackingState> emit,) {
     if (!isClosed) add(LoadTimeEntries(statusFilter: event.statusFilter));
   }
 
   Future<void> _onRefreshTimeTracking(
-      RefreshTimeTracking event, Emitter<TimeTrackingState> emit) async {
+      RefreshTimeTracking event, Emitter<TimeTrackingState> emit,) async {
     if (!isClosed) {
       add(LoadTimeEntries(statusFilter: event.statusFilter ?? 'All'));
       add(LoadSuggestions(event.hourlyRate ?? 0));

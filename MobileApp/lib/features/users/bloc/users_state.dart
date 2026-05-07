@@ -1,4 +1,4 @@
-import '../models/user_model.dart';
+import 'package:qadaya_lawyersys/features/users/models/user_model.dart';
 
 abstract class UsersState {}
 
@@ -7,16 +7,16 @@ class UsersInitial extends UsersState {}
 class UsersLoading extends UsersState {}
 
 class UsersLoaded extends UsersState {
-  final List<UserModel> users;
   UsersLoaded(this.users);
+  final List<UserModel> users;
 }
 
 class UsersError extends UsersState {
-  final String message;
   UsersError(this.message);
+  final String message;
 }
 
 class UserOperationSuccess extends UsersState {
-  final String message;
   UserOperationSuccess(this.message);
+  final String message;
 }

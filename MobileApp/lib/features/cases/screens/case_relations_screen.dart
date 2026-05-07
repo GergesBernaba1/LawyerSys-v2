@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/api/api_client.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/case_relations_bloc.dart';
-import '../bloc/case_relations_event.dart';
-import '../bloc/case_relations_state.dart';
-import '../repositories/case_relations_repository.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/case_relations_bloc.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/case_relations_event.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/case_relations_state.dart';
+import 'package:qadaya_lawyersys/features/cases/repositories/case_relations_repository.dart';
 
 class CaseRelationsSection extends StatelessWidget {
-  final int caseId;
 
   const CaseRelationsSection({super.key, required this.caseId});
+  final int caseId;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +25,9 @@ class CaseRelationsSection extends StatelessWidget {
 }
 
 class _CaseRelationsSectionBody extends StatelessWidget {
-  final int caseId;
 
   const _CaseRelationsSectionBody({required this.caseId});
+  final int caseId;
 
   Future<void> _showAddDialog(BuildContext context) async {
     final relatedCaseIdCtrl = TextEditingController();

@@ -1,4 +1,4 @@
-import '../models/trust_report_models.dart';
+import 'package:qadaya_lawyersys/features/trust-reports/models/trust_report_models.dart';
 
 abstract class TrustReportsState {}
 
@@ -7,21 +7,21 @@ class TrustReportsInitial extends TrustReportsState {}
 class TrustReportsLoading extends TrustReportsState {}
 
 class FinancialSummaryLoaded extends TrustReportsState {
+
+  FinancialSummaryLoaded(this.summary, {this.year, this.month});
   final FinancialSummary summary;
   final int? year;
   final int? month;
-
-  FinancialSummaryLoaded(this.summary, {this.year, this.month});
 }
 
 class OutstandingBalancesLoaded extends TrustReportsState {
-  final List<OutstandingBalance> balances;
 
   OutstandingBalancesLoaded(this.balances);
+  final List<OutstandingBalance> balances;
 }
 
 class TrustReportsError extends TrustReportsState {
-  final String message;
 
   TrustReportsError(this.message);
+  final String message;
 }

@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/billing.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
 
 class BillingRepository {
-  final ApiClient apiClient;
 
   BillingRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<BillingPay>> getPayments() async {
     final response = await apiClient.get('/Billing/payments');
@@ -45,7 +45,7 @@ class BillingRepository {
 
   Future<BillingSummary> getSummary() async {
     final response = await apiClient.get('/Billing/summary');
-    return BillingSummary.fromJson(response.data);
+    return BillingSummary.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> createPayment(BillingPay payment) async {

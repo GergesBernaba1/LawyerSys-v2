@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/consultations_repository.dart';
-import 'consultations_event.dart';
-import 'consultations_state.dart';
+import 'package:qadaya_lawyersys/features/consultations/bloc/consultations_event.dart';
+import 'package:qadaya_lawyersys/features/consultations/bloc/consultations_state.dart';
+import 'package:qadaya_lawyersys/features/consultations/repositories/consultations_repository.dart';
 
 class ConsultationsBloc extends Bloc<ConsultationsEvent, ConsultationsState> {
-  final ConsultationsRepository consultationsRepository;
 
   ConsultationsBloc({required this.consultationsRepository}) : super(ConsultationsInitial()) {
     on<LoadConsultations>(_onLoad);
@@ -16,6 +14,7 @@ class ConsultationsBloc extends Bloc<ConsultationsEvent, ConsultationsState> {
     on<UpdateConsultation>(_onUpdate);
     on<DeleteConsultation>(_onDelete);
   }
+  final ConsultationsRepository consultationsRepository;
 
   Future<void> _onLoad(LoadConsultations event, Emitter<ConsultationsState> emit) async {
     emit(ConsultationsLoading());

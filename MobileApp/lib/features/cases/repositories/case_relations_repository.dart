@@ -1,9 +1,9 @@
-import '../../../core/api/api_client.dart';
-import '../models/case_relation.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case_relation.dart';
 
 class CaseRelationsRepository {
-  final ApiClient apiClient;
   CaseRelationsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<CaseRelation>> getRelations(int caseId) async {
     final response = await apiClient.get('/CaseRelations', queryParameters: {'caseId': caseId});
@@ -26,7 +26,7 @@ class CaseRelationsRepository {
       'relatedCaseId': relatedCaseId,
       'relationType': relationType,
       if (notes != null) 'notes': notes,
-    });
+    },);
   }
 
   Future<void> deleteRelation(int id) async {

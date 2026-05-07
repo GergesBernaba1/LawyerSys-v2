@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import '../../storage/secure_storage.dart';
+import 'package:qadaya_lawyersys/core/storage/secure_storage.dart';
 
 class TenantInterceptor extends Interceptor {
   final SecureStorage _secureStorage = SecureStorage();
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     try {
       final tenantId = await _secureStorage.read(SecureStorage.keyTenantId);
       if (tenantId != null && tenantId.isNotEmpty) {
@@ -18,4 +18,5 @@ class TenantInterceptor extends Interceptor {
     super.onRequest(options, handler);
   }
 }
+
 

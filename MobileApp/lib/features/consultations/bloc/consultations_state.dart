@@ -1,4 +1,4 @@
-import '../models/consultation.dart';
+import 'package:qadaya_lawyersys/features/consultations/models/consultation.dart';
 
 abstract class ConsultationsState {}
 
@@ -7,21 +7,21 @@ class ConsultationsInitial extends ConsultationsState {}
 class ConsultationsLoading extends ConsultationsState {}
 
 class ConsultationsLoaded extends ConsultationsState {
-  final List<ConsultationModel> consultations;
   ConsultationsLoaded(this.consultations);
+  final List<ConsultationModel> consultations;
 }
 
 class ConsultationsError extends ConsultationsState {
-  final String message;
   ConsultationsError(this.message);
+  final String message;
 }
 
 class ConsultationDetailLoaded extends ConsultationsState {
-  final ConsultationModel consultation;
   ConsultationDetailLoaded(this.consultation);
+  final ConsultationModel consultation;
 }
 
 class ConsultationOperationSuccess extends ConsultationsState {
-  final String message;
   ConsultationOperationSuccess(this.message);
+  final String message;
 }

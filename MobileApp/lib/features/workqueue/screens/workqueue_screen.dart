@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
-import '../bloc/workqueue_bloc.dart';
-import '../bloc/workqueue_event.dart';
-import '../bloc/workqueue_state.dart';
-import '../models/workqueue_task.dart';
+import 'package:qadaya_lawyersys/features/workqueue/bloc/workqueue_bloc.dart';
+import 'package:qadaya_lawyersys/features/workqueue/bloc/workqueue_event.dart';
+import 'package:qadaya_lawyersys/features/workqueue/bloc/workqueue_state.dart';
+import 'package:qadaya_lawyersys/features/workqueue/models/workqueue_task.dart';
 
 class WorkqueueScreen extends StatefulWidget {
   const WorkqueueScreen({super.key});
@@ -97,7 +97,7 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
   }
 
   Future<void> _showCompleteConfirmDialog(
-      BuildContext context, WorkqueueTask task) async {
+      BuildContext context, WorkqueueTask task,) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -115,7 +115,7 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if ((confirmed ?? false) && context.mounted) {
       context.read<WorkqueueBloc>().add(CompleteTask(task.id));
     }
   }
@@ -165,7 +165,7 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
           children: [
             if (subtitleParts.isNotEmpty)
               Text(subtitleParts.join(' · '),
-                  style: const TextStyle(fontSize: 12)),
+                  style: const TextStyle(fontSize: 12),),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -173,7 +173,7 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
                 color: _statusChipColor(task.status).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: _statusChipColor(task.status).withValues(alpha: 0.5)),
+                    color: _statusChipColor(task.status).withValues(alpha: 0.5),),
               ),
               child: Text(
                 task.status,

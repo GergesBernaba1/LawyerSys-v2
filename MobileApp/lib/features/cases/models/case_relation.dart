@@ -1,10 +1,4 @@
 class CaseRelation {
-  final int id;
-  final int caseId;
-  final int relatedCaseId;
-  final String relationType; // e.g. "Related", "Appeal", "Consolidated"
-  final String? relatedCaseNumber; // display number of related case
-  final String? notes;
 
   CaseRelation({
     required this.id,
@@ -23,6 +17,12 @@ class CaseRelation {
         relatedCaseNumber: json['relatedCaseNumber']?.toString(),
         notes: json['notes']?.toString(),
       );
+  final int id;
+  final int caseId;
+  final int relatedCaseId;
+  final String relationType; // e.g. "Related", "Appeal", "Consolidated"
+  final String? relatedCaseNumber; // display number of related case
+  final String? notes;
 
   Map<String, dynamic> toJson() => {
         'id': id,

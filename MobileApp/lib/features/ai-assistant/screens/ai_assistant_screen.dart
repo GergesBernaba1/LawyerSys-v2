@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ignore: unused_import
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/ai_assistant_bloc.dart';
-import '../bloc/ai_assistant_event.dart';
-import '../bloc/ai_assistant_state.dart';
-import '../models/ai_models.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/bloc/ai_assistant_bloc.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/bloc/ai_assistant_event.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/bloc/ai_assistant_state.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/models/ai_models.dart';
 
 class AiAssistantScreen extends StatefulWidget {
   const AiAssistantScreen({super.key});
@@ -82,8 +82,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
 // Summarize Tab
 // ---------------------------------------------------------------------------
 class _SummarizeTab extends StatefulWidget {
-  final AiAssistantState state;
   const _SummarizeTab({required this.state});
+  final AiAssistantState state;
 
   @override
   State<_SummarizeTab> createState() => _SummarizeTabState();
@@ -184,8 +184,8 @@ class _SummarizeTabState extends State<_SummarizeTab> {
 // Draft Tab
 // ---------------------------------------------------------------------------
 class _DraftTab extends StatefulWidget {
-  final AiAssistantState state;
   const _DraftTab({required this.state});
+  final AiAssistantState state;
 
   @override
   State<_DraftTab> createState() => _DraftTabState();
@@ -303,10 +303,10 @@ class _DraftTabState extends State<_DraftTab> {
                           onPressed: () {
                             Clipboard.setData(ClipboardData(
                               text: (widget.state as AiDraftLoaded).content,
-                            ));
+                            ),);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text(AppLocalizations.of(context)!.linkCopied)),
+                                  content: Text(AppLocalizations.of(context)!.linkCopied),),
                             );
                           },
                         ),
@@ -329,8 +329,8 @@ class _DraftTabState extends State<_DraftTab> {
 // Deadlines Tab
 // ---------------------------------------------------------------------------
 class _DeadlinesTab extends StatefulWidget {
-  final AiAssistantState state;
   const _DeadlinesTab({required this.state});
+  final AiAssistantState state;
 
   @override
   State<_DeadlinesTab> createState() => _DeadlinesTabState();
@@ -390,8 +390,8 @@ class _DeadlinesTabState extends State<_DeadlinesTab> {
 }
 
 class _DeadlineSuggestionCard extends StatelessWidget {
-  final AiDeadlineSuggestion suggestion;
   const _DeadlineSuggestionCard({required this.suggestion});
+  final AiDeadlineSuggestion suggestion;
 
   @override
   Widget build(BuildContext context) {

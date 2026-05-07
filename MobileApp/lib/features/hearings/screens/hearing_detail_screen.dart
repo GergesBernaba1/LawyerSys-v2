@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/hearings_bloc.dart';
-import '../bloc/hearings_event.dart';
-import '../screens/hearing_form_screen.dart';
-import '../models/hearing.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_bloc.dart';
+import 'package:qadaya_lawyersys/features/hearings/bloc/hearings_event.dart';
+import 'package:qadaya_lawyersys/features/hearings/models/hearing.dart';
+import 'package:qadaya_lawyersys/features/hearings/screens/hearing_form_screen.dart';
 
 class HearingDetailScreen extends StatelessWidget {
-  final Hearing hearing;
 
   const HearingDetailScreen({super.key, required this.hearing});
+  final Hearing hearing;
 
   String _formatDateTime(DateTime dt) {
     final d = dt.toLocal();
@@ -33,7 +32,7 @@ class HearingDetailScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (_) => HearingFormScreen(hearing: hearing)),
               );
-              if (updated == true && context.mounted) {
+              if ((updated ?? false) && context.mounted) {
                 context.read<HearingsBloc>().add(LoadHearings());
                 Navigator.of(context).pop(true);
               }
@@ -54,7 +53,7 @@ class HearingDetailScreen extends StatelessWidget {
                   ],
                 ),
               );
-              if (confirmed == true && context.mounted) {
+              if ((confirmed ?? false) && context.mounted) {
                 context.read<HearingsBloc>().add(DeleteHearing(hearing.hearingId));
                 Navigator.of(context).pop(true);
               }
@@ -84,7 +83,7 @@ class HearingDetailScreen extends StatelessWidget {
             if (hearing.notes != null && hearing.notes!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text('${localizer.notes}: ${hearing.notes}'),
-            ]
+            ],
           ],
         ),
       ),

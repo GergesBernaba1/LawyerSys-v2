@@ -1,11 +1,4 @@
 class UserModel {
-  final String id;
-  final String fullName;
-  final String userName;
-  final String? email;
-  final String? phoneNumber;
-  final String? job;
-  final bool isActive;
 
   UserModel({
     required this.id,
@@ -24,8 +17,15 @@ class UserModel {
         email: (json['email'] ?? json['Email'])?.toString(),
         phoneNumber: (json['phoneNumber'] ?? json['PhoneNumber'])?.toString(),
         job: (json['job'] ?? json['Job'])?.toString(),
-        isActive: json['isActive'] ?? json['IsActive'] ?? true,
+        isActive: (json['isActive'] as bool?) ?? (json['IsActive'] as bool?) ?? true,
       );
+  final String id;
+  final String fullName;
+  final String userName;
+  final String? email;
+  final String? phoneNumber;
+  final String? job;
+  final bool isActive;
 
   Map<String, dynamic> toJson() => {
         'id': id,

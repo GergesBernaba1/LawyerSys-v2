@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../bloc/timetracking_bloc.dart';
-import '../bloc/timetracking_event.dart';
-import '../bloc/timetracking_state.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../models/time_entry.dart';
-import 'timetracking_form_screen.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/timetracking/bloc/timetracking_bloc.dart';
+import 'package:qadaya_lawyersys/features/timetracking/bloc/timetracking_event.dart';
+import 'package:qadaya_lawyersys/features/timetracking/bloc/timetracking_state.dart';
+import 'package:qadaya_lawyersys/features/timetracking/models/time_entry.dart';
+import 'package:qadaya_lawyersys/features/timetracking/screens/timetracking_form_screen.dart';
 
 class TimeTrackingListScreen extends StatefulWidget {
   const TimeTrackingListScreen({super.key});
@@ -82,7 +81,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
             final runningEntries = entries.where((x) => _statusCode(x.status, localizer) == 'Running').toList();
             final stoppedEntries = entries.where((x) => _statusCode(x.status, localizer) == 'Stopped').toList();
             final totalTrackedMinutes = stoppedEntries.fold<int>(
-                0, (sum, entry) => sum + (entry.durationMinutes ?? 0));
+                0, (sum, entry) => sum + (entry.durationMinutes ?? 0),);
 
             return ListView(
               children: [
@@ -93,17 +92,17 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                     children: [
                       Expanded(
                         child: _buildSummaryCard(
-                            localizer.runningStatus, runningEntries.length, Colors.orange),
+                            localizer.runningStatus, runningEntries.length, Colors.orange,),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildSummaryCard(
-                            localizer.stoppedStatus, stoppedEntries.length, Colors.green),
+                            localizer.stoppedStatus, stoppedEntries.length, Colors.green,),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildSummaryCard(
-                            localizer.duration, totalTrackedMinutes, Colors.blue),
+                            localizer.duration, totalTrackedMinutes, Colors.blue,),
                       ),
                     ],
                   ),
@@ -198,7 +197,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
   }
 
   Widget _buildStartForm(
-      BuildContext context, List<Map<String, dynamic>> caseOptions, double hourlyRate) {
+      BuildContext context, List<Map<String, dynamic>> caseOptions, double hourlyRate,) {
     final localizer = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.all(8),
@@ -225,15 +224,15 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                     items: caseOptions
                         .map((option) => DropdownMenuItem<String>(
                               value: option['value'].toString(),
-                              child: Text(option['label']),
-                            ))
+                              child: Text(option['label'] as String),
+                            ),)
                         .toList()
                         ..insert(
                             0,
                             DropdownMenuItem<String>(
                               value: '',
                               child: Text(localizer.selectACase),
-                            )),
+                            ),),
                     onChanged: (value) {
                       setState(() {
                         _selectedCaseCode = value;
@@ -318,9 +317,9 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                                 workType: _workTypeController.text,
                                 description: _descriptionController.text,
                                 hourlyRate: double.tryParse(
-                                        _hourlyRateController.text) ?? 0,
+                                        _hourlyRateController.text,) ?? 0,
                                 statusFilter: _statusFilter,
-                              ));
+                              ),);
                           // Clear form
                           _workTypeController.clear();
                           _descriptionController.clear();
@@ -364,10 +363,10 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                     backgroundColor: _statusCode(entry.status, localizer) == 'Running'
                         ? Colors.orange[100]
                         : Colors.green[100],
-                  )),
+                  ),),
                   DataCell(Text('${entry.durationMinutes ?? 0} min')),
                   DataCell(Text(
-                      '\$${(entry.suggestedAmount ?? 0).toStringAsFixed(2)}')),
+                      '\$${(entry.suggestedAmount ?? 0).toStringAsFixed(2)}',),),
                   DataCell(_statusCode(entry.status, localizer) == 'Running'
                       ? IconButton(
                           icon: const Icon(Icons.stop),
@@ -377,8 +376,8 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                             );
                           },
                         )
-                      : const Text('')),
-                ]))
+                      : const Text(''),),
+                ],),)
             .toList(),
       ),
     );
@@ -435,7 +434,7 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                   DataCell(Text('${suggestion.customerId ?? '-'}')),
                   DataCell(Text('${suggestion.totalMinutes}')),
                   DataCell(Text('\$${suggestion.suggestedAmount.toStringAsFixed(2)}')),
-                ]))
+                ],),)
             .toList(),
       ),
     );

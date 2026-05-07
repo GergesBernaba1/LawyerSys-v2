@@ -1,14 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/workqueue_repository.dart';
-import 'workqueue_event.dart';
-import 'workqueue_state.dart';
+import 'package:qadaya_lawyersys/features/workqueue/bloc/workqueue_event.dart';
+import 'package:qadaya_lawyersys/features/workqueue/bloc/workqueue_state.dart';
+import 'package:qadaya_lawyersys/features/workqueue/repositories/workqueue_repository.dart';
 
 class WorkqueueBloc extends Bloc<WorkqueueEvent, WorkqueueState> {
-  final WorkqueueRepository repository;
-
-  // Track the active filter so reloads use the same filter.
-  String? _activeStatus;
 
   WorkqueueBloc({required this.repository}) : super(WorkqueueInitial()) {
     on<LoadWorkqueue>(_onLoadWorkqueue);
@@ -17,9 +12,13 @@ class WorkqueueBloc extends Bloc<WorkqueueEvent, WorkqueueState> {
     on<CompleteTask>(_onCompleteTask);
     on<ReassignTask>(_onReassignTask);
   }
+  final WorkqueueRepository repository;
+
+  // Track the active filter so reloads use the same filter.
+  String? _activeStatus;
 
   Future<void> _onLoadWorkqueue(
-      LoadWorkqueue event, Emitter<WorkqueueState> emit) async {
+      LoadWorkqueue event, Emitter<WorkqueueState> emit,) async {
     _activeStatus = event.status;
     emit(WorkqueueLoading());
     try {
@@ -31,7 +30,7 @@ class WorkqueueBloc extends Bloc<WorkqueueEvent, WorkqueueState> {
   }
 
   Future<void> _onRefreshWorkqueue(
-      RefreshWorkqueue event, Emitter<WorkqueueState> emit) async {
+      RefreshWorkqueue event, Emitter<WorkqueueState> emit,) async {
     try {
       final tasks = await repository.getMyTasks(status: _activeStatus);
       emit(WorkqueueLoaded(tasks));
@@ -41,7 +40,7 @@ class WorkqueueBloc extends Bloc<WorkqueueEvent, WorkqueueState> {
   }
 
   Future<void> _onUpdateTaskStatus(
-      UpdateTaskStatus event, Emitter<WorkqueueState> emit) async {
+      UpdateTaskStatus event, Emitter<WorkqueueState> emit,) async {
     try {
       await repository.updateTaskStatus(event.id, event.status);
       emit(WorkqueueTaskUpdated('Task status updated to ${event.status}'));
@@ -53,7 +52,7 @@ class WorkqueueBloc extends Bloc<WorkqueueEvent, WorkqueueState> {
   }
 
   Future<void> _onCompleteTask(
-      CompleteTask event, Emitter<WorkqueueState> emit) async {
+      CompleteTask event, Emitter<WorkqueueState> emit,) async {
     try {
       await repository.completeTask(event.id);
       emit(WorkqueueTaskUpdated('Task marked as complete'));
@@ -65,7 +64,7 @@ class WorkqueueBloc extends Bloc<WorkqueueEvent, WorkqueueState> {
   }
 
   Future<void> _onReassignTask(
-      ReassignTask event, Emitter<WorkqueueState> emit) async {
+      ReassignTask event, Emitter<WorkqueueState> emit,) async {
     try {
       await repository.reassignTask(event.id, event.newEmployeeId);
       emit(WorkqueueTaskUpdated('Task reassigned successfully'));

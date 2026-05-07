@@ -1,10 +1,10 @@
-import '../../../core/api/api_client.dart';
-import '../models/government.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/features/governments/models/government.dart';
 
 class GovernmentsRepository {
-  final ApiClient apiClient;
 
   GovernmentsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<Government>> getGovernments() async {
     final response = await apiClient.get('/api/Governments');

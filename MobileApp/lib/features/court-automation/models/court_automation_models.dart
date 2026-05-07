@@ -1,8 +1,4 @@
 class AutomationPack {
-  final String packKey;
-  final String name;
-  final String? description;
-  final String? category;
 
   AutomationPack({
     required this.packKey,
@@ -19,12 +15,13 @@ class AutomationPack {
       category: json['category'] as String?,
     );
   }
+  final String packKey;
+  final String name;
+  final String? description;
+  final String? category;
 }
 
 class DeadlineItem {
-  final String label;
-  final String? deadline;
-  final String? description;
 
   DeadlineItem({
     required this.label,
@@ -39,14 +36,12 @@ class DeadlineItem {
       description: json['description'] as String?,
     );
   }
+  final String label;
+  final String? deadline;
+  final String? description;
 }
 
 class FilingSubmission {
-  final String submissionId;
-  final String caseCode;
-  final String packKey;
-  final String status;
-  final DateTime submittedAt;
 
   FilingSubmission({
     required this.submissionId,
@@ -65,4 +60,9 @@ class FilingSubmission {
       submittedAt: DateTime.parse(json['submittedAt'] as String),
     );
   }
+  final String submissionId;
+  final String caseCode;
+  final String packKey;
+  final String status;
+  final DateTime submittedAt;
 }

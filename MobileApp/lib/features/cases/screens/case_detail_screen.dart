@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/auth/permissions.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../../authentication/models/user_session.dart';
-import '../bloc/cases_bloc.dart';
-import '../bloc/cases_event.dart';
-import '../models/case.dart';
-import 'case_form_screen.dart';
-import 'case_relations_screen.dart';
+import 'package:qadaya_lawyersys/core/auth/permissions.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_bloc.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_event.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
+import 'package:qadaya_lawyersys/features/cases/screens/case_form_screen.dart';
+import 'package:qadaya_lawyersys/features/cases/screens/case_relations_screen.dart';
 
 class CaseDetailScreen extends StatelessWidget {
-  final CaseModel caseModel;
 
   const CaseDetailScreen({super.key, required this.caseModel});
+  final CaseModel caseModel;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class CaseDetailScreen extends StatelessWidget {
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => CaseFormScreen(caseModel: caseModel)));
+                        builder: (_) => CaseFormScreen(caseModel: caseModel),),);
                 if (context.mounted) {
                   context.read<CasesBloc>().add(RefreshCases());
                   context.read<CasesBloc>().add(SelectCase(caseModel.caseId));
@@ -60,14 +60,14 @@ class CaseDetailScreen extends StatelessWidget {
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text(localizer.cancel)),
+                          child: Text(localizer.cancel),),
                       TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: Text(localizer.delete)),
+                          child: Text(localizer.delete),),
                     ],
                   ),
                 );
-                if (confirmed == true && context.mounted) {
+                if ((confirmed ?? false) && context.mounted) {
                   context.read<CasesBloc>().add(DeleteCase(caseModel.caseId));
                   Navigator.pop(context);
                 }
@@ -81,14 +81,14 @@ class CaseDetailScreen extends StatelessWidget {
           children: [
             Text('${localizer.caseNumber}: ${caseModel.caseNumber}',
                 style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
             const SizedBox(height: 8),
             Text('${localizer.status}: ${caseModel.caseStatus}'),
             Text('${localizer.caseType}: ${caseModel.caseType}'),
             Text('Code: ${caseModel.code}'),
             const SizedBox(height: 8),
             Text(
-                '${localizer.filingDate}: ${caseModel.filingDate?.toLocal().toString() ?? 'N/A'}'),
+                '${localizer.filingDate}: ${caseModel.filingDate?.toLocal().toString() ?? 'N/A'}',),
             Text('${localizer.amount}: ${caseModel.totalAmount}'),
             if (caseModel.invitionsStatment.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -102,11 +102,11 @@ class CaseDetailScreen extends StatelessWidget {
             if (caseModel.assignedEmployees.isNotEmpty) ...[
               Text(localizer.assignedEmployees,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold)),
+                      fontSize: 16, fontWeight: FontWeight.bold,),),
               ...caseModel.assignedEmployees.map((employee) => ListTile(
                     title: Text(employee.employeeName),
                     subtitle: Text(employee.role),
-                  )),
+                  ),),
             ],
             const SizedBox(height: 16),
             const Divider(),

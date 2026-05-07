@@ -1,12 +1,4 @@
 class FinancialSummary {
-  final double totalRevenue;
-  final double totalExpenses;
-  final double netBalance;
-  final int totalInvoices;
-  final int paidInvoices;
-  final int pendingInvoices;
-  final double trustBalance;
-  final Map<String, dynamic> extras;
 
   FinancialSummary({
     required this.totalRevenue,
@@ -44,6 +36,14 @@ class FinancialSummary {
       extras: extras,
     );
   }
+  final double totalRevenue;
+  final double totalExpenses;
+  final double netBalance;
+  final int totalInvoices;
+  final int paidInvoices;
+  final int pendingInvoices;
+  final double trustBalance;
+  final Map<String, dynamic> extras;
 
   Map<String, dynamic> toJson() {
     return {
@@ -60,10 +60,6 @@ class FinancialSummary {
 }
 
 class OutstandingBalance {
-  final String customerName;
-  final int customerId;
-  final double amount;
-  final int invoiceCount;
 
   OutstandingBalance({
     required this.customerName,
@@ -80,6 +76,10 @@ class OutstandingBalance {
       invoiceCount: (json['invoiceCount'] as num?)?.toInt() ?? 0,
     );
   }
+  final String customerName;
+  final int customerId;
+  final double amount;
+  final int invoiceCount;
 
   Map<String, dynamic> toJson() {
     return {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class InfoRowWidget extends StatelessWidget {
+
+  const InfoRowWidget({super.key, required this.label, required this.value, this.icon});
   final String label;
   final String value;
   final IconData? icon;
-
-  const InfoRowWidget({super.key, required this.label, required this.value, this.icon});
 
   @override
   Widget build(BuildContext context) {

@@ -5,57 +5,52 @@ class LoadCustomers extends CustomersEvent {}
 class LoadMoreCustomers extends CustomersEvent {}
 
 class SearchCustomers extends CustomersEvent {
-  final String query;
   SearchCustomers(this.query);
+  final String query;
 }
 
 class RefreshCustomers extends CustomersEvent {}
 
 class SelectCustomer extends CustomersEvent {
-  final String customerId;
   SelectCustomer(this.customerId);
+  final String customerId;
 }
 
 class LoadCustomerDetail extends CustomersEvent {
-  final String customerId;
   LoadCustomerDetail(this.customerId);
+  final String customerId;
 }
 
 class CreateCustomer extends CustomersEvent {
-  final Map<String, dynamic> data;
   CreateCustomer(this.data);
+  final Map<String, dynamic> data;
 }
 
 class UpdateCustomer extends CustomersEvent {
+  UpdateCustomer(this.customerId, this.data);
   final String customerId;
   final Map<String, dynamic> data;
-  UpdateCustomer(this.customerId, this.data);
 }
 
 class DeleteCustomer extends CustomersEvent {
-  final String customerId;
   DeleteCustomer(this.customerId);
+  final String customerId;
 }
 
 // Case Notification Preferences
 class LoadCaseNotificationPreference extends CustomersEvent {
-  final int caseCode;
   LoadCaseNotificationPreference(this.caseCode);
+  final int caseCode;
 }
 
 class UpdateCaseNotificationPreference extends CustomersEvent {
+  UpdateCaseNotificationPreference(this.caseCode, this.notificationsEnabled);
   final int caseCode;
   final bool notificationsEnabled;
-  UpdateCaseNotificationPreference(this.caseCode, this.notificationsEnabled);
 }
 
 // Payment Proofs
 class SubmitPaymentProof extends CustomersEvent {
-  final int caseCode;
-  final double amount;
-  final DateTime paymentDate;
-  final String filePath;
-  final String? notes;
   
   SubmitPaymentProof({
     required this.caseCode,
@@ -64,19 +59,20 @@ class SubmitPaymentProof extends CustomersEvent {
     required this.filePath,
     this.notes,
   });
+  final int caseCode;
+  final double amount;
+  final DateTime paymentDate;
+  final String filePath;
+  final String? notes;
 }
 
 // Requested Documents
 class LoadRequestedDocuments extends CustomersEvent {
-  final int caseCode;
   LoadRequestedDocuments(this.caseCode);
+  final int caseCode;
 }
 
 class SubmitRequestedDocument extends CustomersEvent {
-  final int caseCode;
-  final int requestId;
-  final String filePath;
-  final String? notes;
   
   SubmitRequestedDocument({
     required this.caseCode,
@@ -84,5 +80,10 @@ class SubmitRequestedDocument extends CustomersEvent {
     required this.filePath,
     this.notes,
   });
+  final int caseCode;
+  final int requestId;
+  final String filePath;
+  final String? notes;
 }
+
 

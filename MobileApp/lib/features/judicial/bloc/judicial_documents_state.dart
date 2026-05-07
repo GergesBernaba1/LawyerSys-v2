@@ -1,4 +1,4 @@
-import '../models/judicial_document.dart';
+import 'package:qadaya_lawyersys/features/judicial/models/judicial_document.dart';
 
 abstract class JudicialDocumentsState {}
 
@@ -7,10 +7,6 @@ class JudicialDocumentsInitial extends JudicialDocumentsState {}
 class JudicialDocumentsLoading extends JudicialDocumentsState {}
 
 class JudicialDocumentsLoaded extends JudicialDocumentsState {
-  final List<JudicialDocument> documents;
-  final int totalCount;
-  final int page;
-  final String? search;
 
   JudicialDocumentsLoaded({
     required this.documents,
@@ -18,14 +14,18 @@ class JudicialDocumentsLoaded extends JudicialDocumentsState {
     required this.page,
     this.search,
   });
+  final List<JudicialDocument> documents;
+  final int totalCount;
+  final int page;
+  final String? search;
 }
 
 class JudicialDocumentsError extends JudicialDocumentsState {
-  final String message;
   JudicialDocumentsError(this.message);
+  final String message;
 }
 
 class JudicialDocumentActionSuccess extends JudicialDocumentsState {
-  final String message;
   JudicialDocumentActionSuccess(this.message);
+  final String message;
 }

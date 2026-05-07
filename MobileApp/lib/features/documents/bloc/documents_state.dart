@@ -1,4 +1,4 @@
-import '../models/document.dart';
+import 'package:qadaya_lawyersys/features/documents/models/document.dart';
 
 abstract class DocumentsState {}
 
@@ -7,10 +7,6 @@ class DocumentsInitial extends DocumentsState {}
 class DocumentsLoading extends DocumentsState {}
 
 class DocumentsLoaded extends DocumentsState {
-  final List<Document> documents;
-  final int currentPage;
-  final bool hasMore;
-  final bool isLoadingMore;
   
   DocumentsLoaded(
     this.documents, {
@@ -18,6 +14,10 @@ class DocumentsLoaded extends DocumentsState {
     this.hasMore = true,
     this.isLoadingMore = false,
   });
+  final List<Document> documents;
+  final int currentPage;
+  final bool hasMore;
+  final bool isLoadingMore;
 
   DocumentsLoaded copyWith({
     List<Document>? documents,
@@ -35,13 +35,13 @@ class DocumentsLoaded extends DocumentsState {
 }
 
 class DocumentsDownloading extends DocumentsState {
-  final String message;
   DocumentsDownloading(this.message);
+  final String message;
 }
 
 class DocumentsError extends DocumentsState {
-  final String error;
   DocumentsError(this.error);
+  final String error;
 }
 
 class DocumentsUploading extends DocumentsState {}
@@ -49,8 +49,8 @@ class DocumentsUploading extends DocumentsState {}
 class DocumentsUploadSuccess extends DocumentsState {}
 
 class DocumentShareLinkLoaded extends DocumentsState {
-  final String url;
   DocumentShareLinkLoaded(this.url);
+  final String url;
 }
 
 class DocumentRenamed extends DocumentsState {}

@@ -1,12 +1,12 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/api/api_constants.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/file_model.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/api/api_constants.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/files/models/file_model.dart';
 
 class FilesRepository {
-  final ApiClient apiClient;
 
   FilesRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<FileModel>> getFiles({
     String? search,

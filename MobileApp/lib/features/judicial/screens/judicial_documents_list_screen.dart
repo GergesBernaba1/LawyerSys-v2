@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/judicial_documents_bloc.dart';
-import '../bloc/judicial_documents_event.dart';
-import '../bloc/judicial_documents_state.dart';
-import '../models/judicial_document.dart';
-import 'judicial_document_detail_screen.dart';
+import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_bloc.dart';
+import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_event.dart';
+import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_state.dart';
+import 'package:qadaya_lawyersys/features/judicial/models/judicial_document.dart';
+import 'package:qadaya_lawyersys/features/judicial/screens/judicial_document_detail_screen.dart';
 
 class JudicialDocumentsListScreen extends StatefulWidget {
   const JudicialDocumentsListScreen({super.key});
@@ -62,7 +62,7 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
         ],
       ),
     );
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       context.read<JudicialDocumentsBloc>().add(DeleteJudicialDocument(id));
     }
   }
@@ -75,7 +75,7 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _showForm(),
+            onPressed: _showForm,
             tooltip: 'Create Document',
           ),
         ],
@@ -83,7 +83,7 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -131,7 +131,7 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
                           const Text('No documents found'),
                           const SizedBox(height: 12),
                           ElevatedButton(
-                            onPressed: () => _showForm(),
+                            onPressed: _showForm,
                             child: const Text('Create First Document'),
                           ),
                         ],
@@ -224,10 +224,6 @@ class _JudicialDocumentsListScreenState extends State<JudicialDocumentsListScree
 // ── Pagination bar ──────────────────────────────────────────────────────────
 
 class _PaginationBar extends StatelessWidget {
-  final int currentPage;
-  final int totalCount;
-  final int pageSize;
-  final String? search;
 
   const _PaginationBar({
     required this.currentPage,
@@ -235,6 +231,10 @@ class _PaginationBar extends StatelessWidget {
     required this.pageSize,
     this.search,
   });
+  final int currentPage;
+  final int totalCount;
+  final int pageSize;
+  final String? search;
 
   @override
   Widget build(BuildContext context) {
@@ -272,8 +272,8 @@ class _PaginationBar extends StatelessWidget {
 // ── Create / Edit form ──────────────────────────────────────────────────────
 
 class _JudicialDocumentForm extends StatefulWidget {
-  final JudicialDocument? document;
   const _JudicialDocumentForm({this.document});
+  final JudicialDocument? document;
 
   @override
   State<_JudicialDocumentForm> createState() => _JudicialDocumentFormState();

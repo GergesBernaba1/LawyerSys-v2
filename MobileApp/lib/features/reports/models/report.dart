@@ -1,9 +1,4 @@
 class MonthlyCashFlowPoint {
-  final int year;
-  final int month;
-  final double payments;
-  final double receipts;
-  final double netCashFlow;
 
   MonthlyCashFlowPoint({
     required this.year,
@@ -21,19 +16,17 @@ class MonthlyCashFlowPoint {
         receipts: (json['receipts'] as num?)?.toDouble() ?? 0,
         netCashFlow: (json['netCashFlow'] as num?)?.toDouble() ?? 0,
       );
+  final int year;
+  final int month;
+  final double payments;
+  final double receipts;
+  final double netCashFlow;
 
   String get label =>
       '$year-${month.toString().padLeft(2, '0')}';
 }
 
 class FinancialSummary {
-  final int year;
-  final int month;
-  final double totalPayments;
-  final double totalReceipts;
-  final double netCashFlow;
-  final int paymentsCount;
-  final int receiptsCount;
 
   FinancialSummary({
     required this.year,
@@ -55,31 +48,33 @@ class FinancialSummary {
         paymentsCount: json['paymentsCount'] as int? ?? 0,
         receiptsCount: json['receiptsCount'] as int? ?? 0,
       );
+  final int year;
+  final int month;
+  final double totalPayments;
+  final double totalReceipts;
+  final double netCashFlow;
+  final int paymentsCount;
+  final int receiptsCount;
 }
 
 class FinancialReport {
-  final FinancialSummary summary;
-  final List<MonthlyCashFlowPoint> last6Months;
 
   FinancialReport({required this.summary, required this.last6Months});
 
   factory FinancialReport.fromJson(Map<String, dynamic> json) =>
       FinancialReport(
         summary: FinancialSummary.fromJson(
-            Map<String, dynamic>.from(json['summary'] as Map)),
+            Map<String, dynamic>.from(json['summary'] as Map),),
         last6Months: (json['last6Months'] as List<dynamic>? ?? [])
             .map((e) => MonthlyCashFlowPoint.fromJson(
-                Map<String, dynamic>.from(e as Map)))
+                Map<String, dynamic>.from(e as Map),),)
             .toList(),
       );
+  final FinancialSummary summary;
+  final List<MonthlyCashFlowPoint> last6Months;
 }
 
 class OutstandingBalance {
-  final int customerId;
-  final String customerName;
-  final double casesTotalAmount;
-  final double paidAmount;
-  final double outstandingBalance;
 
   OutstandingBalance({
     required this.customerId,
@@ -98,14 +93,14 @@ class OutstandingBalance {
         outstandingBalance:
             (json['outstandingBalance'] as num?)?.toDouble() ?? 0,
       );
+  final int customerId;
+  final String customerName;
+  final double casesTotalAmount;
+  final double paidAmount;
+  final double outstandingBalance;
 }
 
 class BillingHistoryEntry {
-  final String type;
-  final int id;
-  final String? date;
-  final double amount;
-  final String? notes;
 
   BillingHistoryEntry({
     required this.type,
@@ -123,13 +118,14 @@ class BillingHistoryEntry {
         amount: (json['amount'] as num?)?.toDouble() ?? 0,
         notes: json['notes']?.toString(),
       );
+  final String type;
+  final int id;
+  final String? date;
+  final double amount;
+  final String? notes;
 }
 
 class CustomerBillingHistory {
-  final int customerId;
-  final String customerName;
-  final double totalPayments;
-  final List<BillingHistoryEntry> entries;
 
   CustomerBillingHistory({
     required this.customerId,
@@ -145,7 +141,11 @@ class CustomerBillingHistory {
         totalPayments: (json['totalPayments'] as num?)?.toDouble() ?? 0,
         entries: (json['entries'] as List<dynamic>? ?? [])
             .map((e) => BillingHistoryEntry.fromJson(
-                Map<String, dynamic>.from(e as Map)))
+                Map<String, dynamic>.from(e as Map),),)
             .toList(),
       );
+  final int customerId;
+  final String customerName;
+  final double totalPayments;
+  final List<BillingHistoryEntry> entries;
 }

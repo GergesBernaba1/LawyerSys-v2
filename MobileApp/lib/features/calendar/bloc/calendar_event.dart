@@ -1,45 +1,45 @@
 abstract class CalendarEvent {}
 
 class LoadCalendarEvents extends CalendarEvent {
+  LoadCalendarEvents({required this.fromDate, required this.toDate});
   final String fromDate;
   final String toDate;
-  LoadCalendarEvents({required this.fromDate, required this.toDate});
 }
 
 class RefreshCalendarEvents extends CalendarEvent {
+  RefreshCalendarEvents({required this.fromDate, required this.toDate});
   final String fromDate;
   final String toDate;
-  RefreshCalendarEvents({required this.fromDate, required this.toDate});
 }
 
-class ChangeView extends CalendarEvent {
-  final String view; // 'month' or 'week'
+class ChangeView extends CalendarEvent { // 'month' or 'week'
   ChangeView(this.view);
+  final String view;
 }
 
 class ChangeDate extends CalendarEvent {
-  final DateTime date;
   ChangeDate(this.date);
+  final DateTime date;
 }
 
 class CreateCalendarEvent extends CalendarEvent {
+  CreateCalendarEvent(this.data, {required this.fromDate, required this.toDate});
   final Map<String, dynamic> data;
   final String fromDate;
   final String toDate;
-  CreateCalendarEvent(this.data, {required this.fromDate, required this.toDate});
 }
 
 class UpdateCalendarEvent extends CalendarEvent {
+  UpdateCalendarEvent(this.id, this.data, {required this.fromDate, required this.toDate});
   final String id;
   final Map<String, dynamic> data;
   final String fromDate;
   final String toDate;
-  UpdateCalendarEvent(this.id, this.data, {required this.fromDate, required this.toDate});
 }
 
 class DeleteCalendarEvent extends CalendarEvent {
+  DeleteCalendarEvent(this.id, {required this.fromDate, required this.toDate});
   final String id;
   final String fromDate;
   final String toDate;
-  DeleteCalendarEvent(this.id, {required this.fromDate, required this.toDate});
 }

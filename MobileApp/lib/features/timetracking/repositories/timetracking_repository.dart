@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/time_entry.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/timetracking/models/time_entry.dart';
 
 class TimeTrackingRepository {
-  final ApiClient apiClient;
 
   TimeTrackingRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<TimeEntry>> getTimeEntries({
     String? statusFilter,
@@ -30,7 +30,7 @@ class TimeTrackingRepository {
     final response =
         await apiClient.get('/TimeTracking/suggestions', queryParameters: {
       'hourlyRate': hourlyRate,
-    });
+    },);
     final suggestionsData = normalizeJsonList(response.data);
     return suggestionsData
         .whereType<Map<String, dynamic>>()
@@ -55,7 +55,7 @@ class TimeTrackingRepository {
       'customerId': null, // Based on ClientApp code
       'workType': workType,
       'description': description,
-    });
+    },);
   }
 
   Future<void> stopTimeEntry({
@@ -64,6 +64,6 @@ class TimeTrackingRepository {
   }) async {
     await apiClient.post('/TimeTracking/$entryId/stop', data: {
       'hourlyRate': hourlyRate,
-    });
+    },);
   }
 }

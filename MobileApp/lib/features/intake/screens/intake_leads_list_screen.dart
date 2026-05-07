@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../core/api/api_client.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/intake_bloc.dart';
-import '../bloc/intake_event.dart';
-import '../bloc/intake_state.dart';
-import '../repositories/intake_repository.dart';
-import 'intake_lead_detail_screen.dart';
-import 'intake_form_screen.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_bloc.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_event.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_state.dart';
+import 'package:qadaya_lawyersys/features/intake/repositories/intake_repository.dart';
+import 'package:qadaya_lawyersys/features/intake/screens/intake_form_screen.dart';
+import 'package:qadaya_lawyersys/features/intake/screens/intake_lead_detail_screen.dart';
 
 class IntakeLeadsListScreen extends StatefulWidget {
   const IntakeLeadsListScreen({super.key});
@@ -50,7 +49,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
     if (link == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(l10n.publicIntakeLinkNotAvailable)),
+            content: Text(l10n.publicIntakeLinkNotAvailable),),
       );
       return;
     }
@@ -93,7 +92,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                       Navigator.pop(sheetCtx);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text(l10n.linkCopied)),
+                            content: Text(l10n.linkCopied),),
                       );
                     },
                   ),
@@ -112,7 +111,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
           search: _searchController.text.trim().isEmpty
               ? null
               : _searchController.text.trim(),
-        ));
+        ),);
   }
 
   @override
@@ -135,7 +134,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
               _applyFilter();
             },
             itemBuilder: (_) => [
-              PopupMenuItem(value: null, child: Text(l.noDataAvailable.replaceAll('No data available', 'All'))),
+              PopupMenuItem(child: Text(l.noDataAvailable.replaceAll('No data available', 'All'))),
               ..._statuses.map((s) => PopupMenuItem(value: s, child: Text(s))),
             ],
           ),
@@ -194,7 +193,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                 }
                 if (state is IntakeError) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${l.error}: ${state.message}')));
+                      SnackBar(content: Text('${l.error}: ${state.message}')),);
                 }
               },
               builder: (context, state) {
@@ -203,7 +202,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                 }
                 if (state is IntakeError) {
                   return Center(
-                      child: Text('${l.error}: ${state.message}'));
+                      child: Text('${l.error}: ${state.message}'),);
                 }
                 if (state is IntakeLoaded) {
                   final leads = state.leads;
@@ -233,7 +232,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                           ),
                           trailing: Chip(
                             label: Text(lead.status,
-                                style: const TextStyle(fontSize: 11)),
+                                style: const TextStyle(fontSize: 11),),
                             backgroundColor: color.withValues(alpha: 0.12),
                             side: BorderSide.none,
                           ),

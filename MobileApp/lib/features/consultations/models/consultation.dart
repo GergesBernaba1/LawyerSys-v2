@@ -1,19 +1,4 @@
 class ConsultationModel {
-  final int id;
-  final String tenantId;
-  final String subject;
-  final String details;
-  final String status;
-  final String type;
-  final String? feedback;
-  final DateTime consultationDate;
-  final String? customerId;
-  final String? customerFullName;
-  final String? assignedEmployeeId;
-  final String? assignedEmployeeName;
-  final String? notes;
-  final DateTime? lastSyncedAt;
-  final bool isDirty;
 
   ConsultationModel({
     required this.id,
@@ -32,13 +17,6 @@ class ConsultationModel {
     this.lastSyncedAt,
     this.isDirty = false,
   });
-
-  static int _asInt(dynamic value, [int fallback = 0]) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value) ?? fallback;
-    return fallback;
-  }
 
   factory ConsultationModel.fromJson(Map<String, dynamic> json) => ConsultationModel(
         id: _asInt(json['id'] ?? json['Id']),
@@ -61,6 +39,28 @@ class ConsultationModel {
             : null,
         isDirty: json['isDirty'] == true,
       );
+  final int id;
+  final String tenantId;
+  final String subject;
+  final String details;
+  final String status;
+  final String type;
+  final String? feedback;
+  final DateTime consultationDate;
+  final String? customerId;
+  final String? customerFullName;
+  final String? assignedEmployeeId;
+  final String? assignedEmployeeName;
+  final String? notes;
+  final DateTime? lastSyncedAt;
+  final bool isDirty;
+
+  static int _asInt(dynamic value, [int fallback = 0]) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

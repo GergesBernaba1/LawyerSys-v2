@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../../core/api/api_client.dart';
-import '../../../core/auth/permissions.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../../authentication/bloc/auth_bloc.dart';
-import '../../authentication/bloc/auth_state.dart';
-import '../../authentication/models/user_session.dart';
-import '../../workqueue/models/workqueue_task.dart';
-import '../../workqueue/repositories/workqueue_repository.dart';
-import '../bloc/employees_bloc.dart';
-import '../bloc/employees_event.dart';
-import '../bloc/employees_state.dart';
-import '../models/employee.dart';
-import '../repositories/employees_repository.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/auth/permissions.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_bloc.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_event.dart';
+import 'package:qadaya_lawyersys/features/employees/bloc/employees_state.dart';
+import 'package:qadaya_lawyersys/features/employees/models/employee.dart';
+import 'package:qadaya_lawyersys/features/employees/repositories/employees_repository.dart';
+import 'package:qadaya_lawyersys/features/workqueue/models/workqueue_task.dart';
+import 'package:qadaya_lawyersys/features/workqueue/repositories/workqueue_repository.dart';
 
 class EmployeeDetailScreen extends StatefulWidget {
   const EmployeeDetailScreen({
@@ -48,7 +47,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     _jobController =
         TextEditingController(text: widget.employeeModel.user?.job ?? '');
     _phoneNumberController = TextEditingController(
-        text: widget.employeeModel.user?.phoneNumber ?? '');
+        text: widget.employeeModel.user?.phoneNumber ?? '',);
     _emailController =
         TextEditingController(text: widget.employeeModel.identity?.email ?? '');
     _salaryController =
@@ -112,7 +111,6 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
       identity: widget.employeeModel.identity,
       profileImagePath: widget.employeeModel.profileImagePath,
       lastSyncedAt: DateTime.now(),
-      isDirty: false,
     );
     context.read<EmployeesBloc>().add(UpdateEmployee(updatedEmployee));
   }
@@ -132,7 +130,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         actions: [
           if (_isUploadingImage)
             const Padding(
-              padding: EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(12),
               child: SizedBox(
                 width: 20,
                 height: 20,
@@ -173,11 +171,11 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           if (state is EmployeesError) {
             setState(() => _isSaving = false);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('${localizer.error}: ${state.message}')));
+                content: Text('${localizer.error}: ${state.message}'),),);
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: ListView(
             children: [
               Text(
@@ -188,25 +186,21 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               _buildTextField(
                 controller: _fullNameController,
                 label: localizer.fullName,
-                enabled: false,
               ),
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _emailController,
                 label: localizer.email,
-                enabled: false,
               ),
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _jobController,
                 label: localizer.job,
-                enabled: false,
               ),
               const SizedBox(height: 12),
               _buildTextField(
                 controller: _phoneNumberController,
                 label: localizer.phoneNumber,
-                enabled: false,
               ),
               const SizedBox(height: 12),
               _buildTextField(

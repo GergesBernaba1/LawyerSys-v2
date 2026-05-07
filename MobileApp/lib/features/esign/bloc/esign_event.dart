@@ -1,19 +1,15 @@
 abstract class ESignEvent {}
 
 class LoadESignRequests extends ESignEvent {
-  final String? status;
-  final String? search;
 
   LoadESignRequests({this.status, this.search});
+  final String? status;
+  final String? search;
 }
 
 class RefreshESignRequests extends ESignEvent {}
 
 class CreateESignRequest extends ESignEvent {
-  final String title;
-  final String documentContent;
-  final List<String> signerEmails;
-  final DateTime? expiresAt;
 
   CreateESignRequest({
     required this.title,
@@ -21,17 +17,21 @@ class CreateESignRequest extends ESignEvent {
     required this.signerEmails,
     this.expiresAt,
   });
+  final String title;
+  final String documentContent;
+  final List<String> signerEmails;
+  final DateTime? expiresAt;
 }
 
 class UpdateESignStatus extends ESignEvent {
-  final String id;
-  final String status;
 
   UpdateESignStatus(this.id, this.status);
+  final String id;
+  final String status;
 }
 
 class GetESignShareLink extends ESignEvent {
-  final String id;
 
   GetESignShareLink(this.id);
+  final String id;
 }

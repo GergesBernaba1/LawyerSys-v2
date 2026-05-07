@@ -3,20 +3,19 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-
-import '../../core/storage/local_database.dart';
-import '../../features/authentication/repositories/auth_repository.dart';
-import '../../features/notifications/models/notification.dart';
-import '../../features/notifications/repositories/notifications_repository.dart';
-import 'notification_handler.dart';
+import 'package:qadaya_lawyersys/core/notifications/notification_handler.dart';
+import 'package:qadaya_lawyersys/core/storage/local_database.dart';
+import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
+import 'package:qadaya_lawyersys/features/notifications/models/notification.dart';
+import 'package:qadaya_lawyersys/features/notifications/repositories/notifications_repository.dart';
 
 class PushNotificationService {
-  static final PushNotificationService _instance = PushNotificationService._internal();
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   factory PushNotificationService() => _instance;
 
   PushNotificationService._internal();
+  static final PushNotificationService _instance = PushNotificationService._internal();
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   FirebaseMessaging? _messaging;
   AuthRepository? _authRepository;
@@ -55,13 +54,13 @@ class PushNotificationService {
         }
       });
 
-      _onMessageSub = FirebaseMessaging.onMessage.listen((RemoteMessage event) async {
+      _onMessageSub = FirebaseMessaging.onMessage.listen((event) async {
         debugPrint('Foreground message: ${event.notification?.title} ${event.notification?.body}');
         await _persistNotification(event);
         NotificationHandler.onMessage(event);
       });
 
-      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage event) async {
+      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((event) async {
         debugPrint('Notification opened-app payload: ${event.data}');
         await _persistNotification(event);
         NotificationHandler.onMessageOpened(event);
@@ -96,10 +95,7 @@ class PushNotificationService {
 
   Future<void> _requestPermission() async {
     final settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
+      
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.denied) {
@@ -121,4 +117,5 @@ class PushNotificationService {
     }
   }
 }
+
 

@@ -1,17 +1,17 @@
-import '../../../core/api/api_client.dart';
-import '../models/consultation.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/features/consultations/models/consultation.dart';
 
 class RelationOption {
-  final int id;
-  final String name;
 
   const RelationOption({required this.id, required this.name});
+  final int id;
+  final String name;
 }
 
 class ConsultationsRepository {
-  final ApiClient apiClient;
 
   ConsultationsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   List<dynamic> _asList(dynamic data) {
     if (data is List<dynamic>) return data;
@@ -26,7 +26,7 @@ class ConsultationsRepository {
     final response = await apiClient.get('/consulations', queryParameters: {
       'page': page,
       'pageSize': pageSize,
-    });
+    },);
     final data = _asList(response.data);
     return data
         .whereType<Map>()
@@ -125,8 +125,8 @@ class ConsultationsRepository {
     return data
         .whereType<Map>()
         .map((row) => int.tryParse(
-                (row['customerId'] ?? row['CustomerId'] ?? 0).toString()) ??
-            0)
+                (row['customerId'] ?? row['CustomerId'] ?? 0).toString(),) ??
+            0,)
         .where((id) => id > 0)
         .toList();
   }
@@ -138,8 +138,8 @@ class ConsultationsRepository {
     return data
         .whereType<Map>()
         .map((row) => int.tryParse(
-                (row['employeeId'] ?? row['EmployeeId'] ?? 0).toString()) ??
-            0)
+                (row['employeeId'] ?? row['EmployeeId'] ?? 0).toString(),) ??
+            0,)
         .where((id) => id > 0)
         .toList();
   }

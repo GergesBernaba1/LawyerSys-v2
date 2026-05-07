@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/audit_log.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/models/audit_log.dart';
 
 class AuditLogsRepository {
-  final ApiClient apiClient;
 
   AuditLogsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<AuditLog>> getLogs({
     String? search,

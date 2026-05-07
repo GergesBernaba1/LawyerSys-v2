@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ConflictResolverWidget extends StatefulWidget {
-  final String entityName;
-  final Map<String, dynamic> localData;
-  final Map<String, dynamic> remoteData;
 
   const ConflictResolverWidget({
     super.key,
@@ -11,6 +8,9 @@ class ConflictResolverWidget extends StatefulWidget {
     required this.localData,
     required this.remoteData,
   });
+  final String entityName;
+  final Map<String, dynamic> localData;
+  final Map<String, dynamic> remoteData;
 
   @override
   State<ConflictResolverWidget> createState() => _ConflictResolverWidgetState();
@@ -61,7 +61,7 @@ class _ConflictResolverWidgetState extends State<ConflictResolverWidget> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -103,7 +103,7 @@ class _ConflictResolverWidgetState extends State<ConflictResolverWidget> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

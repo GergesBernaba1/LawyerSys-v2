@@ -1,10 +1,10 @@
-import '../../../core/api/api_client.dart';
-import '../models/ai_models.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/features/ai-assistant/models/ai_models.dart';
 
 class AiAssistantRepository {
-  final ApiClient apiClient;
 
   AiAssistantRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<AiSummaryResult> summarize(String text, {String? language}) async {
     final request = AiSummaryRequest(text: text, language: language);
@@ -44,7 +44,7 @@ class AiAssistantRepository {
       return data
           .whereType<Map>()
           .map((e) =>
-              AiDeadlineSuggestion.fromJson(Map<String, dynamic>.from(e)))
+              AiDeadlineSuggestion.fromJson(Map<String, dynamic>.from(e)),)
           .toList();
     }
     if (data is Map<String, dynamic>) {
@@ -53,7 +53,7 @@ class AiAssistantRepository {
         return items
             .whereType<Map>()
             .map((e) =>
-                AiDeadlineSuggestion.fromJson(Map<String, dynamic>.from(e)))
+                AiDeadlineSuggestion.fromJson(Map<String, dynamic>.from(e)),)
             .toList();
       }
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
 class UnauthorizedScreen extends StatelessWidget {
   const UnauthorizedScreen({super.key});
@@ -12,7 +12,7 @@ class UnauthorizedScreen extends StatelessWidget {
       appBar: AppBar(title: Text(localizer.accessDenied)),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Text(
             localizer.accessDeniedMessage,
             textAlign: TextAlign.center,

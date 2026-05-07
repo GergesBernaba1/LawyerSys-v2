@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -22,7 +22,6 @@ class AboutScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 16),
             // Logo area
@@ -155,15 +154,15 @@ class AboutScreen extends StatelessWidget {
 }
 
 class _ContactInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
 
   const _ContactInfoRow({
     required this.icon,
     required this.label,
     required this.value,
   });
+  final IconData icon;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {

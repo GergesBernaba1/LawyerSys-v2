@@ -1,11 +1,11 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/court_automation_models.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/court-automation/models/court_automation_models.dart';
 
 class CourtAutomationRepository {
-  final ApiClient apiClient;
 
   CourtAutomationRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<AutomationPack>> getPacks({String? language}) async {
     final response = await apiClient.get(

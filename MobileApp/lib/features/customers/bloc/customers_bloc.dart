@@ -1,13 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/customers_repository.dart';
-import 'customers_event.dart';
-import 'customers_state.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_event.dart';
+import 'package:qadaya_lawyersys/features/customers/bloc/customers_state.dart';
+import 'package:qadaya_lawyersys/features/customers/repositories/customers_repository.dart';
 
 class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
-  final CustomersRepository customersRepository;
-  final List<dynamic> _customers = [];
-  static const int _pageSize = 20;
 
   CustomersBloc({required this.customersRepository}) : super(CustomersInitial()) {
     on<LoadCustomers>(_onLoadCustomers);
@@ -24,25 +20,27 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     on<LoadRequestedDocuments>(_onLoadRequestedDocuments);
     on<SubmitRequestedDocument>(_onSubmitRequestedDocument);
   }
+  final CustomersRepository customersRepository;
+  final List<dynamic> _customers = [];
+  static const int _pageSize = 20;
 
   Future<void> _onLoadCustomers(LoadCustomers event, Emitter<CustomersState> emit) async {
     emit(CustomersLoading());
     try {
-      final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
+      final customers = await customersRepository.getCustomers(pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);
       emit(CustomersLoaded(
         customers,
-        currentPage: 1,
         hasMore: customers.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(CustomersError(e.toString()));
     }
   }
 
   Future<void> _onLoadMoreCustomers(
-      LoadMoreCustomers event, Emitter<CustomersState> emit) async {
+      LoadMoreCustomers event, Emitter<CustomersState> emit,) async {
     final currentState = state;
     if (currentState is! CustomersLoaded || 
         currentState.isLoadingMore || 
@@ -65,8 +63,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
         List.from(_customers),
         currentPage: nextPage,
         hasMore: newCustomers.length >= _pageSize,
-        isLoadingMore: false,
-      ));
+      ),);
     } catch (e) {
       emit(currentState.copyWith(isLoadingMore: false));
       emit(CustomersError(e.toString()));
@@ -79,9 +76,8 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
       final customers = await customersRepository.searchCustomers(event.query);
       emit(CustomersLoaded(
         customers,
-        currentPage: 1,
         hasMore: false, // Search doesn't paginate
-      ));
+      ),);
     } catch (e) {
       emit(CustomersError(e.toString()));
     }
@@ -89,14 +85,13 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
 
   Future<void> _onRefreshCustomers(RefreshCustomers event, Emitter<CustomersState> emit) async {
     try {
-      final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
+      final customers = await customersRepository.getCustomers(pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);
       emit(CustomersLoaded(
         customers,
-        currentPage: 1,
         hasMore: customers.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(CustomersError(e.toString()));
     }
@@ -121,14 +116,13 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     try {
       final created = await customersRepository.createCustomer(event.data);
       emit(CustomerOperationSuccess('Customer created', customerId: created.customerId));
-      final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
+      final customers = await customersRepository.getCustomers(pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);
       emit(CustomersLoaded(
         customers,
-        currentPage: 1,
         hasMore: customers.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(CustomersError(e.toString()));
     }
@@ -139,14 +133,13 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     try {
       await customersRepository.updateCustomer(event.customerId, event.data);
       emit(CustomerOperationSuccess('Customer updated', customerId: event.customerId));
-      final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
+      final customers = await customersRepository.getCustomers(pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);
       emit(CustomersLoaded(
         customers,
-        currentPage: 1,
         hasMore: customers.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(CustomersError(e.toString()));
     }
@@ -157,14 +150,13 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     try {
       await customersRepository.deleteCustomer(event.customerId);
       emit(CustomerOperationSuccess('Customer deleted'));
-      final customers = await customersRepository.getCustomers(page: 1, pageSize: _pageSize);
+      final customers = await customersRepository.getCustomers(pageSize: _pageSize);
       _customers.clear();
       _customers.addAll(customers);
       emit(CustomersLoaded(
         customers,
-        currentPage: 1,
         hasMore: customers.length >= _pageSize,
-      ));
+      ),);
     } catch (e) {
       emit(CustomersError(e.toString()));
     }
@@ -172,7 +164,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
 
   // Case Notification Preferences
   Future<void> _onLoadCaseNotificationPreference(
-      LoadCaseNotificationPreference event, Emitter<CustomersState> emit) async {
+      LoadCaseNotificationPreference event, Emitter<CustomersState> emit,) async {
     emit(CustomersLoading());
     try {
       final preference =
@@ -184,7 +176,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
   }
 
   Future<void> _onUpdateCaseNotificationPreference(
-      UpdateCaseNotificationPreference event, Emitter<CustomersState> emit) async {
+      UpdateCaseNotificationPreference event, Emitter<CustomersState> emit,) async {
     try {
       final preference = await customersRepository.updateCaseNotificationPreference(
         event.caseCode,
@@ -198,7 +190,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
 
   // Payment Proofs
   Future<void> _onSubmitPaymentProof(
-      SubmitPaymentProof event, Emitter<CustomersState> emit) async {
+      SubmitPaymentProof event, Emitter<CustomersState> emit,) async {
     emit(PaymentProofSubmitting());
     try {
       final proof = await customersRepository.submitPaymentProof(
@@ -216,7 +208,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
 
   // Requested Documents
   Future<void> _onLoadRequestedDocuments(
-      LoadRequestedDocuments event, Emitter<CustomersState> emit) async {
+      LoadRequestedDocuments event, Emitter<CustomersState> emit,) async {
     emit(CustomersLoading());
     try {
       final documents =
@@ -228,7 +220,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
   }
 
   Future<void> _onSubmitRequestedDocument(
-      SubmitRequestedDocument event, Emitter<CustomersState> emit) async {
+      SubmitRequestedDocument event, Emitter<CustomersState> emit,) async {
     emit(RequestedDocumentSubmitting());
     try {
       final document = await customersRepository.submitRequestedDocument(
@@ -243,4 +235,5 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     }
   }
 }
+
 

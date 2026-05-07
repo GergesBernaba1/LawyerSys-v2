@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/calendar_bloc.dart';
-import '../bloc/calendar_event.dart' as bloc_event;
-import '../bloc/calendar_state.dart';
-import '../models/calendar_event.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_bloc.dart';
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_event.dart' as bloc_event;
+import 'package:qadaya_lawyersys/features/calendar/bloc/calendar_state.dart';
+import 'package:qadaya_lawyersys/features/calendar/models/calendar_event.dart';
 
 class CalendarEventFormScreen extends StatefulWidget {
-  final CalendarEvent? event;
-  final String fromDate;
-  final String toDate;
 
   const CalendarEventFormScreen({
     super.key,
@@ -18,6 +15,9 @@ class CalendarEventFormScreen extends StatefulWidget {
     required this.fromDate,
     required this.toDate,
   });
+  final CalendarEvent? event;
+  final String fromDate;
+  final String toDate;
 
   @override
   State<CalendarEventFormScreen> createState() =>
@@ -129,13 +129,13 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
             data,
             fromDate: widget.fromDate,
             toDate: widget.toDate,
-          ));
+          ),);
     } else {
       context.read<CalendarBloc>().add(bloc_event.CreateCalendarEvent(
             data,
             fromDate: widget.fromDate,
             toDate: widget.toDate,
-          ));
+          ),);
     }
   }
 
@@ -146,7 +146,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
     return Scaffold(
       appBar: AppBar(
           title:
-              Text(_isEditing ? l.editCalendarEvent : l.createCalendarEvent)),
+              Text(_isEditing ? l.editCalendarEvent : l.createCalendarEvent),),
       body: BlocListener<CalendarBloc, CalendarState>(
         listener: (context, state) {
           if (state is CalendarOperationSuccess) {
@@ -157,7 +157,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
           if (state is CalendarError) {
             setState(() => _isSaving = false);
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
         },
         child: _isSaving
@@ -173,7 +173,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                         controller: _titleController,
                         decoration: InputDecoration(
                             labelText: l.calendarEventTitle,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) => (v == null || v.trim().isEmpty)
                             ? l.allFieldsAreRequired
                             : null,
@@ -183,7 +183,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                         controller: _typeController,
                         decoration: InputDecoration(
                             labelText: l.calendarEventType,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                         validator: (v) => (v == null || v.trim().isEmpty)
                             ? l.allFieldsAreRequired
                             : null,
@@ -196,7 +196,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                             child: OutlinedButton(
                               onPressed: () => _pickDate(true),
                               child: Text(
-                                  '${l.startDate}: ${_startDate.year}-${_startDate.month.toString().padLeft(2, '0')}-${_startDate.day.toString().padLeft(2, '0')}'),
+                                  '${l.startDate}: ${_startDate.year}-${_startDate.month.toString().padLeft(2, '0')}-${_startDate.day.toString().padLeft(2, '0')}',),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -204,7 +204,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                             child: OutlinedButton(
                               onPressed: () => _pickTime(true),
                               child: Text(
-                                  '${l.timeEntries}: ${_startTime.format(context)}'),
+                                  '${l.timeEntries}: ${_startTime.format(context)}',),
                             ),
                           ),
                         ],
@@ -218,7 +218,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                               onPressed: () => _pickDate(false),
                               child: Text(_endDate == null
                                   ? l.calendarEventEndOptional
-                                  : '${l.calendarEventEnd}: ${_endDate!.year}-${_endDate!.month.toString().padLeft(2, '0')}-${_endDate!.day.toString().padLeft(2, '0')}'),
+                                  : '${l.calendarEventEnd}: ${_endDate!.year}-${_endDate!.month.toString().padLeft(2, '0')}-${_endDate!.day.toString().padLeft(2, '0')}',),
                             ),
                           ),
                           if (_endDate != null) ...[
@@ -227,7 +227,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                               child: OutlinedButton(
                                 onPressed: () => _pickTime(false),
                                 child: Text(
-                                    '${l.timeEntries}: ${_endTime?.format(context) ?? ''}'),
+                                    '${l.timeEntries}: ${_endTime?.format(context) ?? ''}',),
                               ),
                             ),
                           ],
@@ -239,7 +239,7 @@ class _CalendarEventFormScreenState extends State<CalendarEventFormScreen> {
                         maxLines: 3,
                         decoration: InputDecoration(
                             labelText: l.notes,
-                            border: const OutlineInputBorder()),
+                            border: const OutlineInputBorder(),),
                       ),
                       const SizedBox(height: 8),
                       SwitchListTile(

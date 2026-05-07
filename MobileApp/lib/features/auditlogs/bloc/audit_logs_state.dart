@@ -1,4 +1,4 @@
-import '../models/audit_log.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/models/audit_log.dart';
 
 abstract class AuditLogsState {}
 
@@ -7,11 +7,11 @@ class AuditLogsInitial extends AuditLogsState {}
 class AuditLogsLoading extends AuditLogsState {}
 
 class AuditLogsLoaded extends AuditLogsState {
-  final List<AuditLog> logs;
   AuditLogsLoaded(this.logs);
+  final List<AuditLog> logs;
 }
 
 class AuditLogsError extends AuditLogsState {
-  final String message;
   AuditLogsError(this.message);
+  final String message;
 }

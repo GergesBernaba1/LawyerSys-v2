@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/cases_bloc.dart';
-import '../bloc/cases_event.dart';
-import '../models/case.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_bloc.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_event.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 
 class CaseFormScreen extends StatefulWidget {
-  final CaseModel? caseModel;
 
   const CaseFormScreen({super.key, this.caseModel});
+  final CaseModel? caseModel;
 
   @override
   State<CaseFormScreen> createState() => _CaseFormScreenState();
@@ -72,7 +72,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
     final amount = int.tryParse(_amountController.text.trim()) ?? 0;
     if (code == null || code <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.caseCodeMustBePositive)));
+          SnackBar(content: Text(AppLocalizations.of(context)!.caseCodeMustBePositive)),);
       return;
     }
 
@@ -126,7 +126,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                       controller: _codeController,
                       decoration: InputDecoration(
                           labelText: localizer.caseNumber,
-                          border: const OutlineInputBorder()),
+                          border: const OutlineInputBorder(),),
                       keyboardType: TextInputType.number,
                       validator: (value) =>
                           value == null || value.trim().isEmpty
@@ -138,7 +138,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                       controller: _typeController,
                       decoration: InputDecoration(
                           labelText: localizer.caseType,
-                          border: const OutlineInputBorder()),
+                          border: const OutlineInputBorder(),),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
                               ? localizer.allFieldsAreRequired
@@ -148,7 +148,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                     TextFormField(
                       controller: _statementController,
                       decoration: InputDecoration(
-                          labelText: localizer.statement, border: const OutlineInputBorder()),
+                          labelText: localizer.statement, border: const OutlineInputBorder(),),
                       minLines: 3,
                       maxLines: 5,
                       validator: (value) =>
@@ -162,7 +162,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                       readOnly: true,
                       decoration: InputDecoration(
                           labelText: localizer.dateLabel,
-                          border: const OutlineInputBorder()),
+                          border: const OutlineInputBorder(),),
                       onTap: () => _pickDate(_dateController),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
@@ -174,7 +174,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                       controller: _amountController,
                       decoration: InputDecoration(
                           labelText: localizer.amount,
-                          border: const OutlineInputBorder()),
+                          border: const OutlineInputBorder(),),
                       keyboardType: TextInputType.number,
                       validator: (value) =>
                           value == null || value.trim().isEmpty
@@ -186,7 +186,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                       controller: _notesController,
                       decoration: InputDecoration(
                           labelText: localizer.notes,
-                          border: const OutlineInputBorder()),
+                          border: const OutlineInputBorder(),),
                       minLines: 2,
                       maxLines: 4,
                     ),

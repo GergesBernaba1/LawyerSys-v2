@@ -1,26 +1,26 @@
-import '../models/case.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 
 abstract class CasesEvent {}
 class LoadCases extends CasesEvent {}
 class SearchCases extends CasesEvent {
-  final String query;
   SearchCases(this.query);
+  final String query;
 }
 class LoadMoreCases extends CasesEvent {}
 class RefreshCases extends CasesEvent {}
 class SelectCase extends CasesEvent {
-  final String caseId;
   SelectCase(this.caseId);
+  final String caseId;
 }
 class CreateCase extends CasesEvent {
-  final CaseModel caseModel;
   CreateCase(this.caseModel);
+  final CaseModel caseModel;
 }
 class UpdateCase extends CasesEvent {
-  final CaseModel caseModel;
   UpdateCase(this.caseModel);
+  final CaseModel caseModel;
 }
 class DeleteCase extends CasesEvent {
-  final String caseId;
   DeleteCase(this.caseId);
+  final String caseId;
 }

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/trust_accounting_bloc.dart';
-import '../bloc/trust_accounting_event.dart';
-import '../models/trust_transaction.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_bloc.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_event.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/models/trust_transaction.dart';
 
 class TrustFormScreen extends StatefulWidget {
-  final TrustTransactionModel? transaction;
 
   const TrustFormScreen({super.key, this.transaction});
+  final TrustTransactionModel? transaction;
 
   @override
   State<TrustFormScreen> createState() => _TrustFormScreenState();

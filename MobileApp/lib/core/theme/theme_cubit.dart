@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../storage/preferences_storage.dart';
+import 'package:qadaya_lawyersys/core/storage/preferences_storage.dart';
 
 /// Cubit for managing app theme mode
 class ThemeCubit extends Cubit<ThemeMode> {
-  final PreferencesStorage _prefsStorage;
-  static const String _themeModeKey = 'theme_mode';
 
   ThemeCubit(this._prefsStorage) : super(ThemeMode.system) {
     _loadThemeMode();
   }
+  final PreferencesStorage _prefsStorage;
+  static const String _themeModeKey = 'theme_mode';
 
   /// Load saved theme mode from storage
   Future<void> _loadThemeMode() async {

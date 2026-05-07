@@ -8,13 +8,13 @@ import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 import 'package:qadaya_lawyersys/features/cases/repositories/cases_repository.dart';
 
 class FakeCasesRepository extends CasesRepository {
-  final List<CaseModel> _items;
 
   FakeCasesRepository(this._items) : super(ApiClient(), LocalDatabase.instance);
+  final List<CaseModel> _items;
 
   @override
   Future<List<CaseModel>> getCases(
-      {String? tenantId, int page = 1, int pageSize = 20}) async {
+      {String? tenantId, int page = 1, int pageSize = 20,}) async {
     return _items;
   }
 
@@ -38,7 +38,7 @@ class FakeCasesRepository extends CasesRepository {
   Future<List<CaseModel>> searchCases(String query, {String? tenantId}) async {
     return _items
         .where((c) =>
-            c.caseNumber.contains(query) || c.invitionType.contains(query))
+            c.caseNumber.contains(query) || c.invitionType.contains(query),)
         .toList();
   }
 }
@@ -51,7 +51,7 @@ void main() {
       tenantId: 't1',
       invitionsStatment: 'Initial statement',
       invitionType: 'Civil',
-      invitionDate: DateTime(2025, 1, 1),
+      invitionDate: DateTime(2025),
       totalAmount: 1000,
       notes: '',
       status: 0,
@@ -75,7 +75,7 @@ void main() {
       tenantId: 't1',
       invitionsStatment: 'Second statement',
       invitionType: 'Civil',
-      invitionDate: DateTime(2025, 2, 1),
+      invitionDate: DateTime(2025, 2),
       totalAmount: 1200,
       notes: '',
       status: 0,
@@ -93,7 +93,7 @@ void main() {
       tenantId: 't1',
       invitionsStatment: 'Second statement',
       invitionType: 'Civil',
-      invitionDate: DateTime(2025, 2, 1),
+      invitionDate: DateTime(2025, 2),
       totalAmount: 1200,
       notes: 'closed',
       status: 3,

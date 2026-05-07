@@ -1,21 +1,20 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/audit_logs_repository.dart';
-import 'audit_logs_event.dart';
-import 'audit_logs_state.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/bloc/audit_logs_event.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/bloc/audit_logs_state.dart';
+import 'package:qadaya_lawyersys/features/auditlogs/repositories/audit_logs_repository.dart';
 
 class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
+
+  AuditLogsBloc({required this.repository}) : super(AuditLogsInitial()) {
+    on<LoadAuditLogs>(_onLoadAuditLogs);
+    on<RefreshAuditLogs>(_onRefreshAuditLogs);
+  }
   final AuditLogsRepository repository;
 
   // Remember last filter params so RefreshAuditLogs can replay them.
   String? _lastSearch;
   String? _lastEntityName;
   String? _lastAction;
-
-  AuditLogsBloc({required this.repository}) : super(AuditLogsInitial()) {
-    on<LoadAuditLogs>(_onLoadAuditLogs);
-    on<RefreshAuditLogs>(_onRefreshAuditLogs);
-  }
 
   Future<void> _onLoadAuditLogs(
     LoadAuditLogs event,

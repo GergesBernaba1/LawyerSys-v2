@@ -1,12 +1,4 @@
 class Task {
-  final int? id;
-  final String taskName;
-  final String type;
-  final String? taskDate;
-  final String? taskReminderDate;
-  final String? notes;
-  final int? employeeId;
-  final String? employeeName;
 
   Task({
     this.id,
@@ -36,6 +28,14 @@ class Task {
       employeeName: json['employeeName']?.toString(),
     );
   }
+  final int? id;
+  final String taskName;
+  final String type;
+  final String? taskDate;
+  final String? taskReminderDate;
+  final String? notes;
+  final int? employeeId;
+  final String? employeeName;
 
   Map<String, dynamic> toJson() {
     return {
@@ -52,10 +52,6 @@ class Task {
 }
 
 class EmployeeItem {
-  final int id;
-  final int? usersId;
-  final String? fullName;
-  final String? email;
 
   EmployeeItem({
     required this.id,
@@ -72,4 +68,8 @@ class EmployeeItem {
       email: json['identity']?['email'] as String?,
     );
   }
+  final int id;
+  final int? usersId;
+  final String? fullName;
+  final String? email;
 }

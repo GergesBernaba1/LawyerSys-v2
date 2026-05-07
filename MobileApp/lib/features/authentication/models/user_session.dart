@@ -1,16 +1,4 @@
 class UserSession {
-  final String userId;
-  final String email;
-  final String fullName;
-  final String tenantId;
-  final String tenantName;
-  final String accessToken;
-  final String refreshToken;
-  final DateTime tokenExpiresAt;
-  final List<String> roles;
-  final List<String> permissions;
-  final String languageCode;
-  final bool biometricEnabled;
 
   UserSession({
     required this.userId,
@@ -28,19 +16,31 @@ class UserSession {
   });
 
   factory UserSession.fromJson(Map<String, dynamic> json) => UserSession(
-    userId: json['userId'] ?? '',
-    email: json['email'] ?? '',
-    fullName: json['fullName'] ?? '',
-    tenantId: json['tenantId'] ?? '',
-    tenantName: json['tenantName'] ?? '',
-    accessToken: json['accessToken'] ?? '',
-    refreshToken: json['refreshToken'] ?? '',
+    userId: (json['userId'] as String?) ?? '',
+    email: (json['email'] as String?) ?? '',
+    fullName: (json['fullName'] as String?) ?? '',
+    tenantId: (json['tenantId'] as String?) ?? '',
+    tenantName: (json['tenantName'] as String?) ?? '',
+    accessToken: (json['accessToken'] as String?) ?? '',
+    refreshToken: (json['refreshToken'] as String?) ?? '',
     tokenExpiresAt: DateTime.tryParse(json['tokenExpiresAt']?.toString() ?? '') ?? DateTime.now(),
     roles: (json['roles'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     permissions: (json['permissions'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
-    languageCode: json['languageCode'] ?? 'en',
-    biometricEnabled: json['biometricEnabled'] ?? false,
+    languageCode: (json['languageCode'] as String?) ?? 'en',
+    biometricEnabled: (json['biometricEnabled'] as bool?) ?? false,
   );
+  final String userId;
+  final String email;
+  final String fullName;
+  final String tenantId;
+  final String tenantName;
+  final String accessToken;
+  final String refreshToken;
+  final DateTime tokenExpiresAt;
+  final List<String> roles;
+  final List<String> permissions;
+  final String languageCode;
+  final bool biometricEnabled;
 
   Map<String, dynamic> toJson() => {
     'userId': userId,
@@ -76,4 +76,5 @@ extension UserSessionAuthorization on UserSession {
     return hasRole('Admin') || hasRole('SuperAdmin');
   }
 }
+
 

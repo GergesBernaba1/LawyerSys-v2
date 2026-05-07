@@ -1,4 +1,4 @@
-import '../models/intake_form.dart';
+import 'package:qadaya_lawyersys/features/intake/models/intake_form.dart';
 
 abstract class IntakeState {}
 
@@ -7,10 +7,6 @@ class IntakeInitial extends IntakeState {}
 class IntakeLoading extends IntakeState {}
 
 class IntakeLoaded extends IntakeState {
-  final List<IntakeForm> leads;
-  final List<IntakeAssignmentOption> assignmentOptions;
-  final String? activeStatus;
-  final String? activeSearch;
 
   IntakeLoaded({
     required this.leads,
@@ -18,6 +14,10 @@ class IntakeLoaded extends IntakeState {
     this.activeStatus,
     this.activeSearch,
   });
+  final List<IntakeForm> leads;
+  final List<IntakeAssignmentOption> assignmentOptions;
+  final String? activeStatus;
+  final String? activeSearch;
 
   IntakeLoaded copyWith({
     List<IntakeForm>? leads,
@@ -34,11 +34,11 @@ class IntakeLoaded extends IntakeState {
 }
 
 class IntakeActionSuccess extends IntakeState {
-  final String message;
   IntakeActionSuccess(this.message);
+  final String message;
 }
 
 class IntakeError extends IntakeState {
-  final String message;
   IntakeError(this.message);
+  final String message;
 }

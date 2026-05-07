@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/reports_bloc.dart';
-import '../bloc/reports_event.dart';
-import '../bloc/reports_state.dart';
-import '../models/report.dart';
+import 'package:qadaya_lawyersys/features/reports/bloc/reports_bloc.dart';
+import 'package:qadaya_lawyersys/features/reports/bloc/reports_event.dart';
+import 'package:qadaya_lawyersys/features/reports/bloc/reports_state.dart';
+import 'package:qadaya_lawyersys/features/reports/models/report.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -92,10 +92,10 @@ class _ReportsScreenState extends State<ReportsScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('Error: ${state.message}',
-                            textAlign: TextAlign.center),
+                            textAlign: TextAlign.center,),
                         const SizedBox(height: 12),
                         ElevatedButton(
-                            onPressed: _load, child: const Text('Retry')),
+                            onPressed: _load, child: const Text('Retry'),),
                       ],
                     ),
                   );
@@ -108,7 +108,7 @@ class _ReportsScreenState extends State<ReportsScreen>
                       _OutstandingTab(
                           balances: state.outstandingBalances,
                           year: state.year,
-                          month: state.month),
+                          month: state.month,),
                     ],
                   );
                 }
@@ -125,14 +125,14 @@ class _ReportsScreenState extends State<ReportsScreen>
 // ── Filter bar ──────────────────────────────────────────────────────────────
 
 class _FilterBar extends StatelessWidget {
-  final int year;
-  final int month;
-  final void Function(int year, int month) onChanged;
 
   const _FilterBar(
       {required this.year,
       required this.month,
-      required this.onChanged});
+      required this.onChanged,});
+  final int year;
+  final int month;
+  final void Function(int year, int month) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -148,10 +148,10 @@ class _FilterBar extends StatelessWidget {
             child: DropdownButtonFormField<int>(
               initialValue: year,
               decoration: const InputDecoration(
-                  labelText: 'Year', isDense: true),
+                  labelText: 'Year', isDense: true,),
               items: years
                   .map((y) =>
-                      DropdownMenuItem(value: y, child: Text('$y')))
+                      DropdownMenuItem(value: y, child: Text('$y')),)
                   .toList(),
               onChanged: (v) => onChanged(v ?? year, month),
             ),
@@ -162,11 +162,11 @@ class _FilterBar extends StatelessWidget {
             child: DropdownButtonFormField<int>(
               initialValue: month,
               decoration: const InputDecoration(
-                  labelText: 'Month', isDense: true),
+                  labelText: 'Month', isDense: true,),
               items: List.generate(
                   12,
                   (i) => DropdownMenuItem(
-                      value: i + 1, child: Text('${i + 1}'))),
+                      value: i + 1, child: Text('${i + 1}'),),),
               onChanged: (v) => onChanged(year, v ?? month),
             ),
           ),
@@ -179,9 +179,9 @@ class _FilterBar extends StatelessWidget {
 // ── Financial tab ───────────────────────────────────────────────────────────
 
 class _FinancialTab extends StatelessWidget {
-  final ReportsLoaded state;
 
   const _FinancialTab({required this.state});
+  final ReportsLoaded state;
 
   @override
   Widget build(BuildContext context) {
@@ -204,14 +204,14 @@ class _FinancialTab extends StatelessWidget {
                     label: 'Payments',
                     value: report.summary.totalPayments,
                     count: report.summary.paymentsCount,
-                    color: Colors.red.shade100)),
+                    color: Colors.red.shade100,),),
             const SizedBox(width: 8),
             Expanded(
                 child: _SummaryCard(
                     label: 'Receipts',
                     value: report.summary.totalReceipts,
                     count: report.summary.receiptsCount,
-                    color: Colors.green.shade100)),
+                    color: Colors.green.shade100,),),
             const SizedBox(width: 8),
             Expanded(
                 child: _SummaryCard(
@@ -219,8 +219,8 @@ class _FinancialTab extends StatelessWidget {
                     value: report.summary.netCashFlow,
                     color: report.summary.netCashFlow >= 0
                         ? Colors.blue.shade100
-                        : Colors.orange.shade100)),
-          ]),
+                        : Colors.orange.shade100,),),
+          ],),
           const SizedBox(height: 16),
 
           // 6-month trend table
@@ -228,13 +228,13 @@ class _FinancialTab extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.bold)),
+                  ?.copyWith(fontWeight: FontWeight.bold),),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
-                side: BorderSide(color: Colors.grey.shade200)),
+                side: BorderSide(color: Colors.grey.shade200),),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
@@ -259,9 +259,9 @@ class _FinancialTab extends StatelessWidget {
                                 color: p.netCashFlow >= 0
                                     ? Colors.green
                                     : Colors.red,
-                                fontWeight: FontWeight.w600),
-                          )),
-                        ]))
+                                fontWeight: FontWeight.w600,),
+                          ),),
+                        ],),)
                     .toList(),
               ),
             ),
@@ -277,15 +277,15 @@ class _FinancialTab extends StatelessWidget {
 // ── Outstanding balances tab ────────────────────────────────────────────────
 
 class _OutstandingTab extends StatelessWidget {
-  final List<OutstandingBalance> balances;
-  final int year;
-  final int month;
 
   const _OutstandingTab({
     required this.balances,
     required this.year,
     required this.month,
   });
+  final List<OutstandingBalance> balances;
+  final int year;
+  final int month;
 
   @override
   Widget build(BuildContext context) {
@@ -323,9 +323,9 @@ class _OutstandingTab extends StatelessWidget {
           return ListTile(
             dense: true,
             title: Text(b.customerName,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: const TextStyle(fontWeight: FontWeight.w600),),
             subtitle: Text(
-                'Case total: ${b.casesTotalAmount.toStringAsFixed(2)}  •  Paid: ${b.paidAmount.toStringAsFixed(2)}'),
+                'Case total: ${b.casesTotalAmount.toStringAsFixed(2)}  •  Paid: ${b.paidAmount.toStringAsFixed(2)}',),
             trailing: Text(
               b.outstandingBalance.toStringAsFixed(2),
               style: TextStyle(
@@ -346,16 +346,16 @@ class _OutstandingTab extends StatelessWidget {
 // ── Summary card ────────────────────────────────────────────────────────────
 
 class _SummaryCard extends StatelessWidget {
-  final String label;
-  final double value;
-  final int? count;
-  final Color color;
 
   const _SummaryCard(
       {required this.label,
       required this.value,
       this.count,
-      required this.color});
+      required this.color,});
+  final String label;
+  final double value;
+  final int? count;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -369,15 +369,15 @@ class _SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.black54)),
+              style: const TextStyle(fontSize: 11, color: Colors.black54),),
           const SizedBox(height: 4),
           Text(value.toStringAsFixed(2),
               style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 14)),
+                  fontWeight: FontWeight.bold, fontSize: 14,),),
           if (count != null)
             Text('$count entries',
                 style:
-                    const TextStyle(fontSize: 10, color: Colors.black45)),
+                    const TextStyle(fontSize: 10, color: Colors.black45),),
         ],
       ),
     );

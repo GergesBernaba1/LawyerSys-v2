@@ -1,4 +1,4 @@
-import '../models/esign_request.dart';
+import 'package:qadaya_lawyersys/features/esign/models/esign_request.dart';
 
 abstract class ESignState {}
 
@@ -7,25 +7,25 @@ class ESignInitial extends ESignState {}
 class ESignLoading extends ESignState {}
 
 class ESignLoaded extends ESignState {
-  final List<ESignRequest> requests;
 
   ESignLoaded(this.requests);
+  final List<ESignRequest> requests;
 }
 
 class ESignError extends ESignState {
-  final String message;
 
   ESignError(this.message);
+  final String message;
 }
 
 class ESignOperationSuccess extends ESignState {
-  final String message;
 
   ESignOperationSuccess(this.message);
+  final String message;
 }
 
 class ESignShareLinkReady extends ESignState {
-  final String url;
 
   ESignShareLinkReady(this.url);
+  final String url;
 }

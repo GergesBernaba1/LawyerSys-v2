@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/core/storage/preferences_storage.dart';
 import 'package:qadaya_lawyersys/core/theme/theme_cubit.dart';
 import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 import 'package:qadaya_lawyersys/features/settings/screens/settings_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'auth_flow_test.mocks.dart';
 
 void main() {
-  testWidgets('settings screen push notification toggle persists', (WidgetTester tester) async {
+  testWidgets('settings screen push notification toggle persists', (tester) async {
     SharedPreferences.setMockInitialValues({
       'languageCode': 'en',
       'pushNotificationEnabled': true,

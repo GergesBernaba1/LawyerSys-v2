@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../repositories/contenders_repository.dart';
-import 'contenders_event.dart';
-import 'contenders_state.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_event.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_state.dart';
+import 'package:qadaya_lawyersys/features/contenders/repositories/contenders_repository.dart';
 
 class ContendersBloc extends Bloc<ContendersEvent, ContendersState> {
-  final ContendersRepository contendersRepository;
 
   ContendersBloc({required this.contendersRepository}) : super(ContendersInitial()) {
     on<LoadContenders>(_onLoadContenders);
@@ -16,6 +14,7 @@ class ContendersBloc extends Bloc<ContendersEvent, ContendersState> {
     on<UpdateContender>(_onUpdateContender);
     on<DeleteContender>(_onDeleteContender);
   }
+  final ContendersRepository contendersRepository;
 
   Future<void> _onLoadContenders(LoadContenders event, Emitter<ContendersState> emit) async {
     emit(ContendersLoading());

@@ -112,11 +112,6 @@ mixin PaginationMixin<T> on State {
 
 /// A helper class for managing pagination state in BLoC
 class PaginatedState<T> {
-  final List<T> items;
-  final int currentPage;
-  final bool isLoading;
-  final bool hasMore;
-  final String? error;
 
   const PaginatedState({
     this.items = const [],
@@ -125,6 +120,11 @@ class PaginatedState<T> {
     this.hasMore = true,
     this.error,
   });
+  final List<T> items;
+  final int currentPage;
+  final bool isLoading;
+  final bool hasMore;
+  final String? error;
 
   PaginatedState<T> copyWith({
     List<T>? items,
@@ -195,13 +195,13 @@ class PaginatedState<T> {
 
 /// Pagination configuration
 class PaginationConfig {
-  final int pageSize;
-  final double scrollThreshold;
-  final bool enablePullToRefresh;
 
   const PaginationConfig({
     this.pageSize = 20,
     this.scrollThreshold = 0.9,
     this.enablePullToRefresh = true,
   });
+  final int pageSize;
+  final double scrollThreshold;
+  final bool enablePullToRefresh;
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../models/consultation.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/consultations/models/consultation.dart';
 
 class ConsultationDetailScreen extends StatelessWidget {
-  final ConsultationModel consultation;
 
   const ConsultationDetailScreen({super.key, required this.consultation});
+  final ConsultationModel consultation;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class ConsultationDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(consultation.subject,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
             const SizedBox(height: 12),
             _DetailRow(label: l.status, value: consultation.status),
             if (consultation.type.isNotEmpty)
@@ -34,16 +34,16 @@ class ConsultationDetailScreen extends StatelessWidget {
             if (consultation.assignedEmployeeName != null)
               _DetailRow(
                   label: l.assignedEmployee,
-                  value: consultation.assignedEmployeeName!),
+                  value: consultation.assignedEmployeeName!,),
             const SizedBox(height: 12),
             Text(l.description,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+                style: const TextStyle(fontWeight: FontWeight.bold),),
             const SizedBox(height: 4),
             Text(consultation.details.isNotEmpty ? consultation.details : l.noData),
             if (consultation.feedback != null && consultation.feedback!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(l.consultationFeedback,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                  style: const TextStyle(fontWeight: FontWeight.bold),),
               const SizedBox(height: 4),
               Text(consultation.feedback!),
             ],
@@ -61,10 +61,10 @@ class ConsultationDetailScreen extends StatelessWidget {
 }
 
 class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
 
   const _DetailRow({required this.label, required this.value});
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {

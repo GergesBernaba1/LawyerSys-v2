@@ -1,10 +1,4 @@
 class CourtModel {
-  final String courtId;
-  final String name;
-  final String address;
-  final String governorate;
-  final String phone;
-  final String notes;
 
   CourtModel({
     required this.courtId,
@@ -23,6 +17,12 @@ class CourtModel {
         phone: json['phone']?.toString() ?? '',
         notes: json['notes']?.toString() ?? '',
       );
+  final String courtId;
+  final String name;
+  final String address;
+  final String governorate;
+  final String phone;
+  final String notes;
 
   Map<String, dynamic> toJson() => {
         'courtId': courtId,

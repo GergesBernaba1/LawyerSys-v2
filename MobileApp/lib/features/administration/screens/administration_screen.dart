@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/administration_bloc.dart';
-import '../bloc/administration_event.dart';
-import '../bloc/administration_state.dart';
-import '../models/admin_overview.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/administration/bloc/administration_bloc.dart';
+import 'package:qadaya_lawyersys/features/administration/bloc/administration_event.dart';
+import 'package:qadaya_lawyersys/features/administration/bloc/administration_state.dart';
+import 'package:qadaya_lawyersys/features/administration/models/admin_overview.dart';
 
 class AdministrationScreen extends StatefulWidget {
   const AdministrationScreen({super.key});
@@ -136,7 +136,6 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.0,
                 ),
                 itemCount: cards.length,
                 itemBuilder: (context, index) {
@@ -171,10 +170,6 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
 }
 
 class _StatCardData {
-  final String label;
-  final int value;
-  final IconData icon;
-  final Color color;
 
   const _StatCardData({
     required this.label,
@@ -182,4 +177,8 @@ class _StatCardData {
     required this.icon,
     required this.color,
   });
+  final String label;
+  final int value;
+  final IconData icon;
+  final Color color;
 }

@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/auth/biometric_auth.dart';
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
+import 'package:qadaya_lawyersys/core/auth/biometric_auth.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
+import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
 
 // Theme constants matching ClientApp
 const _kPrimary = Color(0xFF14345A);
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, state) {
           if (state is AuthLoading) {
             return const Center(
-                child: CircularProgressIndicator(color: _kPrimary));
+                child: CircularProgressIndicator(color: _kPrimary),);
           }
           return SafeArea(
             child: Center(
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                           child: const Icon(Icons.gavel,
-                              color: Colors.white, size: 36),
+                              color: Colors.white, size: 36,),
                         ),
                       ),
                     ),
@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       localizer.email,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          color: Color(0xFF5F7085), fontWeight: FontWeight.w600),
+                          color: Color(0xFF5F7085), fontWeight: FontWeight.w600,),
                     ),
                     const SizedBox(height: 36),
 
@@ -165,11 +165,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: AlignmentDirectional.centerEnd,
                       child: TextButton(
                         onPressed: () => Navigator.pushNamed(
-                            context, '/forgot-password'),
+                            context, '/forgot-password',),
                         child: Text(
                           localizer.forgotPassword,
                           style: const TextStyle(
-                              color: _kPrimary, fontWeight: FontWeight.w700),
+                              color: _kPrimary, fontWeight: FontWeight.w700,),
                         ),
                       ),
                     ),
@@ -188,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (email.isEmpty || password.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(
-                                    '${localizer.email} and ${localizer.password} are required')));
+                                    '${localizer.email} and ${localizer.password} are required',),),);
                             return;
                           }
                           context
@@ -208,13 +208,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: Text(
                           localizer.biometricLogin,
                           style: const TextStyle(
-                              color: _kPrimary, fontWeight: FontWeight.w700),
+                              color: _kPrimary, fontWeight: FontWeight.w700,),
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: const BorderSide(color: _kPrimary, width: 2),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                              borderRadius: BorderRadius.circular(14),),
                         ),
                       ),
                     ],
@@ -224,14 +224,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(localizer.noAccount,
-                            style: const TextStyle(color: Color(0xFF5F7085))),
+                            style: const TextStyle(color: Color(0xFF5F7085)),),
                         TextButton(
                           onPressed: () =>
                               Navigator.pushNamed(context, '/register'),
                           child: Text(
                             localizer.register,
                             style: const TextStyle(
-                                color: _kGold, fontWeight: FontWeight.w800),
+                                color: _kGold, fontWeight: FontWeight.w800,),
                           ),
                         ),
                       ],
@@ -281,8 +281,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildPrimaryButton(
-      {required String label, required VoidCallback onPressed}) {
-    return Container(
+      {required String label, required VoidCallback onPressed,}) {
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [_kPrimary, _kPrimaryLight],
@@ -305,16 +305,17 @@ class _LoginScreenState extends State<LoginScreen> {
           shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14)),
+              borderRadius: BorderRadius.circular(14),),
         ),
         child: Text(label,
             style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: Colors.white)),
+                color: Colors.white,),),
       ),
     );
   }
 }
+
 
 

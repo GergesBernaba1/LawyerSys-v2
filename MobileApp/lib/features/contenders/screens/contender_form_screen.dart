@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/contenders_bloc.dart';
-import '../bloc/contenders_event.dart';
-import '../bloc/contenders_state.dart';
-import '../models/contender.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_bloc.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_event.dart';
+import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_state.dart';
+import 'package:qadaya_lawyersys/features/contenders/models/contender.dart';
 
 class ContenderFormScreen extends StatefulWidget {
-  final ContenderModel? contender;
 
   const ContenderFormScreen({super.key, this.contender});
+  final ContenderModel? contender;
 
   @override
   State<ContenderFormScreen> createState() => _ContenderFormScreenState();
@@ -94,7 +94,7 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
       child: Scaffold(
         appBar: AppBar(title: Text(isEdit ? localizer.edit : localizer.add)),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: ListView(

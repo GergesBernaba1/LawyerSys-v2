@@ -45,7 +45,6 @@ void main() {
     test('pageLoaded appends items and increments page', () {
       const initial = PaginatedState<String>(
         items: ['item1', 'item2'],
-        currentPage: 1,
       );
 
       final loaded = initial.pageLoaded(['item3', 'item4'], 2);
@@ -105,7 +104,7 @@ void main() {
     });
 
     test('isFirstPage returns true only on page 1', () {
-      const page1 = PaginatedState<String>(currentPage: 1);
+      const page1 = PaginatedState<String>();
       const page2 = PaginatedState<String>(currentPage: 2);
 
       expect(page1.isFirstPage, isTrue);
@@ -115,7 +114,6 @@ void main() {
     test('copyWith creates new instance with updated fields', () {
       const initial = PaginatedState<String>(
         items: ['item1'],
-        currentPage: 1,
       );
 
       final updated = initial.copyWith(

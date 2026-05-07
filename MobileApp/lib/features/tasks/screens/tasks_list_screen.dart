@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 
-import '../bloc/tasks_bloc.dart';
-import '../bloc/tasks_event.dart';
-import '../bloc/tasks_state.dart';
-import 'task_form_screen.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_bloc.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_event.dart';
+import 'package:qadaya_lawyersys/features/tasks/bloc/tasks_state.dart';
+import 'package:qadaya_lawyersys/features/tasks/screens/task_form_screen.dart';
 
 class TasksListScreen extends StatefulWidget {
   const TasksListScreen({super.key});
@@ -121,7 +121,7 @@ class _TasksListScreenState extends State<TasksListScreen> {
                                   ],
                                 ),
                               );
-                              if (confirmed == true && context.mounted) {
+                              if ((confirmed ?? false) && context.mounted) {
                                 context.read<TasksBloc>().add(DeleteTask(task.id ?? 0));
                               }
                             }

@@ -1,13 +1,9 @@
-import '../models/case.dart';
+import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 
 abstract class CasesState {}
 class CasesInitial extends CasesState {}
 class CasesLoading extends CasesState {}
 class CasesLoaded extends CasesState {
-  final List<CaseModel> cases;
-  final int currentPage;
-  final bool hasMore;
-  final bool isLoadingMore;
   
   CasesLoaded(
     this.cases, {
@@ -15,6 +11,10 @@ class CasesLoaded extends CasesState {
     this.hasMore = true,
     this.isLoadingMore = false,
   });
+  final List<CaseModel> cases;
+  final int currentPage;
+  final bool hasMore;
+  final bool isLoadingMore;
 
   CasesLoaded copyWith({
     List<CaseModel>? cases,
@@ -31,16 +31,16 @@ class CasesLoaded extends CasesState {
   }
 }
 class CasesError extends CasesState {
-  final String message;
   CasesError(this.message);
+  final String message;
 }
 class CasesOffline extends CasesState {}
 class CaseDetailLoaded extends CasesState {
-  final CaseModel detail;
   CaseDetailLoaded(this.detail);
+  final CaseModel detail;
 }
 
 class CaseOperationSuccess extends CasesState {
-  final String message;
   CaseOperationSuccess(this.message);
+  final String message;
 }

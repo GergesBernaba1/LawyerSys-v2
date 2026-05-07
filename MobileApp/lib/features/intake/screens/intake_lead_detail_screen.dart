@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/intake_bloc.dart';
-import '../bloc/intake_event.dart';
-import '../bloc/intake_state.dart';
-import '../models/intake_form.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_bloc.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_event.dart';
+import 'package:qadaya_lawyersys/features/intake/bloc/intake_state.dart';
+import 'package:qadaya_lawyersys/features/intake/models/intake_form.dart';
 
 class IntakeLeadDetailScreen extends StatefulWidget {
-  final IntakeForm lead;
 
   const IntakeLeadDetailScreen({super.key, required this.lead});
+  final IntakeForm lead;
 
   @override
   State<IntakeLeadDetailScreen> createState() =>
@@ -48,7 +48,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text(l.cancel)),
+              onPressed: () => Navigator.pop(ctx), child: Text(l.cancel),),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -56,7 +56,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                     _lead.id,
                     isQualified: qualify,
                     notes: notesCtrl.text.trim(),
-                  ));
+                  ),);
             },
             child: Text(l.save),
           ),
@@ -66,7 +66,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
   }
 
   void _showAssignDialog(AppLocalizations l,
-      List<IntakeAssignmentOption> options) {
+      List<IntakeAssignmentOption> options,) {
     int? selectedEmployeeId;
     DateTime? followUp;
 
@@ -82,7 +82,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                 decoration: InputDecoration(labelText: l.employee),
                 items: options
                     .map((o) => DropdownMenuItem(
-                        value: o.employeeId, child: Text(o.name)))
+                        value: o.employeeId, child: Text(o.name),),)
                     .toList(),
                 onChanged: (v) =>
                     setDialogState(() => selectedEmployeeId = v),
@@ -102,13 +102,13 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                 },
                 child: Text(followUp == null
                     ? l.nextFollowUp
-                    : '${l.nextFollowUp}: ${followUp!.year}-${followUp!.month.toString().padLeft(2, '0')}-${followUp!.day.toString().padLeft(2, '0')}'),
+                    : '${l.nextFollowUp}: ${followUp!.year}-${followUp!.month.toString().padLeft(2, '0')}-${followUp!.day.toString().padLeft(2, '0')}',),
               ),
             ],
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(ctx), child: Text(l.cancel)),
+                onPressed: () => Navigator.pop(ctx), child: Text(l.cancel),),
             ElevatedButton(
               onPressed: selectedEmployeeId == null
                   ? null
@@ -118,7 +118,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                             _lead.id,
                             assignedEmployeeId: selectedEmployeeId!,
                             nextFollowUpAt: followUp,
-                          ));
+                          ),);
                     },
               child: Text(l.save),
             ),
@@ -142,7 +142,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
           }
           if (state is IntakeError) {
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${l.error}: ${state.message}')));
+                SnackBar(content: Text('${l.error}: ${state.message}')),);
           }
           if (state is IntakeLoaded) {
             final updated =
@@ -168,7 +168,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                   child: Text(_lead.status,
                       style: TextStyle(
                           color: _statusColor(_lead.status),
-                          fontWeight: FontWeight.bold)),
+                          fontWeight: FontWeight.bold,),),
                 ),
                 const SizedBox(height: 16),
                 _infoRow(l.fullName, _lead.fullName),
@@ -183,7 +183,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                   _infoRow(l.leadAssignedTo, _lead.assignedEmployeeName!),
                 if (_lead.nextFollowUpAt != null)
                   _infoRow(l.nextFollowUp,
-                      _lead.nextFollowUpAt!.toLocal().toIso8601String().split('T').first),
+                      _lead.nextFollowUpAt!.toLocal().toIso8601String().split('T').first,),
                 // Conflict check result
                 if (_lead.conflictChecked) ...[
                   const Divider(height: 24),
@@ -193,11 +193,11 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                           _lead.hasConflict
                               ? Icons.warning
                               : Icons.check_circle,
-                          color: _lead.hasConflict ? Colors.red : Colors.green),
+                          color: _lead.hasConflict ? Colors.red : Colors.green,),
                       const SizedBox(width: 8),
                       Text(_lead.hasConflict
                           ? l.conflictDetected
-                          : l.noConflict),
+                          : l.noConflict,),
                     ],
                   ),
                   if (_lead.conflictDetails != null &&
@@ -205,7 +205,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(_lead.conflictDetails!,
-                          style: const TextStyle(color: Colors.red)),
+                          style: const TextStyle(color: Colors.red),),
                     ),
                 ],
                 const Divider(height: 32),
@@ -245,7 +245,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
                         icon: const Icon(Icons.transform),
                         label: Text(l.leadConvert),
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple),
+                            backgroundColor: Colors.purple,),
                         onPressed: () => context
                             .read<IntakeBloc>()
                             .add(ConvertIntakeLead(_lead.id)),
@@ -281,7 +281,7 @@ class _IntakeLeadDetailScreenState extends State<IntakeLeadDetailScreen> {
             SizedBox(
               width: 140,
               child: Text('$label:',
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: const TextStyle(fontWeight: FontWeight.w600),),
             ),
             Expanded(child: Text(value)),
           ],

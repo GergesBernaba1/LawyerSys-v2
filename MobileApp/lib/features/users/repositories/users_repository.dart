@@ -1,9 +1,9 @@
-import '../../../core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
 
 class UsersRepository {
-  final ApiClient apiClient;
 
   UsersRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<Map<String, dynamic>>> getUsers({String? search}) async {
     final query = <String, dynamic>{};
@@ -15,13 +15,13 @@ class UsersRepository {
     final data = response.data;
 
     if (data is List) {
-      return data.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+      return data.whereType<Map>().map(Map<String, dynamic>.from).toList();
     }
 
     if (data is Map<String, dynamic>) {
       final items = data['items'];
       if (items is List) {
-        return items.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+        return items.whereType<Map>().map(Map<String, dynamic>.from).toList();
       }
     }
 
@@ -45,7 +45,7 @@ class UsersRepository {
       'phoneNumber': phoneNumber,
       'job': job,
       'role': role,
-    });
+    },);
   }
 
   Future<void> updateUser(
@@ -62,7 +62,7 @@ class UsersRepository {
       'phoneNumber': phoneNumber,
       'job': job,
       'isActive': isActive,
-    });
+    },);
   }
 
   Future<void> deleteUser(String id) async {

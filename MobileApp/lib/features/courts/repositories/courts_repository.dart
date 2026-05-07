@@ -1,17 +1,17 @@
-import '../../../core/api/api_client.dart';
-import '../../../core/utils/json_utils.dart';
-import '../models/court.dart';
+import 'package:qadaya_lawyersys/core/api/api_client.dart';
+import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
+import 'package:qadaya_lawyersys/features/courts/models/court.dart';
 
 class CourtsRepository {
-  final ApiClient apiClient;
 
   CourtsRepository(this.apiClient);
+  final ApiClient apiClient;
 
   Future<List<CourtModel>> getCourts({int page = 1, int pageSize = 50}) async {
     final response = await apiClient.get('/api/courts', queryParameters: {
       'page': page,
       'pageSize': pageSize,
-    });
+    },);
 
     final data = normalizeJsonList(response.data);
     if (data.isEmpty) return [];
@@ -19,7 +19,7 @@ class CourtsRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map(
-            (raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+            (raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 
@@ -36,7 +36,7 @@ class CourtsRepository {
 
   Future<CourtModel> updateCourt(CourtModel court) async {
     final response = await apiClient.put('/api/courts/${court.courtId}',
-        data: court.toJson());
+        data: court.toJson(),);
     return CourtModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
@@ -52,7 +52,7 @@ class CourtsRepository {
     return data
         .whereType<Map<String, dynamic>>()
         .map(
-            (raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map)))
+            (raw) => CourtModel.fromJson(Map<String, dynamic>.from(raw as Map)),)
         .toList();
   }
 }

@@ -1,7 +1,7 @@
-import '../models/customer.dart';
-import '../models/case_notification_preference.dart';
-import '../models/customer_payment_proof.dart';
-import '../models/customer_requested_document.dart';
+import 'package:qadaya_lawyersys/features/customers/models/case_notification_preference.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer_payment_proof.dart';
+import 'package:qadaya_lawyersys/features/customers/models/customer_requested_document.dart';
 
 abstract class CustomersState {}
 
@@ -10,10 +10,6 @@ class CustomersInitial extends CustomersState {}
 class CustomersLoading extends CustomersState {}
 
 class CustomersLoaded extends CustomersState {
-  final List<Customer> customers;
-  final int currentPage;
-  final bool hasMore;
-  final bool isLoadingMore;
   
   CustomersLoaded(
     this.customers, {
@@ -21,6 +17,10 @@ class CustomersLoaded extends CustomersState {
     this.hasMore = true,
     this.isLoadingMore = false,
   });
+  final List<Customer> customers;
+  final int currentPage;
+  final bool hasMore;
+  final bool isLoadingMore;
 
   CustomersLoaded copyWith({
     List<Customer>? customers,
@@ -38,52 +38,53 @@ class CustomersLoaded extends CustomersState {
 }
 
 class CustomersError extends CustomersState {
-  final String message;
   CustomersError(this.message);
+  final String message;
 }
 
 class CustomerDetailLoaded extends CustomersState {
-  final Customer customer;
   CustomerDetailLoaded(this.customer);
+  final Customer customer;
 }
 
 class CustomerOperationSuccess extends CustomersState {
+  CustomerOperationSuccess(this.message, {this.customerId});
   final String message;
   /// ID of the created/updated customer; non-null after create so callers
   /// can follow-up with image uploads or navigation.
   final String? customerId;
-  CustomerOperationSuccess(this.message, {this.customerId});
 }
 
 // Case Notification Preference States
 class CaseNotificationPreferenceLoaded extends CustomersState {
-  final CaseNotificationPreference preference;
   CaseNotificationPreferenceLoaded(this.preference);
+  final CaseNotificationPreference preference;
 }
 
 class CaseNotificationPreferenceUpdated extends CustomersState {
-  final CaseNotificationPreference preference;
   CaseNotificationPreferenceUpdated(this.preference);
+  final CaseNotificationPreference preference;
 }
 
 // Payment Proof States
 class PaymentProofSubmitting extends CustomersState {}
 
 class PaymentProofSubmitted extends CustomersState {
-  final CustomerPaymentProof proof;
   PaymentProofSubmitted(this.proof);
+  final CustomerPaymentProof proof;
 }
 
 // Requested Documents States
 class RequestedDocumentsLoaded extends CustomersState {
-  final List<CustomerRequestedDocument> documents;
   RequestedDocumentsLoaded(this.documents);
+  final List<CustomerRequestedDocument> documents;
 }
 
 class RequestedDocumentSubmitting extends CustomersState {}
 
 class RequestedDocumentSubmitted extends CustomersState {
-  final CustomerRequestedDocument document;
   RequestedDocumentSubmitted(this.document);
+  final CustomerRequestedDocument document;
 }
+
 

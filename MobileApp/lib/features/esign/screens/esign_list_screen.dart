@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/localization/app_localizations.dart';
-import '../bloc/esign_bloc.dart';
-import '../bloc/esign_event.dart';
-import '../bloc/esign_state.dart';
-import '../models/esign_request.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/features/esign/bloc/esign_bloc.dart';
+import 'package:qadaya_lawyersys/features/esign/bloc/esign_event.dart';
+import 'package:qadaya_lawyersys/features/esign/bloc/esign_state.dart';
+import 'package:qadaya_lawyersys/features/esign/models/esign_request.dart';
 
 class ESignListScreen extends StatefulWidget {
   const ESignListScreen({super.key});
@@ -99,7 +99,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
                               border: const OutlineInputBorder(),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
+                                  horizontal: 10, vertical: 10,),
                             ),
                           ),
                         ),
@@ -153,7 +153,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
                           icon: const Icon(Icons.calendar_today, size: 16),
                           label: Text(expiresAt == null
                               ? l10n.dateLabel
-                              : l10n.edit),
+                              : l10n.edit,),
                           onPressed: () async {
                             final picked = await showDatePicker(
                               context: context,
@@ -322,7 +322,6 @@ class _ESignListScreenState extends State<ESignListScreen> {
             onSelected: _applyFilter,
             itemBuilder: (context) => [
               PopupMenuItem<String?>(
-                value: null,
                 child: Text(l10n.all),
               ),
               ..._statusOptions.map(
