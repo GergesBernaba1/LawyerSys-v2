@@ -62,11 +62,10 @@ class PushNotificationService {
 
       _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((event) async {
         debugPrint('Notification opened-app payload: ${event.data}');
-        unawaited(_persistNotification(event));
+        await _persistNotification(event);
         NotificationHandler.onMessageOpened(event);
       });
 
-      FirebaseMessaging.onBackgroundMessage(NotificationHandler.firebaseMessagingBackgroundHandler); // ignore: unawaited_futures
     } catch (e, st) {
       debugPrint('PushNotificationService.init failed: $e\n$st');
     }
