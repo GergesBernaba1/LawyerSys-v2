@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/sitings_bloc.dart';
 import '../bloc/sitings_event.dart';
 import '../bloc/sitings_state.dart';
@@ -55,8 +56,8 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
             return AlertDialog(
               title: Text(
                 siting == null
-                    ? 'Add Court Sitting' // TODO localize
-                    : 'Edit Court Sitting', // TODO localize
+                    ? AppLocalizations.of(context)!.courtSittings
+                    : AppLocalizations.of(context)!.courtSittings,
                 style: const TextStyle(color: _kPrimary, fontWeight: FontWeight.w700),
               ),
               content: SingleChildScrollView(
@@ -67,19 +68,19 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
                     children: [
                       TextFormField(
                         controller: caseCodeCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Case Code', // TODO localize
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.caseCode,
+                          border: const OutlineInputBorder(),
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                        validator: (v) => (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.allFieldsAreRequired : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: courtIdCtrl,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Court ID', // TODO localize
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.courtId,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -120,9 +121,9 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
                       TextFormField(
                         controller: notesCtrl,
                         maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: 'Notes', // TODO localize
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.notes,
+                          border: const OutlineInputBorder(),
                           alignLabelWithHint: true,
                         ),
                       ),
@@ -133,7 +134,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel'), // TODO localize
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: _kPrimary),
@@ -154,7 +155,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
                     Navigator.of(ctx).pop();
                   },
                   child: Text(
-                    siting == null ? 'Create' : 'Save', // TODO localize
+                    siting == null ? AppLocalizations.of(context)!.add : AppLocalizations.of(context)!.save,
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
@@ -167,22 +168,21 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
   }
 
   Future<void> _confirmDelete(SitingModel siting) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Court Sitting'), // TODO localize
-        content: Text(
-          'Are you sure you want to delete the sitting for "${siting.caseCode ?? siting.caseTitle ?? 'this case'}"?',
-        ), // TODO localize
+        title: Text(l10n.deleteCourtSitting),
+        content: Text(l10n.deleteCourtSittingConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'), // TODO localize
+            child: Text(l10n.cancel),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'), // TODO localize
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -196,7 +196,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Court Sittings'), // TODO localize
+        title: Text(AppLocalizations.of(context)!.courtSittings),
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -205,7 +205,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         onPressed: () => _showSitingDialog(null),
-        tooltip: 'Add Court Sitting', // TODO localize
+        tooltip: AppLocalizations.of(context)!.addCourtSitting,
         child: const Icon(Icons.add),
       ),
       body: BlocConsumer<SitingsBloc, SitingsState>(
@@ -218,7 +218,10 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
           }
           if (state is SitingsError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}'), backgroundColor: Colors.red), // TODO localize "Error"
+              SnackBar(
+                content: Text('${AppLocalizations.of(context)!.error}: ${state.message}'),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -240,7 +243,7 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search sittings...', // TODO localize
+                    hintText: AppLocalizations.of(context)!.searchSittings,
                     prefixIcon: const Icon(Icons.search, color: _kPrimaryLight),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -291,8 +294,10 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: _kTextSecondary),
             const SizedBox(height: 16),
-            Text('Error: ${state.message}', // TODO localize "Error"
-                style: const TextStyle(color: Colors.red)),
+            Text(
+              '${AppLocalizations.of(context)!.error}: ${state.message}',
+              style: const TextStyle(color: Colors.red),
+            ),
           ],
         ),
       );
@@ -306,9 +311,9 @@ class _SitingsListScreenState extends State<SitingsListScreen> {
             children: [
               Icon(Icons.gavel, size: 64, color: _kTextSecondary.withValues(alpha: 0.5)),
               const SizedBox(height: 16),
-              const Text(
-                'No court sittings found', // TODO localize
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.noCourtSittingsFound,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: _kTextSecondary,
@@ -413,10 +418,13 @@ class _SitingTile extends StatelessWidget {
               onDelete();
             }
           },
-          itemBuilder: (_) => [
-            const PopupMenuItem(value: 'edit', child: Text('Edit')), // TODO localize
-            const PopupMenuItem(value: 'delete', child: Text('Delete')), // TODO localize
-          ],
+          itemBuilder: (ctx) {
+            final l10n = AppLocalizations.of(ctx)!;
+            return [
+              PopupMenuItem(value: 'edit', child: Text(l10n.edit)),
+              PopupMenuItem(value: 'delete', child: Text(l10n.delete)),
+            ];
+          },
         ),
       ),
     );

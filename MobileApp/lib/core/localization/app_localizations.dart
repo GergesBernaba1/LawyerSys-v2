@@ -1411,6 +1411,181 @@ abstract class AppLocalizations {
   String get relationType;
   String get relatedCase;
   String get noRelationsFound;
+
+  // Dashboard
+  String get welcomeBack;
+  String get statistics;
+  String get onTrack;
+  String get needsAttention;
+  String get critical;
+  String get operationalFocus;
+  String get activityHealth;
+  String get completionReadiness;
+  String get quickActions;
+  String get newCase;
+  String get newCustomer;
+  String get viewBilling;
+  String get adminTasks;
+  String get workQueue;
+  String get myCases;
+  String get myTasks;
+  String get myLeads;
+  String get recentCases;
+  String get viewAll;
+  String get noRecentCases;
+  String get startCreatingCase;
+  String get noCaseNumber;
+  String get myOverdueTasks;
+  String get noOverdueTasks;
+  String get myFollowUps;
+  String get noFollowUpsScheduled;
+
+  // General UI
+  String get aboutUs;
+  String get active;
+  String get administration;
+  String get admin;
+  String get clear;
+  String get confirm;
+  String get contactUs;
+  String get submit;
+  String get update;
+  String get updateStatus;
+  String get role;
+  String get filteredBy;
+  String get noAssignedTasks;
+
+  // Documents
+  String get noDocumentsFound;
+  String get rename;
+  String get renameDocument;
+  String get renamedSuccessfully;
+  String get documentUploaded;
+  String get documentUploadedSuccessfully;
+  String get pleaseEnterFilePath;
+  String get getShareLink;
+  String get shareLinkCopied;
+  String get linkCopied;
+
+  // Court Sittings / Judicial Documents
+  String get courtSittings;
+  String get deleteCourtSitting;
+
+  // Users
+  String get deleteUser;
+
+  // eSignatures
+  String get eSignatures;
+  String get newESignRequest;
+
+  // Intake / CRM
+  String get publicIntakeLinkNotAvailable;
+  String get messageSentSuccessfully;
+  String get addCaseRelation;
+
+  // Court Automation
+  String get calculateDeadlines;
+  String get deadlines;
+  String get due;
+  String get noDeadlinesReturned;
+  String get noFilingsYet;
+  String get selectADate;
+  String get submitFiling;
+  String get packLabel;
+  String get submittedLabel;
+  String get caseLabel;
+
+  // Document Generation
+  String get documentGeneration;
+  String get selectTemplate;
+  String get noTemplatesFound;
+  String get fillInFields;
+  String get documentGenerated;
+  String get generatedOn;
+  String get generateDocument;
+  String get isRequired;
+  String get pickADate;
+  String get newDraft;
+  String get title;
+  String get content;
+  String get deleteDraft;
+  String get templateLabel;
+  String get generatedLabel;
+
+  // AI Assistant
+  String get aiAssistant;
+  String get draft;
+  String get enterTextToSummarize;
+  String get summarize;
+
+  // Bloc success messages
+  String get eSignRequestCreated;
+  String get statusUpdatedSuccessfully;
+  String get userCreatedSuccessfully;
+  String get userUpdatedSuccessfully;
+  String get userDeletedSuccessfully;
+  String get userRoleChangedSuccessfully;
+  String get tenantCreatedSuccessfully;
+  String get tenantUpdatedSuccessfully;
+  String get tenantDeletedSuccessfully;
+  String get draftCreatedSuccessfully;
+  String get draftDeletedSuccessfully;
+
+  // Contact form
+  String get contactInformation;
+  String get getInTouch;
+  String get weLoveToHear;
+  String get yourName;
+  String get enterFullName;
+  String get nameRequired;
+  String get emailAddress;
+  String get enterEmail;
+  String get enterValidEmail;
+  String get writeYourMessage;
+  String get messageRequired;
+  String get messageTooShort;
+  String get sendMessageLabel;
+
+  // About
+  String get website;
+
+  // Court Sittings
+  String get courtId;
+  String get deleteCourtSittingConfirm;
+  String get addCourtSitting;
+  String get searchSittings;
+  String get noCourtSittingsFound;
+
+  // Case Relations
+  String get relatedCaseId;
+  String get notesOptional;
+  String get relationTypeRelated;
+  String get relationTypeAppeal;
+  String get relationTypeConsolidated;
+  String get relationTypeCompanion;
+  String get failedToLoadRelations;
+
+  // Court Automation
+  String get pleaseEnterCaseCode;
+
+  // Files
+  String get couldNotOpenUrl;
+  String get downloadFailed;
+
+  // Governments
+  String get governorateId;
+  String get governorateName;
+
+  // Cases
+  String get caseCodeMustBePositive;
+  String get statement;
+
+  // Audit Logs
+  String get auditLogs;
+  String get searchAuditLogs;
+  String get entity;
+  String get action;
+  String get noAuditLogsFound;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

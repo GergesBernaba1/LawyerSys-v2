@@ -221,7 +221,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               ],
               const SizedBox(height: 24),
               Text(
-                'Assigned Tasks', // TODO: localize
+                localizer.myTasks,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
@@ -232,7 +232,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text('No assigned tasks'); // TODO: localize
+                    return Text(localizer.noAssignedTasks);
                   }
                   final tasks = snapshot.data!.take(5).toList();
                   return ListView.builder(

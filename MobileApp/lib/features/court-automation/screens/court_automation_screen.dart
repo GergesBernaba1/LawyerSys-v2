@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/court_automation_bloc.dart';
 import '../bloc/court_automation_event.dart';
 import '../bloc/court_automation_state.dart';
@@ -41,14 +42,12 @@ class _CourtAutomationScreenState extends State<CourtAutomationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TODO: localize 'Court Automation'
-        title: const Text('Court Automation'),
+        title: Text(AppLocalizations.of(context)!.judicial),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            // TODO: localize tab labels
-            Tab(text: 'Filing Packs'),
-            Tab(text: 'My Filings'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.documents),
+            Tab(text: AppLocalizations.of(context)!.reports),
           ],
         ),
       ),
@@ -56,15 +55,13 @@ class _CourtAutomationScreenState extends State<CourtAutomationScreen>
         listener: (context, state) {
           if (state is CourtAutoError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              // TODO: localize 'Error'
-              SnackBar(content: Text('Error: ${state.message}')),
+              SnackBar(content: Text('${AppLocalizations.of(context)!.error}: ${state.message}')),
             );
           } else if (state is FilingSubmitted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              // TODO: localize
               SnackBar(
                   content: Text(
-                      'Filing submitted! ID: ${state.submission.submissionId}')),
+                      '${AppLocalizations.of(context)!.submit}: ${state.submission.submissionId}')),
             );
           }
         },
@@ -122,16 +119,14 @@ class _PacksTab extends StatelessWidget {
               children: [
                 const Icon(Icons.gavel, size: 48, color: Colors.grey),
                 const SizedBox(height: 12),
-                // TODO: localize
-                const Text('No automation packs available.',
-                    style: TextStyle(color: Colors.grey)),
+                Text(AppLocalizations.of(context)!.noData,
+                    style: const TextStyle(color: Colors.grey)),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () => context
                       .read<CourtAutomationBloc>()
                       .add(LoadAutomationPacks()),
-                  // TODO: localize 'Retry'
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),
@@ -187,11 +182,10 @@ class _PacksTab extends StatelessWidget {
                         ),
                       ],
                       const SizedBox(height: 8),
-                      // TODO: localize 'Tap to open'
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text('Tap to open',
+                          Text(AppLocalizations.of(context)!.viewAll,
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontSize: 12)),
@@ -267,38 +261,34 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
   void _showSubmitDialog() {
     if (_caseCodeCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        // TODO: localize
-        const SnackBar(content: Text('Please enter a case code first.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseEnterCaseCode)),
       );
       return;
     }
 
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        // TODO: localize 'Submit Filing'
-        title: const Text('Submit Filing'),
+        title: Text(l10n.submit),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TODO: localize 'Confirm submission for case:'
-            const Text('Confirm submission for case:'),
+            Text(l10n.caseNumber),
             const SizedBox(height: 4),
             Text(
               _caseCodeCtrl.text.trim(),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 4),
-            // TODO: localize 'Pack:'
-            Text('Pack: ${widget.pack.name}'),
+            Text('${l10n.documents}: ${widget.pack.name}'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            // TODO: localize 'Cancel'
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -316,8 +306,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
               Navigator.pop(dialogCtx);
               Navigator.pop(context); // close sheet
             },
-            // TODO: localize 'Submit'
-            child: const Text('Submit'),
+            child: Text(l10n.submit),
           ),
         ],
       ),
@@ -337,8 +326,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
         }
         if (state is CourtAutoError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            // TODO: localize 'Error'
-            SnackBar(content: Text('Error: ${state.message}')),
+            SnackBar(content: Text('${AppLocalizations.of(context)!.error}: ${state.message}')),
           );
         }
       },
@@ -404,11 +392,10 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                   // Case code field
                   TextField(
                     controller: _caseCodeCtrl,
-                    // TODO: localize
-                    decoration: const InputDecoration(
-                      labelText: 'Case Code',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.folder_open),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.caseCode,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.folder_open),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -417,11 +404,10 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                   InkWell(
                     onTap: _pickFilingDate,
                     child: InputDecorator(
-                      decoration: const InputDecoration(
-                        // TODO: localize 'Filing Date'
-                        labelText: 'Filing Date',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.filingDate,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.calendar_today),
                       ),
                       child: Text(
                         _filingDate != null
@@ -430,8 +416,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                                 .toString()
                                 .split(' ')
                                 .first
-                            // TODO: localize 'Select a date'
-                            : 'Select a date',
+                            : AppLocalizations.of(context)!.selectADate,
                         style: TextStyle(
                             color: _filingDate != null ? null : Colors.grey),
                       ),
@@ -454,17 +439,15 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                               child:
                                   CircularProgressIndicator(strokeWidth: 2))
                           : const Icon(Icons.calculate),
-                      // TODO: localize 'Calculate Deadlines'
-                      label: const Text('Calculate Deadlines'),
+                      label: Text(AppLocalizations.of(context)!.calculateDeadlines),
                     ),
                   ),
 
                   // Deadlines list
                   if (_deadlinesLoaded && _deadlines.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    // TODO: localize 'Deadlines'
-                    const Text('Deadlines',
-                        style: TextStyle(
+                    Text(AppLocalizations.of(context)!.deadlines,
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     ..._deadlines.map((item) => Card(
@@ -478,8 +461,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                               children: [
                                 if (item.deadline != null)
                                   Text(
-                                    // TODO: localize 'Due'
-                                    'Due: ${item.deadline}',
+                                    '${AppLocalizations.of(context)!.due}: ${item.deadline}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),
@@ -493,9 +475,8 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
 
                   if (_deadlinesLoaded && _deadlines.isEmpty) ...[
                     const SizedBox(height: 12),
-                    // TODO: localize
-                    const Text('No deadlines returned.',
-                        style: TextStyle(color: Colors.grey)),
+                    Text(AppLocalizations.of(context)!.noDeadlinesReturned,
+                        style: const TextStyle(color: Colors.grey)),
                   ],
 
                   const SizedBox(height: 24),
@@ -506,8 +487,7 @@ class _PackBottomSheetState extends State<_PackBottomSheet> {
                     child: ElevatedButton.icon(
                       onPressed: isLoading ? null : _showSubmitDialog,
                       icon: const Icon(Icons.send),
-                      // TODO: localize 'Submit Filing'
-                      label: const Text('Submit Filing'),
+                      label: Text(AppLocalizations.of(context)!.submitFiling),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.indigo,
                         foregroundColor: Colors.white,
@@ -568,16 +548,15 @@ class _FilingsTab extends StatelessWidget {
             onRefresh: () async =>
                 context.read<CourtAutomationBloc>().add(LoadFilings()),
             child: ListView(
-              children: const [
-                SizedBox(height: 120),
+              children: [
+                const SizedBox(height: 120),
                 Center(
                   child: Column(
                     children: [
-                      Icon(Icons.assignment, size: 48, color: Colors.grey),
-                      SizedBox(height: 12),
-                      // TODO: localize
-                      Text('No filings yet.',
-                          style: TextStyle(color: Colors.grey)),
+                      const Icon(Icons.assignment, size: 48, color: Colors.grey),
+                      const SizedBox(height: 12),
+                      Text(AppLocalizations.of(context)!.noFilingsYet,
+                          style: const TextStyle(color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -612,8 +591,7 @@ class _FilingsTab extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    // TODO: localize 'Case'
-                                    'Case: ${filing.caseCode}',
+                                    '${AppLocalizations.of(context)!.caseLabel}: ${filing.caseCode}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
@@ -640,13 +618,11 @@ class _FilingsTab extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 4),
-                            // TODO: localize 'Pack'
-                            Text('Pack: ${filing.packKey}',
+                            Text('${AppLocalizations.of(context)!.packLabel}: ${filing.packKey}',
                                 style: TextStyle(color: Colors.grey[600])),
                             const SizedBox(height: 2),
-                            // TODO: localize 'Submitted'
                             Text(
-                              'Submitted: ${filing.submittedAt.toLocal().toString().split('.').first}',
+                              '${AppLocalizations.of(context)!.submittedLabel}: ${filing.submittedAt.toLocal().toString().split('.').first}',
                               style: const TextStyle(fontSize: 12),
                             ),
                           ],

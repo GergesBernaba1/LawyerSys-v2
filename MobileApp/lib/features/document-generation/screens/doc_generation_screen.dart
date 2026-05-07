@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/doc_generation_bloc.dart';
 import '../bloc/doc_generation_event.dart';
 import '../bloc/doc_generation_state.dart';
@@ -43,15 +44,13 @@ class _DocGenerationScreenState extends State<DocGenerationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TODO: localize 'Document Generation'
-        title: const Text('Document Generation'),
+        title: Text(AppLocalizations.of(context)!.documentGeneration),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            // TODO: localize tab labels
-            Tab(text: 'Generate'),
-            Tab(text: 'History'),
-            Tab(text: 'Drafts'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.generateDocument),
+            Tab(text: AppLocalizations.of(context)!.caseHistory),
+            Tab(text: AppLocalizations.of(context)!.newDraft),
           ],
         ),
       ),
@@ -59,8 +58,7 @@ class _DocGenerationScreenState extends State<DocGenerationScreen>
         listener: (context, state) {
           if (state is DocGenError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              // TODO: localize 'Error'
-              SnackBar(content: Text('Error: ${state.message}')),
+              SnackBar(content: Text('${AppLocalizations.of(context)!.error}: ${state.message}')),
             );
           } else if (state is DocGenOperationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -190,19 +188,16 @@ class _GenerateTabState extends State<_GenerateTab> {
               // Language picker
               Row(
                 children: [
-                  // TODO: localize 'Language'
-                  const Text('Language: ', style: TextStyle(fontWeight: FontWeight.w500)),
+                  Text('${AppLocalizations.of(context)!.language}: ', style: const TextStyle(fontWeight: FontWeight.w500)),
                   const SizedBox(width: 8),
                   ChoiceChip(
-                    // TODO: localize 'English'
-                    label: const Text('English'),
+                    label: Text(AppLocalizations.of(context)!.english),
                     selected: _language == 'en',
                     onSelected: (_) => setState(() => _language = 'en'),
                   ),
                   const SizedBox(width: 8),
                   ChoiceChip(
-                    // TODO: localize 'Arabic'
-                    label: const Text('Arabic'),
+                    label: Text(AppLocalizations.of(context)!.arabic),
                     selected: _language == 'ar',
                     onSelected: (_) {
                       setState(() => _language = 'ar');
@@ -218,27 +213,24 @@ class _GenerateTabState extends State<_GenerateTab> {
               // Case code field (optional)
               TextFormField(
                 controller: _caseCodeController,
-                // TODO: localize label/hint
-                decoration: const InputDecoration(
-                  labelText: 'Case Code (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.caseCode,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Template list
-              // TODO: localize 'Select Template'
-              const Text('Select Template',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(AppLocalizations.of(context)!.selectTemplate,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
               if (state is DocGenLoading && templates.isEmpty)
                 const Center(child: CircularProgressIndicator()),
 
               if (templates.isEmpty && state is! DocGenLoading)
-                // TODO: localize 'No templates available'
-                const Text('No templates available.',
-                    style: TextStyle(color: Colors.grey)),
+                Text(AppLocalizations.of(context)!.noTemplatesFound,
+                    style: const TextStyle(color: Colors.grey)),
 
               RadioGroup<String>(
                 groupValue: _selectedTemplate?.id,
@@ -271,9 +263,8 @@ class _GenerateTabState extends State<_GenerateTab> {
               // Dynamic field form
               if (_selectedTemplate != null) ...[
                 const Divider(height: 32),
-                // TODO: localize 'Fill in Fields'
-                const Text('Fill in Fields',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.fillInFields,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 ..._selectedTemplate!.fields.map((field) => _buildField(field)),
                 const SizedBox(height: 16),
@@ -286,12 +277,10 @@ class _GenerateTabState extends State<_GenerateTab> {
                   margin: const EdgeInsets.only(bottom: 16),
                   child: ListTile(
                     leading: const Icon(Icons.check_circle, color: Colors.green),
-                    // TODO: localize 'Document Generated'
                     title: Text(state.doc.title,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                      // TODO: localize 'Generated on'
-                      'Generated on: ${state.doc.generatedAt.toLocal().toString().split('.').first}',
+                      '${AppLocalizations.of(context)!.generatedOn}: ${state.doc.generatedAt.toLocal().toString().split('.').first}',
                     ),
                   ),
                 ),
@@ -310,8 +299,7 @@ class _GenerateTabState extends State<_GenerateTab> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.article),
-                    // TODO: localize 'Generate Document'
-                    label: const Text('Generate Document'),
+                    label: Text(AppLocalizations.of(context)!.generateDocument),
                   ),
                 ),
             ],
@@ -335,7 +323,7 @@ class _GenerateTabState extends State<_GenerateTab> {
                 .map((opt) => DropdownMenuEntry(value: opt, label: opt))
                 .toList(),
             errorText: (field.required && _selectValues[field.key] == null)
-                ? '${field.label} is required' // TODO: localize
+                ? '${field.label} ${AppLocalizations.of(context)!.isRequired}'
                 : null,
           ),
         );
@@ -346,7 +334,7 @@ class _GenerateTabState extends State<_GenerateTab> {
           child: FormField<DateTime>(
             validator: field.required
                 ? (val) => _dateValues[field.key] == null
-                    ? '${field.label} is required' // TODO: localize
+                    ? '${field.label} ${AppLocalizations.of(context)!.isRequired}'
                     : null
                 : null,
             builder: (formState) {
@@ -363,8 +351,7 @@ class _GenerateTabState extends State<_GenerateTab> {
                   child: Text(
                     picked != null
                         ? picked.toLocal().toString().split(' ').first
-                        // TODO: localize 'Pick a date'
-                        : 'Pick a date',
+                        : AppLocalizations.of(context)!.pickADate,
                     style: TextStyle(
                       color: picked != null ? null : Colors.grey,
                     ),
@@ -387,7 +374,7 @@ class _GenerateTabState extends State<_GenerateTab> {
             ),
             validator: field.required
                 ? (val) =>
-                    (val == null || val.isEmpty) ? '${field.label} is required' : null // TODO: localize
+                    (val == null || val.isEmpty) ? '${field.label} ${AppLocalizations.of(context)!.isRequired}' : null
                 : null,
           ),
         );
@@ -403,7 +390,7 @@ class _GenerateTabState extends State<_GenerateTab> {
             ),
             validator: field.required
                 ? (val) =>
-                    (val == null || val.isEmpty) ? '${field.label} is required' : null // TODO: localize
+                    (val == null || val.isEmpty) ? '${field.label} ${AppLocalizations.of(context)!.isRequired}' : null
                 : null,
           ),
         );
@@ -433,16 +420,15 @@ class _HistoryTab extends StatelessWidget {
               onRefresh: () async =>
                   context.read<DocGenerationBloc>().add(LoadDocHistory()),
               child: ListView(
-                children: const [
-                  SizedBox(height: 120),
+                children: [
+                  const SizedBox(height: 120),
                   Center(
                     child: Column(
                       children: [
-                        Icon(Icons.history, size: 48, color: Colors.grey),
-                        SizedBox(height: 12),
-                        // TODO: localize
-                        Text('No generated documents yet.',
-                            style: TextStyle(color: Colors.grey)),
+                        const Icon(Icons.history, size: 48, color: Colors.grey),
+                        const SizedBox(height: 12),
+                        Text(AppLocalizations.of(context)!.noDocumentsFound,
+                            style: const TextStyle(color: Colors.grey)),
                       ],
                     ),
                   ),
@@ -468,14 +454,11 @@ class _HistoryTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (doc.templateName != null)
-                          // TODO: localize 'Template'
-                          Text('Template: ${doc.templateName}'),
+                          Text('${AppLocalizations.of(context)!.templateLabel}: ${doc.templateName}'),
                         if (doc.caseCode != null)
-                          // TODO: localize 'Case'
-                          Text('Case: ${doc.caseCode}'),
-                        // TODO: localize 'Generated'
+                          Text('${AppLocalizations.of(context)!.caseLabel}: ${doc.caseCode}'),
                         Text(
-                            'Generated: ${doc.generatedAt.toLocal().toString().split('.').first}'),
+                            '${AppLocalizations.of(context)!.generatedLabel}: ${doc.generatedAt.toLocal().toString().split('.').first}'),
                       ],
                     ),
                   ),
@@ -507,11 +490,11 @@ class _DraftsTab extends StatelessWidget {
     final contentCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        // TODO: localize 'New Draft'
-        title: const Text('New Draft'),
+        title: Text(l10n.newDraft),
         content: Form(
           key: formKey,
           child: Column(
@@ -519,25 +502,23 @@ class _DraftsTab extends StatelessWidget {
             children: [
               TextFormField(
                 controller: titleCtrl,
-                // TODO: localize
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.title,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (val) =>
-                    (val == null || val.isEmpty) ? 'Title is required' : null, // TODO: localize
+                    (val == null || val.isEmpty) ? '${l10n.title} ${l10n.isRequired}' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: contentCtrl,
-                // TODO: localize
-                decoration: const InputDecoration(
-                  labelText: 'Content',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.content,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 4,
                 validator: (val) =>
-                    (val == null || val.isEmpty) ? 'Content is required' : null, // TODO: localize
+                    (val == null || val.isEmpty) ? '${l10n.content} ${l10n.isRequired}' : null,
               ),
             ],
           ),
@@ -545,8 +526,7 @@ class _DraftsTab extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            // TODO: localize 'Cancel'
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -560,8 +540,7 @@ class _DraftsTab extends StatelessWidget {
                 Navigator.pop(dialogCtx);
               }
             },
-            // TODO: localize 'Save'
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -569,18 +548,16 @@ class _DraftsTab extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context, DocDraft draft) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        // TODO: localize 'Delete Draft'
-        title: const Text('Delete Draft'),
-        // TODO: localize confirmation message
-        content: Text('Delete "${draft.title}"?'),
+        title: Text(l10n.deleteDraft),
+        content: Text('${l10n.delete} "${draft.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            // TODO: localize 'Cancel'
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -588,8 +565,7 @@ class _DraftsTab extends StatelessWidget {
               context.read<DocGenerationBloc>().add(DeleteDocDraft(draft.id));
               Navigator.pop(dialogCtx);
             },
-            // TODO: localize 'Delete'
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -615,15 +591,15 @@ class _DraftsTab extends StatelessWidget {
             onRefresh: () async =>
                 context.read<DocGenerationBloc>().add(LoadDocDrafts()),
             child: ListView(
-              children: const [
-                SizedBox(height: 120),
+              children: [
+                const SizedBox(height: 120),
                 Center(
                   child: Column(
                     children: [
-                      Icon(Icons.drafts, size: 48, color: Colors.grey),
-                      SizedBox(height: 12),
-                      // TODO: localize
-                      Text('No drafts yet.', style: TextStyle(color: Colors.grey)),
+                      const Icon(Icons.drafts, size: 48, color: Colors.grey),
+                      const SizedBox(height: 12),
+                      Text(AppLocalizations.of(context)!.noData,
+                          style: const TextStyle(color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -646,8 +622,7 @@ class _DraftsTab extends StatelessWidget {
                     title: Text(draft.title,
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     subtitle: Text(
-                      // TODO: localize 'Created'
-                      'Created: ${draft.createdAt.toLocal().toString().split('.').first}',
+                      '${AppLocalizations.of(context)!.generatedOn}: ${draft.createdAt.toLocal().toString().split('.').first}',
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -664,8 +639,7 @@ class _DraftsTab extends StatelessWidget {
           body: body,
           floatingActionButton: FloatingActionButton(
             onPressed: () => _showCreateDraftDialog(context),
-            // TODO: localize tooltip 'New Draft'
-            tooltip: 'New Draft',
+            tooltip: AppLocalizations.of(context)!.newDraft,
             child: const Icon(Icons.add),
           ),
         );

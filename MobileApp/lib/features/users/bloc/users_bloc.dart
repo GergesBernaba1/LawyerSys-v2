@@ -59,8 +59,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
         job: event.job,
         role: event.role,
       );
-      emit(UserOperationSuccess('User created successfully')); // TODO: localize
-      final raw = await usersRepository.getUsers();
+      emit(UserOperationSuccess('User created successfully'));      final raw = await usersRepository.getUsers();
       emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
     } catch (e) {
       emit(UsersError(e.toString()));
@@ -78,8 +77,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
         job: event.job,
         isActive: event.isActive,
       );
-      emit(UserOperationSuccess('User updated successfully')); // TODO: localize
-      final raw = await usersRepository.getUsers();
+      emit(UserOperationSuccess('User updated successfully'));      final raw = await usersRepository.getUsers();
       emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
     } catch (e) {
       emit(UsersError(e.toString()));
@@ -90,8 +88,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     emit(UsersLoading());
     try {
       await usersRepository.deleteUser(event.id);
-      emit(UserOperationSuccess('User deleted successfully')); // TODO: localize
-      final raw = await usersRepository.getUsers();
+      emit(UserOperationSuccess('User deleted successfully'));      final raw = await usersRepository.getUsers();
       emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
     } catch (e) {
       emit(UsersError(e.toString()));
@@ -102,8 +99,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     emit(UsersLoading());
     try {
       await usersRepository.changeUserRole(event.id, event.role);
-      emit(UserOperationSuccess('User role changed successfully')); // TODO: localize
-      final raw = await usersRepository.getUsers();
+      emit(UserOperationSuccess('User role changed successfully'));      final raw = await usersRepository.getUsers();
       emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
     } catch (e) {
       emit(UsersError(e.toString()));

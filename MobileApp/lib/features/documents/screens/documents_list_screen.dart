@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../shared/widgets/skeleton_loader.dart';
 import '../../../core/api/api_client.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/documents_bloc.dart';
 import '../bloc/documents_event.dart';
 import '../bloc/documents_state.dart';
@@ -60,6 +61,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
   }
 
   void _showShareSheet(BuildContext context, String url) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -83,9 +85,9 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                   ),
                 ),
               ),
-              const Text(
-                'Share Link', // TODO: localize
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              Text(
+                l10n.shareLink,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 12),
               Row(
@@ -95,12 +97,12 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy),
-                    tooltip: 'Copy Link', // TODO: localize
+                    tooltip: l10n.copyLink,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: url));
                       Navigator.pop(sheetCtx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Link copied')), // TODO: localize
+                        SnackBar(content: Text(l10n.linkCopied)),
                       );
                     },
                   ),
@@ -114,7 +116,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   }
                 },
-                child: const Text('Open in Browser'), // TODO: localize
+                child: Text(l10n.openInBrowser),
               ),
             ],
           ),
@@ -131,6 +133,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
     final filePathController = TextEditingController();
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -145,8 +148,8 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
             if (state is DocumentsUploadSuccess) {
               Navigator.pop(sheetCtx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Document uploaded successfully')), // TODO: localize
+                SnackBar(
+                    content: Text(l10n.documentUploadedSuccessfully)),
               );
             } else if (state is DocumentsError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -180,7 +183,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                       ),
                     ),
                     Text(
-                      'Upload Document', // TODO: localize
+                      l10n.uploadDocument,
                       style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -190,10 +193,9 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                     TextField(
                       controller: filePathController,
                       decoration: InputDecoration(
-                        labelText: 'File Path', // TODO: localize
+                        labelText: l10n.pleaseEnterFilePath,
                         hintText: '/storage/emulated/0/Documents/file.pdf',
-                        helperText:
-                            'Enter the full path to your file', // TODO: localize
+                        helperText: l10n.pleaseEnterFilePath,
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.folder_open),
@@ -210,18 +212,18 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                     const SizedBox(height: 12),
                     TextField(
                       controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Title (optional)', // TODO: localize
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.description,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: descriptionController,
                       maxLines: 2,
-                      decoration: const InputDecoration(
-                        labelText: 'Description (optional)', // TODO: localize
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.description,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -239,8 +241,8 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                 )
                               : const Icon(Icons.upload),
                           label: Text(isUploading
-                              ? 'Uploading...' // TODO: localize
-                              : 'Upload'), // TODO: localize
+                              ? l10n.uploadDocument
+                              : l10n.uploadDocument),
                           onPressed: isUploading
                               ? null
                               : () {
@@ -248,9 +250,9 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                                       filePathController.text.trim();
                                   if (path.isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
                                           content: Text(
-                                              'Please enter a file path')), // TODO: localize
+                                              l10n.pleaseEnterFilePath)),
                                     );
                                     return;
                                   }
@@ -284,23 +286,24 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
   }
 
   void _showRenameDialog(BuildContext context, Document doc) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: doc.fileName);
     showDialog<void>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Rename Document'), // TODO: localize
+        title: Text(l10n.renameDocument),
         content: TextFormField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'File Name', // TODO: localize
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.rename,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('Cancel'), // TODO: localize
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -313,7 +316,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               }
               Navigator.pop(dialogCtx);
             },
-            child: const Text('Rename'), // TODO: localize
+            child: Text(l10n.rename),
           ),
         ],
       ),
@@ -322,11 +325,12 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocProvider.value(
       value: _bloc,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Documents'), // TODO: localize
+          title: Text(l10n.documents),
           actions: [
             Semantics(
               label: 'Refresh documents',
@@ -344,7 +348,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
           hint: 'Tap to upload a new document',
           button: true,
           child: FloatingActionButton(
-            tooltip: 'Upload Document', // TODO: localize
+            tooltip: l10n.uploadDocument,
             onPressed: () => _showUploadSheet(context),
             child: const Icon(Icons.upload_file),
           ),
@@ -353,8 +357,8 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
           listener: (context, state) {
             if (state is DocumentsUploadSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Document uploaded successfully')), // TODO: localize
+                SnackBar(
+                    content: Text(l10n.documentUploadedSuccessfully)),
               );
             } else if (state is DocumentsError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -364,7 +368,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
               _showShareSheet(context, state.url);
             } else if (state is DocumentRenamed) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Renamed successfully')), // TODO: localize
+                SnackBar(content: Text(l10n.renamedSuccessfully)),
               );
             }
           },
@@ -378,8 +382,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
             if (state is DocumentsLoaded) {
               final docs = state.documents;
               if (docs.isEmpty) {
-                return const Center(child: Text('No documents found')); // TODO: localize
-              }
+                return Center(child: Text(l10n.noDocumentsFound));
               return ListView.builder(
                 controller: _scrollController,
                 itemCount: docs.length + (state.hasMore || state.isLoadingMore ? 1 : 0),
@@ -406,7 +409,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.share),
-                          tooltip: 'Share', // TODO: localize
+                          tooltip: l10n.shareDocument,
                           onPressed: () => _bloc.add(ShareDocument(document.id)),
                         ),
                         IconButton(
@@ -419,14 +422,14 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                               _showRenameDialog(context, document);
                             }
                           },
-                          itemBuilder: (_) => const [
+                          itemBuilder: (_) => [
                             PopupMenuItem(
                               value: 'rename',
                               child: Row(
                                 children: [
-                                  Icon(Icons.edit, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('Rename'), // TODO: localize
+                                  const Icon(Icons.edit, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.rename),
                                 ],
                               ),
                             ),

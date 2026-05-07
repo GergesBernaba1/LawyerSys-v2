@@ -248,7 +248,7 @@ class _AppState extends State<App> {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-              create: (ctx) => ThemeCubit(PreferencesStorage.instance)),
+              create: (ctx) => ThemeCubit(PreferencesStorage())),
           BlocProvider(
               create: (ctx) => AuthBloc(
                   authRepository: RepositoryProvider.of<AuthRepository>(ctx))),
@@ -469,9 +469,7 @@ class _AppInitializerState extends State<_AppInitializer> {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeMode,
-        useMaterial3: true,
-      ),
-      localizationsDelegates: const [
+          localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

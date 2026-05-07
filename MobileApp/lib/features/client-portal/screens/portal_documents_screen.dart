@@ -52,7 +52,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
               if (state is PortalDocumentUploaded) {
                 Navigator.pop(sheetCtx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Document uploaded')), // TODO: localize
+                  SnackBar(content: Text(AppLocalizations.of(context)!.documentUploaded)),
                 );
               } else if (state is ClientPortalError) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -86,7 +86,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                         ),
                       ),
                       Text(
-                        'Upload Document', // TODO: localize
+                        AppLocalizations.of(ctx)!.uploadDocument,
                         style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -95,19 +95,19 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                       // TODO: replace with FilePicker
                       TextField(
                         controller: filePathController,
-                        decoration: const InputDecoration(
-                          labelText: 'File Path', // TODO: localize
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(ctx)!.pleaseEnterFilePath,
                           hintText: '/storage/emulated/0/Documents/file.pdf',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                         onChanged: (_) => setSheetState(() {}),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: titleController,
-                        decoration: const InputDecoration(
-                          labelText: 'Title (optional)', // TODO: localize
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(ctx)!.description,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -124,16 +124,16 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
                                   )
                                 : const Icon(Icons.upload),
                             label: Text(isUploading
-                                ? 'Uploading...' // TODO: localize
-                                : 'Upload'), // TODO: localize
+                                ? AppLocalizations.of(context)!.uploadDocument
+                                : AppLocalizations.of(context)!.uploadDocument),
                             onPressed: isUploading
                                 ? null
                                 : () {
                                     final path = filePathController.text.trim();
                                     if (path.isEmpty) {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text('Please enter a file path')), // TODO: localize
+                                        SnackBar(
+                                            content: Text(AppLocalizations.of(context)!.pleaseEnterFilePath)),
                                       );
                                       return;
                                     }

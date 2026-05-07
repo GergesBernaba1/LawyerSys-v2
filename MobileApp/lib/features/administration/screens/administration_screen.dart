@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/administration_bloc.dart';
 import '../bloc/administration_event.dart';
 import '../bloc/administration_state.dart';
@@ -105,7 +106,7 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Administration'), // TODO: localize
+        title: Text(AppLocalizations.of(context)!.administration),
       ),
       body: BlocConsumer<AdministrationBloc, AdminState>(
         listener: (context, state) {

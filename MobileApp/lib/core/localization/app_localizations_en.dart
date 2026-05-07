@@ -809,4 +809,314 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  // Dashboard
+  @override
+  String get welcomeBack => 'Welcome Back';
+  @override
+  String get statistics => 'Statistics';
+  @override
+  String get onTrack => 'On Track';
+  @override
+  String get needsAttention => 'Needs Attention';
+  @override
+  String get critical => 'Critical';
+  @override
+  String get operationalFocus => 'Operational Focus';
+  @override
+  String get activityHealth => 'Activity Health';
+  @override
+  String get completionReadiness => 'Completion Readiness';
+  @override
+  String get quickActions => 'Quick Actions';
+  @override
+  String get newCase => 'New Case';
+  @override
+  String get newCustomer => 'New Customer';
+  @override
+  String get viewBilling => 'View Billing';
+  @override
+  String get adminTasks => 'Admin Tasks';
+  @override
+  String get workQueue => 'Work Queue';
+  @override
+  String get myCases => 'My Cases';
+  @override
+  String get myTasks => 'My Tasks';
+  @override
+  String get myLeads => 'My Leads';
+  @override
+  String get recentCases => 'Recent Cases';
+  @override
+  String get viewAll => 'View All';
+  @override
+  String get noRecentCases => 'No Recent Cases';
+  @override
+  String get startCreatingCase => 'Start by creating your first case';
+  @override
+  String get noCaseNumber => 'No case number';
+  @override
+  String get myOverdueTasks => 'My Overdue Tasks';
+  @override
+  String get noOverdueTasks => 'No overdue tasks';
+  @override
+  String get myFollowUps => 'My Follow-Ups';
+  @override
+  String get noFollowUpsScheduled => 'No follow-ups scheduled';
+
+  // General UI
+  @override
+  String get aboutUs => 'About Us';
+  @override
+  String get active => 'Active';
+  @override
+  String get administration => 'Administration';
+  @override
+  String get admin => 'Admin';
+  @override
+  String get clear => 'Clear';
+  @override
+  String get confirm => 'Confirm';
+  @override
+  String get contactUs => 'Contact Us';
+  @override
+  String get submit => 'Submit';
+  @override
+  String get update => 'Update';
+  @override
+  String get updateStatus => 'Update Status';
+  @override
+  String get role => 'Role';
+  @override
+  String get filteredBy => 'Filtered by';
+  @override
+  String get noAssignedTasks => 'No assigned tasks';
+
+  // Documents
+  @override
+  String get noDocumentsFound => 'No documents found';
+  @override
+  String get rename => 'Rename';
+  @override
+  String get renameDocument => 'Rename Document';
+  @override
+  String get renamedSuccessfully => 'Renamed successfully';
+  @override
+  String get documentUploaded => 'Document uploaded';
+  @override
+  String get documentUploadedSuccessfully => 'Document uploaded successfully';
+  @override
+  String get pleaseEnterFilePath => 'Please enter file path';
+  @override
+  String get getShareLink => 'Get Share Link';
+  @override
+  String get shareLinkCopied => 'Share link copied';
+  @override
+  String get linkCopied => 'Link copied';
+
+  // Court Sittings / Judicial Documents
+  @override
+  String get courtSittings => 'Court Sittings';
+  @override
+  String get deleteCourtSitting => 'Delete Court Sitting';
+
+  // Users
+  @override
+  String get deleteUser => 'Delete User';
+
+  // eSignatures
+  @override
+  String get eSignatures => 'eSignatures';
+  @override
+  String get newESignRequest => 'New eSign Request';
+
+  // Intake / CRM
+  @override
+  String get publicIntakeLinkNotAvailable => 'Public intake link not available';
+  @override
+  String get messageSentSuccessfully => 'Message sent successfully';
+  @override
+  String get addCaseRelation => 'Add Case Relation';
+
+  // Court Automation
+  @override
+  String get calculateDeadlines => 'Calculate Deadlines';
+  @override
+  String get deadlines => 'Deadlines';
+  @override
+  String get due => 'Due';
+  @override
+  String get noDeadlinesReturned => 'No deadlines returned.';
+  @override
+  String get noFilingsYet => 'No filings yet.';
+  @override
+  String get selectADate => 'Select a date';
+  @override
+  String get submitFiling => 'Submit Filing';
+  @override
+  String get packLabel => 'Pack';
+  @override
+  String get submittedLabel => 'Submitted';
+  @override
+  String get caseLabel => 'Case';
+
+  // Document Generation
+  @override
+  String get documentGeneration => 'Document Generation';
+  @override
+  String get selectTemplate => 'Select Template';
+  @override
+  String get noTemplatesFound => 'No templates found';
+  @override
+  String get fillInFields => 'Fill in Fields';
+  @override
+  String get documentGenerated => 'Document Generated';
+  @override
+  String get generatedOn => 'Generated on';
+  @override
+  String get generateDocument => 'Generate Document';
+  @override
+  String get isRequired => 'is required';
+  @override
+  String get pickADate => 'Pick a date';
+  @override
+  String get newDraft => 'New Draft';
+  @override
+  String get title => 'Title';
+  @override
+  String get content => 'Content';
+  @override
+  String get deleteDraft => 'Delete Draft';
+  @override
+  String get templateLabel => 'Template';
+  @override
+  String get generatedLabel => 'Generated';
+
+  // AI Assistant
+  @override
+  String get aiAssistant => 'AI Assistant';
+  @override
+  String get draft => 'Draft';
+  @override
+  String get enterTextToSummarize => 'Enter text to summarize...';
+  @override
+  String get summarize => 'Summarize';
+
+  // Bloc success messages
+  @override
+  String get eSignRequestCreated => 'E-Sign request created successfully';
+  @override
+  String get statusUpdatedSuccessfully => 'Status updated successfully';
+  @override
+  String get userCreatedSuccessfully => 'User created successfully';
+  @override
+  String get userUpdatedSuccessfully => 'User updated successfully';
+  @override
+  String get userDeletedSuccessfully => 'User deleted successfully';
+  @override
+  String get userRoleChangedSuccessfully => 'User role changed successfully';
+  @override
+  String get tenantCreatedSuccessfully => 'Tenant created successfully';
+  @override
+  String get tenantUpdatedSuccessfully => 'Tenant updated successfully';
+  @override
+  String get tenantDeletedSuccessfully => 'Tenant deleted successfully';
+  @override
+  String get draftCreatedSuccessfully => 'Draft created successfully';
+  @override
+  String get draftDeletedSuccessfully => 'Draft deleted successfully';
+
+  // Contact form
+  @override
+  String get contactInformation => 'Contact Information';
+  @override
+  String get getInTouch => 'Get in Touch';
+  @override
+  String get weLoveToHear => "We'd love to hear from you. Send us a message!";
+  @override
+  String get yourName => 'Your Name';
+  @override
+  String get enterFullName => 'Enter your full name';
+  @override
+  String get nameRequired => 'Name is required';
+  @override
+  String get emailAddress => 'Email Address';
+  @override
+  String get enterEmail => 'Enter your email';
+  @override
+  String get enterValidEmail => 'Enter a valid email address';
+  @override
+  String get writeYourMessage => 'Write your message here...';
+  @override
+  String get messageRequired => 'Message is required';
+  @override
+  String get messageTooShort => 'Message must be at least 10 characters';
+  @override
+  String get sendMessageLabel => 'Send Message';
+
+  // About
+  @override
+  String get website => 'Website';
+
+  // Court Sittings
+  @override
+  String get courtId => 'Court ID';
+  @override
+  String get deleteCourtSittingConfirm => 'Are you sure you want to delete this court sitting?';
+  @override
+  String get addCourtSitting => 'Add Court Sitting';
+  @override
+  String get searchSittings => 'Search sittings...';
+  @override
+  String get noCourtSittingsFound => 'No court sittings found';
+
+  // Case Relations
+  @override
+  String get relatedCaseId => 'Related Case ID';
+  @override
+  String get notesOptional => 'Notes (optional)';
+  @override
+  String get relationTypeRelated => 'Related';
+  @override
+  String get relationTypeAppeal => 'Appeal';
+  @override
+  String get relationTypeConsolidated => 'Consolidated';
+  @override
+  String get relationTypeCompanion => 'Companion';
+  @override
+  String get failedToLoadRelations => 'Failed to load relations';
+
+  // Court Automation
+  @override
+  String get pleaseEnterCaseCode => 'Please enter a case code first.';
+
+  // Files
+  @override
+  String get couldNotOpenUrl => 'Could not open the download URL.';
+  @override
+  String get downloadFailed => 'Download failed';
+
+  // Governments
+  @override
+  String get governorateId => 'Governorate ID';
+  @override
+  String get governorateName => 'Governorate Name';
+
+  // Cases
+  @override
+  String get caseCodeMustBePositive => 'Case code must be a positive number';
+  @override
+  String get statement => 'Statement';
+
+  // Audit Logs
+  @override
+  String get auditLogs => 'Audit Logs';
+  @override
+  String get searchAuditLogs => 'Search audit logs...';
+  @override
+  String get entity => 'Entity';
+  @override
+  String get action => 'Action';
+  @override
+  String get noAuditLogsFound => 'No audit logs found';
 }

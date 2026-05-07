@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localizations.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -33,14 +34,15 @@ class _ContactScreenState extends State<ContactScreen> {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isSubmitting = false);
     _formKey.currentState!.reset();
     _nameCtrl.clear();
     _emailCtrl.clear();
     _messageCtrl.clear();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Message sent successfully'), // TODO localize
+      SnackBar(
+        content: Text(l10n.messageSent),
         backgroundColor: Colors.green,
       ),
     );
@@ -48,9 +50,10 @@ class _ContactScreenState extends State<ContactScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contact Us'), // TODO localize
+        title: Text(l10n.contactUs),
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -75,10 +78,10 @@ class _ContactScreenState extends State<ContactScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Center(
+              Center(
                 child: Text(
-                  'Get in Touch', // TODO localize
-                  style: TextStyle(
+                  l10n.getInTouch,
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: _kText,
@@ -88,7 +91,7 @@ class _ContactScreenState extends State<ContactScreen> {
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  'We\'d love to hear from you. Send us a message!', // TODO localize
+                  l10n.weLoveToHear,
                   style: TextStyle(fontSize: 14, color: _kTextSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -99,8 +102,8 @@ class _ContactScreenState extends State<ContactScreen> {
                 controller: _nameCtrl,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
-                  labelText: 'Your Name', // TODO localize
-                  hintText: 'Enter your full name', // TODO localize
+                  labelText: l10n.yourName,
+                  hintText: l10n.enterFullName,
                   prefixIcon: const Icon(Icons.person_outline, color: _kPrimaryLight),
                   filled: true,
                   fillColor: _kPrimary.withValues(alpha: 0.03),
@@ -116,7 +119,7 @@ class _ContactScreenState extends State<ContactScreen> {
                 ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return 'Name is required'; // TODO localize
+                    return l10n.nameRequired;
                   }
                   return null;
                 },
@@ -128,8 +131,8 @@ class _ContactScreenState extends State<ContactScreen> {
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
-                  labelText: 'Email Address', // TODO localize
-                  hintText: 'Enter your email', // TODO localize
+                  labelText: l10n.emailAddress,
+                  hintText: l10n.enterEmail,
                   prefixIcon: const Icon(Icons.email_outlined, color: _kPrimaryLight),
                   filled: true,
                   fillColor: _kPrimary.withValues(alpha: 0.03),
@@ -145,11 +148,11 @@ class _ContactScreenState extends State<ContactScreen> {
                 ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return 'Email is required'; // TODO localize
+                    return l10n.emailIsRequired;
                   }
                   final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
                   if (!emailRegex.hasMatch(v.trim())) {
-                    return 'Enter a valid email address'; // TODO localize
+                    return l10n.enterValidEmail;
                   }
                   return null;
                 },
@@ -161,8 +164,8 @@ class _ContactScreenState extends State<ContactScreen> {
                 maxLines: 5,
                 textInputAction: TextInputAction.newline,
                 decoration: InputDecoration(
-                  labelText: 'Message', // TODO localize
-                  hintText: 'Write your message here...', // TODO localize
+                  labelText: l10n.messageBody,
+                  hintText: l10n.writeYourMessage,
                   alignLabelWithHint: true,
                   prefixIcon: const Padding(
                     padding: EdgeInsets.only(bottom: 64),
@@ -182,10 +185,10 @@ class _ContactScreenState extends State<ContactScreen> {
                 ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return 'Message is required'; // TODO localize
+                    return l10n.messageRequired;
                   }
                   if (v.trim().length < 10) {
-                    return 'Message must be at least 10 characters'; // TODO localize
+                    return l10n.messageTooShort;
                   }
                   return null;
                 },
@@ -214,9 +217,9 @@ class _ContactScreenState extends State<ContactScreen> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Text(
-                          'Send Message', // TODO localize
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      : Text(
+                          l10n.sendMessageLabel,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                         ),
                 ),
               ),

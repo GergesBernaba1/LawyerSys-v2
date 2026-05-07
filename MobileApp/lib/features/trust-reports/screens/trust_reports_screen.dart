@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/trust_reports_bloc.dart';
 import '../bloc/trust_reports_event.dart';
 import '../bloc/trust_reports_state.dart';
@@ -44,8 +45,7 @@ class _TrustReportsScreenState extends State<TrustReportsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TODO: localize
-        title: const Text('Trust Reports'),
+        title: Text(AppLocalizations.of(context)!.reports),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

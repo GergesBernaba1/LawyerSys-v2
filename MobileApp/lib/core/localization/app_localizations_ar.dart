@@ -809,4 +809,314 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get retry => 'إعادة المحاولة';
+
+  // Dashboard
+  @override
+  String get welcomeBack => 'مرحباً بعودتك';
+  @override
+  String get statistics => 'الإحصائيات';
+  @override
+  String get onTrack => 'في المسار';
+  @override
+  String get needsAttention => 'يحتاج اهتمام';
+  @override
+  String get critical => 'حرج';
+  @override
+  String get operationalFocus => 'التركيز التشغيلي';
+  @override
+  String get activityHealth => 'صحة النشاط';
+  @override
+  String get completionReadiness => 'جاهزية الإتمام';
+  @override
+  String get quickActions => 'الإجراءات السريعة';
+  @override
+  String get newCase => 'قضية جديدة';
+  @override
+  String get newCustomer => 'عميل جديد';
+  @override
+  String get viewBilling => 'عرض الفواتير';
+  @override
+  String get adminTasks => 'مهام الإدارة';
+  @override
+  String get workQueue => 'قائمة الأعمال';
+  @override
+  String get myCases => 'قضاياي';
+  @override
+  String get myTasks => 'مهامي';
+  @override
+  String get myLeads => 'عملائي المحتملون';
+  @override
+  String get recentCases => 'القضايا الأخيرة';
+  @override
+  String get viewAll => 'عرض الكل';
+  @override
+  String get noRecentCases => 'لا توجد قضايا حديثة';
+  @override
+  String get startCreatingCase => 'ابدأ بإنشاء قضيتك الأولى';
+  @override
+  String get noCaseNumber => 'لا يوجد رقم قضية';
+  @override
+  String get myOverdueTasks => 'مهامي المتأخرة';
+  @override
+  String get noOverdueTasks => 'لا توجد مهام متأخرة';
+  @override
+  String get myFollowUps => 'متابعاتي';
+  @override
+  String get noFollowUpsScheduled => 'لا توجد متابعات مجدولة';
+
+  // General UI
+  @override
+  String get aboutUs => 'عن التطبيق';
+  @override
+  String get active => 'نشط';
+  @override
+  String get administration => 'الإدارة';
+  @override
+  String get admin => 'مدير';
+  @override
+  String get clear => 'مسح';
+  @override
+  String get confirm => 'تأكيد';
+  @override
+  String get contactUs => 'تواصل معنا';
+  @override
+  String get submit => 'إرسال';
+  @override
+  String get update => 'تحديث';
+  @override
+  String get updateStatus => 'تحديث الحالة';
+  @override
+  String get role => 'الدور';
+  @override
+  String get filteredBy => 'مصفى حسب';
+  @override
+  String get noAssignedTasks => 'لا توجد مهام مسندة';
+
+  // Documents
+  @override
+  String get noDocumentsFound => 'لا توجد وثائق';
+  @override
+  String get rename => 'إعادة تسمية';
+  @override
+  String get renameDocument => 'إعادة تسمية الوثيقة';
+  @override
+  String get renamedSuccessfully => 'تمت إعادة التسمية بنجاح';
+  @override
+  String get documentUploaded => 'تم رفع الوثيقة';
+  @override
+  String get documentUploadedSuccessfully => 'تم رفع الوثيقة بنجاح';
+  @override
+  String get pleaseEnterFilePath => 'الرجاء إدخال مسار الملف';
+  @override
+  String get getShareLink => 'الحصول على رابط المشاركة';
+  @override
+  String get shareLinkCopied => 'تم نسخ رابط المشاركة';
+  @override
+  String get linkCopied => 'تم نسخ الرابط';
+
+  // Court Sittings / Judicial Documents
+  @override
+  String get courtSittings => 'جلسات المحكمة';
+  @override
+  String get deleteCourtSitting => 'حذف جلسة المحكمة';
+
+  // Users
+  @override
+  String get deleteUser => 'حذف المستخدم';
+
+  // eSignatures
+  @override
+  String get eSignatures => 'التوقيعات الإلكترونية';
+  @override
+  String get newESignRequest => 'طلب توقيع إلكتروني جديد';
+
+  // Intake / CRM
+  @override
+  String get publicIntakeLinkNotAvailable => 'رابط الاستقبال العام غير متاح';
+  @override
+  String get messageSentSuccessfully => 'تم إرسال الرسالة بنجاح';
+  @override
+  String get addCaseRelation => 'إضافة علاقة قضية';
+
+  // Court Automation
+  @override
+  String get calculateDeadlines => 'حساب المواعيد النهائية';
+  @override
+  String get deadlines => 'المواعيد النهائية';
+  @override
+  String get due => 'الاستحقاق';
+  @override
+  String get noDeadlinesReturned => 'لم يتم إرجاع مواعيد نهائية.';
+  @override
+  String get noFilingsYet => 'لا توجد تقديمات بعد.';
+  @override
+  String get selectADate => 'اختر تاريخاً';
+  @override
+  String get submitFiling => 'تقديم الملف';
+  @override
+  String get packLabel => 'الحزمة';
+  @override
+  String get submittedLabel => 'تم التقديم';
+  @override
+  String get caseLabel => 'القضية';
+
+  // Document Generation
+  @override
+  String get documentGeneration => 'إنشاء المستندات';
+  @override
+  String get selectTemplate => 'اختر قالباً';
+  @override
+  String get noTemplatesFound => 'لا توجد قوالب';
+  @override
+  String get fillInFields => 'تعبئة الحقول';
+  @override
+  String get documentGenerated => 'تم إنشاء المستند';
+  @override
+  String get generatedOn => 'تم الإنشاء في';
+  @override
+  String get generateDocument => 'إنشاء المستند';
+  @override
+  String get isRequired => 'مطلوب';
+  @override
+  String get pickADate => 'اختر تاريخاً';
+  @override
+  String get newDraft => 'مسودة جديدة';
+  @override
+  String get title => 'العنوان';
+  @override
+  String get content => 'المحتوى';
+  @override
+  String get deleteDraft => 'حذف المسودة';
+  @override
+  String get templateLabel => 'القالب';
+  @override
+  String get generatedLabel => 'تم الإنشاء';
+
+  // AI Assistant
+  @override
+  String get aiAssistant => 'المساعد الذكي';
+  @override
+  String get draft => 'مسودة';
+  @override
+  String get enterTextToSummarize => 'أدخل النص للتلخيص...';
+  @override
+  String get summarize => 'تلخيص';
+
+  // Bloc success messages
+  @override
+  String get eSignRequestCreated => 'تم إنشاء طلب التوقيع الإلكتروني بنجاح';
+  @override
+  String get statusUpdatedSuccessfully => 'تم تحديث الحالة بنجاح';
+  @override
+  String get userCreatedSuccessfully => 'تم إنشاء المستخدم بنجاح';
+  @override
+  String get userUpdatedSuccessfully => 'تم تحديث المستخدم بنجاح';
+  @override
+  String get userDeletedSuccessfully => 'تم حذف المستخدم بنجاح';
+  @override
+  String get userRoleChangedSuccessfully => 'تم تغيير دور المستخدم بنجاح';
+  @override
+  String get tenantCreatedSuccessfully => 'تم إنشاء المستأجر بنجاح';
+  @override
+  String get tenantUpdatedSuccessfully => 'تم تحديث المستأجر بنجاح';
+  @override
+  String get tenantDeletedSuccessfully => 'تم حذف المستأجر بنجاح';
+  @override
+  String get draftCreatedSuccessfully => 'تم إنشاء المسودة بنجاح';
+  @override
+  String get draftDeletedSuccessfully => 'تم حذف المسودة بنجاح';
+
+  // Contact form
+  @override
+  String get contactInformation => 'معلومات التواصل';
+  @override
+  String get getInTouch => 'تواصل معنا';
+  @override
+  String get weLoveToHear => 'يسعدنا سماعك. أرسل لنا رسالة!';
+  @override
+  String get yourName => 'اسمك';
+  @override
+  String get enterFullName => 'أدخل اسمك الكامل';
+  @override
+  String get nameRequired => 'الاسم مطلوب';
+  @override
+  String get emailAddress => 'البريد الإلكتروني';
+  @override
+  String get enterEmail => 'أدخل بريدك الإلكتروني';
+  @override
+  String get enterValidEmail => 'أدخل بريدًا إلكترونيًا صحيحًا';
+  @override
+  String get writeYourMessage => 'اكتب رسالتك هنا...';
+  @override
+  String get messageRequired => 'الرسالة مطلوبة';
+  @override
+  String get messageTooShort => 'يجب أن تكون الرسالة 10 أحرف على الأقل';
+  @override
+  String get sendMessageLabel => 'إرسال رسالة';
+
+  // About
+  @override
+  String get website => 'الموقع الإلكتروني';
+
+  // Court Sittings
+  @override
+  String get courtId => 'رقم المحكمة';
+  @override
+  String get deleteCourtSittingConfirm => 'هل أنت متأكد من حذف هذه الجلسة؟';
+  @override
+  String get addCourtSitting => 'إضافة جلسة';
+  @override
+  String get searchSittings => 'البحث في الجلسات...';
+  @override
+  String get noCourtSittingsFound => 'لا توجد جلسات محكمة';
+
+  // Case Relations
+  @override
+  String get relatedCaseId => 'معرف القضية المرتبطة';
+  @override
+  String get notesOptional => 'ملاحظات (اختياري)';
+  @override
+  String get relationTypeRelated => 'مرتبطة';
+  @override
+  String get relationTypeAppeal => 'استئناف';
+  @override
+  String get relationTypeConsolidated => 'موحدة';
+  @override
+  String get relationTypeCompanion => 'مصاحبة';
+  @override
+  String get failedToLoadRelations => 'فشل تحميل العلاقات';
+
+  // Court Automation
+  @override
+  String get pleaseEnterCaseCode => 'الرجاء إدخال رمز القضية أولاً.';
+
+  // Files
+  @override
+  String get couldNotOpenUrl => 'تعذر فتح رابط التنزيل.';
+  @override
+  String get downloadFailed => 'فشل التنزيل';
+
+  // Governments
+  @override
+  String get governorateId => 'رقم المحافظة';
+  @override
+  String get governorateName => 'اسم المحافظة';
+
+  // Cases
+  @override
+  String get caseCodeMustBePositive => 'يجب أن يكون رمز القضية رقمًا موجبًا';
+  @override
+  String get statement => 'البيان';
+
+  // Audit Logs
+  @override
+  String get auditLogs => 'سجلات التدقيق';
+  @override
+  String get searchAuditLogs => 'البحث في سجلات التدقيق...';
+  @override
+  String get entity => 'الكيان';
+  @override
+  String get action => 'الإجراء';
+  @override
+  String get noAuditLogsFound => 'لا توجد سجلات تدقيق';
 }

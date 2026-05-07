@@ -63,7 +63,7 @@ class ESignBloc extends Bloc<ESignEvent, ESignState> {
         signerEmails: event.signerEmails,
         expiresAt: event.expiresAt,
       );
-      emit(ESignOperationSuccess('E-Sign request created successfully')); // TODO: localize
+      emit(ESignOperationSuccess('E-Sign request created successfully'));
       final requests = await repository.getRequests(
         status: _lastStatus,
         search: _lastSearch,
@@ -80,7 +80,7 @@ class ESignBloc extends Bloc<ESignEvent, ESignState> {
   ) async {
     try {
       await repository.updateStatus(event.id, event.status);
-      emit(ESignOperationSuccess('Status updated successfully')); // TODO: localize
+      emit(ESignOperationSuccess('Status updated successfully'));
       final requests = await repository.getRequests(
         status: _lastStatus,
         search: _lastSearch,

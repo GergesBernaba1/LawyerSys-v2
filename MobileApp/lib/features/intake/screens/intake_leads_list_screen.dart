@@ -44,12 +44,13 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
   }
 
   Future<void> _onPublicLinkTapped() async {
+    final l10n = AppLocalizations.of(context)!;
     final link = await IntakeRepository(ApiClient()).getPublicIntakeLink();
     if (!mounted) return;
     if (link == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Public intake link not available')), // TODO: localize
+        SnackBar(
+            content: Text(l10n.publicIntakeLinkNotAvailable)),
       );
       return;
     }
@@ -76,9 +77,9 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                   ),
                 ),
               ),
-              const Text(
-                'Public Intake Link', // TODO: localize
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              Text(
+                l10n.intake,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 12),
               Row(
@@ -86,13 +87,13 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
                   Expanded(child: SelectableText(link)),
                   IconButton(
                     icon: const Icon(Icons.copy),
-                    tooltip: 'Copy', // TODO: localize
+                    tooltip: l10n.copyLink,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: link));
                       Navigator.pop(sheetCtx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Link copied')), // TODO: localize
+                        SnackBar(
+                            content: Text(l10n.linkCopied)),
                       );
                     },
                   ),
@@ -124,7 +125,7 @@ class _IntakeLeadsListScreenState extends State<IntakeLeadsListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.link),
-            tooltip: 'Public Intake Link', // TODO: localize
+            tooltip: l.intake,
             onPressed: _onPublicLinkTapped,
           ),
           PopupMenuButton<String?>(

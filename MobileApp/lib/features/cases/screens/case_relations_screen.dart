@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/case_relations_bloc.dart';
 import '../bloc/case_relations_event.dart';
 import '../bloc/case_relations_state.dart';
@@ -39,7 +40,7 @@ class _CaseRelationsSectionBody extends StatelessWidget {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
             return AlertDialog(
-              title: const Text('Add Case Relation'), // TODO: localize
+              title: Text(AppLocalizations.of(context)!.addCaseRelation),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -47,33 +48,33 @@ class _CaseRelationsSectionBody extends StatelessWidget {
                     TextFormField(
                       controller: relatedCaseIdCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Related Case ID',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.relatedCaseId,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
                     DropdownMenu<String>(
                       initialSelection: selectedType,
-                      label: const Text('Relation Type'),
+                      label: Text(AppLocalizations.of(context)!.relationType),
                       expandedInsets: EdgeInsets.zero,
                       onSelected: (v) {
                         if (v != null) setDialogState(() => selectedType = v);
                       },
-                      dropdownMenuEntries: const [
-                        DropdownMenuEntry(value: 'Related', label: 'Related'),
-                        DropdownMenuEntry(value: 'Appeal', label: 'Appeal'),
-                        DropdownMenuEntry(value: 'Consolidated', label: 'Consolidated'),
-                        DropdownMenuEntry(value: 'Companion', label: 'Companion'),
+                      dropdownMenuEntries: [
+                        DropdownMenuEntry(value: 'Related', label: AppLocalizations.of(context)!.relationTypeRelated),
+                        DropdownMenuEntry(value: 'Appeal', label: AppLocalizations.of(context)!.relationTypeAppeal),
+                        DropdownMenuEntry(value: 'Consolidated', label: AppLocalizations.of(context)!.relationTypeConsolidated),
+                        DropdownMenuEntry(value: 'Companion', label: AppLocalizations.of(context)!.relationTypeCompanion),
                       ],
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: notesCtrl,
                       maxLines: 2,
-                      decoration: const InputDecoration(
-                        labelText: 'Notes (optional)',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.notesOptional,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ],
@@ -82,7 +83,7 @@ class _CaseRelationsSectionBody extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -101,7 +102,7 @@ class _CaseRelationsSectionBody extends StatelessWidget {
                         );
                     Navigator.pop(ctx);
                   },
-                  child: const Text('Add'),
+                  child: Text(AppLocalizations.of(context)!.add),
                 ),
               ],
             );
@@ -125,7 +126,7 @@ class _CaseRelationsSectionBody extends StatelessWidget {
         if (state is CaseRelationsError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${state.message}'),
+              content: Text('${AppLocalizations.of(context)!.error}: ${state.message}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -138,7 +139,7 @@ class _CaseRelationsSectionBody extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
               child: Text(
-                'Related Cases', // TODO: localize
+                AppLocalizations.of(context)!.caseRelations,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -148,11 +149,11 @@ class _CaseRelationsSectionBody extends StatelessWidget {
             if (state is CaseRelationsLoading)
               const Center(child: CircularProgressIndicator())
             else if (state is CaseRelationsLoaded && state.relations.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  'No related cases',
-                  style: TextStyle(color: Colors.grey),
+                  AppLocalizations.of(context)!.noRelationsFound,
+                  style: const TextStyle(color: Colors.grey),
                 ),
               )
             else if (state is CaseRelationsLoaded)
@@ -198,14 +199,14 @@ class _CaseRelationsSectionBody extends StatelessWidget {
               )
             else if (state is CaseRelationsError)
               Text(
-                'Failed to load relations',
+                AppLocalizations.of(context)!.failedToLoadRelations,
                 style: TextStyle(color: Colors.red.shade700),
               ),
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: () => _showAddDialog(context),
               icon: const Icon(Icons.add),
-              label: const Text('Add Relation'), // TODO: localize
+              label: Text(AppLocalizations.of(context)!.addRelation),
             ),
           ],
         );

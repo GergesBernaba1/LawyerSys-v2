@@ -72,7 +72,7 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
     final amount = int.tryParse(_amountController.text.trim()) ?? 0;
     if (code == null || code <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Case code must be a positive number')));
+          SnackBar(content: Text(AppLocalizations.of(context)!.caseCodeMustBePositive)));
       return;
     }
 
@@ -147,8 +147,8 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _statementController,
-                      decoration: const InputDecoration(
-                          labelText: 'Statement', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                          labelText: localizer.statement, border: const OutlineInputBorder()),
                       minLines: 3,
                       maxLines: 5,
                       validator: (value) =>

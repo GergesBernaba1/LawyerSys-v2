@@ -111,25 +111,22 @@ class _SummarizeTabState extends State<_SummarizeTab> {
           TextField(
             controller: _textController,
             maxLines: 6,
-            decoration: const InputDecoration(
-              // TODO: localize 'Enter text to summarize...'
-              hintText: 'Enter text to summarize...',
-              // TODO: localize 'Text'
-              labelText: 'Text',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.enterTextToSummarize,
+              labelText: AppLocalizations.of(context)!.description,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _selectedLanguage,
-            // TODO: localize 'Language'
-            decoration: const InputDecoration(
-              labelText: 'Language',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.language,
+              border: const OutlineInputBorder(),
             ),
-            items: const [
-              DropdownMenuItem(value: 'English', child: Text('English')),
-              DropdownMenuItem(value: 'Arabic', child: Text('Arabic')),
+            items: [
+              DropdownMenuItem(value: 'English', child: Text(AppLocalizations.of(context)!.english)),
+              DropdownMenuItem(value: 'Arabic', child: Text(AppLocalizations.of(context)!.arabic)),
             ],
             onChanged: (v) => setState(() => _selectedLanguage = v!),
           ),
@@ -154,8 +151,7 @@ class _SummarizeTabState extends State<_SummarizeTab> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.auto_awesome),
-            // TODO: localize 'Summarize'
-            label: const Text('Summarize'),
+            label: Text(AppLocalizations.of(context)!.summarize),
           ),
           if (widget.state is AiSummaryLoaded) ...[
             const SizedBox(height: 20),
@@ -165,9 +161,8 @@ class _SummarizeTabState extends State<_SummarizeTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TODO: localize 'Summary'
                     Text(
-                      'Summary',
+                      AppLocalizations.of(context)!.suggestions,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -220,36 +215,30 @@ class _DraftTabState extends State<_DraftTab> {
           TextField(
             controller: _promptController,
             maxLines: 4,
-            decoration: const InputDecoration(
-              // TODO: localize 'Describe the document you want to draft...'
-              hintText: 'Describe the document you want to draft...',
-              // TODO: localize 'Prompt'
-              labelText: 'Prompt',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.enterTextToSummarize,
+              labelText: AppLocalizations.of(context)!.description,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _documentTypeController,
-            decoration: const InputDecoration(
-              // TODO: localize 'e.g. Contract, Letter, Motion...'
-              hintText: 'e.g. Contract, Letter, Motion...',
-              // TODO: localize 'Document Type (optional)'
-              labelText: 'Document Type (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.caseType,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _selectedLanguage,
-            // TODO: localize 'Language'
-            decoration: const InputDecoration(
-              labelText: 'Language',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.language,
+              border: const OutlineInputBorder(),
             ),
-            items: const [
-              DropdownMenuItem(value: 'English', child: Text('English')),
-              DropdownMenuItem(value: 'Arabic', child: Text('Arabic')),
+            items: [
+              DropdownMenuItem(value: 'English', child: Text(AppLocalizations.of(context)!.english)),
+              DropdownMenuItem(value: 'Arabic', child: Text(AppLocalizations.of(context)!.arabic)),
             ],
             onChanged: (v) => setState(() => _selectedLanguage = v!),
           ),
@@ -276,8 +265,7 @@ class _DraftTabState extends State<_DraftTab> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.edit_document),
-            // TODO: localize 'Generate Draft'
-            label: const Text('Generate Draft'),
+            label: Text(AppLocalizations.of(context)!.generateDocument),
           ),
           if (widget.state is AiDraftLoaded) ...[
             const SizedBox(height: 20),
@@ -293,9 +281,8 @@ class _DraftTabState extends State<_DraftTab> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // TODO: localize 'Draft'
                               Text(
-                                'Draft',
+                                AppLocalizations.of(context)!.draft,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -312,16 +299,14 @@ class _DraftTabState extends State<_DraftTab> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.copy),
-                          // TODO: localize 'Copy to clipboard'
-                          tooltip: 'Copy to clipboard',
+                          tooltip: AppLocalizations.of(context)!.copyLink,
                           onPressed: () {
                             Clipboard.setData(ClipboardData(
                               text: (widget.state as AiDraftLoaded).content,
                             ));
                             ScaffoldMessenger.of(context).showSnackBar(
-                              // TODO: localize 'Copied to clipboard'
-                              const SnackBar(
-                                  content: Text('Copied to clipboard')),
+                              SnackBar(
+                                  content: Text(AppLocalizations.of(context)!.linkCopied)),
                             );
                           },
                         ),
@@ -377,8 +362,7 @@ class _DeadlinesTabState extends State<_DeadlinesTab> {
             children: [
               const Icon(Icons.calendar_today, size: 48, color: Colors.grey),
               const SizedBox(height: 16),
-              // TODO: localize 'No deadline suggestions available'
-              const Text('No deadline suggestions available'),
+              Text(AppLocalizations.of(context)!.noData),
             ],
           ),
         );
@@ -399,8 +383,7 @@ class _DeadlinesTabState extends State<_DeadlinesTab> {
         onPressed: () =>
             context.read<AiAssistantBloc>().add(LoadDeadlineSuggestions()),
         icon: const Icon(Icons.refresh),
-        // TODO: localize 'Load Suggestions'
-        label: const Text('Load Suggestions'),
+        label: Text(AppLocalizations.of(context)!.retry),
       ),
     );
   }
@@ -432,9 +415,8 @@ class _DeadlineSuggestionCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.event, size: 16, color: Colors.blue),
                   const SizedBox(width: 4),
-                  // TODO: localize 'Suggested:'
                   Text(
-                    'Suggested: ${suggestion.suggestedDeadline}',
+                    '${AppLocalizations.of(context)!.due}: ${suggestion.suggestedDeadline}',
                     style: const TextStyle(color: Colors.blue),
                   ),
                 ],

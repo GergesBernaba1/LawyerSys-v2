@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// TODO: localize all hardcoded strings using AppLocalizations
-// import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/files_bloc.dart';
 import '../bloc/files_event.dart';
 import '../bloc/files_state.dart';
@@ -95,16 +94,14 @@ class _FilesListScreenState extends State<FilesListScreen> {
       } else {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            // TODO: localize
-            const SnackBar(content: Text('Could not open the download URL.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenUrl)),
           );
         }
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          // TODO: localize
-          SnackBar(content: Text('Download failed: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.downloadFailed}: $e')),
         );
       }
     }
@@ -120,11 +117,11 @@ class _FilesListScreenState extends State<FilesListScreen> {
     final categoryController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        // TODO: localize 'Create File'
-        title: const Text('Create File'),
+        title: Text(l10n.add),
         content: Form(
           key: formKey,
           child: SingleChildScrollView(
@@ -133,23 +130,20 @@ class _FilesListScreenState extends State<FilesListScreen> {
               children: [
                 TextFormField(
                   controller: titleController,
-                  // TODO: localize 'Title'
-                  decoration: const InputDecoration(labelText: 'Title'),
+                  decoration: InputDecoration(labelText: l10n.description),
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Title is required' : null,
+                      (v == null || v.trim().isEmpty) ? l10n.allFieldsAreRequired : null,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: descController,
-                  // TODO: localize 'Description'
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: InputDecoration(labelText: l10n.description),
                   maxLines: 3,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: categoryController,
-                  // TODO: localize 'Category'
-                  decoration: const InputDecoration(labelText: 'Category'),
+                  decoration: InputDecoration(labelText: l10n.notes),
                 ),
               ],
             ),
@@ -157,12 +151,10 @@ class _FilesListScreenState extends State<FilesListScreen> {
         ),
         actions: [
           TextButton(
-            // TODO: localize 'Cancel'
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
-            // TODO: localize 'Create'
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 context.read<FilesBloc>().add(CreateFile({
@@ -173,7 +165,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 Navigator.of(ctx).pop();
               }
             },
-            child: const Text('Create'),
+            child: Text(l10n.add),
           ),
         ],
       ),
@@ -186,11 +178,11 @@ class _FilesListScreenState extends State<FilesListScreen> {
     final categoryController = TextEditingController(text: file.category ?? '');
     final formKey = GlobalKey<FormState>();
 
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        // TODO: localize 'Edit File'
-        title: const Text('Edit File'),
+        title: Text(l10n.edit),
         content: Form(
           key: formKey,
           child: SingleChildScrollView(
@@ -199,20 +191,20 @@ class _FilesListScreenState extends State<FilesListScreen> {
               children: [
                 TextFormField(
                   controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
+                  decoration: InputDecoration(labelText: l10n.description),
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Title is required' : null,
+                      (v == null || v.trim().isEmpty) ? l10n.allFieldsAreRequired : null,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: descController,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: InputDecoration(labelText: l10n.description),
                   maxLines: 3,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: categoryController,
-                  decoration: const InputDecoration(labelText: 'Category'),
+                  decoration: InputDecoration(labelText: l10n.notes),
                 ),
               ],
             ),
@@ -221,10 +213,9 @@ class _FilesListScreenState extends State<FilesListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
-            // TODO: localize 'Save'
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 context.read<FilesBloc>().add(UpdateFile(file.id, {
@@ -235,7 +226,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 Navigator.of(ctx).pop();
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -243,23 +234,21 @@ class _FilesListScreenState extends State<FilesListScreen> {
   }
 
   Future<void> _confirmDelete(FileModel file) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        // TODO: localize 'Delete File'
-        title: const Text('Delete File'),
-        // TODO: localize
-        content: Text('Are you sure you want to delete "${file.title}"?'),
+        title: Text(l10n.delete),
+        content: Text('${l10n.delete} "${file.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.of(ctx).pop(true),
-            // TODO: localize 'Delete'
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -293,8 +282,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            // TODO: localize 'Files'
-            title: const Text('Files'),
+            title: Text(AppLocalizations.of(context)!.documents),
           ),
           body: Column(
             children: [
@@ -303,9 +291,8 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 padding: const EdgeInsets.all(8),
                 child: TextField(
                   controller: _searchController,
-                  // TODO: localize 'Search files...'
                   decoration: InputDecoration(
-                    hintText: 'Search files...',
+                    hintText: AppLocalizations.of(context)!.search,
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.search),
@@ -329,7 +316,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: _showCreateDialog,
-            tooltip: 'Add file', // TODO: localize
+            tooltip: AppLocalizations.of(context)!.add,
             child: const Icon(Icons.add),
           ),
         );
@@ -344,8 +331,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
     if (state is FilesError) {
       return Center(
-        // TODO: localize 'Error'
-        child: Text('Error: ${state.message}'),
+        child: Text('${AppLocalizations.of(context)!.error}: ${state.message}'),
       );
     }
 
@@ -364,9 +350,8 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
   Widget _buildList(BuildContext context, List<FileModel> files) {
     if (files.isEmpty) {
-      return const Center(
-        // TODO: localize 'No files found'
-        child: Text('No files found'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noDocumentsFound),
       );
     }
 
@@ -408,7 +393,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
           // Download button
           IconButton(
             icon: const Icon(Icons.download),
-            tooltip: 'Download', // TODO: localize
+            tooltip: AppLocalizations.of(context)!.downloadStarted,
             onPressed: () => _openDownloadUrl(context, file.id),
           ),
           // Edit / Delete popup menu
@@ -421,21 +406,20 @@ class _FilesListScreenState extends State<FilesListScreen> {
               }
             },
             itemBuilder: (_) => [
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'edit',
                 child: ListTile(
-                  leading: Icon(Icons.edit),
-                  // TODO: localize 'Edit'
-                  title: Text('Edit'),
+                  leading: const Icon(Icons.edit),
+                  title: Text(AppLocalizations.of(context)!.edit),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
                 value: 'delete',
                 child: ListTile(
-                  leading: Icon(Icons.delete, color: Colors.red),
-                  // TODO: localize 'Delete'
-                  title: Text('Delete', style: TextStyle(color: Colors.red)),
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: Text(AppLocalizations.of(context)!.delete,
+                      style: const TextStyle(color: Colors.red)),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),

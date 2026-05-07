@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localizations.dart';
 
 const _kPrimary = Color(0xFF14345A);
 const _kPrimaryLight = Color(0xFF2D6A87);
@@ -10,9 +11,10 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Us'), // TODO localize
+        title: Text(l10n.aboutUs),
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -100,18 +102,18 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(20),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.contact_mail_outlined, color: _kPrimary, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.contact_mail_outlined, color: _kPrimary, size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          'Contact Information',
-                          style: TextStyle(
+                          l10n.contactInformation,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: _kPrimary,
@@ -119,16 +121,16 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _ContactInfoRow(
                       icon: Icons.email_outlined,
-                      label: 'Email', // TODO localize
+                      label: l10n.email,
                       value: 'support@qadaya.com',
                     ),
                     const SizedBox(height: 12),
                     _ContactInfoRow(
                       icon: Icons.language_outlined,
-                      label: 'Website', // TODO localize
+                      label: l10n.website,
                       value: 'www.qadaya.com',
                     ),
                   ],

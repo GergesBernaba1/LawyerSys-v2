@@ -36,7 +36,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
           return AlertDialog(
-            title: const Text('Edit Tenant'), // TODO: localize
+            title: Text(AppLocalizations.of(context)!.editTenant),
             content: SingleChildScrollView(
               child: Form(
                 key: formKey,
@@ -45,26 +45,26 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                   children: [
                     TextFormField(
                       controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name', // TODO: localize
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.tenantName,
                       ),
                       validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                          (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.allFieldsAreRequired : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: countryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Country', // TODO: localize
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.governorate,
                       ),
                       validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                          (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.allFieldsAreRequired : null,
                     ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Active'), // TODO: localize
+                        Text(AppLocalizations.of(context)!.active),
                         Switch(
                           value: isActive,
                           onChanged: (v) => setDialogState(() => isActive = v),
@@ -110,9 +110,8 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Tenant'), // TODO: localize
-        content: Text(
-            'Are you sure you want to delete "${_tenant.name}"?'), // TODO: localize
+        title: Text(l.deleteTenant),
+        content: Text(l.deleteTenantConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -156,7 +155,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.edit),
-              tooltip: 'Edit Tenant', // TODO: localize
+              tooltip: l.editTenant,
               onPressed: () => _showEditForm(context),
             ),
             IconButton(
@@ -172,26 +171,26 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _InfoCard(
-                label: 'Name', // TODO: localize
+                label: l.tenantName,
                 value: _tenant.name,
               ),
               const SizedBox(height: 12),
               _InfoCard(
-                label: 'Country', // TODO: localize
+                label: l.governorate,
                 value: _tenant.countryName.isNotEmpty
                     ? _tenant.countryName
                     : '—',
               ),
               const SizedBox(height: 12),
               _InfoCard(
-                label: 'Package', // TODO: localize
+                label: l.description,
                 value: _tenant.packageName.isNotEmpty
                     ? _tenant.packageName
                     : '—',
               ),
               const SizedBox(height: 12),
               _InfoCard(
-                label: 'Users Count', // TODO: localize
+                label: l.users,
                 value: _tenant.userCount.toString(),
               ),
               const SizedBox(height: 12),
@@ -200,10 +199,10 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Status', // TODO: localize
-                          style: TextStyle(
+                          l.status,
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                       ),
@@ -217,7 +216,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          _tenant.isActive ? 'Active' : 'Inactive', // TODO: localize
+                          _tenant.isActive ? l.active : l.status,
                           style: TextStyle(
                             color:
                                 _tenant.isActive ? Colors.green : Colors.red,
@@ -262,9 +261,9 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Active Status', // TODO: localize
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        l.active,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Switch(
                         value: _tenant.isActive,
@@ -282,7 +281,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen> {
                 padding: const EdgeInsets.all(16),
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.subscriptions),
-                  label: const Text('Manage Subscription'), // TODO: localize
+                  label: Text(l.trustAccounting),
                   onPressed: () =>
                       Navigator.pushNamed(context, '/subscription'),
                 ),

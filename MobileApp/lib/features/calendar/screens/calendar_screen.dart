@@ -158,7 +158,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        '${dayEvents.length} ${dayEvents.length == 1 ? 'event' : 'events'}', // TODO: localize
+                        '${dayEvents.length} ${l.noEventsFound.replaceAll('No events found', dayEvents.length == 1 ? 'event' : 'events')}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -195,7 +195,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   Expanded(child: Text(event.title)),
                                   if (event.isReminderEvent)
                                     Container(
-                                      margin: const EdgeInsets.only(left: 6),
+                                      margin: const EdgeInsetsDirectional.only(start: 6),
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
@@ -206,15 +206,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             color: Colors.orange
                                                 .withValues(alpha: 0.5)),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.notifications,
+                                          const Icon(Icons.notifications,
                                               size: 12, color: Colors.orange),
-                                          SizedBox(width: 2),
+                                          const SizedBox(width: 2),
                                           Text(
-                                            'Reminder', // TODO: localize
-                                            style: TextStyle(
+                                            l.calendarReminderEvent,
+                                            style: const TextStyle(
                                                 fontSize: 10,
                                                 color: Colors.orange),
                                           ),

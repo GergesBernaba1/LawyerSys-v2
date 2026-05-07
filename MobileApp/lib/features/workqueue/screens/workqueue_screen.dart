@@ -130,7 +130,7 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
           final label = _filterLabels[i];
           final isSelected = _selectedStatus == filterValue;
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: FilterChip(
               label: Text(label),
               selected: isSelected,

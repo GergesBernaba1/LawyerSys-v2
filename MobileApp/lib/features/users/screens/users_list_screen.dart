@@ -41,6 +41,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
   }
 
   Future<void> _showUserForm(BuildContext context, UserModel? user) async {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = user != null;
 
     final firstNameController = TextEditingController(
@@ -64,9 +65,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
             return AlertDialog(
-              title: Text(isEdit
-                  ? 'Edit User' // TODO: localize
-                  : 'Create User'), // TODO: localize
+              title: Text(isEdit ? l10n.edit : l10n.add),
               content: SingleChildScrollView(
                 child: Form(
                   key: formKey,
@@ -75,70 +74,70 @@ class _UsersListScreenState extends State<UsersListScreen> {
                     children: [
                       TextFormField(
                         controller: firstNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'First Name', // TODO: localize
+                        decoration: InputDecoration(
+                          labelText: l10n.firstName,
                         ),
                         validator: (v) =>
-                            (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                            (v == null || v.trim().isEmpty) ? l10n.allFieldsAreRequired : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: lastNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Last Name', // TODO: localize
+                        decoration: InputDecoration(
+                          labelText: l10n.lastName,
                         ),
                         validator: (v) =>
-                            (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                            (v == null || v.trim().isEmpty) ? l10n.allFieldsAreRequired : null,
                       ),
                       if (!isEdit) ...[
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email', // TODO: localize
+                          decoration: InputDecoration(
+                            labelText: l10n.email,
                           ),
                           keyboardType: TextInputType.emailAddress,
                           validator: (v) =>
-                              (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                              (v == null || v.trim().isEmpty) ? l10n.allFieldsAreRequired : null,
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Password', // TODO: localize
+                          decoration: InputDecoration(
+                            labelText: l10n.password,
                           ),
                           obscureText: true,
                           validator: (v) =>
-                              (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                              (v == null || v.trim().isEmpty) ? l10n.allFieldsAreRequired : null,
                         ),
                       ],
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: phoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Phone Number', // TODO: localize
+                        decoration: InputDecoration(
+                          labelText: l10n.phoneNumber,
                         ),
                         keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: jobController,
-                        decoration: const InputDecoration(
-                          labelText: 'Job', // TODO: localize
+                        decoration: InputDecoration(
+                          labelText: l10n.job,
                         ),
                       ),
                       if (!isEdit) ...[
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
                           initialValue: selectedRole,
-                          decoration: const InputDecoration(
-                            labelText: 'Role', // TODO: localize
+                          decoration: InputDecoration(
+                            labelText: l10n.role,
                           ),
-                          items: const [
+                          items: [
                             DropdownMenuItem(
-                                value: 'Employee', child: Text('Employee')), // TODO: localize
+                                value: 'Employee', child: Text(l10n.employee)),
                             DropdownMenuItem(
-                                value: 'Admin', child: Text('Admin')), // TODO: localize
+                                value: 'Admin', child: Text(l10n.admin)),
                           ],
                           onChanged: (v) {
                             if (v != null) {
@@ -152,7 +151,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Active'), // TODO: localize
+                            Text(l10n.active),
                             Switch(
                               value: isActive,
                               onChanged: (v) => setDialogState(() => isActive = v),
@@ -167,7 +166,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel'), // TODO: localize
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -202,7 +201,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                     }
                     Navigator.pop(ctx);
                   },
-                  child: Text(isEdit ? 'Update' : 'Create'), // TODO: localize
+                  child: Text(isEdit ? l10n.update : l10n.add),
                 ),
               ],
             );
@@ -220,6 +219,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
   }
 
   Future<void> _showChangeRoleDialog(BuildContext context, UserModel user) async {
+    final l10n = AppLocalizations.of(context)!;
     String selectedRole = 'Employee';
 
     await showDialog(
@@ -227,24 +227,24 @@ class _UsersListScreenState extends State<UsersListScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
           return AlertDialog(
-            title: const Text('Change Role'), // TODO: localize
+            title: Text(l10n.changeRole),
             content: DropdownMenu<String>(
               initialSelection: selectedRole,
-              label: const Text('Role'), // TODO: localize
+              label: Text(l10n.role),
               expandedInsets: EdgeInsets.zero,
               onSelected: (v) {
                 if (v != null) setDialogState(() => selectedRole = v);
               },
-              dropdownMenuEntries: const [
-                DropdownMenuEntry(value: 'Employee', label: 'Employee'), // TODO: localize
-                DropdownMenuEntry(value: 'Admin', label: 'Admin'), // TODO: localize
-                DropdownMenuEntry(value: 'SuperAdmin', label: 'SuperAdmin'), // TODO: localize
+              dropdownMenuEntries: [
+                DropdownMenuEntry(value: 'Employee', label: l10n.employee),
+                DropdownMenuEntry(value: 'Admin', label: l10n.admin),
+                const DropdownMenuEntry(value: 'SuperAdmin', label: 'SuperAdmin'),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'), // TODO: localize
+                child: Text(l10n.cancel),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -253,7 +253,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                       .add(ChangeUserRole(id: user.id, role: selectedRole));
                   Navigator.pop(ctx);
                 },
-                child: const Text('Confirm'), // TODO: localize
+                child: Text(l10n.confirm),
               ),
             ],
           );
@@ -263,20 +263,21 @@ class _UsersListScreenState extends State<UsersListScreen> {
   }
 
   Future<void> _confirmDelete(BuildContext context, UserModel user) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete User'), // TODO: localize
+        title: Text(l10n.deleteUser),
         content: Text(
-            'Are you sure you want to delete "${user.fullName.isNotEmpty ? user.fullName : user.userName}"?'), // TODO: localize
+            '${l10n.delete} "${user.fullName.isNotEmpty ? user.fullName : user.userName}"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')), // TODO: localize
+              child: Text(l10n.cancel)),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Delete', // TODO: localize
-                  style: TextStyle(color: Colors.red))),
+              child: Text(l10n.delete,
+                  style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -304,7 +305,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
         appBar: AppBar(title: Text(l.users)),
         floatingActionButton: isAdmin
             ? FloatingActionButton(
-                tooltip: 'Create User', // TODO: localize
+                tooltip: l.add,
                 onPressed: () => _showUserForm(context, null),
                 child: const Icon(Icons.add),
               )
@@ -381,7 +382,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                               if (user.phoneNumber != null &&
                                   user.phoneNumber!.isNotEmpty)
                                 user.phoneNumber!,
-                              if (!user.isActive) 'Inactive', // TODO: localize
+                              if (!user.isActive) l.status,
                             ].join(' • ')),
                             trailing: isAdmin
                                 ? PopupMenuButton<String>(
@@ -400,7 +401,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                         child: Row(children: [
                                           const Icon(Icons.edit, size: 18),
                                           const SizedBox(width: 8),
-                                          const Text('Edit'), // TODO: localize
+                                          Text(l.edit),
                                         ]),
                                       ),
                                       PopupMenuItem(
@@ -408,7 +409,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                         child: Row(children: [
                                           const Icon(Icons.manage_accounts, size: 18),
                                           const SizedBox(width: 8),
-                                          const Text('Change Role'), // TODO: localize
+                                          Text(l.changeRole),
                                         ]),
                                       ),
                                       PopupMenuItem(
@@ -417,9 +418,8 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                           const Icon(Icons.delete,
                                               size: 18, color: Colors.red),
                                           const SizedBox(width: 8),
-                                          const Text('Delete', // TODO: localize
-                                              style:
-                                                  TextStyle(color: Colors.red)),
+                                          Text(l.delete,
+                                              style: const TextStyle(color: Colors.red)),
                                         ]),
                                       ),
                                     ],

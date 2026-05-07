@@ -85,14 +85,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final success = await authRepository.setBiometricEnabled(enabled);
     if (!mounted) return;
+    final l = AppLocalizations.of(context)!;
     if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to update biometric settings')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.unableToUpdateBiometricSettings)));
       return;
     }
     setState(() {
       _biometricEnabled = enabled;
     });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(enabled ? 'Biometric login enabled' : 'Biometric login disabled')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(enabled ? l.biometricEnabled : l.biometricDisabled)));
   }
 
   String _getThemeModeLabel(ThemeMode mode, AppLocalizations localizer) {

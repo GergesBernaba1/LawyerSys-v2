@@ -73,7 +73,6 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
         content: event.content,
         templateId: event.templateId,
       );
-      // TODO: localize 'Draft created successfully'
       emit(DocGenOperationSuccess('Draft created successfully'));
       add(LoadDocDrafts());
     } catch (e) {
@@ -86,7 +85,6 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
     emit(DocGenLoading());
     try {
       await repository.deleteDraft(event.id);
-      // TODO: localize 'Draft deleted successfully'
       emit(DocGenOperationSuccess('Draft deleted successfully'));
       add(LoadDocDrafts());
     } catch (e) {

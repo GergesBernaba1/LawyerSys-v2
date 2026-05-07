@@ -192,15 +192,15 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
         onRefresh: () async =>
             context.read<AuditLogsBloc>().add(RefreshAuditLogs()),
         child: ListView(
-          children: const [
-            SizedBox(height: 120),
+          children: [
+            const SizedBox(height: 120),
             Center(
               child: Column(
                 children: [
-                  Icon(Icons.history, size: 48, color: Colors.grey),
-                  SizedBox(height: 12),
+                  const Icon(Icons.history, size: 48, color: Colors.grey),
+                  const SizedBox(height: 12),
                   Text(AppLocalizations.of(context)!.noAuditLogsFound,
-                      style: TextStyle(color: Colors.grey)),
+                      style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),

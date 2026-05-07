@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../models/government.dart';
 
 const _kPrimary = Color(0xFF14345A);
@@ -49,7 +50,7 @@ class GovernmentDetailScreen extends StatelessWidget {
                   children: [
                     _InfoRow(
                       icon: Icons.badge_outlined,
-                      label: 'Governorate ID', // TODO localize
+                      label: AppLocalizations.of(context)!.governorateId,
                       value: government.governorateId,
                     ),
                     Divider(
@@ -59,7 +60,7 @@ class GovernmentDetailScreen extends StatelessWidget {
                     ),
                     _InfoRow(
                       icon: Icons.location_city_outlined,
-                      label: 'Governorate Name', // TODO localize
+                      label: AppLocalizations.of(context)!.governorateName,
                       value: government.governorateName,
                     ),
                   ],

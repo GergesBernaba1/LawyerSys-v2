@@ -36,8 +36,8 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
         builder: (ctx, setDialogState) {
           return AlertDialog(
             title: Text(isEdit
-                ? 'Edit Tenant' // TODO: localize
-                : 'Create Tenant'), // TODO: localize
+                ? AppLocalizations.of(context)!.editTenant
+                : AppLocalizations.of(context)!.createTenant),
             content: SingleChildScrollView(
               child: Form(
                 key: formKey,
@@ -46,26 +46,26 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                   children: [
                     TextFormField(
                       controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name', // TODO: localize
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.tenantName,
                       ),
                       validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                          (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.allFieldsAreRequired : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: countryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Country', // TODO: localize
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.governorate,
                       ),
                       validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null, // TODO: localize
+                          (v == null || v.trim().isEmpty) ? AppLocalizations.of(context)!.allFieldsAreRequired : null,
                     ),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Active'), // TODO: localize
+                        Text(AppLocalizations.of(context)!.active),
                         Switch(
                           value: isActive,
                           onChanged: (v) =>
@@ -116,9 +116,8 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Tenant'), // TODO: localize
-        content: Text(
-            'Are you sure you want to delete "${tenant.name}"?'), // TODO: localize
+        title: Text(l.deleteTenant),
+        content: Text(l.deleteTenantConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -147,7 +146,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l.tenants)),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Create Tenant', // TODO: localize
+        tooltip: l.createTenant,
         onPressed: () => _showTenantForm(context, null),
         child: const Icon(Icons.add),
       ),
@@ -252,7 +251,7 @@ class _TenantsListScreenState extends State<TenantsListScreen> {
                               child: Row(children: [
                                 const Icon(Icons.edit, size: 18),
                                 const SizedBox(width: 8),
-                                const Text('Edit'), // TODO: localize
+                                Text(l.edit),
                               ]),
                             ),
                             PopupMenuItem(

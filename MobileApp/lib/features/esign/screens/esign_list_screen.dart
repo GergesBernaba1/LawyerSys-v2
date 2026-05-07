@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../bloc/esign_bloc.dart';
 import '../bloc/esign_event.dart';
 import '../bloc/esign_state.dart';
@@ -40,6 +41,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
   // ---------------------------------------------------------------------------
 
   Future<void> _showCreateDialog() async {
+    final l10n = AppLocalizations.of(context)!;
     final titleController = TextEditingController();
     final contentController = TextEditingController();
     final emailController = TextEditingController();
@@ -52,7 +54,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('New E-Sign Request'), // TODO: localize
+              title: Text(l10n.newESignRequest),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -61,9 +63,9 @@ class _ESignListScreenState extends State<ESignListScreen> {
                     // Title field
                     TextField(
                       controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Title *', // TODO: localize
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.description,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -72,18 +74,18 @@ class _ESignListScreenState extends State<ESignListScreen> {
                     TextField(
                       controller: contentController,
                       maxLines: 5,
-                      decoration: const InputDecoration(
-                        labelText: 'Document Content', // TODO: localize
+                      decoration: InputDecoration(
+                        labelText: l10n.description,
                         alignLabelWithHint: true,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
 
                     // Signer emails
-                    const Text(
-                      'Signers', // TODO: localize
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Text(
+                      l10n.employees,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 6),
                     Row(
@@ -92,11 +94,11 @@ class _ESignListScreenState extends State<ESignListScreen> {
                           child: TextField(
                             controller: emailController,
                             keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter email', // TODO: localize
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              hintText: l10n.email,
+                              border: const OutlineInputBorder(),
                               isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                             ),
                           ),
@@ -113,7 +115,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
                               });
                             }
                           },
-                          child: const Text('Add'), // TODO: localize
+                          child: Text(l10n.add),
                         ),
                       ],
                     ),
@@ -143,15 +145,15 @@ class _ESignListScreenState extends State<ESignListScreen> {
                         Expanded(
                           child: Text(
                             expiresAt == null
-                                ? 'Expiry Date (optional)' // TODO: localize
+                                ? l10n.calendarEventEndOptional
                                 : 'Expires: ${_formatDate(expiresAt!)}',
                           ),
                         ),
                         TextButton.icon(
                           icon: const Icon(Icons.calendar_today, size: 16),
                           label: Text(expiresAt == null
-                              ? 'Pick' // TODO: localize
-                              : 'Change'), // TODO: localize
+                              ? l10n.dateLabel
+                              : l10n.edit),
                           onPressed: () async {
                             final picked = await showDatePicker(
                               context: context,
@@ -180,7 +182,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'), // TODO: localize
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -196,7 +198,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
                         );
                     Navigator.of(dialogContext).pop();
                   },
-                  child: const Text('Submit'), // TODO: localize
+                  child: Text(l10n.submit),
                 ),
               ],
             );
@@ -211,6 +213,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
   // ---------------------------------------------------------------------------
 
   Future<void> _showUpdateStatusDialog(ESignRequest request) async {
+    final l10n = AppLocalizations.of(context)!;
     String selectedStatus = request.status;
 
     await showDialog<void>(
@@ -219,14 +222,14 @@ class _ESignListScreenState extends State<ESignListScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Update Status'), // TODO: localize
+              title: Text(l10n.updateStatus),
               content: DropdownButtonFormField<String>(
                 initialValue: _statusOptions.contains(selectedStatus)
                     ? selectedStatus
                     : _statusOptions.first,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Status', // TODO: localize
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: l10n.status,
                 ),
                 items: _statusOptions.map((s) {
                   return DropdownMenuItem(value: s, child: Text(s));
@@ -240,7 +243,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'), // TODO: localize
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -249,7 +252,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
                         .add(UpdateESignStatus(request.id, selectedStatus));
                     Navigator.of(dialogContext).pop();
                   },
-                  child: const Text('Update'), // TODO: localize
+                  child: Text(l10n.update),
                 ),
               ],
             );
@@ -308,18 +311,19 @@ class _ESignListScreenState extends State<ESignListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('E-Signatures'), // TODO: localize
+        title: Text(l10n.eSignatures),
         actions: [
           PopupMenuButton<String?>(
             icon: const Icon(Icons.filter_list),
-            tooltip: 'Filter by status', // TODO: localize
+            tooltip: l10n.filteredBy,
             onSelected: _applyFilter,
             itemBuilder: (context) => [
-              const PopupMenuItem<String?>(
+              PopupMenuItem<String?>(
                 value: null,
-                child: Text('All'), // TODO: localize
+                child: Text(l10n.all),
               ),
               ..._statusOptions.map(
                 (s) => PopupMenuItem<String?>(value: s, child: Text(s)),
@@ -330,7 +334,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateDialog,
-        tooltip: 'New E-Sign Request', // TODO: localize
+        tooltip: l10n.newESignRequest,
         child: const Icon(Icons.add),
       ),
       body: BlocConsumer<ESignBloc, ESignState>(
@@ -342,15 +346,15 @@ class _ESignListScreenState extends State<ESignListScreen> {
           } else if (state is ESignError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Error: ${state.message}'), // TODO: localize
+                content: Text('${l10n.error}: ${state.message}'),
                 backgroundColor: Colors.red,
               ),
             );
           } else if (state is ESignShareLinkReady) {
             Clipboard.setData(ClipboardData(text: state.url));
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Share link copied to clipboard'), // TODO: localize
+              SnackBar(
+                content: Text(l10n.shareLinkCopied),
               ),
             );
           }
@@ -367,13 +371,13 @@ class _ESignListScreenState extends State<ESignListScreen> {
                 children: [
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text('Error: ${state.message}'), // TODO: localize
+                  Text('${l10n.error}: ${state.message}'),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => context
                         .read<ESignBloc>()
                         .add(LoadESignRequests(status: _selectedStatus)),
-                    child: const Text('Retry'), // TODO: localize
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -392,6 +396,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
   }
 
   Widget _buildList(List<ESignRequest> requests) {
+    final l10n = AppLocalizations.of(context)!;
     // Show active filter chip if a filter is applied
     return Column(
       children: [
@@ -400,12 +405,12 @@ class _ESignListScreenState extends State<ESignListScreen> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
             child: Row(
               children: [
-                const Text('Filtered by: '), // TODO: localize
+                Text('${l10n.filteredBy}: '),
                 _buildStatusChip(_selectedStatus!),
                 const Spacer(),
                 TextButton(
                   onPressed: () => _applyFilter(null),
-                  child: const Text('Clear'), // TODO: localize
+                  child: Text(l10n.clear),
                 ),
               ],
             ),
@@ -418,9 +423,9 @@ class _ESignListScreenState extends State<ESignListScreen> {
                     children: [
                       const Icon(Icons.draw, size: 64, color: Colors.grey),
                       const SizedBox(height: 16),
-                      const Text(
-                        'No e-sign requests found', // TODO: localize
-                        style: TextStyle(color: Colors.grey),
+                      Text(
+                        l10n.noData,
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -437,6 +442,7 @@ class _ESignListScreenState extends State<ESignListScreen> {
   }
 
   Widget _buildRequestTile(ESignRequest request) {
+    final l10n = AppLocalizations.of(context)!;
     final signedCount = request.signers.where((s) => s.hasSigned).length;
     final totalSigners = request.signers.length;
 
@@ -462,12 +468,12 @@ class _ESignListScreenState extends State<ESignListScreen> {
           children: [
             const SizedBox(height: 2),
             Text(
-              '$signedCount / $totalSigners signer(s)', // TODO: localize
+              '$signedCount / $totalSigners',
               style: const TextStyle(fontSize: 12),
             ),
             if (request.expiresAt != null)
               Text(
-                'Expires: ${_formatDate(request.expiresAt!)}', // TODO: localize
+                '${l10n.calendarEventEnd}: ${_formatDate(request.expiresAt!)}',
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
           ],
@@ -476,20 +482,20 @@ class _ESignListScreenState extends State<ESignListScreen> {
         trailing: PopupMenuButton<String>(
           onSelected: (action) => _handleTileAction(action, request),
           itemBuilder: (context) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'share_link',
               child: ListTile(
-                leading: Icon(Icons.link),
-                title: Text('Get Share Link'), // TODO: localize
+                leading: const Icon(Icons.link),
+                title: Text(l10n.getShareLink),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'update_status',
               child: ListTile(
-                leading: Icon(Icons.edit),
-                title: Text('Update Status'), // TODO: localize
+                leading: const Icon(Icons.edit),
+                title: Text(l10n.updateStatus),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
               ),
