@@ -18,6 +18,3 @@ class TenantInterceptor extends Interceptor {
     super.onRequest(options, handler);
   }
 }
-
-
-

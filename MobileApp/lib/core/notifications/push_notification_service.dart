@@ -66,7 +66,7 @@ class PushNotificationService {
         NotificationHandler.onMessageOpened(event);
       });
 
-      FirebaseMessaging.onBackgroundMessage(NotificationHandler.firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(NotificationHandler.firebaseMessagingBackgroundHandler); // ignore: unawaited_futures
     } catch (e, st) {
       debugPrint('PushNotificationService.init failed: $e\n$st');
     }

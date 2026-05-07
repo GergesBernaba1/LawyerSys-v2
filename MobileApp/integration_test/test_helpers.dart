@@ -47,15 +47,13 @@ Finder findWidgetWithTextPattern<T extends Widget>(
     if (widget is! T) return false;
     
     // For buttons, check the child
-    if (widget is ElevatedButton ||
-        widget is TextButton ||
-        widget is OutlinedButton) {
-      final button = widget as dynamic;
-      final child = button.child as Object?;
-      if (child is Text) {
-        final text = child.data ?? '';
-        return RegExp(pattern, caseSensitive: caseSensitive).hasMatch(text);
-      }
+    Widget? child;
+    if (widget is ElevatedButton) { child = widget.child; }
+    else if (widget is TextButton) { child = widget.child; }
+    else if (widget is OutlinedButton) { child = widget.child; }
+    if (child is Text) {
+      final text = child.data ?? '';
+      return RegExp(pattern, caseSensitive: caseSensitive).hasMatch(text);
     }
     
     // For IconButton with Tooltip
