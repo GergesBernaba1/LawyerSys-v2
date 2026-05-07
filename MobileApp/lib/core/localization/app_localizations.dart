@@ -1734,6 +1734,12 @@ abstract class AppLocalizations {
   String get uploadProfilePhoto;
   // Requested documents
   String get areYouSureDelete;
+  // Navigation menu
+  String get courtAutomation;
+  String get myQueue;
+  String get trustReports;
+  String get subscription;
+  String get sitings;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

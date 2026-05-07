@@ -1388,4 +1388,15 @@ class AppLocalizationsEn extends AppLocalizations {
   // General
   @override
   String get areYouSureDelete => 'Are you sure you want to delete this item?';
+  // Navigation menu
+  @override
+  String get courtAutomation => 'Court Automation';
+  @override
+  String get myQueue => 'My Queue';
+  @override
+  String get trustReports => 'Trust Reports';
+  @override
+  String get subscription => 'Subscription';
+  @override
+  String get sitings => 'Sitings';
 }

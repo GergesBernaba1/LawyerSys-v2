@@ -1388,4 +1388,15 @@ class AppLocalizationsAr extends AppLocalizations {
   // General
   @override
   String get areYouSureDelete => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟';
+  // Navigation menu
+  @override
+  String get courtAutomation => 'أتمتة المحكمة';
+  @override
+  String get myQueue => 'قائمة انتظاري';
+  @override
+  String get trustReports => 'تقارير الأمانة';
+  @override
+  String get subscription => 'الاشتراك';
+  @override
+  String get sitings => 'الجلسات';
 }
