@@ -287,4 +287,3 @@ class AuthRepository {
     return true;
   }
 }
-

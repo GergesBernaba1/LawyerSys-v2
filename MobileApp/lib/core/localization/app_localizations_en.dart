@@ -1121,4 +1121,129 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noAuditLogsFound => 'No audit logs found';
   @override
   String get rememberMe => 'Remember me';
+
+  // Workqueue
+  @override
+  String get reassignTask => 'Reassign Task';
+  @override
+  String get employeeIdLabel => 'Employee ID';
+  @override
+  String get enterTargetEmployeeId => 'Enter the target employee ID';
+  @override
+  String get markComplete => 'Mark Complete';
+  @override
+  String get markInProgress => 'Mark In Progress';
+  @override
+  String get workqueueEmpty => 'Your workqueue is empty';
+  @override
+  String get markCompletePrompt => 'Are you sure you want to complete this task?';
+  @override
+  String get statusPending => 'Pending';
+  @override
+  String get statusInProgress => 'In Progress';
+  @override
+  String get statusCompleted => 'Completed';
+
+  // Payment proof
+  @override
+  String get submitPaymentProof => 'Submit Payment Proof';
+  @override
+  String get pleaseSelectFile => 'Please select a file';
+  @override
+  String get paymentProofSubmitted => 'Payment proof submitted successfully';
+  @override
+  String get paymentDate => 'Payment Date';
+  @override
+  String get proofFilePath => 'Proof File Path';
+  @override
+  String get submitting => 'Submitting...';
+
+  // Employee
+  @override
+  String get profilePhotoUpdated => 'Profile photo updated';
+  @override
+  String get uploadFailed => 'Upload failed';
+
+  // Requested documents
+  @override
+  String get requestedDocuments => 'Requested Documents';
+  @override
+  String get documentSubmittedSuccessfully => 'Document submitted successfully';
+  @override
+  String get filePath => 'File Path';
+  @override
+  String get noRequestedDocuments => 'No requested documents';
+
+  // Billing
+  @override
+  String get pleaseSelectCustomer => 'Please select a customer';
+  @override
+  String get pleaseSelectAnEmployee => 'Please select an employee';
+  @override
+  String get newPayment => 'New Payment';
+  @override
+  String get newReceipt => 'New Receipt';
+
+  // Notification settings
+  @override
+  String get notificationSettings => 'Notification Settings';
+  @override
+  String get notificationSettingsUpdated => 'Notification settings updated';
+  @override
+  String get enableNotifications => 'Enable Notifications';
+  @override
+  String get enableNotificationsSubtitle =>
+      'Receive updates about case activities, document requests, and status changes';
+  @override
+  String get aboutNotifications => 'About Notifications';
+  @override
+  String get manageNotificationPreferences =>
+      'Manage notification preferences for this case';
+  @override
+  String get notificationsWhenEnabledDescription =>
+      "When enabled, you'll receive push notifications for:";
+  @override
+  String get notificationItemDocumentRequests => 'New document requests';
+  @override
+  String get notificationItemCaseStatusChanges => 'Case status changes';
+  @override
+  String get notificationItemPaymentConfirmations => 'Payment confirmations';
+  @override
+  String get notificationItemStaffMessages => 'Staff messages and updates';
+
+  // Judicial documents
+  @override
+  String get documentType => 'Document Type';
+  @override
+  String get documentNumber => 'Document Number';
+  @override
+  String get agentNumber => 'Agent Number';
+  @override
+  String get details => 'Details';
+  @override
+  String get customerId => 'Customer ID';
+  @override
+  String get searchJudicialDocuments => 'Search by type, number, details...';
+  @override
+  String get editDocument => 'Edit Document';
+  @override
+  String get createDocument => 'Create Document';
+  @override
+  String get requiredField => 'Required';
+
+  // Profile
+  @override
+  String get username => 'Username';
+  @override
+  String get country => 'Country';
+  @override
+  String get jobTitle => 'Job Title';
+  @override
+  String get tenantPhone => 'Tenant Phone';
+  @override
+  String get usernameRequired => 'Username is required';
+  @override
+  String get fullNameRequired => 'Full name is required';
+  @override
+  String get countryRequired => 'Country is required';
 }

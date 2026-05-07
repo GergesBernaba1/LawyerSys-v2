@@ -492,7 +492,3 @@ SELECT * FROM calendar_events
         orderBy: 'lastSyncedAt DESC', limit: limit,);
   }
 }
-
-
-
-

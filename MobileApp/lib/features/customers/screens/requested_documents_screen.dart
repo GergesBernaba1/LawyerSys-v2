@@ -50,23 +50,24 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
         child: BlocListener<CustomersBloc, CustomersState>(
           listener: (context, state) {
             if (state is RequestedDocumentSubmitted) {
+              final l = AppLocalizations.of(context)!;
               Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Document submitted successfully'),),
+                SnackBar(content: Text(l.documentSubmittedSuccessfully)),
               );
               // Reload the list
               context
                   .read<CustomersBloc>()
                   .add(LoadRequestedDocuments(widget.caseCode));
             } else if (state is CustomersError) {
+              final l = AppLocalizations.of(context)!;
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: ${state.message}')),
+                SnackBar(content: Text('${l.error}: ${state.message}')),
               );
             }
           },
           child: AlertDialog(
-            title: Text('Submit: ${document.title}'),
+            title: Text('${AppLocalizations.of(context)!.submit}: ${document.title}'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -85,25 +86,31 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  TextField(
-                    controller: filePathController,
-                    decoration: const InputDecoration(
-                      labelText: 'File Path',
-                      hintText: '/storage/emulated/0/Documents/document.pdf',
-                      helperText:
-                          'Note: Use file picker in production',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: notesController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes (Optional)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
+                  Builder(builder: (ctx) {
+                    final l = AppLocalizations.of(ctx)!;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: filePathController,
+                          decoration: InputDecoration(
+                            labelText: l.filePath,
+                            hintText: '/storage/emulated/0/Documents/document.pdf',
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: notesController,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: l.notesOptional,
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },),
                 ],
               ),
             ),
@@ -123,9 +130,11 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                                 filePathController.text.trim();
                             if (filePath.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Please enter a file path'),),
+                                SnackBar(
+                                  content: Text(
+                                    AppLocalizations.of(context)!.pleaseEnterFilePath,
+                                  ),
+                                ),
                               );
                               return;
                             }
@@ -148,7 +157,9 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
                             ),
                           )
                         : const Icon(Icons.upload),
-                    label: Text(isSubmitting ? 'Submitting...' : 'Submit'),
+                    label: Text(isSubmitting
+                        ? AppLocalizations.of(context)!.submitting
+                        : AppLocalizations.of(context)!.submit,),
                   );
                 },
               ),
@@ -168,7 +179,7 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Requested Documents'),
+        title: Text(localizer.requestedDocuments),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -195,16 +206,16 @@ class _RequestedDocumentsScreenState extends State<RequestedDocumentsScreen> {
             final documents = state.documents;
 
             if (documents.isEmpty) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.description_outlined,
+                    const Icon(Icons.description_outlined,
                         size: 64, color: Colors.grey,),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
-                      'No requested documents',
-                      style: TextStyle(color: Colors.grey),
+                      localizer.noRequestedDocuments,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),

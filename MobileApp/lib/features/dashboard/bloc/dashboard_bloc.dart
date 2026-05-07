@@ -30,4 +30,3 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     }
   }
 }
-

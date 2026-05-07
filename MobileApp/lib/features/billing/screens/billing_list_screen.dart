@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:qadaya_lawyersys/core/auth/permissions.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
@@ -69,21 +70,25 @@ class _BillingListScreenState extends State<BillingListScreen> {
                     padding: const EdgeInsets.all(8),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: _buildSummaryCard(
-                              localizer.payments, '\$${(summary.totalPayments ?? 0).toStringAsFixed(2)}', Colors.red,),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildSummaryCard(
-                              localizer.receipts, '\$${(summary.totalReceipts ?? 0).toStringAsFixed(2)}', Colors.green,),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildSummaryCard(
-                              localizer.balance, '\$${(summary.balance ?? 0).toStringAsFixed(2)}',
-                              (summary.balance ?? 0) >= 0 ? Colors.green : Colors.red,),
-                        ),
+                        Builder(builder: (ctx) {
+                          final fmt = NumberFormat.currency(
+                            symbol: r'$',
+                            locale: Localizations.localeOf(ctx).toString(),
+                          );
+                          return Row(
+                            children: [
+                              Expanded(child: _buildSummaryCard(localizer.payments, fmt.format(summary.totalPayments ?? 0), Colors.red)),
+                              const SizedBox(width: 8),
+                              Expanded(child: _buildSummaryCard(localizer.receipts, fmt.format(summary.totalReceipts ?? 0), Colors.green)),
+                              const SizedBox(width: 8),
+                              Expanded(child: _buildSummaryCard(
+                                  localizer.balance,
+                                  fmt.format(summary.balance ?? 0),
+                                  (summary.balance ?? 0) >= 0 ? Colors.green : Colors.red,
+                                ),),
+                            ],
+                          );
+                        },),
                       ],
                     ),
                   ),
@@ -130,7 +135,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Align(
-                      alignment: Alignment.centerRight,
+                      alignment: AlignmentDirectional.centerEnd,
                       child: ElevatedButton.icon(
                         onPressed: () => Navigator.push(
                           context,
@@ -150,7 +155,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Align(
-                      alignment: Alignment.centerRight,
+                      alignment: AlignmentDirectional.centerEnd,
                       child: Text(
                         localizer.accessDenied,
                         style: const TextStyle(color: Colors.grey),
@@ -222,7 +227,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
             leading: const Icon(Icons.payment, color: Colors.red),
-            title: Text('\$${payment.amount.toStringAsFixed(2)}'),
+            title: Text(NumberFormat.currency(symbol: r'$', locale: Localizations.localeOf(context).toString()).format(payment.amount)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -272,14 +277,14 @@ class _BillingListScreenState extends State<BillingListScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
             leading: const Icon(Icons.account_balance_wallet, color: Colors.green),
-            title: Text('\$${receipt.amount.toStringAsFixed(2)}'),
+            title: Text(NumberFormat.currency(symbol: r'$', locale: Localizations.localeOf(context).toString()).format(receipt.amount)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Date: ${receipt.dateOfOperation}'),
-                Text('Employee: ${receipt.employeeId}'),
+                Text('${localizer.dateLabel}: ${receipt.dateOfOperation}'),
+                Text('${localizer.employee}: ${receipt.employeeId}'),
                 if (receipt.notes.isNotEmpty)
-                  Text('Notes: ${receipt.notes}'),
+                  Text('${localizer.notes}: ${receipt.notes}'),
               ],
             ),
             trailing: IconButton(

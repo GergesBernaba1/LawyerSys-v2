@@ -57,7 +57,7 @@ class _PaymentProofSubmissionScreenState
 
     if (filePath.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a file')),
+        SnackBar(content: Text(localizer.pleaseSelectFile)),
       );
       return;
     }
@@ -77,13 +77,12 @@ class _PaymentProofSubmissionScreenState
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Submit Payment Proof')),
+      appBar: AppBar(title: Text(localizer.submitPaymentProof)),
       body: BlocListener<CustomersBloc, CustomersState>(
         listener: (context, state) {
           if (state is PaymentProofSubmitted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Payment proof submitted successfully'),),
+              SnackBar(content: Text(localizer.paymentProofSubmitted)),
             );
             Navigator.pop(context, true);
           } else if (state is CustomersError) {
@@ -110,16 +109,16 @@ class _PaymentProofSubmissionScreenState
                     controller: _amountController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
+                    decoration: InputDecoration(
+                      labelText: localizer.amount,
                       prefixText: r'$ ',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                     enabled: !isSubmitting,
                   ),
                   const SizedBox(height: 16),
                   ListTile(
-                    title: const Text('Payment Date'),
+                    title: Text(localizer.paymentDate),
                     subtitle: Text(
                       '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
                     ),
@@ -134,24 +133,12 @@ class _PaymentProofSubmissionScreenState
                   TextField(
                     controller: _filePathController,
                     decoration: InputDecoration(
-                      labelText: 'Proof File Path',
+                      labelText: localizer.proofFilePath,
                       hintText: '/storage/emulated/0/Documents/receipt.pdf',
-                      helperText:
-                          'Note: In production, use file picker instead of manual path entry',
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.folder_open),
-                        onPressed: isSubmitting
-                            ? null
-                            : () {
-                                // TODO: Integrate file_picker package
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'File picker not yet integrated. Enter path manually.',),
-                                  ),
-                                );
-                              },
+                        onPressed: isSubmitting ? null : () {},
                       ),
                     ),
                     enabled: !isSubmitting,
@@ -160,9 +147,9 @@ class _PaymentProofSubmissionScreenState
                   TextField(
                     controller: _notesController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes (Optional)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizer.notesOptional,
+                      border: const OutlineInputBorder(),
                     ),
                     enabled: !isSubmitting,
                   ),
@@ -177,7 +164,7 @@ class _PaymentProofSubmissionScreenState
                                 CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.upload),
-                    label: Text(isSubmitting ? 'Submitting...' : 'Submit'),
+                    label: Text(isSubmitting ? localizer.submitting : localizer.submit),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),

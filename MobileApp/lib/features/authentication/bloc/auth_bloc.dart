@@ -164,4 +164,3 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return error.toString();
   }
 }
-

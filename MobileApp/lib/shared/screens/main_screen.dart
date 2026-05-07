@@ -530,5 +530,3 @@ class _NavItem {
   final Widget page;
   final String? permission;
 }
-
-

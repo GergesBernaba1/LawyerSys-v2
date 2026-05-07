@@ -190,7 +190,10 @@ class _PacksTab extends StatelessWidget {
                                   color: Theme.of(context).primaryColor,
                                   fontSize: 12,),),
                           const SizedBox(width: 4),
-                          Icon(Icons.arrow_forward_ios,
+                          Icon(
+                              Directionality.of(context) == TextDirection.rtl
+                                  ? Icons.arrow_back_ios_new
+                                  : Icons.arrow_forward_ios,
                               size: 12,
                               color: Theme.of(context).primaryColor,),
                         ],

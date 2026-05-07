@@ -1121,4 +1121,129 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noAuditLogsFound => 'لا توجد سجلات تدقيق';
   @override
   String get rememberMe => 'تذكّرني';
+
+  // Workqueue
+  @override
+  String get reassignTask => 'إعادة تعيين المهمة';
+  @override
+  String get employeeIdLabel => 'معرف الموظف';
+  @override
+  String get enterTargetEmployeeId => 'أدخل معرف الموظف المستهدف';
+  @override
+  String get markComplete => 'تحديد كمكتمل';
+  @override
+  String get markInProgress => 'تحديد قيد التنفيذ';
+  @override
+  String get workqueueEmpty => 'قائمة عملك فارغة';
+  @override
+  String get markCompletePrompt => 'هل تريد تحديد هذه المهمة كمكتملة؟';
+  @override
+  String get statusPending => 'معلق';
+  @override
+  String get statusInProgress => 'قيد التنفيذ';
+  @override
+  String get statusCompleted => 'مكتمل';
+
+  // Payment proof
+  @override
+  String get submitPaymentProof => 'تقديم إثبات الدفع';
+  @override
+  String get pleaseSelectFile => 'يرجى اختيار ملف';
+  @override
+  String get paymentProofSubmitted => 'تم تقديم إثبات الدفع بنجاح';
+  @override
+  String get paymentDate => 'تاريخ الدفع';
+  @override
+  String get proofFilePath => 'مسار ملف الإثبات';
+  @override
+  String get submitting => 'جاري الإرسال...';
+
+  // Employee
+  @override
+  String get profilePhotoUpdated => 'تم تحديث صورة الملف الشخصي';
+  @override
+  String get uploadFailed => 'فشل الرفع';
+
+  // Requested documents
+  @override
+  String get requestedDocuments => 'المستندات المطلوبة';
+  @override
+  String get documentSubmittedSuccessfully => 'تم تقديم المستند بنجاح';
+  @override
+  String get filePath => 'مسار الملف';
+  @override
+  String get noRequestedDocuments => 'لا توجد مستندات مطلوبة';
+
+  // Billing
+  @override
+  String get pleaseSelectCustomer => 'يرجى اختيار عميل';
+  @override
+  String get pleaseSelectAnEmployee => 'يرجى اختيار موظف';
+  @override
+  String get newPayment => 'دفعة جديدة';
+  @override
+  String get newReceipt => 'إيصال جديد';
+
+  // Notification settings
+  @override
+  String get notificationSettings => 'إعدادات الإشعارات';
+  @override
+  String get notificationSettingsUpdated => 'تم تحديث إعدادات الإشعارات';
+  @override
+  String get enableNotifications => 'تفعيل الإشعارات';
+  @override
+  String get enableNotificationsSubtitle =>
+      'تلقّ تحديثات حول أنشطة القضية وطلبات المستندات وتغييرات الحالة';
+  @override
+  String get aboutNotifications => 'حول الإشعارات';
+  @override
+  String get manageNotificationPreferences =>
+      'إدارة تفضيلات الإشعارات لهذه القضية';
+  @override
+  String get notificationsWhenEnabledDescription =>
+      'عند التفعيل، ستتلقى إشعارات للتالي:';
+  @override
+  String get notificationItemDocumentRequests => 'طلبات المستندات الجديدة';
+  @override
+  String get notificationItemCaseStatusChanges => 'تغييرات حالة القضية';
+  @override
+  String get notificationItemPaymentConfirmations => 'تأكيدات الدفع';
+  @override
+  String get notificationItemStaffMessages => 'رسائل الموظفين والتحديثات';
+
+  // Judicial documents
+  @override
+  String get documentType => 'نوع الوثيقة';
+  @override
+  String get documentNumber => 'رقم الوثيقة';
+  @override
+  String get agentNumber => 'رقم الوكيل';
+  @override
+  String get details => 'التفاصيل';
+  @override
+  String get customerId => 'معرف العميل';
+  @override
+  String get searchJudicialDocuments => 'البحث حسب النوع والرقم والتفاصيل...';
+  @override
+  String get editDocument => 'تعديل الوثيقة';
+  @override
+  String get createDocument => 'إنشاء وثيقة';
+  @override
+  String get requiredField => 'مطلوب';
+
+  // Profile
+  @override
+  String get username => 'اسم المستخدم';
+  @override
+  String get country => 'الدولة';
+  @override
+  String get jobTitle => 'المسمى الوظيفي';
+  @override
+  String get tenantPhone => 'هاتف المستأجر';
+  @override
+  String get usernameRequired => 'اسم المستخدم مطلوب';
+  @override
+  String get fullNameRequired => 'الاسم الكامل مطلوب';
+  @override
+  String get countryRequired => 'الدولة مطلوبة';
 }

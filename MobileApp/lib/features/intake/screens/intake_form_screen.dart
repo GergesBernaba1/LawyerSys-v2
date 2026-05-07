@@ -604,4 +604,3 @@ class _PublicIntakeFormState extends State<_PublicIntakeForm> {
     );
   }
 }
-

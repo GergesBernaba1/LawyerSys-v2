@@ -32,14 +32,13 @@ class _CaseNotificationSettingsScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        title: Text(localizer.notificationSettings),
       ),
       body: BlocListener<CustomersBloc, CustomersState>(
         listener: (context, state) {
           if (state is CaseNotificationPreferenceUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Notification settings updated'),),
+              SnackBar(content: Text(localizer.notificationSettingsUpdated)),
             );
           } else if (state is CustomersError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -64,7 +63,7 @@ class _CaseNotificationSettingsScreenState
                       onPressed: () => context.read<CustomersBloc>().add(
                           LoadCaseNotificationPreference(widget.caseCode),),
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: Text(localizer.retry),
                     ),
                   ],
                 ),
@@ -88,12 +87,12 @@ class _CaseNotificationSettingsScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Case #${widget.caseCode}',
+                          '${localizer.caseNumber} #${widget.caseCode}',
                           style: theme.textTheme.titleLarge,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Manage notification preferences for this case',
+                          localizer.manageNotificationPreferences,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.textTheme.bodySmall?.color,
                           ),
@@ -114,10 +113,8 @@ class _CaseNotificationSettingsScreenState
                             ),
                           );
                     },
-                    title: const Text('Enable Notifications'),
-                    subtitle: const Text(
-                      'Receive updates about case activities, document requests, and status changes',
-                    ),
+                    title: Text(localizer.enableNotifications),
+                    subtitle: Text(localizer.enableNotificationsSubtitle),
                     secondary: Icon(
                       notificationsEnabled
                           ? Icons.notifications_active
@@ -144,22 +141,22 @@ class _CaseNotificationSettingsScreenState
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'About Notifications',
+                              localizer.aboutNotifications,
                               style: theme.textTheme.titleMedium,
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'When enabled, you\'ll receive push notifications for:',
+                          localizer.notificationsWhenEnabledDescription,
                           style: theme.textTheme.bodySmall,
                         ),
                         const SizedBox(height: 8),
                         ...[
-                          'New document requests',
-                          'Case status changes',
-                          'Payment confirmations',
-                          'Staff messages and updates',
+                          localizer.notificationItemDocumentRequests,
+                          localizer.notificationItemCaseStatusChanges,
+                          localizer.notificationItemPaymentConfirmations,
+                          localizer.notificationItemStaffMessages,
                         ].map(
                           (item) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),

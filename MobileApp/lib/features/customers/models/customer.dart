@@ -59,4 +59,3 @@ class CustomerCaseHistoryItem {
   final String caseCode;
   final String assignedEmployeeName;
 }
-

@@ -76,4 +76,3 @@ extension UserSessionAuthorization on UserSession {
     return hasRole('Admin') || hasRole('SuperAdmin');
   }
 }
-

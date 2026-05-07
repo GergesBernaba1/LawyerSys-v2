@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/billing/bloc/billing_bloc.dart';
 import 'package:qadaya_lawyersys/features/billing/bloc/billing_event.dart';
 import 'package:qadaya_lawyersys/features/billing/bloc/billing_state.dart';
@@ -47,7 +47,10 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isPayment ? 'New Payment' : 'New Receipt'),
+        title: Builder(builder: (ctx) {
+          final l = AppLocalizations.of(ctx)!;
+          return Text(widget.isPayment ? l.newPayment : l.newReceipt);
+        },),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -55,9 +58,10 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
       ),
       body: BlocConsumer<BillingBloc, BillingState>(
         listener: (context, state) {
+          final l = AppLocalizations.of(context)!;
           if (state is BillingError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}')),
+              SnackBar(content: Text('${l.error}: ${state.message}')),
             );
           } else if (state is BillingLoaded) {
             // Successfully loaded data after create/delete
@@ -231,15 +235,16 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
       return;
     }
 
+    final l = AppLocalizations.of(context)!;
     if (widget.isPayment && (_selectedCustomerId == null || _selectedCustomerId == 0)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a customer')),
+        SnackBar(content: Text(l.pleaseSelectCustomer)),
       );
       return;
     }
     if (!widget.isPayment && (_selectedEmployeeId == null || _selectedEmployeeId == 0)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an employee')),
+        SnackBar(content: Text(l.pleaseSelectAnEmployee)),
       );
       return;
     }

@@ -190,13 +190,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                                       value: 'notifications',
                                       child: Text(localizer.notifications),
                                     ),
-                                    const PopupMenuItem(
+                                                    PopupMenuItem(
                                       value: 'paymentProof',
-                                      child: Text('Submit Payment Proof'),
+                                      child: Text(localizer.submitPaymentProof),
                                     ),
-                                    const PopupMenuItem(
+                                    PopupMenuItem(
                                       value: 'requestedDocuments',
-                                      child: Text('Requested Documents'),
+                                      child: Text(localizer.requestedDocuments),
                                     ),
                                   ],
                                 )

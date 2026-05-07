@@ -20,7 +20,6 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
   String? _selectedStatus;
 
   static const _filters = <String?>[null, 'Pending', 'InProgress', 'Completed'];
-  static const _filterLabels = <String>['All', 'Pending', 'In Progress', 'Completed'];
 
   @override
   void initState() {
@@ -62,30 +61,31 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
   }
 
   Future<void> _showReassignDialog(BuildContext context, WorkqueueTask task) async {
+    final l = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     final confirmed = await showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reassign Task'),
+        title: Text(l.reassignTask),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Employee ID',
-            hintText: 'Enter the target employee ID',
+          decoration: InputDecoration(
+            labelText: l.employeeIdLabel,
+            hintText: l.enterTargetEmployeeId,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               final id = int.tryParse(controller.text.trim());
               Navigator.pop(ctx, id);
             },
-            child: const Text('Reassign'),
+            child: Text(l.reassignTask),
           ),
         ],
       ),
@@ -98,19 +98,20 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
 
   Future<void> _showCompleteConfirmDialog(
       BuildContext context, WorkqueueTask task,) async {
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Mark Complete'),
-        content: Text('Mark "${task.title}" as complete?'),
+        title: Text(l.markComplete),
+        content: Text(l.markCompletePrompt),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Complete'),
+            child: Text(l.markComplete),
           ),
         ],
       ),
@@ -121,13 +122,20 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
   }
 
   Widget _buildFilterChips() {
+    final l = AppLocalizations.of(context)!;
+    final filterLabels = <String>[
+      l.all,
+      l.statusPending,
+      l.statusInProgress,
+      l.statusCompleted,
+    ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: List.generate(_filters.length, (i) {
           final filterValue = _filters[i];
-          final label = _filterLabels[i];
+          final label = filterLabels[i];
           final isSelected = _selectedStatus == filterValue;
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
@@ -143,13 +151,15 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
   }
 
   Widget _buildTaskTile(BuildContext context, WorkqueueTask task) {
+    final locale = Localizations.localeOf(context).languageCode;
     final dueDateStr = task.dueDate != null
-        ? DateFormat('MMM d, yyyy').format(task.dueDate!)
+        ? DateFormat('MMM d, yyyy', locale).format(task.dueDate!)
         : null;
 
+    final l = AppLocalizations.of(context)!;
     final subtitleParts = <String>[
-      if (task.caseCode != null) 'Case: ${task.caseCode}',
-      if (dueDateStr != null) 'Due: $dueDateStr',
+      if (task.caseCode != null) '${l.caseNumber}: ${task.caseCode}',
+      if (dueDateStr != null) '${l.reminderDate}: $dueDateStr',
     ];
 
     return Card(
@@ -199,32 +209,35 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
               await _showReassignDialog(context, task);
             }
           },
-          itemBuilder: (_) => [
-            const PopupMenuItem<String>(
-              value: 'in_progress',
-              child: ListTile(
-                leading: Icon(Icons.play_arrow),
-                title: Text('Mark In Progress'),
-                contentPadding: EdgeInsets.zero,
+          itemBuilder: (menuContext) {
+            final l = AppLocalizations.of(menuContext)!;
+            return [
+              PopupMenuItem<String>(
+                value: 'in_progress',
+                child: ListTile(
+                  leading: const Icon(Icons.play_arrow),
+                  title: Text(l.markInProgress),
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'complete',
-              child: ListTile(
-                leading: Icon(Icons.check_circle, color: Colors.green),
-                title: Text('Mark Complete'),
-                contentPadding: EdgeInsets.zero,
+              PopupMenuItem<String>(
+                value: 'complete',
+                child: ListTile(
+                  leading: const Icon(Icons.check_circle, color: Colors.green),
+                  title: Text(l.markComplete),
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'reassign',
-              child: ListTile(
-                leading: Icon(Icons.person_add),
-                title: Text('Reassign'),
-                contentPadding: EdgeInsets.zero,
+              PopupMenuItem<String>(
+                value: 'reassign',
+                child: ListTile(
+                  leading: const Icon(Icons.person_add),
+                  title: Text(l.reassignTask),
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
-            ),
-          ],
+            ];
+          },
         ),
       ),
     );
@@ -250,7 +263,7 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
                 } else if (state is WorkqueueError) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error: ${state.message}'),
+                      content: Text('${l10n.error}: ${state.message}'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -264,15 +277,15 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
                 if (state is WorkqueueLoaded) {
                   final tasks = state.tasks;
                   if (tasks.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.inbox, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
+                          const Icon(Icons.inbox, size: 64, color: Colors.grey),
+                          const SizedBox(height: 16),
                           Text(
-                            'Your workqueue is empty',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            l10n.workqueueEmpty,
+                            style: const TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -299,10 +312,10 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
                         .add(LoadWorkqueue(status: _selectedStatus));
                   },
                   child: ListView(
-                    children: const [
-                      SizedBox(height: 200),
+                    children: [
+                      const SizedBox(height: 200),
                       Center(
-                        child: Text('Pull to refresh'),
+                        child: Text(l10n.refresh),
                       ),
                     ],
                   ),

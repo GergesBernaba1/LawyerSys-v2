@@ -27,7 +27,7 @@ class _PortalDocumentsScreenState extends State<PortalDocumentsScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${AppLocalizations.of(context)!.error}: cannot open URL')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenUrl)),
       );
     }
   }

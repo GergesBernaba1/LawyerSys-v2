@@ -1589,6 +1589,75 @@ abstract class AppLocalizations {
 
   // Auth
   String get rememberMe;
+
+  // Workqueue
+  String get reassignTask;
+  String get employeeIdLabel;
+  String get enterTargetEmployeeId;
+  String get markComplete;
+  String get markInProgress;
+  String get workqueueEmpty;
+  String get markCompletePrompt;
+  String get statusPending;
+  String get statusInProgress;
+  String get statusCompleted;
+
+  // Payment proof
+  String get submitPaymentProof;
+  String get pleaseSelectFile;
+  String get paymentProofSubmitted;
+  String get paymentDate;
+  String get proofFilePath;
+  String get submitting;
+
+  // Employee
+  String get profilePhotoUpdated;
+  String get uploadFailed;
+
+  // Requested documents
+  String get requestedDocuments;
+  String get documentSubmittedSuccessfully;
+  String get filePath;
+  String get noRequestedDocuments;
+
+  // Billing
+  String get pleaseSelectCustomer;
+  String get pleaseSelectAnEmployee;
+  String get newPayment;
+  String get newReceipt;
+
+  // Notification settings
+  String get notificationSettings;
+  String get notificationSettingsUpdated;
+  String get enableNotifications;
+  String get enableNotificationsSubtitle;
+  String get aboutNotifications;
+  String get manageNotificationPreferences;
+  String get notificationsWhenEnabledDescription;
+  String get notificationItemDocumentRequests;
+  String get notificationItemCaseStatusChanges;
+  String get notificationItemPaymentConfirmations;
+  String get notificationItemStaffMessages;
+
+  // Judicial documents
+  String get documentType;
+  String get documentNumber;
+  String get agentNumber;
+  String get details;
+  String get customerId;
+  String get searchJudicialDocuments;
+  String get editDocument;
+  String get createDocument;
+  String get requiredField;
+
+  // Profile
+  String get username;
+  String get country;
+  String get jobTitle;
+  String get tenantPhone;
+  String get usernameRequired;
+  String get fullNameRequired;
+  String get countryRequired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -133,9 +133,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   TextFormField(
                     controller: _userNameController,
-                    decoration: const InputDecoration(labelText: 'Username'),
+                    decoration: InputDecoration(labelText: l.username),
                     validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Username is required'
+                        ? l.usernameRequired
                         : null,
                   ),
                   const SizedBox(height: 12),
@@ -143,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     controller: _fullNameController,
                     decoration: InputDecoration(labelText: l.fullName),
                     validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Full name is required'
+                        ? l.fullNameRequired
                         : null,
                   ),
                   const SizedBox(height: 12),
@@ -151,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     controller: _emailController,
                     decoration: InputDecoration(labelText: l.email),
                     validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Email is required'
+                        ? l.emailIsRequired
                         : null,
                   ),
                   const SizedBox(height: 12),
@@ -162,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<int>(
                     initialValue: _countryId,
-                    decoration: const InputDecoration(labelText: 'Country'),
+                    decoration: InputDecoration(labelText: l.country),
                     items: _countries
                         .map(
                           (c) => DropdownMenuItem<int>(
@@ -174,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                         .toList(),
                     onChanged: (value) => setState(() => _countryId = value),
-                    validator: (v) => v == null ? 'Country is required' : null,
+                    validator: (v) => v == null ? l.countryRequired : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -184,19 +184,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _jobTitleController,
-                    decoration: const InputDecoration(labelText: 'Job Title'),
+                    decoration: InputDecoration(labelText: l.jobTitle),
                   ),
                   if (_canManageTenant) ...[
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _tenantNameController,
-                      decoration: const InputDecoration(labelText: 'Tenant Name'),
+                      decoration: InputDecoration(labelText: l.tenantName),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _tenantPhoneController,
-                      decoration:
-                          const InputDecoration(labelText: 'Tenant Phone'),
+                      decoration: InputDecoration(labelText: l.tenantPhone),
                     ),
                   ],
                   const SizedBox(height: 20),

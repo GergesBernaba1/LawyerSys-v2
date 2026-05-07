@@ -85,4 +85,3 @@ class SubmitRequestedDocument extends CustomersEvent {
   final String filePath;
   final String? notes;
 }
-

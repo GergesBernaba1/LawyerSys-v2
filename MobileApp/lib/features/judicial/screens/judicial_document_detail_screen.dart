@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_bloc.dart';
 import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_event.dart';
 import 'package:qadaya_lawyersys/features/judicial/models/judicial_document.dart';
@@ -253,64 +253,71 @@ class _JudicialDocumentFormBridgeState
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Edit Document',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _docTypeCtrl,
-                decoration: const InputDecoration(labelText: 'Document Type'),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _docNumCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Document Number'),
-                keyboardType: TextInputType.number,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _numOfAgentCtrl,
-                decoration: const InputDecoration(labelText: 'Agent Number'),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _docDetailsCtrl,
-                decoration: const InputDecoration(labelText: 'Details'),
-                maxLines: 3,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _notesCtrl,
-                decoration: const InputDecoration(labelText: 'Notes'),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _submit,
-                    child: const Text('Save'),
-                  ),
-                ],
-              ),
+              Builder(builder: (ctx) {
+                final l = AppLocalizations.of(ctx)!;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l.editDocument,
+                      style: Theme.of(ctx)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _docTypeCtrl,
+                      decoration: InputDecoration(labelText: l.documentType),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? l.requiredField : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _docNumCtrl,
+                      decoration: InputDecoration(labelText: l.documentNumber),
+                      keyboardType: TextInputType.number,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? l.requiredField : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _numOfAgentCtrl,
+                      decoration: InputDecoration(labelText: l.agentNumber),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _docDetailsCtrl,
+                      decoration: InputDecoration(labelText: l.details),
+                      maxLines: 3,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? l.requiredField : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesCtrl,
+                      decoration: InputDecoration(labelText: l.notes),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: Text(l.cancel),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _submit,
+                          child: Text(l.save),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },),
             ],
           ),
         ),

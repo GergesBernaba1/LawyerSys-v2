@@ -224,7 +224,7 @@ class SyncService {
 
   Future<void> _reconcile({
     required String label,
-    required Future<dynamic> Function() fetch,
+    required Future<Response<dynamic>> Function() fetch,
     required Future<void> Function(List<Map<String, dynamic>>) upsert,
   }) async {
     try {
@@ -279,5 +279,3 @@ class SyncService {
     );
   }
 }
-
-

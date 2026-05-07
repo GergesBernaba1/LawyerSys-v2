@@ -167,9 +167,9 @@ class _CustomersListScreenState extends State<CustomersListScreen> {
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) async {
                               if (value == 'call') {
-                                _dial(customer.phoneNumber ?? '');
+                                unawaited(_dial(customer.phoneNumber ?? ''));
                               } else if (value == 'message') {
-                                _sms(customer.phoneNumber ?? '');
+                                unawaited(_sms(customer.phoneNumber ?? ''));
                               } else if (value == 'edit') {
                                 unawaited(
                                   Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CustomerFormScreen(customer: customer))).then((_) {

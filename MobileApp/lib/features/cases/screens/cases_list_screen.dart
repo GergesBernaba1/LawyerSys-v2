@@ -298,8 +298,3 @@ class _CaseTile extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

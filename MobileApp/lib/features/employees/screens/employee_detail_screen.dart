@@ -76,14 +76,16 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
       final repo = RepositoryProvider.of<EmployeesRepository>(context);
       await repo.uploadProfileImage(widget.employeeModel.id, picked.path);
       if (mounted) {
+        final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile photo updated')),
+          SnackBar(content: Text(l.profilePhotoUpdated)),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e')),
+          SnackBar(content: Text('${l.uploadFailed}: $e')),
         );
       }
     } finally {
