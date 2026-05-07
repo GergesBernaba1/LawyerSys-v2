@@ -1,15 +1,7 @@
 name: Flutter Mobile App CI/CD
 
 on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'MobileApp/**'
-      - '.github/workflows/flutter-ci.yml'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'MobileApp/**'
+  workflow_dispatch:
 
 jobs:
   analyze:
