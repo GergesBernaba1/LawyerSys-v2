@@ -791,4 +791,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get relatedCase => 'القضية المرتبطة';
   @override
   String get noRelationsFound => 'لا توجد علاقات';
+
+  @override
+  String get lightMode => 'فاتح';
+
+  @override
+  String get darkMode => 'داكن';
+
+  @override
+  String get systemDefault => 'الإعداد الافتراضي';
+
+  @override
+  String get theme => 'السمة';
+
+  @override
+  String get myWorkqueue => 'قائمة عملي';
+
+  @override
+  String get retry => 'إعادة المحاولة';
 }

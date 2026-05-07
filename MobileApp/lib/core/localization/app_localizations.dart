@@ -557,6 +557,24 @@ abstract class AppLocalizations {
   /// **'App version'**
   String get appVersion;
 
+  /// No description provided for @lightMode.
+  String get lightMode;
+
+  /// No description provided for @darkMode.
+  String get darkMode;
+
+  /// No description provided for @systemDefault.
+  String get systemDefault;
+
+  /// No description provided for @theme.
+  String get theme;
+
+  /// No description provided for @myWorkqueue.
+  String get myWorkqueue;
+
+  /// No description provided for @retry.
+  String get retry;
+
   /// No description provided for @noTasksFound.
   ///
   /// In en, this message translates to:

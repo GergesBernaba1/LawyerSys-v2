@@ -70,26 +70,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Logo / brand
                     Center(
-                      child: Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [_kPrimary, _kPrimaryLight],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _kPrimary.withValues(alpha: 0.35),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
+                      child: Semantics(
+                        label: 'LawyerSys application logo',
+                        excludeSemantics: true,
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [_kPrimary, _kPrimaryLight],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                          ],
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _kPrimary.withValues(alpha: 0.35),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.gavel,
+                              color: Colors.white, size: 36),
                         ),
-                        child: const Icon(Icons.gavel,
-                            color: Colors.white, size: 36),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -113,29 +117,45 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 36),
 
                     // Email field
-                    _buildField(
-                      controller: _emailController,
-                      label: localizer.email,
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
+                    Semantics(
+                      label: 'Email address input field',
+                      hint: 'Enter your email address',
+                      textField: true,
+                      child: _buildField(
+                        controller: _emailController,
+                        label: localizer.email,
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
                     ),
                     const SizedBox(height: 16),
 
                     // Password field
-                    _buildField(
-                      controller: _passwordController,
-                      label: localizer.password,
-                      icon: Icons.lock_outline,
-                      obscureText: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: const Color(0xFF5F7085),
+                    Semantics(
+                      label: 'Password input field',
+                      hint: 'Enter your password',
+                      textField: true,
+                      obscured: _obscurePassword,
+                      child: _buildField(
+                        controller: _passwordController,
+                        label: localizer.password,
+                        icon: Icons.lock_outline,
+                        obscureText: _obscurePassword,
+                        suffixIcon: Semantics(
+                          label: _obscurePassword ? 'Show password' : 'Hide password',
+                          button: true,
+                          onTapHint: 'Toggle password visibility',
+                          child: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: const Color(0xFF5F7085),
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                         ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -156,21 +176,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     // Login button
-                    _buildPrimaryButton(
-                      label: localizer.login,
-                      onPressed: () {
-                        final email = _emailController.text.trim();
-                        final password = _passwordController.text;
-                        if (email.isEmpty || password.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                  '${localizer.email} and ${localizer.password} are required')));
-                          return;
-                        }
-                        context
-                            .read<AuthBloc>()
-                            .add(LoginRequested(email, password));
-                      },
+                    Semantics(
+                      label: 'Login button',
+                      hint: 'Tap to log in with email and password',
+                      button: true,
+                      child: _buildPrimaryButton(
+                        label: localizer.login,
+                        onPressed: () {
+                          final email = _emailController.text.trim();
+                          final password = _passwordController.text;
+                          if (email.isEmpty || password.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(
+                                    '${localizer.email} and ${localizer.password} are required')));
+                            return;
+                          }
+                          context
+                              .read<AuthBloc>()
+                              .add(LoginRequested(email, password));
+                        },
+                      ),
                     ),
 
                     if (_isBiometricAvailable) ...[

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../../core/localization/app_localizations.dart';
 
 import '../bloc/workqueue_bloc.dart';
 import '../bloc/workqueue_event.dart';
@@ -231,9 +232,10 @@ class _WorkqueueScreenState extends State<WorkqueueScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Workqueue'), // TODO: localize
+        title: Text(l10n.myWorkqueue),
       ),
       body: Column(
         children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../shared/widgets/skeleton_loader.dart';
 import '../../../core/auth/permissions.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../authentication/bloc/auth_bloc.dart';
@@ -270,7 +271,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
               child: BlocBuilder<EmployeesBloc, EmployeesState>(
                 builder: (context, state) {
                   if (state is EmployeesLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const ListSkeleton(itemCount: 7);
                   }
                   if (state is EmployeesError) {
                     return Center(

@@ -15,8 +15,11 @@ class DocumentsRepository {
 
   DocumentsRepository(this.apiClient, this.localDatabase);
 
-  Future<List<Document>> getDocuments({String? search}) async {
-    final params = <String, dynamic>{};
+  Future<List<Document>> getDocuments({String? search, int page = 1, int pageSize = 20}) async {
+    final params = <String, dynamic>{
+      'page': page,
+      'pageSize': pageSize,
+    };
     if (search != null && search.isNotEmpty) {
       params['search'] = search;
     }

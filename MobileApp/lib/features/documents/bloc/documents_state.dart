@@ -8,7 +8,30 @@ class DocumentsLoading extends DocumentsState {}
 
 class DocumentsLoaded extends DocumentsState {
   final List<Document> documents;
-  DocumentsLoaded(this.documents);
+  final int currentPage;
+  final bool hasMore;
+  final bool isLoadingMore;
+  
+  DocumentsLoaded(
+    this.documents, {
+    this.currentPage = 1,
+    this.hasMore = true,
+    this.isLoadingMore = false,
+  });
+
+  DocumentsLoaded copyWith({
+    List<Document>? documents,
+    int? currentPage,
+    bool? hasMore,
+    bool? isLoadingMore,
+  }) {
+    return DocumentsLoaded(
+      documents ?? this.documents,
+      currentPage: currentPage ?? this.currentPage,
+      hasMore: hasMore ?? this.hasMore,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    );
+  }
 }
 
 class DocumentsDownloading extends DocumentsState {

@@ -2,6 +2,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cubit.dart';
 import 'core/api/api_client.dart';
 import 'core/api/api_constants.dart';
 import 'core/auth/permissions.dart';
@@ -216,6 +218,8 @@ class App extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
+              create: (ctx) => ThemeCubit(PreferencesStorage.instance)),
+          BlocProvider(
               create: (ctx) => AuthBloc(
                   authRepository: RepositoryProvider.of<AuthRepository>(ctx))),
           BlocProvider(
@@ -424,50 +428,14 @@ class _AppInitializerState extends State<_AppInitializer> {
       );
     }
 
-    return MaterialApp(
-      title: 'Qadaya LawyerSys',
-      navigatorKey: PushNotificationService.navigatorKey,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF14345A),
-          primary: const Color(0xFF14345A),
-          secondary: const Color(0xFFB98746),
-          surface: Colors.white,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFEEF4FA),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Color(0xFF0F172A),
-          elevation: 0,
-          surfaceTintColor: Colors.transparent,
-        ),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-            side: BorderSide(
-                color: const Color(0xFF14345A).withValues(alpha: 0.08)),
-          ),
-          color: Colors.white,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
-                color: const Color(0xFF14345A).withValues(alpha: 0.12)),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF14345A),
-            foregroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-          ),
-        ),
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        return MaterialApp(
+          title: 'Qadaya LawyerSys',
+          navigatorKey: PushNotificationService.navigatorKey,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
         useMaterial3: true,
       ),
       localizationsDelegates: const [
@@ -611,6 +579,8 @@ class _AppInitializerState extends State<_AppInitializer> {
           default:
             return null;
         }
+      },
+    );
       },
     );
   }

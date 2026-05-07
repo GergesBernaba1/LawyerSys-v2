@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../shared/widgets/skeleton_loader.dart';
 import '../bloc/cases_bloc.dart';
 import '../bloc/cases_event.dart';
 import '../bloc/cases_state.dart';
@@ -23,17 +24,33 @@ class CasesListScreen extends StatefulWidget {
 
 class _CasesListScreenState extends State<CasesListScreen> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     context.read<CasesBloc>().add(LoadCases());
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isNearBottom) {
+      context.read<CasesBloc>().add(LoadMoreCases());
+    }
+  }
+
+  bool get _isNearBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
@@ -56,21 +73,30 @@ class _CasesListScreenState extends State<CasesListScreen> {
           // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: localizer.searchCases,
-                hintStyle: const TextStyle(color: _kTextSecondary),
-                prefixIcon: const Icon(Icons.search, color: _kPrimary),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, color: _kTextSecondary),
-                        onPressed: () {
-                          _searchController.clear();
-                          context.read<CasesBloc>().add(LoadCases());
-                        },
-                      )
-                    : null,
+            child: Semantics(
+              label: 'Search cases',
+              hint: 'Enter case number or client name to search',
+              textField: true,
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: localizer.searchCases,
+                  hintStyle: const TextStyle(color: _kTextSecondary),
+                  prefixIcon: const Icon(Icons.search, color: _kPrimary),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? Semantics(
+                          label: 'Clear search',
+                          hint: 'Tap to clear search text',
+                          button: true,
+                          child: IconButton(
+                            icon: const Icon(Icons.clear, color: _kTextSecondary),
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<CasesBloc>().add(LoadCases());
+                            },
+                          ),
+                        )
+                      : null,
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -98,8 +124,7 @@ class _CasesListScreenState extends State<CasesListScreen> {
             child: BlocBuilder<CasesBloc, CasesState>(
               builder: (context, state) {
                 if (state is CasesLoading) {
-                  return const Center(
-                      child: CircularProgressIndicator(color: _kPrimary));
+                  return const ListSkeleton(itemCount: 8);
                 }
                 if (state is CasesError) {
                   return Center(
@@ -130,10 +155,23 @@ class _CasesListScreenState extends State<CasesListScreen> {
                     onRefresh: () async =>
                         context.read<CasesBloc>().add(RefreshCases()),
                     child: ListView.builder(
+                      controller: _scrollController,
                       padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
-                      itemCount: cases.length,
-                      itemBuilder: (context, index) =>
-                          _CaseTile(caseItem: cases[index]),
+                      itemCount: cases.length + (state.hasMore || state.isLoadingMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index >= cases.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(_kPrimary),
+                              ),
+                            ),
+                          );
+                        }
+                        return _CaseTile(caseItem: cases[index]);
+                      },
                     ),
                   );
                 }
@@ -170,16 +208,21 @@ class _CaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = _statusColor(caseItem.caseStatus);
-    return GestureDetector(
-      onTap: () {
-        context.read<CasesBloc>().add(SelectCase(caseItem.caseId));
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => CaseDetailScreen(caseModel: caseItem)),
-        );
-      },
-      child: Container(
+    return Semantics(
+      label: 'Case ${caseItem.caseNumber}, ${caseItem.invitionType}, status ${caseItem.caseStatus}',
+      hint: 'Double tap to view case details',
+      button: true,
+      onTapHint: 'Open case details',
+      child: GestureDetector(
+        onTap: () {
+          context.read<CasesBloc>().add(SelectCase(caseItem.caseId));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => CaseDetailScreen(caseModel: caseItem)),
+          );
+        },
+        child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(

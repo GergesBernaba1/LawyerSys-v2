@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/core/storage/preferences_storage.dart';
+import 'package:qadaya_lawyersys/core/theme/theme_cubit.dart';
 import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 import 'package:qadaya_lawyersys/features/settings/screens/settings_screen.dart';
 import 'auth_flow_test.mocks.dart';
@@ -24,8 +26,14 @@ void main() {
     await tester.pumpWidget(
       RepositoryProvider<AuthRepository>(
         create: (_) => mockAuth,
-        child: MaterialApp(
-          home: SettingsScreen(biometricAuthService: mockBiometric),
+        child: BlocProvider<ThemeCubit>(
+          create: (_) => ThemeCubit(preferences),
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
+            home: SettingsScreen(biometricAuthService: mockBiometric),
+          ),
         ),
       ),
     );
@@ -35,6 +43,8 @@ void main() {
     final switchFinder = find.byType(SwitchListTile);
     expect(switchFinder, findsOneWidget);
 
+    await tester.ensureVisible(switchFinder);
+    await tester.pumpAndSettle();
     await tester.tap(switchFinder);
     await tester.pumpAndSettle();
 

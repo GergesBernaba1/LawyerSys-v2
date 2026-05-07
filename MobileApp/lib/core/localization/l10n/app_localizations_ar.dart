@@ -636,4 +636,248 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get governmentDeleted => 'تم حذف المحافظة بنجاح';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get auditLogs => 'سجلات التدقيق';
+
+  @override
+  String get searchAuditLogs => 'البحث في سجلات التدقيق...';
+
+  @override
+  String get entity => 'الكيان';
+
+  @override
+  String get action => 'الإجراء';
+
+  @override
+  String get noAuditLogsFound => 'لم يتم العثور على سجلات تدقيق';
+
+  @override
+  String get myWorkqueue => 'قائمة أعمالي';
+
+  @override
+  String get aiAssistant => 'المساعد الذكي';
+
+  @override
+  String get summarize => 'تلخيص';
+
+  @override
+  String get draft => 'مسودة';
+
+  @override
+  String get deadlines => 'المواعيد النهائية';
+
+  @override
+  String get addCourt => 'إضافة محكمة';
+
+  @override
+  String get editCourt => 'تعديل المحكمة';
+
+  @override
+  String get courtName => 'اسم المحكمة';
+
+  @override
+  String get courtType => 'نوع المحكمة';
+
+  @override
+  String get courtSaved => 'تم حفظ المحكمة بنجاح';
+
+  @override
+  String get courtDeleted => 'تم حذف المحكمة بنجاح';
+
+  @override
+  String get noItemsFound => 'لا توجد عناصر';
+
+  @override
+  String get loading => 'جاري التحميل...';
+
+  @override
+  String get pleaseWait => 'الرجاء الانتظار';
+
+  @override
+  String get tenants => 'المستأجرون';
+
+  @override
+  String get tenantStatusUpdated => 'تم تحديث حالة المستأجر';
+
+  @override
+  String get noTenantsFound => 'لم يتم العثور على مستأجرين';
+
+  @override
+  String get users => 'المستخدمون';
+
+  @override
+  String get administration => 'الإدارة';
+
+  @override
+  String get subscription => 'الاشتراك';
+
+  @override
+  String get trustReports => 'تقارير الأمانة';
+
+  @override
+  String get aboutUs => 'من نحن';
+
+  @override
+  String get contactUs => 'اتصل بنا';
+
+  @override
+  String get caseRelations => 'علاقات القضايا';
+
+  @override
+  String get documentGeneration => 'إنشاء المستندات';
+
+  @override
+  String get eSign => 'التوقيع الإلكتروني';
+
+  @override
+  String get files => 'الملفات';
+
+  @override
+  String get courtAutomation => 'أتمتة المحاكم';
+
+  @override
+  String get employeeWorkqueue => 'قائمة أعمال الموظفين';
+
+  @override
+  String get sitings => 'الجلسات';
+
+  @override
+  String get intake => 'الاستقبال';
+
+  @override
+  String get clientPortal => 'بوابة العملاء';
+
+  @override
+  String get profile => 'الملف الشخصي';
+
+  @override
+  String get noConnectionError =>
+      'لا يوجد اتصال بالإنترنت. يرجى التحقق من اتصالك والمحاولة مرة أخرى.';
+
+  @override
+  String get serverError => 'حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا.';
+
+  @override
+  String get validationError => 'يرجى التحقق من المدخلات والمحاولة مرة أخرى.';
+
+  @override
+  String get unauthorized => 'غير مصرح. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get notFound => 'لم يتم العثور على المورد المطلوب.';
+
+  @override
+  String get success => 'نجاح';
+
+  @override
+  String get warning => 'تحذير';
+
+  @override
+  String get info => 'معلومات';
+
+  @override
+  String get confirm => 'تأكيد';
+
+  @override
+  String get yes => 'نعم';
+
+  @override
+  String get no => 'لا';
+
+  @override
+  String get ok => 'موافق';
+
+  @override
+  String get close => 'إغلاق';
+
+  @override
+  String get next => 'التالي';
+
+  @override
+  String get previous => 'السابق';
+
+  @override
+  String get finish => 'إنهاء';
+
+  @override
+  String get skip => 'تخطي';
+
+  @override
+  String get update => 'تحديث';
+
+  @override
+  String get upload => 'رفع';
+
+  @override
+  String get download => 'تحميل';
+
+  @override
+  String get share => 'مشاركة';
+
+  @override
+  String get export => 'تصدير';
+
+  @override
+  String get import => 'استيراد';
+
+  @override
+  String get print => 'طباعة';
+
+  @override
+  String get filter => 'تصفية';
+
+  @override
+  String get sort => 'ترتيب';
+
+  @override
+  String get reset => 'إعادة تعيين';
+
+  @override
+  String get apply => 'تطبيق';
+
+  @override
+  String get selectAll => 'تحديد الكل';
+
+  @override
+  String get deselectAll => 'إلغاء تحديد الكل';
+
+  @override
+  String get noResultsFound => 'لم يتم العثور على نتائج';
+
+  @override
+  String get theme => 'المظهر';
+
+  @override
+  String get lightMode => 'الوضع الفاتح';
+
+  @override
+  String get darkMode => 'الوضع الداكن';
+
+  @override
+  String get systemDefault => 'افتراضي النظام';
+
+  @override
+  String get tryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get loadMore => 'تحميل المزيد';
+
+  @override
+  String get refreshing => 'جاري التحديث...';
+
+  @override
+  String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get checkYourConnection => 'يرجى التحقق من اتصال الإنترنت';
+
+  @override
+  String get somethingWentWrong => 'حدث خطأ ما';
+
+  @override
+  String get unexpectedError => 'حدث خطأ غير متوقع';
 }

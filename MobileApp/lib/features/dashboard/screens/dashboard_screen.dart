@@ -594,15 +594,23 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradient,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+    final trendText = trend != null 
+        ? (trend! >= 0 ? 'up ${trend!.toInt()} percent' : 'down ${trend!.abs().toInt()} percent')
+        : '';
+    return Semantics(
+      label: '$label: $value $trendText',
+      hint: 'Tap to view details',
+      button: true,
+      onTapHint: 'Open $label screen',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(

@@ -640,4 +640,248 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get governmentDeleted => 'Government deleted successfully';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get auditLogs => 'Audit Logs';
+
+  @override
+  String get searchAuditLogs => 'Search audit logs...';
+
+  @override
+  String get entity => 'Entity';
+
+  @override
+  String get action => 'Action';
+
+  @override
+  String get noAuditLogsFound => 'No audit logs found';
+
+  @override
+  String get myWorkqueue => 'My Workqueue';
+
+  @override
+  String get aiAssistant => 'AI Assistant';
+
+  @override
+  String get summarize => 'Summarize';
+
+  @override
+  String get draft => 'Draft';
+
+  @override
+  String get deadlines => 'Deadlines';
+
+  @override
+  String get addCourt => 'Add Court';
+
+  @override
+  String get editCourt => 'Edit Court';
+
+  @override
+  String get courtName => 'Court Name';
+
+  @override
+  String get courtType => 'Court Type';
+
+  @override
+  String get courtSaved => 'Court saved successfully';
+
+  @override
+  String get courtDeleted => 'Court deleted successfully';
+
+  @override
+  String get noItemsFound => 'No items found';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get pleaseWait => 'Please wait';
+
+  @override
+  String get tenants => 'Tenants';
+
+  @override
+  String get tenantStatusUpdated => 'Tenant status updated';
+
+  @override
+  String get noTenantsFound => 'No tenants found';
+
+  @override
+  String get users => 'Users';
+
+  @override
+  String get administration => 'Administration';
+
+  @override
+  String get subscription => 'Subscription';
+
+  @override
+  String get trustReports => 'Trust Reports';
+
+  @override
+  String get aboutUs => 'About Us';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get caseRelations => 'Case Relations';
+
+  @override
+  String get documentGeneration => 'Document Generation';
+
+  @override
+  String get eSign => 'E-Sign';
+
+  @override
+  String get files => 'Files';
+
+  @override
+  String get courtAutomation => 'Court Automation';
+
+  @override
+  String get employeeWorkqueue => 'Employee Workqueue';
+
+  @override
+  String get sitings => 'Sittings';
+
+  @override
+  String get intake => 'Intake';
+
+  @override
+  String get clientPortal => 'Client Portal';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get noConnectionError =>
+      'No internet connection. Please check your connection and try again.';
+
+  @override
+  String get serverError => 'Something went wrong. Please try again later.';
+
+  @override
+  String get validationError => 'Please check your input and try again.';
+
+  @override
+  String get unauthorized => 'Unauthorized. Please log in again.';
+
+  @override
+  String get notFound => 'The requested resource was not found.';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get warning => 'Warning';
+
+  @override
+  String get info => 'Information';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get upload => 'Upload';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get import => 'Import';
+
+  @override
+  String get print => 'Print';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get sort => 'Sort';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get deselectAll => 'Deselect All';
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get lightMode => 'Light Mode';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get systemDefault => 'System Default';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get loadMore => 'Load More';
+
+  @override
+  String get refreshing => 'Refreshing...';
+
+  @override
+  String get noInternetConnection => 'No Internet Connection';
+
+  @override
+  String get checkYourConnection => 'Please check your internet connection';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get unexpectedError => 'An unexpected error occurred';
 }

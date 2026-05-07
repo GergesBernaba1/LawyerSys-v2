@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/localization/app_localizations.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final String message;
@@ -23,7 +24,7 @@ class ErrorStateWidget extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'), // TODO: localize
+                label: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ],

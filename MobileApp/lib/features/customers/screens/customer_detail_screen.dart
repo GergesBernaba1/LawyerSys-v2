@@ -7,6 +7,9 @@ import '../models/customer.dart';
 import '../bloc/customers_bloc.dart';
 import '../bloc/customers_event.dart';
 import '../bloc/customers_state.dart';
+import 'case_notification_settings_screen.dart';
+import 'payment_proof_submission_screen.dart';
+import 'requested_documents_screen.dart';
 import '../../../core/localization/app_localizations.dart';
 
 class CustomerDetailScreen extends StatefulWidget {
@@ -61,6 +64,37 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   Future<void> _sms(String phoneNumber) async {
     final localizer = AppLocalizations.of(context)!;
     await _launchTelecommunication(phoneNumber, 'sms', '${localizer.error}: ${localizer.message}');
+  }
+
+  int? _parseCaseCode(String rawCode) {
+    return int.tryParse(rawCode);
+  }
+
+  void _navigateToNotificationSettings(int caseCode) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CaseNotificationSettingsScreen(caseCode: caseCode),
+      ),
+    );
+  }
+
+  void _navigateToPaymentProof(int caseCode) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentProofSubmissionScreen(caseCode: caseCode),
+      ),
+    );
+  }
+
+  void _navigateToRequestedDocuments(int caseCode) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RequestedDocumentsScreen(caseCode: caseCode),
+      ),
+    );
   }
 
   @override
@@ -126,6 +160,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     }
                     return Column(
                       children: history.map((entry) {
+                        final caseCodeValue = _parseCaseCode(entry.caseCode);
                         return ListTile(
                           title: Text(entry.caseName.isNotEmpty ? entry.caseName : entry.caseCode),
                           subtitle: Column(
@@ -136,6 +171,37 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                                 Text('${localizer.assignedTo}: ${entry.assignedEmployeeName}'),
                             ],
                           ),
+                          trailing: caseCodeValue != null
+                              ? PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    switch (value) {
+                                      case 'notifications':
+                                        _navigateToNotificationSettings(caseCodeValue);
+                                        break;
+                                      case 'paymentProof':
+                                        _navigateToPaymentProof(caseCodeValue);
+                                        break;
+                                      case 'requestedDocuments':
+                                        _navigateToRequestedDocuments(caseCodeValue);
+                                        break;
+                                    }
+                                  },
+                                  itemBuilder: (_) => [
+                                    PopupMenuItem(
+                                      value: 'notifications',
+                                      child: Text(localizer.notifications),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'paymentProof',
+                                      child: Text('Submit Payment Proof'),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'requestedDocuments',
+                                      child: Text('Requested Documents'),
+                                    ),
+                                  ],
+                                )
+                              : null,
                           onTap: () {
                             // Optionally navigate to case detail if full case data is available.
                           },

@@ -791,4 +791,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get relatedCase => 'Related Case';
   @override
   String get noRelationsFound => 'No relations found';
+
+  @override
+  String get lightMode => 'Light';
+
+  @override
+  String get darkMode => 'Dark';
+
+  @override
+  String get systemDefault => 'System Default';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get myWorkqueue => 'My Workqueue';
+
+  @override
+  String get retry => 'Retry';
 }

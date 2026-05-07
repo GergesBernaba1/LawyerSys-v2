@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../shared/widgets/skeleton_loader.dart';
 import '../../../core/api/api_client.dart';
 import '../bloc/documents_bloc.dart';
 import '../bloc/documents_event.dart';
@@ -26,6 +27,7 @@ class DocumentsListScreen extends StatefulWidget {
 
 class _DocumentsListScreenState extends State<DocumentsListScreen> {
   late final DocumentsBloc _bloc;
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -34,12 +36,27 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
         documentsRepository:
             DocumentsRepository(ApiClient(), LocalDatabase.instance));
     _bloc.add(LoadDocuments());
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _bloc.close();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isNearBottom) {
+      _bloc.add(LoadMoreDocuments());
+    }
+  }
+
+  bool get _isNearBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   void _showShareSheet(BuildContext context, String url) {
@@ -311,16 +328,26 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
         appBar: AppBar(
           title: const Text('Documents'), // TODO: localize
           actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () => _bloc.add(RefreshDocuments()),
-            )
+            Semantics(
+              label: 'Refresh documents',
+              hint: 'Tap to reload the documents list',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () => _bloc.add(RefreshDocuments()),
+              ),
+            ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          tooltip: 'Upload Document', // TODO: localize
-          onPressed: () => _showUploadSheet(context),
-          child: const Icon(Icons.upload_file),
+        floatingActionButton: Semantics(
+          label: 'Upload document',
+          hint: 'Tap to upload a new document',
+          button: true,
+          child: FloatingActionButton(
+            tooltip: 'Upload Document', // TODO: localize
+            onPressed: () => _showUploadSheet(context),
+            child: const Icon(Icons.upload_file),
+          ),
         ),
         body: BlocConsumer<DocumentsBloc, DocumentsState>(
           listener: (context, state) {
@@ -343,7 +370,7 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
           },
           builder: (context, state) {
             if (state is DocumentsLoading || state is DocumentsUploading) {
-              return const Center(child: CircularProgressIndicator());
+              return const ListSkeleton(itemCount: 6);
             }
             if (state is DocumentsError) {
               return Center(child: Text('Error: ${state.error}'));
@@ -354,8 +381,17 @@ class _DocumentsListScreenState extends State<DocumentsListScreen> {
                 return const Center(child: Text('No documents found')); // TODO: localize
               }
               return ListView.builder(
-                itemCount: docs.length,
+                controller: _scrollController,
+                itemCount: docs.length + (state.hasMore || state.isLoadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
+                  if (index >= docs.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  }
                   final document = docs[index];
                   return ListTile(
                     leading: Icon(document.isPdf

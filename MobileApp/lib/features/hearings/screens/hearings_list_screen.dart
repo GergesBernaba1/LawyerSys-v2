@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../shared/widgets/skeleton_loader.dart';
 import '../bloc/hearings_bloc.dart';
 import '../bloc/hearings_event.dart';
 import '../bloc/hearings_state.dart';
@@ -176,7 +177,7 @@ class _HearingsListScreenState extends State<HearingsListScreen> {
               child: BlocBuilder<HearingsBloc, HearingsState>(
                 builder: (context, state) {
                   if (state is HearingsLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const ListSkeleton(itemCount: 6);
                   }
                   if (state is HearingsError) {
                     return Center(child: Text('${localizer.error}: ${state.message}'));

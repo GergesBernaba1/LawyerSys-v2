@@ -7,6 +7,8 @@ class LoadDocuments extends DocumentsEvent {
   LoadDocuments({this.search});
 }
 
+class LoadMoreDocuments extends DocumentsEvent {}
+
 class DownloadDocument extends DocumentsEvent {
   final Document document;
   DownloadDocument(this.document);

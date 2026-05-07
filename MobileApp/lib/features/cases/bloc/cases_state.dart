@@ -5,7 +5,30 @@ class CasesInitial extends CasesState {}
 class CasesLoading extends CasesState {}
 class CasesLoaded extends CasesState {
   final List<CaseModel> cases;
-  CasesLoaded(this.cases);
+  final int currentPage;
+  final bool hasMore;
+  final bool isLoadingMore;
+  
+  CasesLoaded(
+    this.cases, {
+    this.currentPage = 1,
+    this.hasMore = true,
+    this.isLoadingMore = false,
+  });
+
+  CasesLoaded copyWith({
+    List<CaseModel>? cases,
+    int? currentPage,
+    bool? hasMore,
+    bool? isLoadingMore,
+  }) {
+    return CasesLoaded(
+      cases ?? this.cases,
+      currentPage: currentPage ?? this.currentPage,
+      hasMore: hasMore ?? this.hasMore,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    );
+  }
 }
 class CasesError extends CasesState {
   final String message;

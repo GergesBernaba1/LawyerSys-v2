@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/theme_cubit.dart';
 import '../../../core/auth/biometric_auth.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/network/connectivity_service.dart';
@@ -94,6 +95,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(enabled ? 'Biometric login enabled' : 'Biometric login disabled')));
   }
 
+  String _getThemeModeLabel(ThemeMode mode, AppLocalizations localizer) {
+    switch (mode) {
+      case ThemeMode.light:
+        return localizer.lightMode;
+      case ThemeMode.dark:
+        return localizer.darkMode;
+      case ThemeMode.system:
+        return localizer.systemDefault;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizer = AppLocalizations.of(context)!;
@@ -124,6 +136,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             onTap: () => _setLanguage('ar'),
           ),
+          const SizedBox(height: 16),
+          const Divider(),
+          BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, themeMode) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text(localizer.theme),
+                    subtitle: Text(_getThemeModeLabel(themeMode, localizer)),
+                    leading: const Icon(Icons.brightness_6),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    title: Text(localizer.lightMode),
+                    value: ThemeMode.light,
+                    groupValue: themeMode,
+                    onChanged: (_) => context.read<ThemeCubit>().setLightMode(),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    title: Text(localizer.darkMode),
+                    value: ThemeMode.dark,
+                    groupValue: themeMode,
+                    onChanged: (_) => context.read<ThemeCubit>().setDarkMode(),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    title: Text(localizer.systemDefault),
+                    value: ThemeMode.system,
+                    groupValue: themeMode,
+                    onChanged: (_) => context.read<ThemeCubit>().setSystemMode(),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
           const SizedBox(height: 16),
           SwitchListTile(
             title: Text(localizer.pushNotifications),

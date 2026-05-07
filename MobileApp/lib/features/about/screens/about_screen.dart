@@ -60,17 +60,17 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
+              child: const Padding(
+                padding: EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.info_outline, color: _kPrimary, size: 20),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'About', // TODO localize
+                        Icon(Icons.info_outline, color: _kPrimary, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'About',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -79,8 +79,8 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
+                    SizedBox(height: 12),
+                    Text(
                       'Qadaya LawyerSys - A comprehensive legal practice management system for law firms. Version 1.0.0',
                       style: TextStyle(
                         fontSize: 14,
@@ -100,17 +100,17 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
+              child: const Padding(
+                padding: EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.contact_mail_outlined, color: _kPrimary, size: 20),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Contact Information', // TODO localize
+                        Icon(Icons.contact_mail_outlined, color: _kPrimary, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Contact Information',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -119,7 +119,7 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     _ContactInfoRow(
                       icon: Icons.email_outlined,
                       label: 'Email', // TODO localize

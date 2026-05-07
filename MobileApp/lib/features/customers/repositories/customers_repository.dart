@@ -3,6 +3,9 @@ import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/utils/json_utils.dart';
 import '../models/customer.dart';
+import '../models/case_notification_preference.dart';
+import '../models/customer_payment_proof.dart';
+import '../models/customer_requested_document.dart';
 
 class CustomersRepository {
   final ApiClient apiClient;
@@ -63,5 +66,88 @@ class CustomersRepository {
       ),
     });
     await apiClient.post('/customers/$customerId/profile-image', data: formData);
+  }
+
+  // Case Notification Preferences
+  Future<CaseNotificationPreference> getCaseNotificationPreference(
+      int caseCode) async {
+    final response = await apiClient
+        .get('/api/cases/$caseCode/notification-preferences');
+    return CaseNotificationPreference.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  Future<CaseNotificationPreference> updateCaseNotificationPreference(
+      int caseCode, bool notificationsEnabled) async {
+    final response = await apiClient.put(
+      '/api/cases/$caseCode/notification-preferences',
+      data: {'notificationsEnabled': notificationsEnabled},
+    );
+    return CaseNotificationPreference.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  // Payment Proofs
+  Future<CustomerPaymentProof> submitPaymentProof({
+    required int caseCode,
+    required double amount,
+    required DateTime paymentDate,
+    required String filePath,
+    String? notes,
+  }) async {
+    final formData = FormData.fromMap({
+      'amount': amount,
+      'paymentDate': paymentDate.toIso8601String().split('T')[0],
+      'notes': notes ?? '',
+      'file': await MultipartFile.fromFile(
+        filePath,
+        filename: filePath.split('/').last,
+      ),
+    });
+
+    final response = await apiClient.post(
+      '/api/client-portal/cases/$caseCode/payment-proofs',
+      data: formData,
+    );
+    return CustomerPaymentProof.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  // Requested Documents
+  Future<List<CustomerRequestedDocument>> getRequestedDocuments(
+      int caseCode) async {
+    // This would typically come from the client portal endpoint
+    // For now, we'll assume it's part of the case detail
+    final response = await apiClient
+        .get('/api/client-portal/cases/$caseCode/requested-documents');
+    final data = normalizeJsonList(response.data);
+    if (data.isEmpty) return [];
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map((raw) =>
+            CustomerRequestedDocument.fromJson(Map<String, dynamic>.from(raw as Map)))
+        .toList();
+  }
+
+  Future<CustomerRequestedDocument> submitRequestedDocument({
+    required int caseCode,
+    required int requestId,
+    required String filePath,
+    String? notes,
+  }) async {
+    final formData = FormData.fromMap({
+      'notes': notes ?? '',
+      'file': await MultipartFile.fromFile(
+        filePath,
+        filename: filePath.split('/').last,
+      ),
+    });
+
+    final response = await apiClient.post(
+      '/api/client-portal/cases/$caseCode/requested-documents/$requestId/submit',
+      data: formData,
+    );
+    return CustomerRequestedDocument.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
   }
 }

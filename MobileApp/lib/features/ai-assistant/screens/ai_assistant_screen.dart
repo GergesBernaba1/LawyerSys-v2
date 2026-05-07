@@ -39,19 +39,16 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        // TODO: localize 'AI Assistant'
-        title: const Text('AI Assistant'),
+        title: Text(l10n.aiAssistant),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            // TODO: localize 'Summarize'
-            Tab(text: 'Summarize'),
-            // TODO: localize 'Draft'
-            Tab(text: 'Draft'),
-            // TODO: localize 'Deadlines'
-            Tab(text: 'Deadlines'),
+          tabs: [
+            Tab(text: l10n.summarize),
+            Tab(text: l10n.draft),
+            Tab(text: l10n.deadlines),
           ],
         ),
       ),
@@ -60,8 +57,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
           if (state is AiAssistantError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                // TODO: localize 'Error'
-                content: Text('Error: ${state.message}'),
+                content: Text('${AppLocalizations.of(context)!.error}: ${state.message}'),
                 backgroundColor: Colors.red,
               ),
             );

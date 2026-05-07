@@ -49,10 +49,10 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        // TODO: localize 'Audit Logs'
-        title: const Text('Audit Logs'),
+        title: Text(l10n.auditLogs),
       ),
       body: Column(
         children: [
@@ -71,16 +71,14 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                         const Icon(Icons.error_outline,
                             size: 48, color: Colors.red),
                         const SizedBox(height: 12),
-                        // TODO: localize 'Error'
-                        Text('Error: ${state.message}'),
+                        Text('${l10n.error}: ${state.message}'),
                         const SizedBox(height: 12),
                         ElevatedButton.icon(
                           onPressed: () => context
                               .read<AuditLogsBloc>()
                               .add(RefreshAuditLogs()),
                           icon: const Icon(Icons.refresh),
-                          // TODO: localize 'Retry'
-                          label: const Text('Retry'),
+                          label: Text(l10n.retry),
                         ),
                       ],
                     ),
@@ -107,8 +105,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              // TODO: localize 'Search audit logs...'
-              hintText: 'Search audit logs...',
+              hintText: AppLocalizations.of(context)!.searchAuditLogs,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -133,16 +130,14 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                   initialValue: _selectedEntityName,
                   isExpanded: true,
                   isDense: true,
-                  // TODO: localize 'Entity'
-                  decoration: const InputDecoration(
-                    labelText: 'Entity',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.entity,
                     border: OutlineInputBorder(),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   ),
                   items: [
-                    // TODO: localize 'All'
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.all)),
                     ...const [
                       'Case',
                       'Customer',
@@ -165,16 +160,14 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                   initialValue: _selectedAction,
                   isExpanded: true,
                   isDense: true,
-                  // TODO: localize 'Action'
-                  decoration: const InputDecoration(
-                    labelText: 'Action',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.action,
                     border: OutlineInputBorder(),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   ),
                   items: [
-                    // TODO: localize 'All'
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.all)),
                     ..._actionOptions.map(
                       (a) => DropdownMenuItem(value: a, child: Text(a)),
                     ),
@@ -193,6 +186,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
   }
 
   Widget _buildLogsList(BuildContext context, List<AuditLog> logs) {
+    final l10n = AppLocalizations.of(context)!;
     if (logs.isEmpty) {
       return RefreshIndicator(
         onRefresh: () async =>
@@ -205,8 +199,7 @@ class _AuditLogsScreenState extends State<AuditLogsScreen> {
                 children: [
                   Icon(Icons.history, size: 48, color: Colors.grey),
                   SizedBox(height: 12),
-                  // TODO: localize 'No audit logs found'
-                  Text('No audit logs found',
+                  Text(AppLocalizations.of(context)!.noAuditLogsFound,
                       style: TextStyle(color: Colors.grey)),
                 ],
               ),

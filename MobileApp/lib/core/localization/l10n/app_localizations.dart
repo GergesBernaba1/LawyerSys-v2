@@ -1345,6 +1345,492 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Government deleted successfully'**
   String get governmentDeleted;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @auditLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit Logs'**
+  String get auditLogs;
+
+  /// No description provided for @searchAuditLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Search audit logs...'**
+  String get searchAuditLogs;
+
+  /// No description provided for @entity.
+  ///
+  /// In en, this message translates to:
+  /// **'Entity'**
+  String get entity;
+
+  /// No description provided for @action.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get action;
+
+  /// No description provided for @noAuditLogsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No audit logs found'**
+  String get noAuditLogsFound;
+
+  /// No description provided for @myWorkqueue.
+  ///
+  /// In en, this message translates to:
+  /// **'My Workqueue'**
+  String get myWorkqueue;
+
+  /// No description provided for @aiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiAssistant;
+
+  /// No description provided for @summarize.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarize'**
+  String get summarize;
+
+  /// No description provided for @draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get draft;
+
+  /// No description provided for @deadlines.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadlines'**
+  String get deadlines;
+
+  /// No description provided for @addCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Court'**
+  String get addCourt;
+
+  /// No description provided for @editCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Court'**
+  String get editCourt;
+
+  /// No description provided for @courtName.
+  ///
+  /// In en, this message translates to:
+  /// **'Court Name'**
+  String get courtName;
+
+  /// No description provided for @courtType.
+  ///
+  /// In en, this message translates to:
+  /// **'Court Type'**
+  String get courtType;
+
+  /// No description provided for @courtSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Court saved successfully'**
+  String get courtSaved;
+
+  /// No description provided for @courtDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Court deleted successfully'**
+  String get courtDeleted;
+
+  /// No description provided for @noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found'**
+  String get noItemsFound;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @pleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait'**
+  String get pleaseWait;
+
+  /// No description provided for @tenants.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenants'**
+  String get tenants;
+
+  /// No description provided for @tenantStatusUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant status updated'**
+  String get tenantStatusUpdated;
+
+  /// No description provided for @noTenantsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tenants found'**
+  String get noTenantsFound;
+
+  /// No description provided for @users.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get users;
+
+  /// No description provided for @administration.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get administration;
+
+  /// No description provided for @subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get subscription;
+
+  /// No description provided for @trustReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust Reports'**
+  String get trustReports;
+
+  /// No description provided for @aboutUs.
+  ///
+  /// In en, this message translates to:
+  /// **'About Us'**
+  String get aboutUs;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUs;
+
+  /// No description provided for @caseRelations.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Relations'**
+  String get caseRelations;
+
+  /// No description provided for @documentGeneration.
+  ///
+  /// In en, this message translates to:
+  /// **'Document Generation'**
+  String get documentGeneration;
+
+  /// No description provided for @eSign.
+  ///
+  /// In en, this message translates to:
+  /// **'E-Sign'**
+  String get eSign;
+
+  /// No description provided for @files.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get files;
+
+  /// No description provided for @courtAutomation.
+  ///
+  /// In en, this message translates to:
+  /// **'Court Automation'**
+  String get courtAutomation;
+
+  /// No description provided for @employeeWorkqueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Workqueue'**
+  String get employeeWorkqueue;
+
+  /// No description provided for @sitings.
+  ///
+  /// In en, this message translates to:
+  /// **'Sittings'**
+  String get sitings;
+
+  /// No description provided for @intake.
+  ///
+  /// In en, this message translates to:
+  /// **'Intake'**
+  String get intake;
+
+  /// No description provided for @clientPortal.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Portal'**
+  String get clientPortal;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @noConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your connection and try again.'**
+  String get noConnectionError;
+
+  /// No description provided for @serverError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again later.'**
+  String get serverError;
+
+  /// No description provided for @validationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your input and try again.'**
+  String get validationError;
+
+  /// No description provided for @unauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized. Please log in again.'**
+  String get unauthorized;
+
+  /// No description provided for @notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested resource was not found.'**
+  String get notFound;
+
+  /// No description provided for @success.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get success;
+
+  /// No description provided for @warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
+  /// No description provided for @info.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get info;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
+  /// No description provided for @finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get finish;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @upload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get upload;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
+
+  /// No description provided for @import.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get import;
+
+  /// No description provided for @print.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get print;
+
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sort;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// No description provided for @deselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect All'**
+  String get deselectAll;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResultsFound;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @lightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Mode'**
+  String get lightMode;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @systemDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get systemDefault;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load More'**
+  String get loadMore;
+
+  /// No description provided for @refreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing...'**
+  String get refreshing;
+
+  /// No description provided for @noInternetConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No Internet Connection'**
+  String get noInternetConnection;
+
+  /// No description provided for @checkYourConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection'**
+  String get checkYourConnection;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred'**
+  String get unexpectedError;
 }
 
 class _AppLocalizationsDelegate
