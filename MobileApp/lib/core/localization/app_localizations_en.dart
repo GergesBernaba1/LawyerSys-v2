@@ -1119,4 +1119,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action => 'Action';
   @override
   String get noAuditLogsFound => 'No audit logs found';
+  @override
+  String get rememberMe => 'Remember me';
 }

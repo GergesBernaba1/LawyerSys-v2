@@ -1119,4 +1119,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get action => 'الإجراء';
   @override
   String get noAuditLogsFound => 'لا توجد سجلات تدقيق';
+  @override
+  String get rememberMe => 'تذكّرني';
 }

@@ -1586,6 +1586,9 @@ abstract class AppLocalizations {
   String get entity;
   String get action;
   String get noAuditLogsFound;
+
+  // Auth
+  String get rememberMe;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

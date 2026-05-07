@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:qadaya_lawyersys/core/auth/biometric_auth.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
+import 'package:qadaya_lawyersys/core/storage/secure_storage.dart';
 import 'package:qadaya_lawyersys/features/authentication/bloc/auth_bloc.dart';
 import 'package:qadaya_lawyersys/features/authentication/bloc/auth_event.dart';
 import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
@@ -23,8 +25,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _secureStorage = SecureStorage();
   bool _isBiometricAvailable = false;
   bool _obscurePassword = true;
+  bool _rememberMe = false;
 
   @override
   void initState() {
@@ -32,6 +36,32 @@ class _LoginScreenState extends State<LoginScreen> {
     BiometricAuthService().isBiometricAvailable().then((available) {
       if (mounted) setState(() => _isBiometricAvailable = available);
     });
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final rememberMe = await _secureStorage.read(SecureStorage.keyRememberMe);
+    if (rememberMe != 'true') return;
+    final email = await _secureStorage.read(SecureStorage.keySavedEmail);
+    final password = await _secureStorage.read(SecureStorage.keySavedPassword);
+    if (!mounted) return;
+    setState(() {
+      _rememberMe = true;
+      if (email != null) _emailController.text = email;
+      if (password != null) _passwordController.text = password;
+    });
+  }
+
+  Future<void> _saveOrClearCredentials(String email, String password) async {
+    if (_rememberMe) {
+      await _secureStorage.write(SecureStorage.keyRememberMe, 'true');
+      await _secureStorage.write(SecureStorage.keySavedEmail, email);
+      await _secureStorage.write(SecureStorage.keySavedPassword, password);
+    } else {
+      await _secureStorage.write(SecureStorage.keyRememberMe, 'false');
+      await _secureStorage.delete(SecureStorage.keySavedEmail);
+      await _secureStorage.delete(SecureStorage.keySavedPassword);
+    }
   }
 
   @override
@@ -158,22 +188,50 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
 
-                    // Forgot password
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: TextButton(
-                        onPressed: () => Navigator.pushNamed(
-                            context, '/forgot-password',),
-                        child: Text(
-                          localizer.forgotPassword,
-                          style: const TextStyle(
-                              color: _kPrimary, fontWeight: FontWeight.w700,),
+                    // Remember me + Forgot password row
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: _rememberMe,
+                            activeColor: _kPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            onChanged: (val) =>
+                                setState(() => _rememberMe = val ?? false),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () =>
+                              setState(() => _rememberMe = !_rememberMe),
+                          child: Text(
+                            localizer.rememberMe,
+                            style: const TextStyle(
+                              color: Color(0xFF5F7085),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () => Navigator.pushNamed(
+                              context, '/forgot-password',),
+                          child: Text(
+                            localizer.forgotPassword,
+                            style: const TextStyle(
+                                color: _kPrimary, fontWeight: FontWeight.w700,),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // Login button
                     Semantics(
@@ -191,6 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     '${localizer.email} and ${localizer.password} are required',),),);
                             return;
                           }
+                          unawaited(_saveOrClearCredentials(email, password));
                           context
                               .read<AuthBloc>()
                               .add(LoginRequested(email, password));
@@ -316,5 +375,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-

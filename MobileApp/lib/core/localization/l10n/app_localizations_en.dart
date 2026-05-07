@@ -884,4 +884,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unexpectedError => 'An unexpected error occurred';
+
+  @override
+  String get rememberMe => 'Remember me';
 }

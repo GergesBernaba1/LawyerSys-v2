@@ -5,6 +5,9 @@ class SecureStorage {
   static const keyRefreshToken = 'refreshToken';
   static const keyTenantId = 'tenantId';
   static const keyUserSession = 'userSession';
+  static const keyRememberMe = 'rememberMe';
+  static const keySavedEmail = 'savedEmail';
+  static const keySavedPassword = 'savedPassword';
 
   final _storage = const FlutterSecureStorage();
 
@@ -13,5 +16,3 @@ class SecureStorage {
   Future<void> delete(String key) => _storage.delete(key: key);
   Future<void> clear() => _storage.deleteAll();
 }
-
-

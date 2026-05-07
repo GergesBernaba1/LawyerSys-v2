@@ -288,5 +288,6 @@
   "noInternetConnection": "No Internet Connection",
   "checkYourConnection": "Please check your internet connection",
   "somethingWentWrong": "Something went wrong",
-  "unexpectedError": "An unexpected error occurred"
+  "unexpectedError": "An unexpected error occurred",
+  "rememberMe": "Remember me"
 }

@@ -288,5 +288,6 @@
   "noInternetConnection": "لا يوجد اتصال بالإنترنت",
   "checkYourConnection": "يرجى التحقق من اتصال الإنترنت",
   "somethingWentWrong": "حدث خطأ ما",
-  "unexpectedError": "حدث خطأ غير متوقع"
+  "unexpectedError": "حدث خطأ غير متوقع",
+  "rememberMe": "تذكّرني"
 }
