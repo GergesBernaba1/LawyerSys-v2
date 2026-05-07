@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/auth/biometric_auth.dart';
+import '../../../core/storage/local_database.dart';
 import '../models/login_request.dart';
 import '../repositories/auth_repository.dart';
 import 'auth_event.dart';
@@ -114,7 +115,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await authRepository.logout();
     } catch (_) {
-      // ignore, still clear local session state
+      // ignore server errors — still clear local state
+    }
+    try {
+      await LocalDatabase.instance.clearAll();
+    } catch (e) {
+      debugPrint('AuthBloc: clearAll failed on logout: $e');
     }
     emit(AuthUnauthenticated());
   }

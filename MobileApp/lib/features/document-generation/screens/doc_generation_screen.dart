@@ -240,25 +240,33 @@ class _GenerateTabState extends State<_GenerateTab> {
                 const Text('No templates available.',
                     style: TextStyle(color: Colors.grey)),
 
-              ...templates.map((template) {
-                final isSelected = _selectedTemplate?.id == template.id;
-                return Card(
-                  color: isSelected
-                      ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
-                      : null,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: RadioListTile<String>(
-                    value: template.id,
-                    groupValue: _selectedTemplate?.id,
-                    onChanged: (_) => _selectTemplate(template),
-                    title: Text(template.name,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: template.description != null
-                        ? Text(template.description!)
-                        : null,
-                  ),
-                );
-              }),
+              RadioGroup<String>(
+                groupValue: _selectedTemplate?.id,
+                onChanged: (id) {
+                  if (id == null) return;
+                  final template = templates.firstWhere((t) => t.id == id);
+                  _selectTemplate(template);
+                },
+                child: Column(
+                  children: templates.map((template) {
+                    final isSelected = _selectedTemplate?.id == template.id;
+                    return Card(
+                      color: isSelected
+                          ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
+                          : null,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: RadioListTile<String>(
+                        value: template.id,
+                        title: Text(template.name,
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: template.description != null
+                            ? Text(template.description!)
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
 
               // Dynamic field form
               if (_selectedTemplate != null) ...[
@@ -318,19 +326,16 @@ class _GenerateTabState extends State<_GenerateTab> {
       case 'select':
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: DropdownButtonFormField<String>(
-            value: _selectValues[field.key],
-            decoration: InputDecoration(
-              labelText: field.label,
-              border: const OutlineInputBorder(),
-            ),
-            items: (field.options ?? [])
-                .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
+          child: DropdownMenu<String>(
+            initialSelection: _selectValues[field.key],
+            label: Text(field.label),
+            expandedInsets: EdgeInsets.zero,
+            onSelected: (val) => setState(() => _selectValues[field.key] = val),
+            dropdownMenuEntries: (field.options ?? [])
+                .map((opt) => DropdownMenuEntry(value: opt, label: opt))
                 .toList(),
-            onChanged: (val) => setState(() => _selectValues[field.key] = val),
-            validator: field.required
-                ? (val) =>
-                    val == null ? '${field.label} is required' : null // TODO: localize
+            errorText: (field.required && _selectValues[field.key] == null)
+                ? '${field.label} is required' // TODO: localize
                 : null,
           ),
         );

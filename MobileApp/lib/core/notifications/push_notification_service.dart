@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -21,6 +22,10 @@ class PushNotificationService {
   AuthRepository? _authRepository;
   NotificationsRepository? _notificationsRepository;
 
+  StreamSubscription<String>? _tokenRefreshSub;
+  StreamSubscription<RemoteMessage>? _onMessageSub;
+  StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
+
   FirebaseMessaging get _firebaseMessaging {
     return _messaging ??= FirebaseMessaging.instance;
   }
@@ -31,6 +36,9 @@ class PushNotificationService {
   }
 
   Future<void> init() async {
+    // Cancel any previous subscriptions before re-subscribing.
+    await _cancelSubscriptions();
+
     try {
       if (Platform.isIOS || Platform.isAndroid) {
         await _requestPermission();
@@ -41,19 +49,19 @@ class PushNotificationService {
         await _authRepository!.registerDeviceToken(token, platform: Platform.operatingSystem);
       }
 
-      _firebaseMessaging.onTokenRefresh.listen((newToken) async {
+      _tokenRefreshSub = _firebaseMessaging.onTokenRefresh.listen((newToken) async {
         if (newToken.isNotEmpty && _authRepository != null) {
           await _authRepository!.registerDeviceToken(newToken, platform: Platform.operatingSystem);
         }
       });
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage event) async {
+      _onMessageSub = FirebaseMessaging.onMessage.listen((RemoteMessage event) async {
         debugPrint('Foreground message: ${event.notification?.title} ${event.notification?.body}');
         await _persistNotification(event);
         NotificationHandler.onMessage(event);
       });
 
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage event) async {
+      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage event) async {
         debugPrint('Notification opened-app payload: ${event.data}');
         await _persistNotification(event);
         NotificationHandler.onMessageOpened(event);
@@ -65,7 +73,17 @@ class PushNotificationService {
     }
   }
 
+  Future<void> _cancelSubscriptions() async {
+    await _tokenRefreshSub?.cancel();
+    await _onMessageSub?.cancel();
+    await _onMessageOpenedSub?.cancel();
+    _tokenRefreshSub = null;
+    _onMessageSub = null;
+    _onMessageOpenedSub = null;
+  }
+
   Future<void> disable() async {
+    await _cancelSubscriptions();
     try {
       final token = await _firebaseMessaging.getToken();
       if (token != null && token.isNotEmpty && _authRepository != null) {

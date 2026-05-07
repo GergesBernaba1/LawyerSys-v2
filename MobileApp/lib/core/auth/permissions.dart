@@ -20,4 +20,11 @@ class Permissions {
   static const manageSettings = 'ManageSettings';
   static const createEmployees = 'CreateEmployees';
   static const editEmployees = 'EditEmployees';
+
+  // Admin / SuperAdmin only
+  static const manageUsers = 'ManageUsers';
+  static const manageTenants = 'ManageTenants';
+  static const viewAuditLogs = 'ViewAuditLogs';
+  static const manageAdministration = 'ManageAdministration';
+  static const manageSubscription = 'ManageSubscription';
 }

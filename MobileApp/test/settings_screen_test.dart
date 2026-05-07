@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/core/storage/preferences_storage.dart';
 import 'package:qadaya_lawyersys/features/authentication/repositories/auth_repository.dart';
 import 'package:qadaya_lawyersys/features/settings/screens/settings_screen.dart';
@@ -25,6 +26,9 @@ void main() {
       RepositoryProvider<AuthRepository>(
         create: (_) => mockAuth,
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           home: SettingsScreen(biometricAuthService: mockBiometric),
         ),
       ),

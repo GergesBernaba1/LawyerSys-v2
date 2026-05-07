@@ -276,27 +276,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   getThemeColor: _getThemeColor,
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: _QuickActionsSection(
-                        isEmployeeOnly: isEmployeeOnly,
-                        isRTL: isRTL,
-                        getThemeColor: _getThemeColor,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: _RecentCasesSection(
-                        recentCases: s.recentCases,
-                        isRTL: isRTL,
-                        getThemeColor: _getThemeColor,
-                      ),
-                    ),
-                  ],
+                _QuickActionsSection(
+                  isEmployeeOnly: isEmployeeOnly,
+                  isRTL: isRTL,
+                  getThemeColor: _getThemeColor,
+                ),
+                const SizedBox(height: 20),
+                _RecentCasesSection(
+                  recentCases: s.recentCases,
+                  isRTL: isRTL,
+                  getThemeColor: _getThemeColor,
                 ),
                 if (isEmployeeOnly) ...[
                   const SizedBox(height: 20),
@@ -424,8 +413,8 @@ class _WelcomeHeader extends StatelessWidget {
             getThemeColor(context, 'primary'),
             getThemeColor(context, 'primaryLight')
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -600,8 +589,8 @@ class _StatCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradient,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
@@ -771,6 +760,8 @@ class _SmallStatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: colorFunc(context, 'textSecondary'),
               fontSize: 11,
@@ -1128,7 +1119,7 @@ class _ActionButton extends StatelessWidget {
               ),
             ),
             Icon(
-              Icons.arrow_forward_ios,
+              isRTL ? Icons.arrow_back_ios_new : Icons.arrow_forward_ios,
               color: color.withValues(alpha: 0.6),
               size: 14,
             ),
@@ -1209,8 +1200,8 @@ class _RecentCasesSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           if (recentCases.isEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Column(
                 children: [
                   Icon(
@@ -1235,6 +1226,17 @@ class _RecentCasesSection extends StatelessWidget {
                       fontSize: 12,
                       color: colorFunc(context, 'textSecondary')
                           .withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const CasesListScreen())),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: const Text('New Case'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ],

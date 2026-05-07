@@ -90,28 +90,32 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
       appBar: AppBar(title: Text(_isEditing ? l.editCustomer : l.createCustomer)),
       body: BlocListener<CustomersBloc, CustomersState>(
         listener: (context, state) async {
+          // Capture context-dependent objects before any async gap.
+          final messenger = ScaffoldMessenger.of(context);
+          final navigator = Navigator.of(context);
+          final repository = RepositoryProvider.of<CustomersRepository>(context);
+
           if (state is CustomerOperationSuccess) {
-            if (_selectedImage != null) {
+            final customerId =
+                state.customerId ?? widget.customer?.customerId ?? '';
+            if (_selectedImage != null && customerId.isNotEmpty) {
               setState(() => _isUploadingImage = true);
               try {
-                final customerId = widget.customer?.customerId ?? '';
-                if (customerId.isNotEmpty) {
-                  await RepositoryProvider.of<CustomersRepository>(context)
-                      .uploadProfileImage(customerId, _selectedImage!.path);
-                }
+                await repository.uploadProfileImage(customerId, _selectedImage!.path);
               } catch (_) {
                 // Non-fatal: profile image upload failed
               } finally {
                 if (mounted) setState(() => _isUploadingImage = false);
               }
             }
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(l.customerSaved)));
-            Navigator.of(context).pop(true);
+            if (!mounted) return;
+            messenger.showSnackBar(SnackBar(content: Text(l.customerSaved)));
+            navigator.pop(true);
           }
           if (state is CustomersError) {
             setState(() => _isSaving = false);
-            ScaffoldMessenger.of(context).showSnackBar(
+            if (!mounted) return;
+            messenger.showSnackBar(
                 SnackBar(content: Text('${l.error}: ${state.message}')));
           }
         },
