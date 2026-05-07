@@ -31,7 +31,6 @@ class AppTheme {
         primary: primaryBlue,
         secondary: secondaryGold,
         surface: lightSurface,
-        background: lightBackground,
         brightness: Brightness.light,
       ),
       
@@ -149,12 +148,10 @@ class AppTheme {
         primary: primaryLight,
         secondary: secondaryGold,
         surface: darkSurface,
-        background: darkBackground,
         brightness: Brightness.dark,
         onPrimary: darkText,
         onSecondary: darkBackground,
         onSurface: darkText,
-        onBackground: darkText,
       ),
       
       scaffoldBackgroundColor: darkBackground,

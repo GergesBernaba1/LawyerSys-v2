@@ -79,7 +79,7 @@ class JudicialDocumentsBloc extends Bloc<JudicialDocumentsEvent, JudicialDocumen
     try {
       await repository.create(event.payload);
       emit(JudicialDocumentActionSuccess('Document created'));
-      add(LoadJudicialDocuments());
+      if (!isClosed) add(LoadJudicialDocuments());
     } catch (e) {
       emit(JudicialDocumentsError(e.toString()));
     }
@@ -89,8 +89,10 @@ class JudicialDocumentsBloc extends Bloc<JudicialDocumentsEvent, JudicialDocumen
     try {
       await repository.update(event.id, event.payload);
       emit(JudicialDocumentActionSuccess('Document updated'));
-      final current = state is JudicialDocumentsLoaded ? state as JudicialDocumentsLoaded : null;
-      add(LoadJudicialDocuments(page: current?.page ?? 1, search: current?.search));
+      if (!isClosed) {
+        final current = state is JudicialDocumentsLoaded ? state as JudicialDocumentsLoaded : null;
+        add(LoadJudicialDocuments(page: current?.page ?? 1, search: current?.search));
+      }
     } catch (e) {
       emit(JudicialDocumentsError(e.toString()));
     }
@@ -100,7 +102,7 @@ class JudicialDocumentsBloc extends Bloc<JudicialDocumentsEvent, JudicialDocumen
     try {
       await repository.delete(event.id);
       emit(JudicialDocumentActionSuccess('Document deleted'));
-      add(RefreshJudicialDocuments());
+      if (!isClosed) add(RefreshJudicialDocuments());
     } catch (e) {
       emit(JudicialDocumentsError(e.toString()));
     }

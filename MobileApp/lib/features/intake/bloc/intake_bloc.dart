@@ -101,7 +101,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
     try {
       await repository.runConflictCheck(event.id);
       emit(IntakeActionSuccess('Conflict check complete'));
-      add(RefreshIntakeLeads());
+      if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
       emit(IntakeError(e.toString()));
     }
@@ -114,7 +114,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
           isQualified: event.isQualified, notes: event.notes);
       emit(IntakeActionSuccess(
           event.isQualified ? 'Lead qualified' : 'Lead rejected'));
-      add(RefreshIntakeLeads());
+      if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
       emit(IntakeError(e.toString()));
     }
@@ -127,7 +127,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
           assignedEmployeeId: event.assignedEmployeeId,
           nextFollowUpAt: event.nextFollowUpAt);
       emit(IntakeActionSuccess('Lead assigned'));
-      add(RefreshIntakeLeads());
+      if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
       emit(IntakeError(e.toString()));
     }
@@ -139,7 +139,7 @@ class IntakeBloc extends Bloc<IntakeEvent, IntakeState> {
       await repository.convert(event.id,
           caseType: event.caseType, initialAmount: event.initialAmount);
       emit(IntakeActionSuccess('Lead converted to customer and case'));
-      add(RefreshIntakeLeads());
+      if (!isClosed) add(RefreshIntakeLeads());
     } catch (e) {
       emit(IntakeError(e.toString()));
     }

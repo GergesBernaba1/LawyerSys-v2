@@ -57,6 +57,15 @@ class NotificationHandler {
         return '/customers';
       case 'task':
         return '/tasks';
+      case 'document':
+        return '/documents';
+      case 'invoice':
+      case 'payment':
+        return '/billing';
+      case 'employee':
+        return '/employees';
+      case 'consultation':
+        return '/consultations';
       default:
         return '/notifications';
     }

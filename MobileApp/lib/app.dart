@@ -70,8 +70,15 @@ import 'features/consultations/bloc/consultations_bloc.dart';
 import 'features/consultations/repositories/consultations_repository.dart';
 import 'features/reports/bloc/reports_bloc.dart';
 import 'features/reports/repositories/reports_repository.dart';
+import 'features/contenders/screens/contenders_list_screen.dart';
+import 'features/consultations/screens/consultations_list_screen.dart';
+import 'features/employees/screens/employees_list_screen.dart';
 import 'features/governments/bloc/governments_bloc.dart';
 import 'features/governments/repositories/governments_repository.dart';
+import 'features/governments/screens/governments_list_screen.dart';
+import 'features/judicial/screens/judicial_documents_list_screen.dart';
+import 'features/notifications/screens/notifications_inbox_screen.dart';
+import 'features/reports/screens/reports_screen.dart';
 import 'features/tenants/bloc/tenants_bloc.dart';
 import 'features/tenants/repositories/tenants_repository.dart';
 import 'features/tenants/screens/tenants_list_screen.dart';
@@ -157,6 +164,7 @@ class _AppState extends State<App> {
     final routePermissions = <String, String?>{
       '/main': null,
       '/dashboard': null,
+      '/cases': null,
       '/tasks': null,
       '/calendar': Permissions.viewHearings,
       '/hearings': Permissions.viewHearings,
@@ -168,6 +176,13 @@ class _AppState extends State<App> {
       '/client-portal-messages': Permissions.viewClientPortal,
       '/client-portal-documents': Permissions.viewClientPortal,
       '/customers': Permissions.viewCustomers,
+      '/governments': null,
+      '/employees': null,
+      '/contenders': null,
+      '/judicial': null,
+      '/consultations': null,
+      '/reports': null,
+      '/notifications': null,
       '/settings': null,
       '/profile': null,
       '/documents': null,
@@ -537,6 +552,8 @@ class _AppInitializerState extends State<_AppInitializer> {
             return MaterialPageRoute(builder: (_) => const MainScreen());
           case '/dashboard':
             return MaterialPageRoute(builder: (_) => const DashboardScreen());
+          case '/cases':
+            return MaterialPageRoute(builder: (_) => const CasesListScreen());
           case '/tasks':
             return MaterialPageRoute(builder: (_) => const TasksListScreen());
           case '/calendar':
@@ -562,6 +579,26 @@ class _AppInitializerState extends State<_AppInitializer> {
           case '/customers':
             return MaterialPageRoute(
                 builder: (_) => const CustomersListScreen());
+          case '/governments':
+            return MaterialPageRoute(
+                builder: (_) => const GovernmentsListScreen());
+          case '/employees':
+            return MaterialPageRoute(
+                builder: (_) => const EmployeesListScreen());
+          case '/contenders':
+            return MaterialPageRoute(
+                builder: (_) => const ContendersListScreen());
+          case '/judicial':
+            return MaterialPageRoute(
+                builder: (_) => const JudicialDocumentsListScreen());
+          case '/consultations':
+            return MaterialPageRoute(
+                builder: (_) => const ConsultationsListScreen());
+          case '/reports':
+            return MaterialPageRoute(builder: (_) => const ReportsScreen());
+          case '/notifications':
+            return MaterialPageRoute(
+                builder: (_) => const NotificationsInboxScreen());
           case '/settings':
             return MaterialPageRoute(builder: (_) => const SettingsScreen());
           case '/profile':

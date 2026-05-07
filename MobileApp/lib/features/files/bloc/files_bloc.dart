@@ -58,6 +58,7 @@ class FilesBloc extends Bloc<FilesEvent, FilesState> {
     CreateFile event,
     Emitter<FilesState> emit,
   ) async {
+    emit(FilesLoading());
     try {
       await filesRepository.createFile(event.data);
       emit(FileOperationSuccess('File created successfully'));
@@ -72,6 +73,7 @@ class FilesBloc extends Bloc<FilesEvent, FilesState> {
     UpdateFile event,
     Emitter<FilesState> emit,
   ) async {
+    emit(FilesLoading());
     try {
       await filesRepository.updateFile(event.id, event.data);
       emit(FileOperationSuccess('File updated successfully'));
@@ -86,6 +88,7 @@ class FilesBloc extends Bloc<FilesEvent, FilesState> {
     DeleteFile event,
     Emitter<FilesState> emit,
   ) async {
+    emit(FilesLoading());
     try {
       await filesRepository.deleteFile(event.id);
       emit(FileOperationSuccess('File deleted successfully'));

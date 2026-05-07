@@ -35,7 +35,7 @@ class UserSession {
     tenantName: json['tenantName'] ?? '',
     accessToken: json['accessToken'] ?? '',
     refreshToken: json['refreshToken'] ?? '',
-    tokenExpiresAt: DateTime.parse(json['tokenExpiresAt'] ?? DateTime.now().toIso8601String()),
+    tokenExpiresAt: DateTime.tryParse(json['tokenExpiresAt']?.toString() ?? '') ?? DateTime.now(),
     roles: (json['roles'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     permissions: (json['permissions'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     languageCode: json['languageCode'] ?? 'en',

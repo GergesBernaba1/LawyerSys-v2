@@ -52,6 +52,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   }
 
   Future<void> _onAddTask(AddTask event, Emitter<TasksState> emit) async {
+    emit(TasksLoading());
     try {
       await tasksRepository.addTask(event.task);
       // Reload tasks to get the updated list
@@ -65,6 +66,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   }
 
   Future<void> _onUpdateTask(UpdateTask event, Emitter<TasksState> emit) async {
+    emit(TasksLoading());
     try {
       await tasksRepository.updateTask(event.task);
       // Reload tasks to get the updated list
@@ -78,6 +80,7 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
   }
 
   Future<void> _onDeleteTask(DeleteTask event, Emitter<TasksState> emit) async {
+    emit(TasksLoading());
     try {
       await tasksRepository.deleteTask(event.taskId);
       // Reload tasks to get the updated list

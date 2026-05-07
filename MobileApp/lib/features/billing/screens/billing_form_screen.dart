@@ -231,27 +231,38 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
       return;
     }
 
+    if (widget.isPayment && (_selectedCustomerId == null || _selectedCustomerId == 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a customer')),
+      );
+      return;
+    }
+    if (!widget.isPayment && (_selectedEmployeeId == null || _selectedEmployeeId == 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an employee')),
+      );
+      return;
+    }
+
     final amount = double.tryParse(_amountController.text) ?? 0;
     final date = _dateController.text;
     final notes = _notesController.text;
 
     if (widget.isPayment) {
-      // Create payment
       final payment = BillingPay(
         amount: amount,
         dateOfOperation: date,
         notes: notes,
-        customerId: _selectedCustomerId ?? 0,
-        customerName: null, // Will be filled by backend or we could look it up
+        customerId: _selectedCustomerId!,
+        customerName: null,
       );
       context.read<BillingBloc>().add(CreatePayment(payment));
     } else {
-      // Create receipt
       final receipt = BillingReceipt(
         amount: amount,
         dateOfOperation: date,
         notes: notes,
-        employeeId: _selectedEmployeeId ?? 0,
+        employeeId: _selectedEmployeeId!,
       );
       context.read<BillingBloc>().add(CreateReceipt(receipt));
     }

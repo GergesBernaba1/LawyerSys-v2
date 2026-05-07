@@ -72,7 +72,7 @@ class DocumentsBloc extends Bloc<DocumentsEvent, DocumentsState> {
   }
 
   Future<void> _onRefreshDocuments(RefreshDocuments event, Emitter<DocumentsState> emit) async {
-    add(LoadDocuments());
+    if (!isClosed) add(LoadDocuments());
   }
 
   Future<void> _onDownloadDocument(DownloadDocument event, Emitter<DocumentsState> emit) async {

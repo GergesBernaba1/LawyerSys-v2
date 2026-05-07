@@ -89,8 +89,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       CreatePayment event, Emitter<BillingState> emit) async {
     try {
       await billingRepository.createPayment(event.payment);
-      add(LoadPayments());
-      add(LoadSummary());
+      if (!isClosed) {
+        add(LoadPayments());
+        add(LoadSummary());
+      }
     } catch (e) {
       emit(BillingError(e.toString()));
     }
@@ -100,8 +102,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       CreateReceipt event, Emitter<BillingState> emit) async {
     try {
       await billingRepository.createReceipt(event.receipt);
-      add(LoadReceipts());
-      add(LoadSummary());
+      if (!isClosed) {
+        add(LoadReceipts());
+        add(LoadSummary());
+      }
     } catch (e) {
       emit(BillingError(e.toString()));
     }
@@ -111,8 +115,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       DeletePayment event, Emitter<BillingState> emit) async {
     try {
       await billingRepository.deletePayment(event.id);
-      add(LoadPayments());
-      add(LoadSummary());
+      if (!isClosed) {
+        add(LoadPayments());
+        add(LoadSummary());
+      }
     } catch (e) {
       emit(BillingError(e.toString()));
     }
@@ -122,8 +128,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       DeleteReceipt event, Emitter<BillingState> emit) async {
     try {
       await billingRepository.deleteReceipt(event.id);
-      add(LoadReceipts());
-      add(LoadSummary());
+      if (!isClosed) {
+        add(LoadReceipts());
+        add(LoadSummary());
+      }
     } catch (e) {
       emit(BillingError(e.toString()));
     }

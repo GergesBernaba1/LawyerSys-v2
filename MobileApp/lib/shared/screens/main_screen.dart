@@ -223,20 +223,20 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.92),
+        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         leading: Builder(
           builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu, color: _kText),
+            icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
         title: Text(
           currentItem.label,
-          style: const TextStyle(
-            color: _kText,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w900,
             fontSize: 18,
             letterSpacing: -0.3,
@@ -250,7 +250,7 @@ class _MainScreenState extends State<MainScreen> {
               label: Text('$unreadCount',
                   style: const TextStyle(fontSize: 10, color: Colors.white)),
               backgroundColor: Colors.red,
-              child: const Icon(Icons.notifications_outlined, color: _kText),
+              child: Icon(Icons.notifications_outlined, color: Theme.of(context).colorScheme.onSurface),
             ),
             onPressed: () {
               setState(() {
@@ -336,7 +336,7 @@ class _AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           // Header
@@ -501,13 +501,13 @@ class _AppDrawer extends StatelessWidget {
                     border: Border.all(
                         color: Colors.red.withValues(alpha: 0.2), width: 1),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.logout, color: Colors.red, size: 22),
-                      SizedBox(width: 14),
+                      const Icon(Icons.logout, color: Colors.red, size: 22),
+                      const SizedBox(width: 14),
                       Text(
-                        'Logout',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.logout,
+                        style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.w700,
                             fontSize: 14.5),
