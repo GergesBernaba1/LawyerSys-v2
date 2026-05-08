@@ -1740,6 +1740,16 @@ abstract class AppLocalizations {
   String get trustReports;
   String get subscription;
   String get sitings;
+  String get aboutAppDescription;
+  String get aboutSection;
+  String get developedBy;
+  String get whatsApp;
+  String get copyrightNotice;
+  String get plaintiff;
+  String get defendant;
+  String get deleteContender;
+  String get deleteContenderConfirm;
+  String get noContendersFound;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

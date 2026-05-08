@@ -1399,4 +1399,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscription => 'Subscription';
   @override
   String get sitings => 'Sitings';
+  @override
+  String get aboutAppDescription => 'Qadaya LawyerSys — A comprehensive legal practice management system for law firms.';
+  @override
+  String get aboutSection => 'About';
+  @override
+  String get developedBy => 'Developed by';
+  @override
+  String get whatsApp => 'WhatsApp';
+  @override
+  String get copyrightNotice => '© 2024 Qadaya LawyerSys. All rights reserved.';
+  @override
+  String get plaintiff => 'Plaintiff';
+  @override
+  String get defendant => 'Defendant';
+  @override
+  String get deleteContender => 'Delete Opponent';
+  @override
+  String get deleteContenderConfirm => 'Are you sure you want to delete this opponent? This action cannot be undone.';
+  @override
+  String get noContendersFound => 'No opponents found';
 }

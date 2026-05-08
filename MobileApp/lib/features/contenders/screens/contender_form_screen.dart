@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
 import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_bloc.dart';
@@ -7,8 +8,10 @@ import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_event.dart'
 import 'package:qadaya_lawyersys/features/contenders/bloc/contenders_state.dart';
 import 'package:qadaya_lawyersys/features/contenders/models/contender.dart';
 
-class ContenderFormScreen extends StatefulWidget {
+const _kPrimary = Color(0xFF14345A);
+const _kPrimaryLight = Color(0xFF2D6A87);
 
+class ContenderFormScreen extends StatefulWidget {
   const ContenderFormScreen({super.key, this.contender});
   final ContenderModel? contender;
 
@@ -17,26 +20,22 @@ class ContenderFormScreen extends StatefulWidget {
 }
 
 class _ContenderFormScreenState extends State<ContenderFormScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _ssnController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _typeController = TextEditingController();
-  final _notesController = TextEditingController();
+
+  DateTime? _birthDate;
+  bool? _type; // true = Plaintiff, false = Defendant
 
   @override
   void initState() {
     super.initState();
     if (widget.contender != null) {
-      _fullNameController.text = widget.contender!.fullName;
-      _ssnController.text = widget.contender!.ssn;
-      _phoneController.text = widget.contender!.phone;
-      _emailController.text = widget.contender!.email;
-      _addressController.text = widget.contender!.address;
-      _typeController.text = widget.contender!.contenderType;
-      _notesController.text = widget.contender!.notes;
+      final c = widget.contender!;
+      _fullNameController.text = c.fullName;
+      _ssnController.text = c.ssn;
+      _birthDate = c.birthDate;
+      _type = c.type;
     }
   }
 
@@ -44,27 +43,42 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
   void dispose() {
     _fullNameController.dispose();
     _ssnController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _addressController.dispose();
-    _typeController.dispose();
-    _notesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _birthDate ?? DateTime(1985),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(primary: _kPrimary),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null) setState(() => _birthDate = picked);
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final l = AppLocalizations.of(context)!;
+
+    if (_birthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.allFieldsAreRequired)),
+      );
+      return;
+    }
 
     final contender = ContenderModel(
-      contenderId: widget.contender?.contenderId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      contenderId: widget.contender?.contenderId ?? '',
       fullName: _fullNameController.text.trim(),
       ssn: _ssnController.text.trim(),
-      birthDate: widget.contender?.birthDate,
-      phone: _phoneController.text.trim(),
-      email: _emailController.text.trim(),
-      address: _addressController.text.trim(),
-      contenderType: _typeController.text.trim(),
-      notes: _notesController.text.trim(),
+      birthDate: _birthDate,
+      type: _type,
     );
 
     final bloc = context.read<ContendersBloc>();
@@ -77,65 +91,117 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
     final isEdit = widget.contender != null;
+    final dateFormat = DateFormat('yyyy-MM-dd');
 
     return BlocListener<ContendersBloc, ContendersState>(
       listener: (context, state) {
-        if (state is ContenderOperationSuccess) {
-          Navigator.pop(context);
-        }
+        if (state is ContenderOperationSuccess) Navigator.pop(context);
         if (state is ContendersError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${localizer.error}: ${state.message}')),
+            SnackBar(content: Text('${l.error}: ${state.message}')),
           );
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(isEdit ? localizer.edit : localizer.add)),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
+        appBar: AppBar(
+          title: Text(isEdit ? l.edit : l.add),
+          backgroundColor: _kPrimary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
-            child: ListView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
-                  controller: _fullNameController,
-                  decoration: InputDecoration(labelText: localizer.fullName),
-                  validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
-                ),
-                TextFormField(
-                  controller: _ssnController,
-                  decoration: InputDecoration(labelText: localizer.ssn),
-                  validator: (value) => value == null || value.isEmpty ? localizer.allFieldsAreRequired : null,
-                ),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(labelText: localizer.phone),
-                  keyboardType: TextInputType.phone,
-                ),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(labelText: localizer.email),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                TextFormField(
-                  controller: _addressController,
-                  decoration: InputDecoration(labelText: localizer.address),
-                ),
-                TextFormField(
-                  controller: _typeController,
-                  decoration: InputDecoration(labelText: localizer.caseType),
-                ),
-                TextFormField(
-                  controller: _notesController,
-                  decoration: InputDecoration(labelText: localizer.notes),
-                  maxLines: 3,
+                // Full Name
+                _buildField(
+                  child: TextFormField(
+                    controller: _fullNameController,
+                    decoration: _inputDecoration(l.fullName, Icons.person_outline),
+                    textCapitalization: TextCapitalization.words,
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? l.allFieldsAreRequired : null,
+                  ),
                 ),
                 const SizedBox(height: 16),
+
+                // SSN
+                _buildField(
+                  child: TextFormField(
+                    controller: _ssnController,
+                    decoration: _inputDecoration(l.ssn, Icons.badge_outlined),
+                    keyboardType: TextInputType.number,
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? l.allFieldsAreRequired : null,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Birth Date
+                _buildField(
+                  child: InkWell(
+                    onTap: _pickDate,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InputDecorator(
+                      decoration: _inputDecoration(l.dateOfBirth, Icons.cake_outlined),
+                      child: Text(
+                        _birthDate != null
+                            ? dateFormat.format(_birthDate!)
+                            : l.dateOfBirth,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: _birthDate != null ? const Color(0xFF0F172A) : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Type dropdown
+                _buildField(
+                  child: DropdownButtonFormField<bool?>(
+                    initialValue: _type,
+                    decoration: _inputDecoration(l.caseType, Icons.gavel_outlined),
+                    items: [
+                      DropdownMenuItem(
+                        value: true,
+                        child: Text(l.plaintiff),
+                      ),
+                      DropdownMenuItem(
+                        value: false,
+                        child: Text(l.defendant),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => _type = v),
+                    hint: Text(l.caseType),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Submit
                 ElevatedButton(
                   onPressed: _submit,
-                  child: Text(isEdit ? localizer.save : localizer.create),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kPrimary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    isEdit ? l.save : l.create,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -144,4 +210,40 @@ class _ContenderFormScreenState extends State<ContenderFormScreen> {
       ),
     );
   }
+
+  Widget _buildField({required Widget child}) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: _kPrimary.withValues(alpha: 0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: child,
+      );
+
+  InputDecoration _inputDecoration(String label, IconData icon) => InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: _kPrimaryLight),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _kPrimary.withValues(alpha: 0.12)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      );
 }

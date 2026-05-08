@@ -1399,4 +1399,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get subscription => 'الاشتراك';
   @override
   String get sitings => 'الجلسات';
+  @override
+  String get aboutAppDescription => 'قضايا لاويرسيس — نظام شامل لإدارة الممارسة القانونية لمكاتب المحاماة.';
+  @override
+  String get aboutSection => 'عن التطبيق';
+  @override
+  String get developedBy => 'تطوير بواسطة';
+  @override
+  String get whatsApp => 'واتساب';
+  @override
+  String get copyrightNotice => '© 2024 قضايا لاويرسيس. جميع الحقوق محفوظة.';
+  @override
+  String get plaintiff => 'مدّعٍ';
+  @override
+  String get defendant => 'مدّعى عليه';
+  @override
+  String get deleteContender => 'حذف الخصم';
+  @override
+  String get deleteContenderConfirm => 'هل أنت متأكد من حذف هذا الخصم؟ لا يمكن التراجع عن هذا الإجراء.';
+  @override
+  String get noContendersFound => 'لا يوجد خصوم';
 }

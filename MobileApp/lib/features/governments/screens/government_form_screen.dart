@@ -41,7 +41,7 @@ class _GovernmentFormScreenState extends State<GovernmentFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final data = {'governorateName': _nameController.text.trim()};
+    final data = {'govName': _nameController.text.trim()};
 
     if (_isEditing) {
       context.read<GovernmentsBloc>().add(UpdateGovernment(widget.government!.governorateId, data));

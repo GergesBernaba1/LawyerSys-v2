@@ -49,16 +49,6 @@ class GovernmentDetailScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _InfoRow(
-                      icon: Icons.badge_outlined,
-                      label: AppLocalizations.of(context)!.governorateId,
-                      value: government.governorateId,
-                    ),
-                    Divider(
-                      height: 1,
-                      indent: 56,
-                      color: _kPrimary.withValues(alpha: 0.08),
-                    ),
-                    _InfoRow(
                       icon: Icons.location_city_outlined,
                       label: AppLocalizations.of(context)!.governorateName,
                       value: government.governorateName,

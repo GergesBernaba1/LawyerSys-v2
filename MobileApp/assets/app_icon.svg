@@ -1,20 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Qadaya favicon -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#14345a" />
-      <stop offset="1" stop-color="#2d6a87" />
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a3f6f"/>
+      <stop offset="60%" stop-color="#14345A"/>
+      <stop offset="100%" stop-color="#0c2240"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#f3d9a4" />
-      <stop offset="1" stop-color="#d4a95d" />
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8e8a0"/>
+      <stop offset="50%" stop-color="#e8c060"/>
+      <stop offset="100%" stop-color="#c8922a"/>
     </linearGradient>
+    <linearGradient id="goldH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#c8922a"/>
+      <stop offset="40%" stop-color="#f0d070"/>
+      <stop offset="100%" stop-color="#c8922a"/>
+    </linearGradient>
+    <linearGradient id="chain" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d0dff0"/>
+      <stop offset="100%" stop-color="#90aacb"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
   </defs>
-  <rect width="64" height="64" rx="14" fill="url(#bg)" />
-  <path d="M32 12c-8.84 0-16 7.16-16 16s7.16 16 16 16c2.59 0 5.04-.61 7.2-1.7l5.45 5.44 3.54-3.54-5.1-5.1C46.17 36.11 48 32.22 48 28c0-8.84-7.16-16-16-16Zm0 6c5.52 0 10 4.48 10 10s-4.48 10-10 10-10-4.48-10-10 4.48-10 10-10Z" fill="#ffffff"/>
-  <path d="M43.5 43.5 50 50" stroke="url(#accent)" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M23 26.5h18" stroke="url(#accent)" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
-  <path d="M28 21v11.5" stroke="url(#accent)" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
-  <path d="M36 21v11.5" stroke="url(#accent)" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- Background with rounded corners -->
+  <rect width="1024" height="1024" rx="200" fill="url(#bg)"/>
+
+  <!-- Subtle top sheen -->
+  <ellipse cx="512" cy="80" rx="420" ry="110" fill="white" fill-opacity="0.05"/>
+
+  <!-- ── SCALES OF JUSTICE ── -->
+
+  <!-- Vertical pillar -->
+  <rect x="494" y="280" width="36" height="440" rx="18" fill="url(#gold)" filter="url(#shadow)"/>
+
+  <!-- Horizontal beam -->
+  <rect x="210" y="298" width="604" height="32" rx="16" fill="url(#goldH)" filter="url(#shadow)"/>
+
+  <!-- Centre pivot ring -->
+  <circle cx="512" cy="314" r="52" fill="url(#gold)" filter="url(#shadow)"/>
+  <circle cx="512" cy="314" r="34" fill="#0f2a4d"/>
+  <circle cx="512" cy="314" r="18" fill="url(#gold)"/>
+
+  <!-- ── LEFT PAN ── -->
+  <!-- Hanging chains (3 lines) -->
+  <line x1="292" y1="328" x2="260" y2="488" stroke="url(#chain)" stroke-width="10" stroke-linecap="round"/>
+  <line x1="292" y1="328" x2="340" y2="488" stroke="url(#chain)" stroke-width="10" stroke-linecap="round"/>
+  <line x1="292" y1="328" x2="300" y2="488" stroke="url(#chain)" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Left pan bowl -->
+  <path d="M200 490 Q220 560 300 570 Q380 560 400 490 Z" fill="#1a4070" stroke="url(#gold)" stroke-width="10"/>
+  <path d="M204 494 Q222 556 300 566 Q378 556 396 494" fill="none" stroke="url(#goldH)" stroke-width="6" stroke-linecap="round"/>
+  <!-- Pan rim -->
+  <rect x="195" y="484" width="210" height="20" rx="10" fill="url(#gold)"/>
+
+  <!-- ── RIGHT PAN (slightly lower — scales not perfectly level) ── -->
+  <!-- Hanging chains -->
+  <line x1="732" y1="328" x2="700" y2="512" stroke="url(#chain)" stroke-width="10" stroke-linecap="round"/>
+  <line x1="732" y1="328" x2="780" y2="512" stroke="url(#chain)" stroke-width="10" stroke-linecap="round"/>
+  <line x1="732" y1="328" x2="740" y2="512" stroke="url(#chain)" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Right pan bowl -->
+  <path d="M640 514 Q660 584 740 594 Q820 584 840 514 Z" fill="#1a4070" stroke="url(#gold)" stroke-width="10"/>
+  <path d="M644 518 Q662 580 740 590 Q818 580 836 518" fill="none" stroke="url(#goldH)" stroke-width="6" stroke-linecap="round"/>
+  <!-- Pan rim -->
+  <rect x="635" y="508" width="210" height="20" rx="10" fill="url(#gold)"/>
+
+  <!-- ── BASE ── -->
+  <rect x="434" y="718" width="156" height="30" rx="15" fill="url(#gold)" filter="url(#shadow)"/>
+  <!-- Base platform -->
+  <rect x="310" y="742" width="404" height="36" rx="18" fill="url(#goldH)" filter="url(#shadow)"/>
+  <!-- Base foot -->
+  <rect x="350" y="772" width="324" height="22" rx="11" fill="url(#gold)" fill-opacity="0.6"/>
+
+  <!-- ── SUBTLE BOTTOM TEXT BAND ── -->
+  <rect x="0" y="870" width="1024" height="154" rx="0" fill="#0a1f38" fill-opacity="0.55"/>
+  <rect x="0" y="870" width="1024" height="154" rx="200" fill="transparent"/>
+  <!-- Clip the bottom rounded corners properly by masking only bottom portion -->
 </svg>

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,29 +25,47 @@ class GovernmentsListScreen extends StatefulWidget {
 
 class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
   final _searchController = TextEditingController();
-  List<Government> _filtered = [];
+  final _scrollController = ScrollController();
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     context.read<GovernmentsBloc>().add(LoadGovernments());
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
-  void _applyFilter(List<Government> all) {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filtered = query.isEmpty
-          ? all
-          : all
-              .where((g) => g.governorateName.toLowerCase().contains(query))
-              .toList();
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<GovernmentsBloc>().add(LoadGovernmentsNextPage());
+    }
+  }
+
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      if (mounted) {
+        context.read<GovernmentsBloc>().add(SearchGovernments(value.trim()));
+      }
     });
+  }
+
+  Future<void> _onRefresh() async {
+    final bloc = context.read<GovernmentsBloc>()
+      ..add(RefreshGovernments());
+    await bloc.stream.firstWhere(
+      (s) => s is GovernmentsLoaded || s is GovernmentsError,
+      orElse: () => bloc.state,
+    );
   }
 
   @override
@@ -60,8 +80,15 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: _kPrimary,
         onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const GovernmentFormScreen()));
-          if (context.mounted) context.read<GovernmentsBloc>().add(RefreshGovernments());
+          await Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => const GovernmentFormScreen(),
+            ),
+          );
+          if (context.mounted) {
+            context.read<GovernmentsBloc>().add(RefreshGovernments());
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -93,156 +120,123 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
-              onChanged: (_) {
-                final state = context.read<GovernmentsBloc>().state;
-                if (state is GovernmentsLoaded) _applyFilter(state.governments);
-              },
+              onChanged: _onSearchChanged,
             ),
           ),
           const SizedBox(height: 8),
           Expanded(
             child: BlocConsumer<GovernmentsBloc, GovernmentsState>(
               listener: (context, state) {
-                if (state is GovernmentsLoaded) _applyFilter(state.governments);
+                if (state is GovernmentOperationSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                }
               },
               builder: (context, state) {
                 if (state is GovernmentsLoading) {
                   return const Center(
-                      child: CircularProgressIndicator(color: _kPrimary),);
-                }
-                if (state is GovernmentsError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            size: 48, color: _kTextSecondary,),
-                        const SizedBox(height: 16),
-                        Text('${l.error}: ${state.message}',
-                            style: const TextStyle(color: Colors.red),),
-                      ],
-                    ),
+                    child: CircularProgressIndicator(color: _kPrimary),
                   );
                 }
-                if (state is GovernmentOperationSuccess) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(state.message)),);
-                    }
-                  });
-                }
-                if (_filtered.isEmpty && state is GovernmentsLoaded) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+
+                if (state is GovernmentsError) {
+                  return RefreshIndicator(
+                    color: _kPrimary,
+                    onRefresh: _onRefresh,
+                    child: ListView(
                       children: [
-                        Icon(Icons.location_city,
-                            size: 64,
-                            color: _kTextSecondary.withValues(alpha: 0.5),),
-                        const SizedBox(height: 16),
-                        Text(
-                          l.noGovernmentsFound,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: _kTextSecondary,
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.error_outline,
+                                    size: 48, color: _kTextSecondary,),
+                                const SizedBox(height: 16),
+                                Text('${AppLocalizations.of(context)!.error}: ${state.message}',
+                                    style: const TextStyle(color: Colors.red),),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
                   );
                 }
+
+                final GovernmentsLoaded? loaded = switch (state) {
+                  GovernmentsLoaded() => state,
+                  GovernmentsLoadingMore() => state.current,
+                  _ => null,
+                };
+
+                if (loaded == null) return const SizedBox.shrink();
+
+                if (loaded.governments.isEmpty) {
+                  return RefreshIndicator(
+                    color: _kPrimary,
+                    onRefresh: _onRefresh,
+                    child: ListView(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.location_city,
+                                    size: 64,
+                                    color: _kTextSecondary.withValues(
+                                        alpha: 0.5,),),
+                                const SizedBox(height: 16),
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .noGovernmentsFound,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: _kTextSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
                 return RefreshIndicator(
                   color: _kPrimary,
-                  onRefresh: () async {
-                    context.read<GovernmentsBloc>().add(RefreshGovernments());
-                  },
+                  onRefresh: _onRefresh,
                   child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _filtered.length,
-                    separatorBuilder: (context, index) => Divider(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 4,),
+                    itemCount: loaded.governments.length +
+                        (state is GovernmentsLoadingMore ? 1 : 0),
+                    separatorBuilder: (_, __) => Divider(
                       color: _kPrimary.withValues(alpha: 0.08),
                       height: 1,
                     ),
                     itemBuilder: (context, index) {
-                      final gov = _filtered[index];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _kText.withValues(alpha: 0.04),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12,),
-                          leading: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: _kPrimary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(Icons.location_city,
-                                color: _kPrimary, size: 24,),
+                      if (index == loaded.governments.length) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(
+                            child: CircularProgressIndicator(color: _kPrimary),
                           ),
-                          title: Text(
-                            gov.governorateName,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: _kText,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'ID: ${gov.governorateId}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: _kTextSecondary,
-                            ),
-                          ),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => GovernmentDetailScreen(government: gov),
-                            ),
-                          ),
-                          trailing: PopupMenuButton<String>(
-                            onSelected: (value) async {
-                              final gov = _filtered[index];
-                              if (value == 'edit') {
-                                await Navigator.push(context, MaterialPageRoute<void>(builder: (_) => GovernmentFormScreen(government: gov)));
-                                if (context.mounted) context.read<GovernmentsBloc>().add(RefreshGovernments());
-                              } else if (value == 'delete') {
-                                final confirmed = await showDialog<bool>(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: Text(l.deleteGovernment),
-                                    content: Text(l.deleteGovernmentConfirm),
-                                    actions: [
-                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
-                                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.delete)),
-                                    ],
-                                  ),
-                                );
-                                if ((confirmed ?? false) && context.mounted) {
-                                  context.read<GovernmentsBloc>().add(DeleteGovernment(gov.governorateId));
-                                }
-                              }
-                            },
-                            itemBuilder: (_) => [
-                              PopupMenuItem(value: 'edit', child: Text(l.edit)),
-                              PopupMenuItem(value: 'delete', child: Text(l.delete)),
-                            ],
-                          ),
-                        ),
+                        );
+                      }
+                      final gov = loaded.governments[index];
+                      return _GovernmentTile(
+                        government: gov,
+                        onDeleted: () => context
+                            .read<GovernmentsBloc>()
+                            .add(DeleteGovernment(gov.governorateId),),
                       );
                     },
                   ),
@@ -251,6 +245,101 @@ class _GovernmentsListScreenState extends State<GovernmentsListScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GovernmentTile extends StatelessWidget {
+  const _GovernmentTile({
+    required this.government,
+    required this.onDeleted,
+  });
+  final Government government;
+  final VoidCallback onDeleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: _kText.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: _kPrimary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(Icons.location_city, color: _kPrimary, size: 24),
+        ),
+        title: Text(
+          government.governorateName,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: _kText,
+          ),
+        ),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) =>
+                GovernmentDetailScreen(government: government),
+          ),
+        ),
+        trailing: PopupMenuButton<String>(
+          onSelected: (value) async {
+            if (value == 'edit') {
+              await Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      GovernmentFormScreen(government: government),
+                ),
+              );
+              if (context.mounted) {
+                context.read<GovernmentsBloc>().add(RefreshGovernments());
+              }
+            } else if (value == 'delete') {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(l.deleteGovernment),
+                  content: Text(l.deleteGovernmentConfirm),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(l.cancel),),
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(l.delete),),
+                  ],
+                ),
+              );
+              if ((confirmed ?? false) && context.mounted) {
+                onDeleted();
+              }
+            }
+          },
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'edit', child: Text(l.edit),),
+            PopupMenuItem(value: 'delete', child: Text(l.delete),),
+          ],
+        ),
       ),
     );
   }

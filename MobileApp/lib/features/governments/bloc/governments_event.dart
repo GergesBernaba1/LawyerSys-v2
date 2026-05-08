@@ -2,7 +2,14 @@ abstract class GovernmentsEvent {}
 
 class LoadGovernments extends GovernmentsEvent {}
 
+class LoadGovernmentsNextPage extends GovernmentsEvent {}
+
 class RefreshGovernments extends GovernmentsEvent {}
+
+class SearchGovernments extends GovernmentsEvent {
+  SearchGovernments(this.query);
+  final String query;
+}
 
 class CreateGovernment extends GovernmentsEvent {
   CreateGovernment(this.data);
