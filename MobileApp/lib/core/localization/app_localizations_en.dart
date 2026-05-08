@@ -1529,4 +1529,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noUpcomingTasks => 'No upcoming tasks';
   @override
   String get selectEmployee => 'Select Employee';
+
+  // User management
+  @override
+  String get enableUser => 'Enable User';
+  @override
+  String get disableUser => 'Disable User';
 }

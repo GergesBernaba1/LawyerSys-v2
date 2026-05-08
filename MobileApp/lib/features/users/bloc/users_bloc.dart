@@ -14,6 +14,8 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     on<UpdateUser>(_onUpdateUser);
     on<DeleteUser>(_onDeleteUser);
     on<ChangeUserRole>(_onChangeUserRole);
+    on<ToggleUserActive>(_onToggleUserActive);
+    on<ResetUserPassword>(_onResetUserPassword);
   }
   final UsersRepository usersRepository;
 
@@ -102,6 +104,34 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     try {
       await usersRepository.changeUserRole(event.id, event.role);
       emit(UserOperationSuccess('User role changed successfully'));
+      final raw = await usersRepository.getUsers();
+      emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
+    } catch (e) {
+      emit(UsersError(e.toString()));
+    }
+  }
+
+  Future<void> _onToggleUserActive(
+      ToggleUserActive event, Emitter<UsersState> emit,) async {
+    emit(UsersLoading());
+    try {
+      await usersRepository.toggleUserActive(
+          event.id, isActive: event.isActive,);
+      emit(UserOperationSuccess(
+          event.isActive ? 'User enabled successfully' : 'User disabled successfully',),);
+      final raw = await usersRepository.getUsers();
+      emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
+    } catch (e) {
+      emit(UsersError(e.toString()));
+    }
+  }
+
+  Future<void> _onResetUserPassword(
+      ResetUserPassword event, Emitter<UsersState> emit,) async {
+    emit(UsersLoading());
+    try {
+      await usersRepository.resetUserPassword(event.id, event.newPassword);
+      emit(UserOperationSuccess('Password reset successfully'));
       final raw = await usersRepository.getUsers();
       emit(UsersLoaded(raw.map(UserModel.fromJson).toList()));
     } catch (e) {

@@ -1529,4 +1529,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noUpcomingTasks => 'لا توجد مهام قادمة';
   @override
   String get selectEmployee => 'اختر موظفاً';
+
+  // User management
+  @override
+  String get enableUser => 'تفعيل المستخدم';
+  @override
+  String get disableUser => 'تعطيل المستخدم';
 }

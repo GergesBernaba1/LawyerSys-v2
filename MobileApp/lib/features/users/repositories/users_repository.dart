@@ -72,4 +72,14 @@ class UsersRepository {
   Future<void> changeUserRole(String id, String role) async {
     await apiClient.put('/users/$id/role', data: {'role': role});
   }
+
+  Future<void> toggleUserActive(String id, {required bool isActive}) async {
+    await apiClient.put('/users/$id/toggle-active',
+        data: {'isActive': isActive},);
+  }
+
+  Future<void> resetUserPassword(String id, String newPassword) async {
+    await apiClient.post('/users/$id/reset-password',
+        data: {'newPassword': newPassword},);
+  }
 }

@@ -1810,6 +1810,10 @@ abstract class AppLocalizations {
   String get tasksByEmployee;
   String get noUpcomingTasks;
   String get selectEmployee;
+
+  // User management
+  String get enableUser;
+  String get disableUser;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -262,6 +262,51 @@ class _UsersListScreenState extends State<UsersListScreen> {
     );
   }
 
+  Future<void> _showResetPasswordDialog(
+      BuildContext context, UserModel user,) async {
+    final l10n = AppLocalizations.of(context)!;
+    final passwordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${l10n.resetPasswordFor} ${user.fullName.isNotEmpty ? user.fullName : user.userName}'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: l10n.newPassword,
+              border: const OutlineInputBorder(),
+            ),
+            validator: (v) =>
+                (v == null || v.trim().length < 6) ? l10n.allFieldsAreRequired : null,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (!formKey.currentState!.validate()) return;
+              context.read<UsersBloc>().add(ResetUserPassword(
+                    id: user.id,
+                    newPassword: passwordController.text,
+                  ),);
+              Navigator.pop(ctx);
+            },
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
+    );
+    passwordController.dispose();
+  }
+
   Future<void> _confirmDelete(BuildContext context, UserModel user) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
@@ -393,6 +438,14 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                         _confirmDelete(context, user);
                                       } else if (v == 'change_role') {
                                         _showChangeRoleDialog(context, user);
+                                      } else if (v == 'toggle_active') {
+                                        context.read<UsersBloc>().add(
+                                              ToggleUserActive(
+                                                id: user.id,
+                                                isActive: !user.isActive,
+                                              ),);
+                                      } else if (v == 'reset_password') {
+                                        _showResetPasswordDialog(context, user);
                                       }
                                     },
                                     itemBuilder: (_) => [
@@ -410,6 +463,34 @@ class _UsersListScreenState extends State<UsersListScreen> {
                                           const Icon(Icons.manage_accounts, size: 18),
                                           const SizedBox(width: 8),
                                           Text(l.changeRole),
+                                        ],),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'toggle_active',
+                                        child: Row(children: [
+                                          Icon(
+                                            user.isActive
+                                                ? Icons.block
+                                                : Icons.check_circle_outline,
+                                            size: 18,
+                                            color: user.isActive
+                                                ? Colors.orange
+                                                : Colors.green,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            user.isActive
+                                                ? l.disableUser
+                                                : l.enableUser,
+                                          ),
+                                        ],),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'reset_password',
+                                        child: Row(children: [
+                                          const Icon(Icons.lock_reset, size: 18),
+                                          const SizedBox(width: 8),
+                                          Text(l.resetPassword),
                                         ],),
                                       ),
                                       PopupMenuItem(

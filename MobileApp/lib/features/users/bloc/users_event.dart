@@ -48,3 +48,15 @@ class ChangeUserRole extends UsersEvent {
   final String id;
   final String role;
 }
+
+class ToggleUserActive extends UsersEvent {
+  ToggleUserActive({required this.id, required this.isActive});
+  final String id;
+  final bool isActive;
+}
+
+class ResetUserPassword extends UsersEvent {
+  ResetUserPassword({required this.id, required this.newPassword});
+  final String id;
+  final String newPassword;
+}
