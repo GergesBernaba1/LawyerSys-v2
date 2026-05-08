@@ -1519,4 +1519,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkSuccess => 'Linked successfully';
   @override
   String get unlinkSuccess => 'Unlinked successfully';
+
+  // Tasks: upcoming + per-employee
+  @override
+  String get upcomingTasks => 'Upcoming Tasks';
+  @override
+  String get tasksByEmployee => 'Tasks by Employee';
+  @override
+  String get noUpcomingTasks => 'No upcoming tasks';
+  @override
+  String get selectEmployee => 'Select Employee';
 }

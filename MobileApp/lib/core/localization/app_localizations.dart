@@ -1804,6 +1804,12 @@ abstract class AppLocalizations {
   String get enterIdToLink;
   String get linkSuccess;
   String get unlinkSuccess;
+
+  // Tasks: upcoming + per-employee
+  String get upcomingTasks;
+  String get tasksByEmployee;
+  String get noUpcomingTasks;
+  String get selectEmployee;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1519,4 +1519,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linkSuccess => 'تم الربط بنجاح';
   @override
   String get unlinkSuccess => 'تم الفصل بنجاح';
+
+  // Tasks: upcoming + per-employee
+  @override
+  String get upcomingTasks => 'المهام القادمة';
+  @override
+  String get tasksByEmployee => 'المهام حسب الموظف';
+  @override
+  String get noUpcomingTasks => 'لا توجد مهام قادمة';
+  @override
+  String get selectEmployee => 'اختر موظفاً';
 }

@@ -13,6 +13,8 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     on<AddTask>(_onAddTask);
     on<UpdateTask>(_onUpdateTask);
     on<DeleteTask>(_onDeleteTask);
+    on<LoadUpcomingTasks>(_onLoadUpcomingTasks);
+    on<LoadTasksByEmployee>(_onLoadTasksByEmployee);
   }
   final TasksRepository tasksRepository;
   final List<Task> _tasks = [];
@@ -92,6 +94,28 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
         ..clear()
         ..addAll(tasks);
       emit(TasksLoaded(_tasks));
+    } catch (e) {
+      emit(TasksError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadUpcomingTasks(
+      LoadUpcomingTasks event, Emitter<TasksState> emit,) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await tasksRepository.getUpcomingTasks();
+      emit(UpcomingTasksLoaded(tasks));
+    } catch (e) {
+      emit(TasksError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadTasksByEmployee(
+      LoadTasksByEmployee event, Emitter<TasksState> emit,) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await tasksRepository.getTasksByEmployee(event.employeeId);
+      emit(EmployeeTasksLoaded(tasks: tasks, employeeId: event.employeeId));
     } catch (e) {
       emit(TasksError(e.toString()));
     }

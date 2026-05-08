@@ -25,3 +25,10 @@ class DeleteTask extends TasksEvent {
   DeleteTask(this.taskId);
   final int taskId;
 }
+
+class LoadUpcomingTasks extends TasksEvent {}
+
+class LoadTasksByEmployee extends TasksEvent {
+  LoadTasksByEmployee(this.employeeId);
+  final int employeeId;
+}

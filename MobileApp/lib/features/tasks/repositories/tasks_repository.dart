@@ -91,4 +91,15 @@ class TasksRepository {
   Future<void> deleteTask(int taskId) async {
     await apiClient.delete('/AdminTasks/$taskId');
   }
+
+  Future<List<Task>> getUpcomingTasks() async {
+    final response = await apiClient.get('/AdminTasks/upcoming');
+    return _parseTasks(response.data);
+  }
+
+  Future<List<Task>> getTasksByEmployee(int employeeId) async {
+    final response =
+        await apiClient.get('/AdminTasks/byemployee/$employeeId');
+    return _parseTasks(response.data);
+  }
 }
