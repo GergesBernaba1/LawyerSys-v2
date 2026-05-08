@@ -1755,6 +1755,14 @@ abstract class AppLocalizations {
   String get createWithNewUser;
   String get linkExistingUser;
   String get egp;
+  String get statusNew;
+  String get statusQualified;
+  String get statusRejected;
+  String get statusConverted;
+  String get statusContacted;
+  String get assignedLabel;
+  String get followUpLabel;
+  String get convertedToCaseLabel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

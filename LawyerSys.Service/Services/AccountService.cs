@@ -1,5 +1,6 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -35,7 +36,7 @@ namespace LawyerSys.Services
             _tenantSubscriptionService = tenantSubscriptionService;
         }
 
-        public async Task<(string Token, DateTime Expires)> LoginAsync(LoginRequest model)
+        public async Task<(string Token, string RefreshToken, DateTime Expires)> LoginAsync(LoginRequest model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
@@ -77,7 +78,10 @@ namespace LawyerSys.Services
                 roles.Contains("SuperAdmin"),
                 CancellationToken.None);
 
-            return await CreateTokenAsync(user);
+            var (accessToken, expires) = await CreateTokenAsync(user);
+            var refreshToken = await GenerateAndStoreRefreshTokenAsync(user.Id);
+
+            return (accessToken, refreshToken, expires);
         }
 
         public async Task<(string Token, DateTime Expires)> CreateTokenAsync(ApplicationUser user)
@@ -92,7 +96,6 @@ namespace LawyerSys.Services
                 .AsNoTracking()
                 .SingleOrDefaultAsync(t => t.Id == user.TenantId);
 
-            // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
 
             var claimsList = new System.Collections.Generic.List<Claim>
@@ -104,7 +107,6 @@ namespace LawyerSys.Services
                 new Claim("fullName", user.FullName ?? string.Empty),
             };
 
-            // Add role claims
             foreach (var role in roles)
             {
                 claimsList.Add(new Claim(ClaimTypes.Role, role));
@@ -146,6 +148,33 @@ namespace LawyerSys.Services
             return (jwt, token.ValidTo);
         }
 
+        public async Task<(string Token, string RefreshToken, DateTime Expires)> RefreshAsync(string refreshToken)
+        {
+            var tokenHash = HashToken(refreshToken);
+
+            var stored = await _applicationDbContext.RefreshTokens
+                .Include(rt => rt.User)
+                .SingleOrDefaultAsync(rt => rt.TokenHash == tokenHash);
+
+            if (stored == null || stored.IsRevoked || stored.ExpiresAtUtc < DateTime.UtcNow)
+            {
+                throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+            }
+
+            var user = stored.User!;
+
+            // Rotate: revoke current token
+            stored.IsRevoked = true;
+
+            // Issue new tokens
+            var (accessToken, expires) = await CreateTokenAsync(user);
+            var newRefreshToken = await GenerateAndStoreRefreshTokenAsync(user.Id);
+
+            await _applicationDbContext.SaveChangesAsync();
+
+            return (accessToken, newRefreshToken, expires);
+        }
+
         public async Task<string> RequestPasswordResetAsync(string userNameOrEmail)
         {
             var user = await _userManager.FindByNameAsync(userNameOrEmail) ?? await _userManager.FindByEmailAsync(userNameOrEmail);
@@ -166,6 +195,34 @@ namespace LawyerSys.Services
             user.RequiresPasswordReset = false;
             await _userManager.UpdateAsync(user);
             await _userManager.UpdateSecurityStampAsync(user);
+        }
+
+        private async Task<string> GenerateAndStoreRefreshTokenAsync(string userId)
+        {
+            var jwtSection = _configuration.GetSection("Jwt");
+            var expireDays = jwtSection.GetValue<int>("RefreshTokenExpireDays");
+            if (expireDays <= 0) expireDays = 7;
+
+            var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            var tokenHash = HashToken(rawToken);
+
+            _applicationDbContext.RefreshTokens.Add(new RefreshToken
+            {
+                UserId = userId,
+                TokenHash = tokenHash,
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(expireDays),
+                IsRevoked = false,
+                CreatedAtUtc = DateTime.UtcNow,
+            });
+
+            await _applicationDbContext.SaveChangesAsync();
+            return rawToken;
+        }
+
+        private static string HashToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToBase64String(bytes);
         }
     }
 }

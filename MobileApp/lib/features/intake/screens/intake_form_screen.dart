@@ -17,7 +17,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   final _searchController = TextEditingController();
   String? _selectedStatus;
 
-  static const _statuses = ['New', 'Qualified', 'Rejected', 'Converted'];
+  static const _statusKeys = ['New', 'Contacted', 'Qualified', 'Rejected', 'Converted'];
 
   @override
   void initState() {
@@ -30,6 +30,15 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
     _searchController.dispose();
     super.dispose();
   }
+
+  String _localizeStatus(String status, AppLocalizations l) => switch (status) {
+        'New' => l.statusNew,
+        'Contacted' => l.statusContacted,
+        'Qualified' => l.statusQualified,
+        'Rejected' => l.statusRejected,
+        'Converted' => l.statusConverted,
+        _ => status,
+      };
 
   Color _statusColor(String status) => switch (status) {
         'Qualified' => Colors.blue,
@@ -107,8 +116,10 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
                   hint: Text(AppLocalizations.of(context)!.all),
                   items: [
                     DropdownMenuItem(child: Text(AppLocalizations.of(context)!.all)),
-                    ..._statuses.map((s) =>
-                        DropdownMenuItem(value: s, child: Text(s)),),
+                    ..._statusKeys.map((s) => DropdownMenuItem(
+                          value: s,
+                          child: Text(_localizeStatus(s, AppLocalizations.of(context)!)),
+                        ),),
                   ],
                   onChanged: (v) {
                     setState(() => _selectedStatus = v);
@@ -208,22 +219,36 @@ class _LeadTile extends StatelessWidget {
           Text(lead.subject,
               maxLines: 1, overflow: TextOverflow.ellipsis,),
           if (lead.email != null || lead.phoneNumber != null)
-            Text(lead.email ?? lead.phoneNumber ?? '',
-                style:
-                    const TextStyle(fontSize: 11, color: Colors.grey),),
+            Text(
+              lead.email ?? lead.phoneNumber ?? '',
+              style: const TextStyle(fontSize: 11, color: Colors.grey),
+            ),
         ],
       ),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Chip(
-            label: Text(lead.status,
-                style:
-                    const TextStyle(fontSize: 11, color: Colors.white),),
-            backgroundColor: statusColor,
-            padding: EdgeInsets.zero,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          Builder(
+            builder: (ctx) {
+              final l = AppLocalizations.of(ctx)!;
+              return Chip(
+                label: Text(
+                  switch (lead.status) {
+                    'New' => l.statusNew,
+                    'Contacted' => l.statusContacted,
+                    'Qualified' => l.statusQualified,
+                    'Rejected' => l.statusRejected,
+                    'Converted' => l.statusConverted,
+                    _ => lead.status,
+                  },
+                  style: const TextStyle(fontSize: 11, color: Colors.white),
+                ),
+                backgroundColor: statusColor,
+                padding: EdgeInsets.zero,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              );
+            },
           ),
           if (lead.conflictChecked)
             Icon(
@@ -286,38 +311,56 @@ class _LeadActionsSheet extends StatelessWidget {
             const Divider(),
 
             // Details
-            if (lead.email != null)
-              _DetailRow(icon: Icons.email, text: lead.email!),
-            if (lead.phoneNumber != null)
-              _DetailRow(icon: Icons.phone, text: lead.phoneNumber!),
-            if (lead.desiredCaseType != null)
-              _DetailRow(
-                  icon: Icons.gavel, text: 'Type: ${lead.desiredCaseType}',),
-            if (lead.description != null)
-              _DetailRow(
-                  icon: Icons.notes, text: lead.description!, maxLines: 3,),
-            if (lead.conflictDetails != null)
-              _DetailRow(
-                  icon: lead.hasConflict
-                      ? Icons.warning
-                      : Icons.check_circle,
-                  text: lead.conflictDetails!,
-                  color: lead.hasConflict ? Colors.red : Colors.green,),
-            if (lead.assignedEmployeeName != null)
-              _DetailRow(
-                  icon: Icons.assignment_ind,
-                  text: 'Assigned: ${lead.assignedEmployeeName}',),
-            if (lead.nextFollowUpAt != null)
-              _DetailRow(
-                  icon: Icons.schedule,
-                  text:
-                      'Follow-up: ${lead.nextFollowUpAt!.toLocal().toString().substring(0, 16)}',),
-            if (lead.convertedCaseCode != null)
-              _DetailRow(
-                  icon: Icons.check_circle,
-                  text:
-                      'Converted -> Case #${lead.convertedCaseCode}, Customer #${lead.convertedCustomerId}',
-                  color: Colors.green,),
+            Builder(builder: (ctx) {
+              final l = AppLocalizations.of(ctx)!;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (lead.email != null)
+                    _DetailRow(icon: Icons.email, text: lead.email!),
+                  if (lead.phoneNumber != null)
+                    _DetailRow(icon: Icons.phone, text: lead.phoneNumber!),
+                  if (lead.desiredCaseType != null)
+                    _DetailRow(
+                      icon: Icons.gavel,
+                      text: '${l.caseType}: ${lead.desiredCaseType}',
+                    ),
+                  if (lead.description != null)
+                    _DetailRow(
+                      icon: Icons.notes,
+                      text: lead.description!,
+                      maxLines: 3,
+                    ),
+                  if (lead.conflictDetails != null)
+                    _DetailRow(
+                      icon: lead.hasConflict
+                          ? Icons.warning
+                          : Icons.check_circle,
+                      text: lead.conflictDetails!,
+                      color: lead.hasConflict ? Colors.red : Colors.green,
+                    ),
+                  if (lead.assignedEmployeeName != null)
+                    _DetailRow(
+                      icon: Icons.assignment_ind,
+                      text:
+                          '${l.assignedLabel}: ${lead.assignedEmployeeName}',
+                    ),
+                  if (lead.nextFollowUpAt != null)
+                    _DetailRow(
+                      icon: Icons.schedule,
+                      text:
+                          '${l.followUpLabel}: ${lead.nextFollowUpAt!.toLocal().toString().substring(0, 10)}',
+                    ),
+                  if (lead.convertedCaseCode != null)
+                    _DetailRow(
+                      icon: Icons.check_circle,
+                      text:
+                          '${l.convertedToCaseLabel} #${lead.convertedCaseCode}',
+                      color: Colors.green,
+                    ),
+                ],
+              );
+            },),
 
             const SizedBox(height: 12),
 

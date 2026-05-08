@@ -12,7 +12,7 @@ class ApiConstants {
   static const register = '/account/register';
   static const forgotPassword = '/account/request-password-reset';
   static const resetPassword = '/account/reset-password';
-  static const refreshToken = '/auth/refresh';
+  static const refreshToken = '/account/refresh';
 
   // Dashboard and core endpoints
   static const dashboard = '/dashboard/analytics';

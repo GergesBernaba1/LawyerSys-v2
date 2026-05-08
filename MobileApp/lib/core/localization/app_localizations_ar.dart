@@ -1429,4 +1429,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get linkExistingUser => 'ربط بمستخدم موجود';
   @override
   String get egp => 'ج.م';
+  @override
+  String get statusNew => 'جديد';
+  @override
+  String get statusQualified => 'مؤهَّل';
+  @override
+  String get statusRejected => 'مرفوض';
+  @override
+  String get statusConverted => 'محوَّل';
+  @override
+  String get statusContacted => 'تم التواصل';
+  @override
+  String get assignedLabel => 'مُسند إلى';
+  @override
+  String get followUpLabel => 'المتابعة';
+  @override
+  String get convertedToCaseLabel => 'تحوَّل إلى قضية';
 }

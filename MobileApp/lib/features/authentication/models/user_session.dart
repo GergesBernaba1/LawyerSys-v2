@@ -1,3 +1,5 @@
+import 'package:qadaya_lawyersys/core/auth/roles.dart';
+
 class UserSession {
 
   UserSession({
@@ -59,20 +61,46 @@ class UserSession {
 }
 
 extension UserSessionAuthorization on UserSession {
-  bool hasRole(String role) {
-    return roles.map((r) => r.toLowerCase()).contains(role.toLowerCase());
-  }
+  // ── Role checks ─────────────────────────────────────────────────────────────
+
+  bool hasRole(String role) =>
+      roles.map((r) => r.toLowerCase()).contains(role.toLowerCase());
+
+  bool isSuperAdmin() => hasRole(Roles.superAdmin);
+
+  bool isAdmin() => hasRole(Roles.admin) || hasRole(Roles.superAdmin);
+
+  bool isEmployee() =>
+      hasRole(Roles.employee) &&
+      !hasRole(Roles.admin) &&
+      !hasRole(Roles.superAdmin);
+
+  bool isCustomer() =>
+      hasRole(Roles.customer) &&
+      !hasRole(Roles.admin) &&
+      !hasRole(Roles.employee) &&
+      !hasRole(Roles.superAdmin);
+
+  // ── Permission checks ───────────────────────────────────────────────────────
 
   bool hasPermission(String permission) {
+    if (isAdmin()) return true;
     return permissions.map((p) => p.toLowerCase()).contains(permission.toLowerCase());
   }
 
   bool hasAnyPermission(List<String> required) {
+    if (isAdmin()) return true;
     final normalized = required.map((p) => p.toLowerCase()).toSet();
     return permissions.map((p) => p.toLowerCase()).any(normalized.contains);
   }
 
-  bool isAdmin() {
-    return hasRole('Admin') || hasRole('SuperAdmin');
+  bool hasAllPermissions(List<String> required) {
+    if (isAdmin()) return true;
+    final normalized = permissions.map((p) => p.toLowerCase()).toSet();
+    return required.every((p) => normalized.contains(p.toLowerCase()));
   }
+
+  /// Returns true when the session can perform the given action.
+  /// Admins bypass all permission checks.
+  bool can(String permission) => hasPermission(permission);
 }

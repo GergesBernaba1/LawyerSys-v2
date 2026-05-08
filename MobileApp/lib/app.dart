@@ -90,6 +90,8 @@ import 'package:qadaya_lawyersys/features/intake/bloc/intake_bloc.dart';
 import 'package:qadaya_lawyersys/features/intake/bloc/intake_event.dart';
 import 'package:qadaya_lawyersys/features/intake/repositories/intake_repository.dart';
 import 'package:qadaya_lawyersys/features/intake/screens/intake_leads_list_screen.dart';
+import 'package:qadaya_lawyersys/features/judicial/bloc/judicial_documents_bloc.dart';
+import 'package:qadaya_lawyersys/features/judicial/repositories/judicial_documents_repository.dart';
 import 'package:qadaya_lawyersys/features/judicial/screens/judicial_documents_list_screen.dart';
 import 'package:qadaya_lawyersys/features/notifications/bloc/notifications_bloc.dart';
 import 'package:qadaya_lawyersys/features/notifications/repositories/notifications_repository.dart';
@@ -161,43 +163,53 @@ class _AppState extends State<App> {
     // All other routes require at minimum an active session.
     if (session == null) return false;
 
-    // Route → required permission (null = any authenticated user).
+    // Route → required permission.
+    // null means any authenticated user; a string means the session must
+    // have that permission (admins bypass all checks via hasPermission()).
     final routePermissions = <String, String?>{
       '/main': null,
       '/dashboard': null,
-      '/cases': null,
-      '/tasks': null,
-      '/calendar': Permissions.viewHearings,
-      '/hearings': Permissions.viewHearings,
-      '/courts': Permissions.viewCourts,
-      '/timetracking': null,
-      '/billing': Permissions.viewBilling,
-      '/trust-accounting': Permissions.viewTrustAccounting,
-      '/trust-reports': Permissions.viewBilling,
-      '/client-portal-messages': Permissions.viewClientPortal,
-      '/client-portal-documents': Permissions.viewClientPortal,
-      '/customers': Permissions.viewCustomers,
-      '/governments': null,
-      '/employees': null,
-      '/contenders': null,
-      '/judicial': null,
-      '/consultations': null,
-      '/reports': null,
-      '/notifications': null,
       '/settings': null,
       '/profile': null,
-      '/documents': null,
-      '/intake': null,
-      '/files': null,
-      '/esign': null,
-      '/ai-assistant': null,
-      '/sitings': Permissions.viewHearings,
+      '/notifications': null,
       '/about': null,
       '/contact': null,
-      '/document-generation': null,
-      '/court-automation': null,
-      '/workqueue': null,
-      // Admin / SuperAdmin only routes.
+      // Cases
+      '/cases': Permissions.viewCases,
+      // Customers
+      '/customers': Permissions.viewCustomers,
+      // Courts & Hearings
+      '/courts': Permissions.viewCourts,
+      '/hearings': Permissions.viewHearings,
+      '/calendar': Permissions.viewCalendar,
+      '/sitings': Permissions.viewSitings,
+      // Billing & Trust
+      '/billing': Permissions.viewBilling,
+      '/trust-accounting': Permissions.viewTrustAccounting,
+      '/trust-reports': Permissions.viewTrustReports,
+      // Client Portal
+      '/client-portal-messages': Permissions.viewClientPortal,
+      '/client-portal-documents': Permissions.viewClientPortal,
+      // Staff & Org
+      '/governments': Permissions.viewGovernments,
+      '/contenders': Permissions.viewContenders,
+      '/employees': Permissions.viewEmployees,
+      '/judicial': Permissions.viewJudicial,
+      '/consultations': Permissions.viewConsultations,
+      // Operations
+      '/tasks': Permissions.viewTasks,
+      '/timetracking': Permissions.viewTimeTracking,
+      '/reports': Permissions.viewReports,
+      '/intake': Permissions.viewIntake,
+      '/documents': Permissions.viewDocuments,
+      '/files': Permissions.viewFiles,
+      '/esign': Permissions.viewESign,
+      '/workqueue': Permissions.viewWorkqueue,
+      // Automation & AI
+      '/ai-assistant': Permissions.viewAiAssistant,
+      '/document-generation': Permissions.viewDocumentGeneration,
+      '/court-automation': Permissions.viewCourtAutomation,
+      // Admin / SuperAdmin only
       '/users': Permissions.manageUsers,
       '/tenants': Permissions.manageTenants,
       '/audit-logs': Permissions.viewAuditLogs,
@@ -210,9 +222,7 @@ class _AppState extends State<App> {
     final required = routePermissions[route];
     if (required == null) return true;
 
-    // Admin and SuperAdmin implicitly have all admin permissions.
-    if (session.isAdmin()) return true;
-
+    // hasPermission() already short-circuits for Admin / SuperAdmin.
     return session.hasPermission(required);
   }
 
@@ -254,6 +264,7 @@ class _AppState extends State<App> {
         RepositoryProvider(create: (_) => SitingsRepository(apiClient: apiClient)),
         RepositoryProvider(create: (_) => DocGenerationRepository(apiClient)),
         RepositoryProvider(create: (_) => CourtAutomationRepository(apiClient)),
+        RepositoryProvider(create: (_) => JudicialDocumentsRepository(apiClient)),
         RepositoryProvider(create: (_) => WorkqueueRepository(apiClient)),
         RepositoryProvider(create: (_) => AdministrationRepository(apiClient)),
         RepositoryProvider(create: (_) => SubscriptionRepository(apiClient)),
@@ -331,6 +342,9 @@ class _AppState extends State<App> {
               create: (ctx) => GovernmentsBloc(
                   governmentsRepository:
                       RepositoryProvider.of<GovernmentsRepository>(ctx),),),
+          BlocProvider(
+              create: (ctx) => JudicialDocumentsBloc(
+                  repository: RepositoryProvider.of<JudicialDocumentsRepository>(ctx),),),
           BlocProvider(
               create: (ctx) => UsersBloc(
                   usersRepository: RepositoryProvider.of<UsersRepository>(ctx),),),

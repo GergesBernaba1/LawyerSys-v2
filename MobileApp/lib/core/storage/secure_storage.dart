@@ -7,7 +7,6 @@ class SecureStorage {
   static const keyUserSession = 'userSession';
   static const keyRememberMe = 'rememberMe';
   static const keySavedEmail = 'savedEmail';
-  static const keySavedPassword = 'savedPassword';
 
   final _storage = const FlutterSecureStorage();
 

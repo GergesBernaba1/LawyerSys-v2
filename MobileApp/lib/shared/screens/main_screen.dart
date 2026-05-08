@@ -98,96 +98,105 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<_NavItem> _buildNavItems(AppLocalizations l, UserSession? session) {
-    final isCustomer = (session?.hasRole('Customer') ?? false) &&
-        session?.hasRole('Admin') != true &&
-        session?.hasRole('Employee') != true &&
-        session?.hasRole('SuperAdmin') != true;
-    final isEmployee = (session?.hasRole('Employee') ?? false) &&
-        session?.hasRole('Admin') != true &&
-        session?.hasRole('SuperAdmin') != true;
+    if (session == null) return [];
 
-    if (isCustomer) {
+    // Customer-only menu — limited to their own portal view.
+    if (session.isCustomer()) {
       return [
         _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
         _NavItem(Icons.folder, l.cases, const CasesListScreen()),
-        _NavItem(
-            Icons.mail_outline, l.portalMessages, const PortalMessagesScreen(),),
-        _NavItem(Icons.folder_shared, l.portalDocuments,
-            const PortalDocumentsScreen(),),
-        _NavItem(Icons.notifications, l.notifications,
-            const NotificationsInboxScreen(),),
+        _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
+        _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen()),
+        _NavItem(Icons.notifications, l.notifications, const NotificationsInboxScreen()),
         _NavItem(Icons.settings, l.settings, const SettingsScreen()),
       ];
     }
 
-    final canAccessEmployees = (session?.hasRole('SuperAdmin') ?? false) ||
-        (session?.hasRole('Admin') ?? false) ||
-        (session?.hasAnyPermission(
-              [Permissions.createEmployees, Permissions.editEmployees],
-            ) ?? false);
-    final canAccessAdminModules =
-        (session?.hasRole('SuperAdmin') ?? false) || (session?.hasRole('Admin') ?? false);
-
+    // Full menu — every item gated by its required permission.
+    // Admins receive all permissions via hasPermission(), so their list is
+    // always complete. Employees and custom roles see only what their
+    // permission set allows.
     final all = <_NavItem>[
       _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
       _NavItem(Icons.gavel, l.cases, const CasesListScreen(),
           permission: Permissions.viewCases,),
       _NavItem(Icons.people, l.customers, const CustomersListScreen(),
           permission: Permissions.viewCustomers,),
-      _NavItem(Icons.location_city, l.governments, const GovernmentsListScreen()),
-      _NavItem(Icons.person_search, l.contenders, const ContendersListScreen()),
-      if (!isEmployee && canAccessEmployees)
-        _NavItem(Icons.badge, l.employees, const EmployeesListScreen()),
+      _NavItem(Icons.location_city, l.governments, const GovernmentsListScreen(),
+          permission: Permissions.viewGovernments,),
+      _NavItem(Icons.person_search, l.contenders, const ContendersListScreen(),
+          permission: Permissions.viewContenders,),
+      _NavItem(Icons.badge, l.employees, const EmployeesListScreen(),
+          permission: Permissions.viewEmployees,),
       _NavItem(Icons.account_balance, l.courts, const CourtsListScreen(),
           permission: Permissions.viewCourts,),
       _NavItem(Icons.event, l.hearings, const HearingsListScreen(),
           permission: Permissions.viewHearings,),
-      _NavItem(Icons.description, l.judicial, const JudicialDocumentsListScreen()),
+      _NavItem(Icons.description, l.judicialDocuments,
+          const JudicialDocumentsListScreen(),
+          permission: Permissions.viewJudicial,),
       _NavItem(Icons.calendar_today, l.calendar, const CalendarScreen(),
-          permission: Permissions.viewHearings,),
-      _NavItem(Icons.task_alt, l.tasks, const TasksListScreen()),
+          permission: Permissions.viewCalendar,),
+      _NavItem(Icons.task_alt, l.tasks, const TasksListScreen(),
+          permission: Permissions.viewTasks,),
       _NavItem(Icons.receipt, l.billing, const BillingListScreen(),
           permission: Permissions.viewBilling,),
       _NavItem(Icons.savings, l.trustAccounting, const TrustListScreen(),
           permission: Permissions.viewTrustAccounting,),
-      _NavItem(Icons.timer, l.timeTracking, const TimeTrackingListScreen()),
+      _NavItem(Icons.timer, l.timeTracking, const TimeTrackingListScreen(),
+          permission: Permissions.viewTimeTracking,),
       _NavItem(Icons.chat_bubble_outline, l.consultations,
-          const ConsultationsListScreen(),),
-      _NavItem(Icons.description, l.documents, const DocumentsListScreen()),
+          const ConsultationsListScreen(),
+          permission: Permissions.viewConsultations,),
+      _NavItem(Icons.description, l.documents, const DocumentsListScreen(),
+          permission: Permissions.viewDocuments,),
       _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen(),
           permission: Permissions.viewClientPortal,),
       _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen(),
           permission: Permissions.viewClientPortal,),
-      _NavItem(Icons.bar_chart, l.reports, const ReportsScreen()),
-      if (canAccessAdminModules)
-        _NavItem(Icons.supervisor_account, l.users, const UsersListScreen()),
-      if (canAccessAdminModules)
-        _NavItem(Icons.apartment, l.tenants, const TenantsListScreen()),
-      _NavItem(Icons.assignment_ind, l.intake, const IntakeLeadsListScreen()),
-      _NavItem(Icons.folder_open, l.files, const FilesListScreen()),
-      _NavItem(Icons.draw, l.eSignatures, const ESignListScreen()),
-      _NavItem(Icons.smart_toy, l.aiAssistant, const AiAssistantScreen()),
-      _NavItem(Icons.create_new_folder, l.documentGeneration, const DocGenerationScreen()),
-      _NavItem(Icons.gavel, l.courtAutomation, const CourtAutomationScreen()),
-      _NavItem(Icons.event_seat, l.sitings, const SitingsListScreen()),
-      _NavItem(Icons.queue, l.myQueue, const WorkqueueScreen()),
-      if (canAccessAdminModules) ...[
-        _NavItem(Icons.admin_panel_settings, l.administration, const AdministrationScreen()),
-        _NavItem(Icons.subscriptions, l.subscription, const SubscriptionScreen()),
-        _NavItem(Icons.bar_chart, l.trustReports, const TrustReportsScreen()),
-        _NavItem(Icons.history, l.auditLogs, const AuditLogsScreen()),
-      ],
+      _NavItem(Icons.bar_chart, l.reports, const ReportsScreen(),
+          permission: Permissions.viewReports,),
+      _NavItem(Icons.supervisor_account, l.users, const UsersListScreen(),
+          permission: Permissions.manageUsers,),
+      _NavItem(Icons.apartment, l.tenants, const TenantsListScreen(),
+          permission: Permissions.manageTenants,),
+      _NavItem(Icons.assignment_ind, l.intake, const IntakeLeadsListScreen(),
+          permission: Permissions.viewIntake,),
+      _NavItem(Icons.folder_open, l.files, const FilesListScreen(),
+          permission: Permissions.viewFiles,),
+      _NavItem(Icons.draw, l.eSignatures, const ESignListScreen(),
+          permission: Permissions.viewESign,),
+      _NavItem(Icons.smart_toy, l.aiAssistant, const AiAssistantScreen(),
+          permission: Permissions.viewAiAssistant,),
+      _NavItem(Icons.create_new_folder, l.documentGeneration,
+          const DocGenerationScreen(),
+          permission: Permissions.viewDocumentGeneration,),
+      _NavItem(Icons.gavel, l.courtAutomation, const CourtAutomationScreen(),
+          permission: Permissions.viewCourtAutomation,),
+      _NavItem(Icons.event_seat, l.sitings, const SitingsListScreen(),
+          permission: Permissions.viewSitings,),
+      _NavItem(Icons.queue, l.myQueue, const WorkqueueScreen(),
+          permission: Permissions.viewWorkqueue,),
+      _NavItem(Icons.admin_panel_settings, l.administration,
+          const AdministrationScreen(),
+          permission: Permissions.manageAdministration,),
+      _NavItem(Icons.subscriptions, l.subscription, const SubscriptionScreen(),
+          permission: Permissions.manageSubscription,),
+      _NavItem(Icons.bar_chart, l.trustReports, const TrustReportsScreen(),
+          permission: Permissions.viewTrustReports,),
+      _NavItem(Icons.history, l.auditLogs, const AuditLogsScreen(),
+          permission: Permissions.viewAuditLogs,),
+      // Always visible to authenticated non-customer users.
+      _NavItem(Icons.notifications, l.notifications,
+          const NotificationsInboxScreen(),),
       _NavItem(Icons.info_outline, l.aboutUs, const AboutScreen()),
       _NavItem(Icons.contact_mail, l.contactUs, const ContactScreen()),
-      _NavItem(Icons.notifications, l.notifications,
-          const NotificationsInboxScreen(),
-          permission: Permissions.viewNotifications,),
       _NavItem(Icons.settings, l.settings, const SettingsScreen()),
     ];
 
     return all.where((item) {
       if (item.permission == null) return true;
-      return session?.hasPermission(item.permission!) ?? false;
+      return session.hasPermission(item.permission!);
     }).toList();
   }
 

@@ -253,8 +253,8 @@ public class AccountController : ControllerBase
 
         try
         {
-            var (token, expires) = await _accountService.LoginAsync(model);
-            return Ok(new { token, expires });
+            var (token, refreshToken, expires) = await _accountService.LoginAsync(model);
+            return Ok(new { token, refreshToken, expires });
         }
         catch (InvalidOperationException ex)
         {
@@ -263,6 +263,24 @@ public class AccountController : ControllerBase
         catch (UnauthorizedAccessException)
         {
             return Unauthorized(new { message = "Invalid credentials" });
+        }
+    }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest model)
+    {
+        if (string.IsNullOrWhiteSpace(model.RefreshToken))
+            return BadRequest(new { message = "Refresh token is required." });
+
+        try
+        {
+            var (token, refreshToken, expires) = await _accountService.RefreshAsync(model.RefreshToken);
+            return Ok(new { token, refreshToken, expires });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new { message = "Invalid or expired refresh token." });
         }
     }
 
@@ -1224,4 +1242,9 @@ public class RegisterDeviceTokenRequest
 public class UnregisterDeviceTokenRequest
 {
     public string Token { get; set; } = string.Empty;
+}
+
+public class RefreshTokenRequest
+{
+    public string RefreshToken { get; set; } = string.Empty;
 }

@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<DemoRequest> DemoRequests => Set<DemoRequest>();
     public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
     public DbSet<UserPushToken> UserPushTokens => Set<UserPushToken>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<CompetitorCapability> CompetitorCapabilities => Set<CompetitorCapability>();
     public DbSet<CoverageAssessment> CoverageAssessments => Set<CoverageAssessment>();
     public DbSet<RoadmapItem> RoadmapItems => Set<RoadmapItem>();
@@ -188,6 +189,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(token => token.User)
                 .WithMany(user => user.PushTokens)
                 .HasForeignKey(token => token.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("RefreshTokens");
+            entity.Property(rt => rt.UserId).HasMaxLength(450).IsRequired();
+            entity.Property(rt => rt.TokenHash).HasMaxLength(128).IsRequired();
+            entity.HasIndex(rt => rt.TokenHash).IsUnique();
+            entity.HasIndex(rt => new { rt.UserId, rt.IsRevoked, rt.ExpiresAtUtc });
+            entity.HasOne(rt => rt.User)
+                .WithMany()
+                .HasForeignKey(rt => rt.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

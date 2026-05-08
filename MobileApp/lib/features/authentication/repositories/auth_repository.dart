@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
 import 'package:qadaya_lawyersys/core/api/api_constants.dart';
+import 'package:qadaya_lawyersys/core/auth/rbac_service.dart';
 import 'package:qadaya_lawyersys/core/storage/secure_storage.dart';
 import 'package:qadaya_lawyersys/features/authentication/models/login_request.dart';
 import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
@@ -215,7 +216,7 @@ class AuthRepository {
       tokenExpiresAt:
           tokenExpiry ?? expiresFromJwt ?? DateTime.now().toUtc().add(const Duration(hours: 1)),
       roles: roles,
-      permissions: const [],
+      permissions: RbacService.permissionsForRoles(roles),
       languageCode: 'en',
       biometricEnabled: false,
     );

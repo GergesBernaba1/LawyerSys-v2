@@ -1429,4 +1429,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkExistingUser => 'Link to Existing User';
   @override
   String get egp => 'EGP';
+  @override
+  String get statusNew => 'New';
+  @override
+  String get statusQualified => 'Qualified';
+  @override
+  String get statusRejected => 'Rejected';
+  @override
+  String get statusConverted => 'Converted';
+  @override
+  String get statusContacted => 'Contacted';
+  @override
+  String get assignedLabel => 'Assigned';
+  @override
+  String get followUpLabel => 'Follow-up';
+  @override
+  String get convertedToCaseLabel => 'Converted to Case';
 }

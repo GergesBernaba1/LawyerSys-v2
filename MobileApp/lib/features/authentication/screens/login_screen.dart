@@ -43,24 +43,20 @@ class _LoginScreenState extends State<LoginScreen> {
     final rememberMe = await _secureStorage.read(SecureStorage.keyRememberMe);
     if (rememberMe != 'true') return;
     final email = await _secureStorage.read(SecureStorage.keySavedEmail);
-    final password = await _secureStorage.read(SecureStorage.keySavedPassword);
     if (!mounted) return;
     setState(() {
       _rememberMe = true;
       if (email != null) _emailController.text = email;
-      if (password != null) _passwordController.text = password;
     });
   }
 
-  Future<void> _saveOrClearCredentials(String email, String password) async {
+  Future<void> _saveOrClearCredentials(String email) async {
     if (_rememberMe) {
       await _secureStorage.write(SecureStorage.keyRememberMe, 'true');
       await _secureStorage.write(SecureStorage.keySavedEmail, email);
-      await _secureStorage.write(SecureStorage.keySavedPassword, password);
     } else {
       await _secureStorage.write(SecureStorage.keyRememberMe, 'false');
       await _secureStorage.delete(SecureStorage.keySavedEmail);
-      await _secureStorage.delete(SecureStorage.keySavedPassword);
     }
   }
 
@@ -249,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     '${localizer.email} and ${localizer.password} are required',),),);
                             return;
                           }
-                          unawaited(_saveOrClearCredentials(email, password));
+                          unawaited(_saveOrClearCredentials(email));
                           context
                               .read<AuthBloc>()
                               .add(LoginRequested(email, password));
