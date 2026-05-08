@@ -9,8 +9,8 @@ import 'package:qadaya_lawyersys/features/authentication/models/user_session.dar
 import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_bloc.dart';
 import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_event.dart';
 import 'package:qadaya_lawyersys/features/trust-accounting/bloc/trust_accounting_state.dart';
-import 'package:qadaya_lawyersys/features/trust-accounting/models/trust_transaction.dart';
 import 'package:qadaya_lawyersys/features/trust-accounting/screens/trust_form_screen.dart';
+import 'package:qadaya_lawyersys/features/trust-accounting/screens/trust_ledger_screen.dart';
 
 class TrustListScreen extends StatefulWidget {
   const TrustListScreen({super.key});
@@ -96,10 +96,33 @@ class _TrustListScreenState extends State<TrustListScreen> {
                     itemCount: transactions.length,
                     itemBuilder: (context, index) {
                       final item = transactions[index];
+                      final customerName = item.customerName ?? item.accountId;
+                      final customerId = int.tryParse(item.accountId) ?? 0;
                       return ListTile(
-                        title: Text('${item.transactionType} - ${item.amount.toStringAsFixed(2)}'),
-                        subtitle: Text('${item.caseId} • ${item.accountId} • ${item.status}'),
-                        onTap: () => _showTransactionDetails(item, localizer),
+                        leading: CircleAvatar(
+                          child: Text(
+                            customerName.isNotEmpty
+                                ? customerName[0].toUpperCase()
+                                : '#',
+                          ),
+                        ),
+                        title: Text(
+                          customerName,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          '${localizer.trustBalance}: ${item.amount.toStringAsFixed(2)}',
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => TrustLedgerScreen(
+                              customerId: customerId,
+                              customerName: customerName,
+                            ),
+                          ),
+                        ),
                       );
                     },
                   );
@@ -113,29 +136,4 @@ class _TrustListScreenState extends State<TrustListScreen> {
     );
   }
 
-  void _showTransactionDetails(TrustTransactionModel transaction, AppLocalizations localizer) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(localizer.trustTransaction),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${localizer.transactionId}: ${transaction.transactionId}'),
-            Text('${localizer.caseCode}: ${transaction.caseId}'),
-            Text('${localizer.accountId}: ${transaction.accountId}'),
-            Text('${localizer.transactionType}: ${transaction.transactionType}'),
-            Text('${localizer.amount}: ${transaction.amount.toStringAsFixed(2)}'),
-            Text('${localizer.status}: ${transaction.status}'),
-            Text('${localizer.dateLabel}: ${transaction.date.toLocal().toIso8601String()}'),
-            Text('${localizer.notes}: ${transaction.notes}'),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(localizer.cancel)),
-        ],
-      ),
-    );
-  }
 }

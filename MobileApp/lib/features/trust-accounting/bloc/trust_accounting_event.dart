@@ -29,3 +29,8 @@ class DeleteTrustTransaction extends TrustAccountingEvent {
   DeleteTrustTransaction(this.transactionId);
   final String transactionId;
 }
+
+class LoadTrustLedger extends TrustAccountingEvent {
+  LoadTrustLedger(this.customerId);
+  final int customerId;
+}

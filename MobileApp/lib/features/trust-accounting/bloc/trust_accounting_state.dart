@@ -24,3 +24,9 @@ class TrustTransactionOperationSuccess extends TrustAccountingState {
   TrustTransactionOperationSuccess(this.message);
   final String message;
 }
+
+class TrustLedgerLoaded extends TrustAccountingState {
+  TrustLedgerLoaded({required this.entries, required this.customerId});
+  final List<TrustTransactionModel> entries;
+  final int customerId;
+}

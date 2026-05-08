@@ -13,6 +13,7 @@ class TrustAccountingBloc extends Bloc<TrustAccountingEvent, TrustAccountingStat
     on<CreateTrustTransaction>(_onCreateTrustTransaction);
     on<UpdateTrustTransaction>(_onUpdateTrustTransaction);
     on<DeleteTrustTransaction>(_onDeleteTrustTransaction);
+    on<LoadTrustLedger>(_onLoadTrustLedger);
   }
   final TrustAccountingRepository trustAccountingRepository;
 
@@ -87,9 +88,22 @@ class TrustAccountingBloc extends Bloc<TrustAccountingEvent, TrustAccountingStat
     emit(TrustAccountingLoading());
     try {
       await trustAccountingRepository.deleteTransaction(event.transactionId);
-      emit(TrustTransactionOperationSuccess('Transaction deleted'));  
+      emit(TrustTransactionOperationSuccess('Transaction deleted'));
       final txs = await trustAccountingRepository.getTransactions();
       emit(TrustAccountingLoaded(txs));
+    } catch (e) {
+      emit(TrustAccountingError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadTrustLedger(
+      LoadTrustLedger event, Emitter<TrustAccountingState> emit,) async {
+    emit(TrustAccountingLoading());
+    try {
+      final entries =
+          await trustAccountingRepository.getLedger(event.customerId);
+      emit(TrustLedgerLoaded(
+          entries: entries, customerId: event.customerId,),);
     } catch (e) {
       emit(TrustAccountingError(e.toString()));
     }
