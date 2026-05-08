@@ -1,3 +1,4 @@
+import 'package:path_provider/path_provider.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
 import 'package:qadaya_lawyersys/core/utils/json_utils.dart';
 import 'package:qadaya_lawyersys/features/reports/models/report.dart';
@@ -39,5 +40,21 @@ class ReportsRepository {
         .get('/api/Reports/customers/$customerId/billing-history');
     return CustomerBillingHistory.fromJson(
         Map<String, dynamic>.from(response.data as Map),);
+  }
+
+  Future<String> exportFinancialReport({
+    required int year,
+    required int month,
+    required String format,
+  }) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final filename = 'financial_report_${year}_${month}_${DateTime.now().millisecondsSinceEpoch}.$format';
+    final savePath = '${dir.path}/$filename';
+    await apiClient.downloadFile(
+      '/api/Reports/financial-summary/export',
+      queryParameters: {'year': year, 'month': month, 'format': format},
+      savePath: savePath,
+    );
+    return savePath;
   }
 }

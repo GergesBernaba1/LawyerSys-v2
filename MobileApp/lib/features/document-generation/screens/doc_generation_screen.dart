@@ -93,7 +93,15 @@ class _GenerateTab extends StatefulWidget {
 class _GenerateTabState extends State<_GenerateTab> {
   DocTemplate? _selectedTemplate;
   final _caseCodeController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _referenceController = TextEditingController();
+  final _categoryController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _aiInstructionsController = TextEditingController();
   String _language = 'en';
+  String _exportFormat = 'pdf';
+
+  static const _exportFormats = ['pdf', 'docx', 'txt'];
 
   // field key → controller / value
   final Map<String, TextEditingController> _textControllers = {};
@@ -105,6 +113,11 @@ class _GenerateTabState extends State<_GenerateTab> {
   @override
   void dispose() {
     _caseCodeController.dispose();
+    _titleController.dispose();
+    _referenceController.dispose();
+    _categoryController.dispose();
+    _notesController.dispose();
+    _aiInstructionsController.dispose();
     for (final c in _textControllers.values) {
       c.dispose();
     }
@@ -158,13 +171,20 @@ class _GenerateTabState extends State<_GenerateTab> {
     if (_selectedTemplate == null) return;
     if (!_formKey.currentState!.validate()) return;
 
+    String? trimOrNull(String s) => s.trim().isEmpty ? null : s.trim();
+
     context.read<DocGenerationBloc>().add(
           GenerateDocument(
             templateId: _selectedTemplate!.id,
             fieldValues: _collectFieldValues(),
             language: _language,
-            caseCode:
-                _caseCodeController.text.trim().isEmpty ? null : _caseCodeController.text.trim(),
+            caseCode: trimOrNull(_caseCodeController.text),
+            title: trimOrNull(_titleController.text),
+            reference: trimOrNull(_referenceController.text),
+            category: trimOrNull(_categoryController.text),
+            notes: trimOrNull(_notesController.text),
+            aiInstructions: trimOrNull(_aiInstructionsController.text),
+            exportFormat: _exportFormat,
           ),
         );
   }
@@ -217,6 +237,82 @@ class _GenerateTabState extends State<_GenerateTab> {
                   labelText: AppLocalizations.of(context)!.caseCode,
                   border: const OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 12),
+
+              // Metadata fields
+              TextFormField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.documentTitle,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _referenceController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.referenceNumber,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _categoryController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.category,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _notesController,
+                minLines: 2,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.notes,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // AI instructions
+              TextFormField(
+                controller: _aiInstructionsController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.aiInstructions,
+                  hintText: 'e.g. Make the tone formal and concise...',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.smart_toy_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Export format chips
+              Text(
+                AppLocalizations.of(context)!.exportFormat,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: _exportFormats.map((fmt) {
+                  return ChoiceChip(
+                    label: Text(fmt.toUpperCase()),
+                    selected: _exportFormat == fmt,
+                    onSelected: (_) => setState(() => _exportFormat = fmt),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 16),
 
@@ -299,7 +395,7 @@ class _GenerateTabState extends State<_GenerateTab> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.article),
-                    label: Text(AppLocalizations.of(context)!.generateDocument),
+                    label: Text(AppLocalizations.of(context)!.generateAndDownload),
                   ),
                 ),
             ],

@@ -26,3 +26,15 @@ class RefreshReports extends ReportsEvent {
   final int month;
   final int? customerId;
 }
+
+class ExportFinancialReport extends ReportsEvent {
+
+  ExportFinancialReport({
+    required this.year,
+    required this.month,
+    required this.format,
+  });
+  final int year;
+  final int month;
+  final String format;
+}

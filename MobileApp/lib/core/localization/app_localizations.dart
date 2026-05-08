@@ -1458,7 +1458,24 @@ abstract class AppLocalizations {
   String get aboutUs;
   String get active;
   String get administration;
+  String get management;
   String get admin;
+  String get currentPlan;
+  String get billingHistory;
+  String get billingCycle;
+  String get nextBillingDate;
+  String get subscriptionStatus;
+  String get availablePlans;
+  String get noActiveSubscription;
+  String get expiresOn;
+  String get startsOn;
+  String get aiInstructions;
+  String get exportFormat;
+  String get documentTitle;
+  String get referenceNumber;
+  String get category;
+  String get generateAndDownload;
+  String get features;
   String get clear;
   String get confirm;
   String get contactUs;
@@ -1820,6 +1837,14 @@ abstract class AppLocalizations {
   String get overview;
   String get quickAccess;
   String get unread;
+
+  // Reports export
+  String get exportReport;
+  String get exportCsv;
+  String get exportPdf;
+  String get exportSaved;
+  String get exportFailed;
+  String get exporting;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qadaya_lawyersys/features/subscription/bloc/subscription_event.dart';
 import 'package:qadaya_lawyersys/features/subscription/bloc/subscription_state.dart';
+import 'package:qadaya_lawyersys/features/subscription/models/subscription_package.dart';
 import 'package:qadaya_lawyersys/features/subscription/repositories/subscription_repository.dart';
 
 class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
@@ -8,6 +9,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   SubscriptionBloc({required this.repository}) : super(SubscriptionInitial()) {
     on<LoadSubscriptionPackages>(_onLoadPackages);
     on<RefreshSubscriptionPackages>(_onRefreshPackages);
+    on<LoadCurrentSubscription>(_onLoadCurrentSubscription);
   }
   final SubscriptionRepository repository;
 
@@ -16,7 +18,8 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     emit(SubscriptionLoading());
     try {
       final packages = await repository.getPublicPackages();
-      emit(SubscriptionLoaded(packages));
+      final current = await repository.getCurrentSubscription();
+      emit(SubscriptionLoaded(packages, currentSubscription: current));
     } catch (e) {
       emit(SubscriptionError(e.toString()));
     }
@@ -26,7 +29,21 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
       RefreshSubscriptionPackages event, Emitter<SubscriptionState> emit,) async {
     try {
       final packages = await repository.getPublicPackages();
-      emit(SubscriptionLoaded(packages));
+      final current = await repository.getCurrentSubscription();
+      emit(SubscriptionLoaded(packages, currentSubscription: current));
+    } catch (e) {
+      emit(SubscriptionError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadCurrentSubscription(
+      LoadCurrentSubscription event, Emitter<SubscriptionState> emit,) async {
+    try {
+      final current = await repository.getCurrentSubscription();
+      final prev = state;
+      final packages =
+          prev is SubscriptionLoaded ? prev.packages : <SubscriptionPackage>[];
+      emit(SubscriptionLoaded(packages, currentSubscription: current));
     } catch (e) {
       emit(SubscriptionError(e.toString()));
     }

@@ -5,6 +5,7 @@ import 'package:qadaya_lawyersys/features/reports/bloc/reports_bloc.dart';
 import 'package:qadaya_lawyersys/features/reports/bloc/reports_event.dart';
 import 'package:qadaya_lawyersys/features/reports/bloc/reports_state.dart';
 import 'package:qadaya_lawyersys/features/reports/models/report.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -47,13 +48,99 @@ class _ReportsScreenState extends State<ReportsScreen>
         );
   }
 
+  bool _exporting = false;
+
+  void _export(String format) {
+    setState(() => _exporting = true);
+    context.read<ReportsBloc>().add(
+          ExportFinancialReport(year: _year, month: _month, format: format),
+        );
+  }
+
+  Future<void> _openFile(String filePath) async {
+    final uri = Uri.file(filePath);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  void _showExportMenu(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.table_chart),
+              title: Text(l.exportCsv),
+              onTap: () {
+                Navigator.pop(context);
+                _export('csv');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf),
+              title: Text(l.exportPdf),
+              onTap: () {
+                Navigator.pop(context);
+                _export('pdf');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return Scaffold(
+    return BlocListener<ReportsBloc, ReportsState>(
+      listener: (context, state) {
+        if (state is ReportsExportSuccess) {
+          setState(() => _exporting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l.exportSaved),
+              action: SnackBarAction(
+                label: 'Open',
+                onPressed: () => _openFile(state.filePath),
+              ),
+            ),
+          );
+        } else if (state is ReportsExportError) {
+          setState(() => _exporting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${l.exportFailed}: ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(l.reports),
         actions: [
+          if (_exporting)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                ),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: () => _showExportMenu(context),
+              tooltip: l.exportReport,
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refresh,
@@ -120,6 +207,7 @@ class _ReportsScreenState extends State<ReportsScreen>
           ),
         ],
       ),
+    ),
     );
   }
 }

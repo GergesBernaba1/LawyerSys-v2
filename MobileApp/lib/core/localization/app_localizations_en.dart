@@ -900,6 +900,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get administration => 'Administration';
   @override
+  String get management => 'Management';
+  @override
+  String get currentPlan => 'Current Plan';
+  @override
+  String get billingHistory => 'Billing History';
+  @override
+  String get billingCycle => 'Billing Cycle';
+  @override
+  String get nextBillingDate => 'Next Billing Date';
+  @override
+  String get subscriptionStatus => 'Status';
+  @override
+  String get availablePlans => 'Available Plans';
+  @override
+  String get noActiveSubscription => 'No active subscription found';
+  @override
+  String get expiresOn => 'Expires On';
+  @override
+  String get startsOn => 'Starts On';
+  @override
+  String get aiInstructions => 'AI Instructions';
+  @override
+  String get exportFormat => 'Export Format';
+  @override
+  String get documentTitle => 'Document Title';
+  @override
+  String get referenceNumber => 'Reference Number';
+  @override
+  String get category => 'Category';
+  @override
+  String get generateAndDownload => 'Generate & Download';
+  @override
+  String get features => 'Features';
+  @override
   String get admin => 'Admin';
   @override
   String get clear => 'Clear';
@@ -1545,4 +1579,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAccess => 'Quick Access';
   @override
   String get unread => 'Unread';
+  @override
+  String get exportReport => 'Export Report';
+  @override
+  String get exportCsv => 'Export CSV';
+  @override
+  String get exportPdf => 'Export PDF';
+  @override
+  String get exportSaved => 'Report saved to device';
+  @override
+  String get exportFailed => 'Export failed';
+  @override
+  String get exporting => 'Exporting...';
 }

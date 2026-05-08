@@ -46,3 +46,14 @@ class ReportsError extends ReportsState {
   ReportsError(this.message);
   final String message;
 }
+
+class ReportsExportSuccess extends ReportsState {
+  ReportsExportSuccess(this.filePath, this.format);
+  final String filePath;
+  final String format;
+}
+
+class ReportsExportError extends ReportsState {
+  ReportsExportError(this.message);
+  final String message;
+}

@@ -35,6 +35,12 @@ class DocGenerationBloc extends Bloc<DocGenerationEvent, DocGenState> {
         fieldValues: event.fieldValues,
         language: event.language,
         caseCode: event.caseCode,
+        title: event.title,
+        reference: event.reference,
+        category: event.category,
+        notes: event.notes,
+        aiInstructions: event.aiInstructions,
+        exportFormat: event.exportFormat,
       );
       emit(DocGeneratedSuccess(doc));
     } catch (e) {

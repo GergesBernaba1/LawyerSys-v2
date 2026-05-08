@@ -11,6 +11,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     on<LoadOutstandingBalances>(_onLoadBalances);
     on<LoadCustomerBillingHistory>(_onLoadBillingHistory);
     on<RefreshReports>(_onRefresh);
+    on<ExportFinancialReport>(_onExport);
   }
   final ReportsRepository repository;
 
@@ -97,6 +98,20 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       ),);
     } catch (e) {
       emit(ReportsError(e.toString()));
+    }
+  }
+
+  Future<void> _onExport(
+      ExportFinancialReport event, Emitter<ReportsState> emit,) async {
+    try {
+      final path = await repository.exportFinancialReport(
+        year: event.year,
+        month: event.month,
+        format: event.format,
+      );
+      emit(ReportsExportSuccess(path, event.format));
+    } catch (e) {
+      emit(ReportsExportError(e.toString()));
     }
   }
 }

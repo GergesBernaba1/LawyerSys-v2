@@ -900,6 +900,40 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get administration => 'الإدارة';
   @override
+  String get management => 'الإدارة والتحكم';
+  @override
+  String get currentPlan => 'الخطة الحالية';
+  @override
+  String get billingHistory => 'سجل الفواتير';
+  @override
+  String get billingCycle => 'دورة الفوترة';
+  @override
+  String get nextBillingDate => 'تاريخ الفاتورة القادمة';
+  @override
+  String get subscriptionStatus => 'الحالة';
+  @override
+  String get availablePlans => 'الخطط المتاحة';
+  @override
+  String get noActiveSubscription => 'لا يوجد اشتراك نشط';
+  @override
+  String get expiresOn => 'تنتهي في';
+  @override
+  String get startsOn => 'تبدأ في';
+  @override
+  String get aiInstructions => 'تعليمات الذكاء الاصطناعي';
+  @override
+  String get exportFormat => 'صيغة التصدير';
+  @override
+  String get documentTitle => 'عنوان الوثيقة';
+  @override
+  String get referenceNumber => 'الرقم المرجعي';
+  @override
+  String get category => 'الفئة';
+  @override
+  String get generateAndDownload => 'توليد وتنزيل';
+  @override
+  String get features => 'الميزات';
+  @override
   String get admin => 'مدير';
   @override
   String get clear => 'مسح';
@@ -1545,4 +1579,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quickAccess => 'وصول سريع';
   @override
   String get unread => 'غير مقروء';
+  @override
+  String get exportReport => 'تصدير التقرير';
+  @override
+  String get exportCsv => 'تصدير CSV';
+  @override
+  String get exportPdf => 'تصدير PDF';
+  @override
+  String get exportSaved => 'تم حفظ التقرير على الجهاز';
+  @override
+  String get exportFailed => 'فشل التصدير';
+  @override
+  String get exporting => 'جارٍ التصدير...';
 }

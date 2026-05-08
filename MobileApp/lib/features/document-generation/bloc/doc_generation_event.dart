@@ -12,11 +12,23 @@ class GenerateDocument extends DocGenerationEvent {
     required this.fieldValues,
     this.language,
     this.caseCode,
+    this.title,
+    this.reference,
+    this.category,
+    this.notes,
+    this.aiInstructions,
+    this.exportFormat,
   });
   final String templateId;
   final Map<String, dynamic> fieldValues;
   final String? language;
   final String? caseCode;
+  final String? title;
+  final String? reference;
+  final String? category;
+  final String? notes;
+  final String? aiInstructions;
+  final String? exportFormat;
 }
 
 class LoadDocHistory extends DocGenerationEvent {

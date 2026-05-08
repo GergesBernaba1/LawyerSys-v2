@@ -45,4 +45,16 @@ class ApiClient {
   Future<Response<dynamic>> delete(String path, {dynamic data}) async {
     return _dio.delete(_normalizePath(path), data: data);
   }
+
+  Future<void> downloadFile(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    required String savePath,
+  }) async {
+    await _dio.download(
+      _normalizePath(path),
+      savePath,
+      queryParameters: queryParameters,
+    );
+  }
 }

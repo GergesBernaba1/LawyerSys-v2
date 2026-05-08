@@ -26,6 +26,12 @@ class DocGenerationRepository {
     required Map<String, dynamic> fieldValues,
     String? language,
     String? caseCode,
+    String? title,
+    String? reference,
+    String? category,
+    String? notes,
+    String? aiInstructions,
+    String? exportFormat,
   }) async {
     final response = await apiClient.post(
       '/documentgeneration/generate',
@@ -34,6 +40,13 @@ class DocGenerationRepository {
         'fieldValues': fieldValues,
         if (language != null) 'language': language,
         if (caseCode != null) 'caseCode': caseCode,
+        if (title != null && title.isNotEmpty) 'title': title,
+        if (reference != null && reference.isNotEmpty) 'reference': reference,
+        if (category != null && category.isNotEmpty) 'category': category,
+        if (notes != null && notes.isNotEmpty) 'notes': notes,
+        if (aiInstructions != null && aiInstructions.isNotEmpty)
+          'aiInstructions': aiInstructions,
+        if (exportFormat != null) 'format': exportFormat,
       },
     );
     return GeneratedDoc.fromJson(response.data as Map<String, dynamic>);
