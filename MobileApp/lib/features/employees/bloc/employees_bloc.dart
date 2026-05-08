@@ -12,6 +12,7 @@ class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
     on<SearchEmployees>(_onSearchEmployees);
     on<SelectEmployee>(_onSelectEmployee);
     on<CreateEmployee>(_onCreateEmployee);
+    on<CreateEmployeeWithUser>(_onCreateEmployeeWithUser);
     on<UpdateEmployee>(_onUpdateEmployee);
     on<DeleteEmployee>(_onDeleteEmployee);
   }
@@ -64,6 +65,19 @@ class EmployeesBloc extends Bloc<EmployeesEvent, EmployeesState> {
       await employeesRepository.createEmployee(event.employee);
       emit(EmployeeOperationSuccess('Employee created successfully'));
       // Reload the list after successful creation
+      final employees = await employeesRepository.getEmployees();
+      emit(EmployeesLoaded(employees));
+    } catch (e) {
+      emit(EmployeesError(e.toString()));
+    }
+  }
+
+  Future<void> _onCreateEmployeeWithUser(
+      CreateEmployeeWithUser event, Emitter<EmployeesState> emit,) async {
+    emit(EmployeesLoading());
+    try {
+      await employeesRepository.createEmployeeWithUser(event.payload);
+      emit(EmployeeOperationSuccess('Employee created successfully'));
       final employees = await employeesRepository.getEmployees();
       emit(EmployeesLoaded(employees));
     } catch (e) {

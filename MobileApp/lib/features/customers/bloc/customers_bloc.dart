@@ -12,6 +12,7 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     on<RefreshCustomers>(_onRefreshCustomers);
     on<LoadCustomerDetail>(_onLoadCustomerDetail);
     on<CreateCustomer>(_onCreateCustomer);
+    on<CreateCustomerWithUser>(_onCreateCustomerWithUser);
     on<UpdateCustomer>(_onUpdateCustomer);
     on<DeleteCustomer>(_onDeleteCustomer);
     on<LoadCaseNotificationPreference>(_onLoadCaseNotificationPreference);
@@ -117,6 +118,25 @@ class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     emit(CustomersLoading());
     try {
       final created = await customersRepository.createCustomer(event.data);
+      emit(CustomerOperationSuccess('Customer created', customerId: created.customerId));
+      final customers = await customersRepository.getCustomers(pageSize: _pageSize);
+      _customers
+        ..clear()
+        ..addAll(customers);
+      emit(CustomersLoaded(
+        customers,
+        hasMore: customers.length >= _pageSize,
+      ),);
+    } catch (e) {
+      emit(CustomersError(e.toString()));
+    }
+  }
+
+  Future<void> _onCreateCustomerWithUser(
+      CreateCustomerWithUser event, Emitter<CustomersState> emit,) async {
+    emit(CustomersLoading());
+    try {
+      final created = await customersRepository.createCustomerWithUser(event.data);
       emit(CustomerOperationSuccess('Customer created', customerId: created.customerId));
       final customers = await customersRepository.getCustomers(pageSize: _pageSize);
       _customers

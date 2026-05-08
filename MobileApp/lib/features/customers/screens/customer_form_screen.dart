@@ -27,6 +27,9 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
   final _emailController = TextEditingController();
   final _ssnController = TextEditingController();
   final _addressController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _createPortalAccount = false;
   bool _isSaving = false;
   File? _selectedImage;
   bool _isUploadingImage = false;
@@ -52,6 +55,8 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
     _emailController.dispose();
     _ssnController.dispose();
     _addressController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -67,7 +72,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final data = {
+    final baseData = {
       'fullName': _fullNameController.text.trim(),
       'phoneNumber': _phoneController.text.trim(),
       'email': _emailController.text.trim(),
@@ -76,9 +81,17 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
     };
 
     if (_isEditing) {
-      context.read<CustomersBloc>().add(UpdateCustomer(widget.customer!.customerId, data));
+      context.read<CustomersBloc>().add(UpdateCustomer(widget.customer!.customerId, baseData));
+    } else if (_createPortalAccount) {
+      context.read<CustomersBloc>().add(CreateCustomerWithUser({
+        ...baseData,
+        'userName': _usernameController.text.trim().isNotEmpty
+            ? _usernameController.text.trim()
+            : _emailController.text.trim(),
+        'password': _passwordController.text,
+      },),);
     } else {
-      context.read<CustomersBloc>().add(CreateCustomer(data));
+      context.read<CustomersBloc>().add(CreateCustomer(baseData));
     }
   }
 
@@ -182,6 +195,40 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                             labelText: l.address,
                             border: const OutlineInputBorder(),),
                       ),
+                      if (!_isEditing) ...[
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l.createWithNewUser),
+                          value: _createPortalAccount,
+                          onChanged: (v) =>
+                              setState(() => _createPortalAccount = v),
+                        ),
+                        if (_createPortalAccount) ...[
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _usernameController,
+                            decoration: InputDecoration(
+                              labelText: l.username,
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: l.password,
+                              border: const OutlineInputBorder(),
+                            ),
+                            validator: _createPortalAccount
+                                ? (v) => (v == null || v.trim().isEmpty)
+                                    ? l.allFieldsAreRequired
+                                    : null
+                                : null,
+                          ),
+                        ],
+                      ],
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: _submit,

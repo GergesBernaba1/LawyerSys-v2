@@ -269,42 +269,23 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                 if (!formKey.currentState!.validate()) return;
                 final salary = int.tryParse(salaryCtrl.text.trim()) ?? 0;
                 Navigator.pop(dialogCtx);
-                // Send CreateEmployeeWithUser via bloc event using raw data
-                // The bloc passes this to POST /api/employees/withuser
                 context.read<EmployeesBloc>().add(
-                      CreateEmployee(EmployeeModel(
-                        id: 0,
-                        salary: salary,
-                        usersId: 0,
-                        user: UserModel(
-                          id: 0,
-                          fullName: fullNameCtrl.text.trim(),
-                          address: addressCtrl.text.trim(),
-                          job: jobCtrl.text.trim(),
-                          phoneNumber: phoneCtrl.text.trim(),
-                          ssn: ssnCtrl.text.trim(),
-                          userName: usernameCtrl.text.trim().isNotEmpty
-                              ? usernameCtrl.text.trim()
-                              : emailCtrl.text.trim(),
-                          dateOfBirth: dob != null
-                              ? DateOnly(
-                                  year: dob!.year,
-                                  month: dob!.month,
-                                  day: dob!.day,
-                                )
-                              : null,
-                        ),
-                        identity: emailCtrl.text.trim().isNotEmpty
-                            ? IdentityUserInfoModel(
-                                id: '',
-                                userName: usernameCtrl.text.trim(),
-                                email: emailCtrl.text.trim(),
-                                fullName: fullNameCtrl.text.trim(),
-                                emailConfirmed: false,
-                                requiresPasswordReset: false,
-                              )
-                            : null,
-                      ),),
+                      CreateEmployeeWithUser({
+                        'fullName': fullNameCtrl.text.trim(),
+                        'email': emailCtrl.text.trim(),
+                        'userName': usernameCtrl.text.trim().isNotEmpty
+                            ? usernameCtrl.text.trim()
+                            : emailCtrl.text.trim(),
+                        'password': passwordCtrl.text,
+                        'phoneNumber': phoneCtrl.text.trim(),
+                        'job': jobCtrl.text.trim(),
+                        'ssn': ssnCtrl.text.trim(),
+                        'address': addressCtrl.text.trim(),
+                        'salary': salary,
+                        if (dob != null)
+                          'dateOfBirth':
+                              '${dob!.year}-${dob!.month.toString().padLeft(2, '0')}-${dob!.day.toString().padLeft(2, '0')}',
+                      }),
                     );
               },
               child: Text(l.create),

@@ -92,6 +92,17 @@ class EmployeesRepository {
     }
   }
 
+  Future<void> createEmployeeWithUser(Map<String, dynamic> payload) async {
+    final response =
+        await apiClient.post('/employees/withuser', data: payload);
+    if (response.data is Map) {
+      final created = EmployeeModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map),);
+      await localDatabase.upsertEmployee(
+          created.id.toString(), created.toJson(),);
+    }
+  }
+
   Future<void> updateEmployee(EmployeeModel employee) async {
     try {
       await apiClient.put('/employees/${employee.id}',

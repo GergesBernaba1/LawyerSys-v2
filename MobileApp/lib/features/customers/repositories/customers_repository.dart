@@ -48,6 +48,11 @@ class CustomersRepository {
     return Customer.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
+  Future<Customer> createCustomerWithUser(Map<String, dynamic> data) async {
+    final response = await apiClient.post('/api/customers/withuser', data: data);
+    return Customer.fromJson(Map<String, dynamic>.from(response.data as Map));
+  }
+
   Future<Customer> updateCustomer(String customerId, Map<String, dynamic> data) async {
     final response = await apiClient.put('/api/customers/$customerId', data: data);
     return Customer.fromJson(Map<String, dynamic>.from(response.data as Map));

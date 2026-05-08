@@ -26,6 +26,11 @@ class CreateCustomer extends CustomersEvent {
   final Map<String, dynamic> data;
 }
 
+class CreateCustomerWithUser extends CustomersEvent {
+  CreateCustomerWithUser(this.data);
+  final Map<String, dynamic> data;
+}
+
 class UpdateCustomer extends CustomersEvent {
   UpdateCustomer(this.customerId, this.data);
   final String customerId;

@@ -35,3 +35,8 @@ class DeleteEmployee extends EmployeesEvent {
   DeleteEmployee(this.employeeId);
   final int employeeId;
 }
+
+class CreateEmployeeWithUser extends EmployeesEvent {
+  CreateEmployeeWithUser(this.payload);
+  final Map<String, dynamic> payload;
+}
