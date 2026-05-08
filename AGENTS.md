@@ -35,6 +35,7 @@ tests/
 TypeScript 5.x, React 18, Next.js 14.2, CSS via existing global styles and Material UI theming: Follow standard conventions
 
 ## Recent Changes
+- 006-mobile-support-agent-kb: Added `docs/mobile-support-agent-knowledge-base.md` as the technical support workflow and diagnostics reference for developer-facing mobile assistance.
 - 005-competitor-feature-parity: Added C# 12 on .NET 8 (backend), TypeScript 5.x (Next.js 14.2 / React 18 web client) + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, Material UI, i18next, axios
 - 002-service-layer-refactor: Added C# 12 on .NET 8, TypeScript 5.x for the existing client context + ASP.NET Core Web API, EF Core 8, ASP.NET Identity, JWT Bearer auth, Serilog, xUnit, Moq, Next.js 14.2, React 18
 

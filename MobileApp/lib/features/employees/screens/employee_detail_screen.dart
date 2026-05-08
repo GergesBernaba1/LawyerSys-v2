@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:qadaya_lawyersys/core/api/api_client.dart';
 import 'package:qadaya_lawyersys/core/auth/permissions.dart';
 import 'package:qadaya_lawyersys/core/localization/app_localizations.dart';
@@ -15,11 +16,14 @@ import 'package:qadaya_lawyersys/features/employees/repositories/employees_repos
 import 'package:qadaya_lawyersys/features/workqueue/models/workqueue_task.dart';
 import 'package:qadaya_lawyersys/features/workqueue/repositories/workqueue_repository.dart';
 
+const _kPrimary = Color(0xFF14345A);
+const _kPrimaryLight = Color(0xFF2D6A87);
+const _kText = Color(0xFF0F172A);
+const _kTextSecondary = Color(0xFF5F7085);
+const _kBg = Color(0xFFF3F6FA);
+
 class EmployeeDetailScreen extends StatefulWidget {
-  const EmployeeDetailScreen({
-    super.key,
-    required this.employeeModel,
-  });
+  const EmployeeDetailScreen({super.key, required this.employeeModel});
 
   final EmployeeModel employeeModel;
 
@@ -28,12 +32,7 @@ class EmployeeDetailScreen extends StatefulWidget {
 }
 
 class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
-  late final TextEditingController _fullNameController;
-  late final TextEditingController _jobController;
-  late final TextEditingController _phoneNumberController;
-  late final TextEditingController _emailController;
-  late final TextEditingController _salaryController;
-
+  final _salaryController = TextEditingController();
   bool _isEditingSalary = false;
   bool _isSaving = false;
   bool _isUploadingImage = false;
@@ -42,33 +41,28 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _fullNameController =
-        TextEditingController(text: widget.employeeModel.user?.fullName ?? '');
-    _jobController =
-        TextEditingController(text: widget.employeeModel.user?.job ?? '');
-    _phoneNumberController = TextEditingController(
-        text: widget.employeeModel.user?.phoneNumber ?? '',);
-    _emailController =
-        TextEditingController(text: widget.employeeModel.identity?.email ?? '');
-    _salaryController =
-        TextEditingController(text: widget.employeeModel.salary.toString());
+    _salaryController.text = widget.employeeModel.salary.toString();
     _tasksFuture = WorkqueueRepository(ApiClient())
         .getTasksByEmployee(widget.employeeModel.usersId);
   }
 
   @override
   void dispose() {
-    _fullNameController.dispose();
-    _jobController.dispose();
-    _phoneNumberController.dispose();
-    _emailController.dispose();
     _salaryController.dispose();
     super.dispose();
   }
 
-  Future<void> _uploadProfileImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+  String get _displayName {
+    final user = widget.employeeModel.user;
+    final identity = widget.employeeModel.identity;
+    if (user?.fullName.isNotEmpty ?? false) return user!.fullName;
+    if (identity?.fullName.isNotEmpty ?? false) return identity!.fullName;
+    return identity?.email ?? '?';
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final picked = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, imageQuality: 80);
     if (picked == null || !mounted) return;
 
     setState(() => _isUploadingImage = true);
@@ -76,9 +70,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
       final repo = RepositoryProvider.of<EmployeesRepository>(context);
       await repo.uploadProfileImage(widget.employeeModel.id, picked.path);
       if (mounted) {
-        final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.profilePhotoUpdated)),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.profilePhotoUpdated),
+          ),
         );
       }
     } catch (e) {
@@ -94,197 +89,399 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   }
 
   void _saveSalary() {
-    final localizer = AppLocalizations.of(context)!;
-    final parsedSalary = int.tryParse(_salaryController.text.trim());
-
-    if (parsedSalary == null || parsedSalary < 0) {
+    final l = AppLocalizations.of(context)!;
+    final parsed = int.tryParse(_salaryController.text.trim());
+    if (parsed == null || parsed < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizer.allFieldsAreRequired)),
+        SnackBar(content: Text(l.allFieldsAreRequired)),
       );
       return;
     }
-
     setState(() => _isSaving = true);
-    final updatedEmployee = EmployeeModel(
-      id: widget.employeeModel.id,
-      salary: parsedSalary,
-      usersId: widget.employeeModel.usersId,
-      user: widget.employeeModel.user,
-      identity: widget.employeeModel.identity,
-      profileImagePath: widget.employeeModel.profileImagePath,
-      lastSyncedAt: DateTime.now(),
-    );
-    context.read<EmployeesBloc>().add(UpdateEmployee(updatedEmployee));
+    context.read<EmployeesBloc>().add(
+          UpdateEmployee(
+            EmployeeModel(
+              id: widget.employeeModel.id,
+              salary: parsed,
+              usersId: widget.employeeModel.usersId,
+              user: widget.employeeModel.user,
+              identity: widget.employeeModel.identity,
+              profileImagePath: widget.employeeModel.profileImagePath,
+              lastSyncedAt: DateTime.now(),
+            ),
+          ),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    final localizer = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
     final authState = context.watch<AuthBloc>().state;
-    final session = authState is AuthAuthenticated ? authState.session : null;
+    final UserSession? session =
+        authState is AuthAuthenticated ? authState.session : null;
     final canEditSalary =
         (session?.hasPermission(Permissions.editEmployees) ?? false) &&
-        (session?.isAdmin() ?? false);
+            (session?.isAdmin() ?? false);
+    final name = _displayName;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(localizer.employeeDetails),
-        actions: [
-          if (_isUploadingImage)
-            const Padding(
-              padding: EdgeInsets.all(12),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
+    return BlocListener<EmployeesBloc, EmployeesState>(
+      listener: (context, state) {
+        if (state is EmployeeOperationSuccess) {
+          setState(() {
+            _isSaving = false;
+            _isEditingSalary = false;
+          });
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.message)));
+        }
+        if (state is EmployeesError) {
+          setState(() => _isSaving = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${l.error}: ${state.message}')),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: _kBg,
+        appBar: AppBar(
+          title: Text(l.employeeDetails),
+          backgroundColor: _kPrimary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          actions: [
+            if (_isUploadingImage)
+              const Padding(
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            else
+              IconButton(
+                icon: const Icon(Icons.add_a_photo_outlined),
+                tooltip: l.uploadProfilePhoto,
+                onPressed: _pickAndUploadImage,
               ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.add_a_photo),
-              tooltip: AppLocalizations.of(context)!.uploadProfilePhoto,
-              onPressed: _uploadProfileImage,
+            if (canEditSalary)
+              IconButton(
+                icon: Icon(_isEditingSalary ? Icons.save_outlined : Icons.edit_outlined),
+                tooltip: _isEditingSalary ? l.save : l.edit,
+                onPressed: _isSaving
+                    ? null
+                    : () {
+                        if (_isEditingSalary) {
+                          _saveSalary();
+                        } else {
+                          setState(() => _isEditingSalary = true);
+                        }
+                      },
+              ),
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.only(bottom: 32),
+          children: [
+            _buildHeader(name),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoCard(l, canEditSalary),
+                  const SizedBox(height: 16),
+                  _buildTasksSection(l),
+                ],
+              ),
             ),
-          if (canEditSalary)
-            IconButton(
-              icon: Icon(_isEditingSalary ? Icons.save : Icons.edit),
-              onPressed: _isSaving
-                  ? null
-                  : () {
-                      if (_isEditingSalary) {
-                        _saveSalary();
-                      } else {
-                        setState(() => _isEditingSalary = true);
-                      }
-                    },
-            ),
-        ],
-      ),
-      body: BlocListener<EmployeesBloc, EmployeesState>(
-        listener: (context, state) {
-          if (state is EmployeeOperationSuccess) {
-            setState(() {
-              _isSaving = false;
-              _isEditingSalary = false;
-            });
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
-          }
-          if (state is EmployeesError) {
-            setState(() => _isSaving = false);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('${localizer.error}: ${state.message}'),),);
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ListView(
-            children: [
-              Text(
-                localizer.employeeInformation,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _fullNameController,
-                label: localizer.fullName,
-              ),
-              const SizedBox(height: 12),
-              _buildTextField(
-                controller: _emailController,
-                label: localizer.email,
-              ),
-              const SizedBox(height: 12),
-              _buildTextField(
-                controller: _jobController,
-                label: localizer.job,
-              ),
-              const SizedBox(height: 12),
-              _buildTextField(
-                controller: _phoneNumberController,
-                label: localizer.phoneNumber,
-              ),
-              const SizedBox(height: 12),
-              _buildTextField(
-                controller: _salaryController,
-                label: localizer.salary,
-                enabled: _isEditingSalary && !_isSaving,
-                keyboardType: TextInputType.number,
-              ),
-              if (_isSaving) ...[
-                const SizedBox(height: 16),
-                const Center(child: CircularProgressIndicator()),
-              ],
-              const SizedBox(height: 24),
-              Text(
-                localizer.myTasks,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              FutureBuilder<List<WorkqueueTask>>(
-                future: _tasksFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Text(localizer.noAssignedTasks);
-                  }
-                  final tasks = snapshot.data!.take(5).toList();
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: tasks.length,
-                    itemBuilder: (context, index) {
-                      final task = tasks[index];
-                      Color chipColor;
-                      switch (task.status) {
-                        case 'Completed':
-                          chipColor = Colors.green;
-                          break;
-                        case 'InProgress':
-                          chipColor = Colors.orange;
-                          break;
-                        default:
-                          chipColor = Colors.grey;
-                      }
-                      return ListTile(
-                        title: Text(task.title),
-                        trailing: Chip(
-                          label: Text(
-                            task.status,
-                            style: const TextStyle(fontSize: 11),
-                          ),
-                          backgroundColor: chipColor.withValues(alpha: 0.15),
-                          side: BorderSide.none,
-                          labelStyle: TextStyle(color: chipColor),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    bool enabled = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
+  Widget _buildHeader(String name) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [_kPrimary, _kPrimaryLight],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      enabled: enabled,
-      keyboardType: keyboardType,
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 36,
+            backgroundColor: Colors.white.withValues(alpha: 0.18),
+            child: Text(
+              name.isNotEmpty ? name[0].toUpperCase() : 'E',
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                if ((widget.employeeModel.user?.job ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.employeeModel.user!.job,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(AppLocalizations l, bool canEditSalary) {
+    final email = widget.employeeModel.identity?.email ?? '';
+    final phone = widget.employeeModel.user?.phoneNumber ?? '';
+    final job = widget.employeeModel.user?.job ?? '';
+    final salaryFmt =
+        NumberFormat('#,##0').format(widget.employeeModel.salary);
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionTitle(l.employeeInformation),
+          const SizedBox(height: 12),
+          if (email.isNotEmpty) _InfoRow(Icons.email_outlined, l.email, email),
+          if (phone.isNotEmpty)
+            _InfoRow(Icons.phone_outlined, l.phoneNumber, phone),
+          if (job.isNotEmpty) _InfoRow(Icons.work_outline, l.job, job),
+          const Divider(height: 24),
+          _InfoRow(
+            Icons.attach_money_outlined,
+            l.salary,
+            _isEditingSalary ? null : '$salaryFmt ${l.egp}',
+            trailing: _isEditingSalary
+                ? _SalaryField(controller: _salaryController, isSaving: _isSaving)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTasksSection(AppLocalizations l) {
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionTitle(l.myTasks),
+          const SizedBox(height: 12),
+          FutureBuilder<List<WorkqueueTask>>(
+            future: _tasksFuture,
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(color: _kPrimary),
+                  ),
+                );
+              }
+              final tasks = snap.data ?? [];
+              if (tasks.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    l.noAssignedTasks,
+                    style: const TextStyle(color: _kTextSecondary),
+                  ),
+                );
+              }
+              return Column(
+                children: tasks.take(5).map(_TaskTile.new).toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Reusable sub-widgets ────────────────────────────────────────────
+
+class _Card extends StatelessWidget {
+  const _Card({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: _kText.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: child,
+        ),
+      );
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Text(
+        title,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: _kPrimary,
+        ),
+      );
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow(this.icon, this.label, this.value, {this.trailing});
+  final IconData icon;
+  final String label;
+  final String? value;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: _kPrimaryLight),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 90,
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: _kTextSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Expanded(
+              child: trailing ??
+                  Text(
+                    value ?? '',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _kText,
+                    ),
+                  ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _SalaryField extends StatelessWidget {
+  const _SalaryField({required this.controller, required this.isSaving});
+  final TextEditingController controller;
+  final bool isSaving;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 36,
+        child: TextField(
+          controller: controller,
+          enabled: !isSaving,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(fontSize: 14, color: _kText),
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: _kPrimary),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+            ),
+          ),
+        ),
+      );
+}
+
+class _TaskTile extends StatelessWidget {
+  const _TaskTile(this.task);
+  final WorkqueueTask task;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color chipColor = switch (task.status) {
+      'Completed' => Colors.green,
+      'InProgress' => Colors.orange,
+      _ => Colors.grey,
+    };
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              task.title,
+              style: const TextStyle(fontSize: 14, color: _kText),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: chipColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              task.status,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: chipColor,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

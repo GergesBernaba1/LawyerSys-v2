@@ -1419,4 +1419,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteContenderConfirm => 'Are you sure you want to delete this opponent? This action cannot be undone.';
   @override
   String get noContendersFound => 'No opponents found';
+  @override
+  String get deleteEmployee => 'Delete Employee';
+  @override
+  String get deleteEmployeeConfirm => 'Are you sure you want to delete this employee? This action cannot be undone.';
+  @override
+  String get createWithNewUser => 'Create New Employee + User';
+  @override
+  String get linkExistingUser => 'Link to Existing User';
+  @override
+  String get egp => 'EGP';
 }

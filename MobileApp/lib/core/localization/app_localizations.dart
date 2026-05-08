@@ -1750,6 +1750,11 @@ abstract class AppLocalizations {
   String get deleteContender;
   String get deleteContenderConfirm;
   String get noContendersFound;
+  String get deleteEmployee;
+  String get deleteEmployeeConfirm;
+  String get createWithNewUser;
+  String get linkExistingUser;
+  String get egp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

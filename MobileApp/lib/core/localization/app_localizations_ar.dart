@@ -1419,4 +1419,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteContenderConfirm => 'هل أنت متأكد من حذف هذا الخصم؟ لا يمكن التراجع عن هذا الإجراء.';
   @override
   String get noContendersFound => 'لا يوجد خصوم';
+  @override
+  String get deleteEmployee => 'حذف الموظف';
+  @override
+  String get deleteEmployeeConfirm => 'هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.';
+  @override
+  String get createWithNewUser => 'إنشاء موظف ومستخدم جديد';
+  @override
+  String get linkExistingUser => 'ربط بمستخدم موجود';
+  @override
+  String get egp => 'ج.م';
 }
