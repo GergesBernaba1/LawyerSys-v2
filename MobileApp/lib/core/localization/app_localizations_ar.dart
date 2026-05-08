@@ -1535,4 +1535,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enableUser => 'تفعيل المستخدم';
   @override
   String get disableUser => 'تعطيل المستخدم';
+
+  // Client portal overview
+  @override
+  String get clientPortal => 'بوابة العملاء';
+  @override
+  String get overview => 'نظرة عامة';
+  @override
+  String get quickAccess => 'وصول سريع';
+  @override
+  String get unread => 'غير مقروء';
 }

@@ -39,3 +39,8 @@ class PortalDocumentUrlReady extends ClientPortalState {
 
 class PortalDocumentUploading extends ClientPortalState {}
 class PortalDocumentUploaded extends ClientPortalState {}
+
+class PortalOverviewLoaded extends ClientPortalState {
+  PortalOverviewLoaded(this.data);
+  final Map<String, dynamic> data;
+}

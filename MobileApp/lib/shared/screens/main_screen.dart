@@ -16,8 +16,7 @@ import 'package:qadaya_lawyersys/features/authentication/models/user_session.dar
 import 'package:qadaya_lawyersys/features/billing/screens/billing_list_screen.dart';
 import 'package:qadaya_lawyersys/features/calendar/screens/calendar_screen.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/cases_list_screen.dart';
-import 'package:qadaya_lawyersys/features/client-portal/screens/portal_documents_screen.dart';
-import 'package:qadaya_lawyersys/features/client-portal/screens/portal_messages_screen.dart';
+import 'package:qadaya_lawyersys/features/client-portal/screens/portal_overview_screen.dart';
 import 'package:qadaya_lawyersys/features/consultations/screens/consultations_list_screen.dart';
 import 'package:qadaya_lawyersys/features/contact/screens/contact_screen.dart';
 import 'package:qadaya_lawyersys/features/contenders/screens/contenders_list_screen.dart';
@@ -105,8 +104,7 @@ class _MainScreenState extends State<MainScreen> {
       return [
         _NavItem(Icons.dashboard, l.dashboard, const DashboardScreen()),
         _NavItem(Icons.folder, l.cases, const CasesListScreen()),
-        _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen()),
-        _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen()),
+        _NavItem(Icons.hub, l.clientPortal, const PortalOverviewScreen()),
         _NavItem(Icons.notifications, l.notifications, const NotificationsInboxScreen()),
         _NavItem(Icons.settings, l.settings, const SettingsScreen()),
       ];
@@ -150,9 +148,7 @@ class _MainScreenState extends State<MainScreen> {
           permission: Permissions.viewConsultations,),
       _NavItem(Icons.description, l.documents, const DocumentsListScreen(),
           permission: Permissions.viewDocuments,),
-      _NavItem(Icons.mail_outline, l.portalMessages, const PortalMessagesScreen(),
-          permission: Permissions.viewClientPortal,),
-      _NavItem(Icons.folder_shared, l.portalDocuments, const PortalDocumentsScreen(),
+      _NavItem(Icons.hub, l.clientPortal, const PortalOverviewScreen(),
           permission: Permissions.viewClientPortal,),
       _NavItem(Icons.bar_chart, l.reports, const ReportsScreen(),
           permission: Permissions.viewReports,),

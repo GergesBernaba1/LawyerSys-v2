@@ -39,3 +39,5 @@ class UploadPortalDocument extends ClientPortalEvent {
   final String filePath;
   final String? title;
 }
+
+class LoadPortalOverview extends ClientPortalEvent {}

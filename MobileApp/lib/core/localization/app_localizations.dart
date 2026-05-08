@@ -1814,6 +1814,12 @@ abstract class AppLocalizations {
   // User management
   String get enableUser;
   String get disableUser;
+
+  // Client portal overview
+  String get clientPortal;
+  String get overview;
+  String get quickAccess;
+  String get unread;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

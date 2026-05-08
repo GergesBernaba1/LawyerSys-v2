@@ -66,6 +66,14 @@ class ClientPortalRepository {
     },);
   }
 
+  Future<Map<String, dynamic>> getOverview() async {
+    final response = await apiClient.get('/api/client-portal/overview');
+    if (response.data is Map) {
+      return Map<String, dynamic>.from(response.data as Map);
+    }
+    return const {};
+  }
+
   Future<void> uploadPortalDocument(String filePath, {String? title}) async {
     final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(filePath, filename: filePath.split('/').last),

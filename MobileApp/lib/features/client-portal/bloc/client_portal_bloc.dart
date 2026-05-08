@@ -16,6 +16,7 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
     on<SendPortalMessage>(_onSendMessage);
     on<DownloadPortalDocument>(_onDownloadDocument);
     on<UploadPortalDocument>(_onUploadDocument);
+    on<LoadPortalOverview>(_onLoadPortalOverview);
   }
   final ClientPortalRepository clientPortalRepository;
 
@@ -112,6 +113,17 @@ class ClientPortalBloc extends Bloc<ClientPortalEvent, ClientPortalState> {
       await clientPortalRepository.uploadPortalDocument(event.filePath, title: event.title);
       emit(PortalDocumentUploaded());
       emit(ClientPortalDocumentsLoaded(await clientPortalRepository.getDocuments()));
+    } catch (e) {
+      emit(ClientPortalError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadPortalOverview(
+      LoadPortalOverview event, Emitter<ClientPortalState> emit,) async {
+    emit(ClientPortalLoading());
+    try {
+      final data = await clientPortalRepository.getOverview();
+      emit(PortalOverviewLoaded(data));
     } catch (e) {
       emit(ClientPortalError(e.toString()));
     }

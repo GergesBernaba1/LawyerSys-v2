@@ -1535,4 +1535,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enableUser => 'Enable User';
   @override
   String get disableUser => 'Disable User';
+
+  // Client portal overview
+  @override
+  String get clientPortal => 'Client Portal';
+  @override
+  String get overview => 'Overview';
+  @override
+  String get quickAccess => 'Quick Access';
+  @override
+  String get unread => 'Unread';
 }
