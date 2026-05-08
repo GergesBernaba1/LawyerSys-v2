@@ -49,3 +49,8 @@ class CaseStatusHistoryLoaded extends CasesState {
   CaseStatusHistoryLoaded(this.history);
   final List<Map<String, dynamic>> history;
 }
+
+class CaseCourtHistoryLoaded extends CasesState {
+  CaseCourtHistoryLoaded(this.history);
+  final List<Map<String, dynamic>> history;
+}

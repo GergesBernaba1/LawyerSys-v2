@@ -1512,6 +1512,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get changedAt => 'Changed At';
   @override
+  String get changedBy => 'Changed By';
+  @override
   String get statusOpen => 'Open';
   @override
   String get statusAwaitingHearing => 'Awaiting Hearing';
@@ -1591,4 +1593,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportFailed => 'Export failed';
   @override
   String get exporting => 'Exporting...';
+  @override
+  String get courtHistory => 'Court History';
+  @override
+  String get noCourtHistory => 'No court history found';
+  @override
+  String get from => 'From';
+  @override
+  String get to => 'To';
+  @override
+  String get added => 'Added';
+  @override
+  String get removed => 'Removed';
+  @override
+  String get changed => 'Changed';
 }

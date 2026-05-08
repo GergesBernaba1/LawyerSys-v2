@@ -1799,6 +1799,7 @@ abstract class AppLocalizations {
   String get changedFrom;
   String get changedTo;
   String get changedAt;
+  String get changedBy;
   String get statusOpen;
   String get statusAwaitingHearing;
   String get statusClosed;
@@ -1845,6 +1846,15 @@ abstract class AppLocalizations {
   String get exportSaved;
   String get exportFailed;
   String get exporting;
+
+  // Case detail tabs
+  String get courtHistory;
+  String get noCourtHistory;
+  String get from;
+  String get to;
+  String get added;
+  String get removed;
+  String get changed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

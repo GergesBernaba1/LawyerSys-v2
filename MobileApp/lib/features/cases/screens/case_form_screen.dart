@@ -124,9 +124,12 @@ class _CaseFormScreenState extends State<CaseFormScreen> {
                   children: [
                     TextFormField(
                       controller: _codeController,
+                      readOnly: isEdit,
                       decoration: InputDecoration(
                           labelText: localizer.caseNumber,
-                          border: const OutlineInputBorder(),),
+                          border: const OutlineInputBorder(),
+                          filled: isEdit,
+                          fillColor: isEdit ? Colors.grey.shade100 : null,),
                       keyboardType: TextInputType.number,
                       validator: (value) =>
                           value == null || value.trim().isEmpty

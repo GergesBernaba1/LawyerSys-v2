@@ -24,6 +24,7 @@ class CasesListScreen extends StatefulWidget {
 class _CasesListScreenState extends State<CasesListScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
+  int? _statusFilter;
 
   @override
   void initState() {
@@ -119,6 +120,50 @@ class _CasesListScreenState extends State<CasesListScreen> {
           ),
           ),
 
+          // Status filter chips
+          Builder(
+            builder: (ctx) {
+              final l = AppLocalizations.of(ctx)!;
+              final chips = [
+                (null, l.all),
+                (0, l.statusOpen),
+                (1, l.statusInProgress),
+                (2, l.statusAwaitingHearing),
+                (3, l.statusClosed),
+                (4, l.statusWon),
+                (5, l.statusLost),
+              ];
+              return SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: chips.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 6),
+                  itemBuilder: (_, i) {
+                    final (value, label) = chips[i];
+                    final selected = _statusFilter == value;
+                    return FilterChip(
+                      label: Text(label),
+                      selected: selected,
+                      onSelected: (_) {
+                        setState(() => _statusFilter = value);
+                      },
+                      selectedColor: _kPrimary.withValues(alpha: 0.15),
+                      checkmarkColor: _kPrimary,
+                      labelStyle: TextStyle(
+                        color: selected ? _kPrimary : _kTextSecondary,
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.normal,
+                        fontSize: 12,
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 4,),
+
           // List
           Expanded(
             child: BlocBuilder<CasesBloc, CasesState>(
@@ -132,7 +177,9 @@ class _CasesListScreenState extends State<CasesListScreen> {
                           style: const TextStyle(color: Colors.red),),);
                 }
                 if (state is CasesLoaded) {
-                  final cases = state.cases;
+                  final cases = _statusFilter == null
+                      ? state.cases
+                      : state.cases.where((c) => c.status == _statusFilter).toList();
                   if (cases.isEmpty) {
                     return Center(
                       child: Column(

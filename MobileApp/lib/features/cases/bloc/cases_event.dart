@@ -35,3 +35,8 @@ class LoadCaseStatusHistory extends CasesEvent {
   LoadCaseStatusHistory(this.caseCode);
   final String caseCode;
 }
+
+class LoadCaseCourtHistory extends CasesEvent {
+  LoadCaseCourtHistory(this.caseCode);
+  final String caseCode;
+}

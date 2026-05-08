@@ -17,6 +17,7 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     on<DeleteCase>(_onDeleteCase);
     on<ChangeCaseStatus>(_onChangeCaseStatus);
     on<LoadCaseStatusHistory>(_onLoadCaseStatusHistory);
+    on<LoadCaseCourtHistory>(_onLoadCaseCourtHistory);
   }
   final CasesRepository casesRepository;
   final List<CaseModel> _cases = [];
@@ -176,6 +177,17 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     try {
       final history = await casesRepository.getStatusHistory(event.caseCode);
       emit(CaseStatusHistoryLoaded(history));
+    } catch (e) {
+      emit(CasesError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadCaseCourtHistory(
+      LoadCaseCourtHistory event, Emitter<CasesState> emit,) async {
+    emit(CasesLoading());
+    try {
+      final history = await casesRepository.getCourtHistory(event.caseCode);
+      emit(CaseCourtHistoryLoaded(history));
     } catch (e) {
       emit(CasesError(e.toString()));
     }

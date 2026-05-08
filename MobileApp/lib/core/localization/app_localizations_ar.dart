@@ -1512,6 +1512,8 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get changedAt => 'وقت التغيير';
   @override
+  String get changedBy => 'تم التغيير بواسطة';
+  @override
   String get statusOpen => 'مفتوحة';
   @override
   String get statusAwaitingHearing => 'بانتظار الجلسة';
@@ -1591,4 +1593,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get exportFailed => 'فشل التصدير';
   @override
   String get exporting => 'جارٍ التصدير...';
+  @override
+  String get courtHistory => 'سجل المحاكم';
+  @override
+  String get noCourtHistory => 'لا يوجد سجل للمحاكم';
+  @override
+  String get from => 'من';
+  @override
+  String get to => 'إلى';
+  @override
+  String get added => 'تمت الإضافة';
+  @override
+  String get removed => 'تمت الإزالة';
+  @override
+  String get changed => 'تم التغيير';
 }
