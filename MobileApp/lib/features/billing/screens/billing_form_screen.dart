@@ -6,13 +6,21 @@ import 'package:qadaya_lawyersys/features/billing/bloc/billing_event.dart';
 import 'package:qadaya_lawyersys/features/billing/bloc/billing_state.dart';
 import 'package:qadaya_lawyersys/features/billing/models/billing.dart';
 
-class BillingFormScreen extends StatefulWidget { // true for payment, false for receipt
+class BillingFormScreen extends StatefulWidget {
 
   const BillingFormScreen({
     super.key,
     required this.isPayment,
+    this.initialPayment,
+    this.initialReceipt,
   });
   final bool isPayment;
+  final BillingPay? initialPayment;
+  final BillingReceipt? initialReceipt;
+
+  bool get isEditing =>
+      (isPayment && initialPayment != null) ||
+      (!isPayment && initialReceipt != null);
 
   @override
   State<BillingFormScreen> createState() => _BillingFormScreenState();
@@ -29,10 +37,25 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
   @override
   void initState() {
     super.initState();
-    // Set default date to today
-    final now = DateTime.now();
-    _dateController.text =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    if (widget.isEditing) {
+      if (widget.isPayment && widget.initialPayment != null) {
+        final p = widget.initialPayment!;
+        _amountController.text = p.amount.toString();
+        _dateController.text = p.dateOfOperation;
+        _notesController.text = p.notes;
+        _selectedCustomerId = p.customerId;
+      } else if (!widget.isPayment && widget.initialReceipt != null) {
+        final r = widget.initialReceipt!;
+        _amountController.text = r.amount.toString();
+        _dateController.text = r.dateOfOperation;
+        _notesController.text = r.notes;
+        _selectedEmployeeId = r.employeeId;
+      }
+    } else {
+      final now = DateTime.now();
+      _dateController.text =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    }
   }
 
   @override
@@ -49,6 +72,9 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
       appBar: AppBar(
         title: Builder(builder: (ctx) {
           final l = AppLocalizations.of(ctx)!;
+          if (widget.isEditing) {
+            return Text(widget.isPayment ? l.editPayment : l.editReceipt);
+          }
           return Text(widget.isPayment ? l.newPayment : l.newReceipt);
         },),
         leading: IconButton(
@@ -222,7 +248,7 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: Text(widget.isPayment ? l.newPayment : l.newReceipt),
+                    child: Text(widget.isEditing ? l.save : (widget.isPayment ? l.newPayment : l.newReceipt)),
                   ),
                 ],
               ),
@@ -258,20 +284,30 @@ class _BillingFormScreenState extends State<BillingFormScreen> {
 
     if (widget.isPayment) {
       final payment = BillingPay(
+        id: widget.initialPayment?.id,
         amount: amount,
         dateOfOperation: date,
         notes: notes,
         customerId: _selectedCustomerId!,
       );
-      context.read<BillingBloc>().add(CreatePayment(payment));
+      if (widget.isEditing) {
+        context.read<BillingBloc>().add(UpdatePayment(payment));
+      } else {
+        context.read<BillingBloc>().add(CreatePayment(payment));
+      }
     } else {
       final receipt = BillingReceipt(
+        id: widget.initialReceipt?.id,
         amount: amount,
         dateOfOperation: date,
         notes: notes,
         employeeId: _selectedEmployeeId!,
       );
-      context.read<BillingBloc>().add(CreateReceipt(receipt));
+      if (widget.isEditing) {
+        context.read<BillingBloc>().add(UpdateReceipt(receipt));
+      } else {
+        context.read<BillingBloc>().add(CreateReceipt(receipt));
+      }
     }
   }
 }

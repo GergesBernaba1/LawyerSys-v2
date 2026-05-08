@@ -44,3 +44,8 @@ class CaseOperationSuccess extends CasesState {
   CaseOperationSuccess(this.message);
   final String message;
 }
+
+class CaseStatusHistoryLoaded extends CasesState {
+  CaseStatusHistoryLoaded(this.history);
+  final List<Map<String, dynamic>> history;
+}

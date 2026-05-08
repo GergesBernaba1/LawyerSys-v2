@@ -367,16 +367,31 @@ class _TimeTrackingListScreenState extends State<TimeTrackingListScreen> {
                   DataCell(Text('${entry.durationMinutes ?? 0} min')),
                   DataCell(Text(
                       '\$${(entry.suggestedAmount ?? 0).toStringAsFixed(2)}',),),
-                  DataCell(_statusCode(entry.status, localizer) == 'Running'
-                      ? IconButton(
+                  DataCell(Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_statusCode(entry.status, localizer) == 'Running')
+                        IconButton(
                           icon: const Icon(Icons.stop),
+                          tooltip: localizer.stopped,
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(localizer.stopTimerFunctionality)),
                             );
                           },
-                        )
-                      : const Text(''),),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        tooltip: localizer.delete,
+                        onPressed: () => context.read<TimeTrackingBloc>().add(
+                              DeleteTimeEntry(
+                                entryId: entry.id ?? 0,
+                                statusFilter: _statusFilter,
+                              ),
+                            ),
+                      ),
+                    ],
+                  ),),
                 ],),)
             .toList(),
       ),

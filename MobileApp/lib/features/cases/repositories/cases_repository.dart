@@ -149,6 +149,20 @@ class CasesRepository {
     }
   }
 
+  Future<void> changeStatus(String caseCode, int status) async {
+    await apiClient.post('/api/cases/$caseCode/status', data: {'status': status});
+  }
+
+  Future<List<Map<String, dynamic>>> getStatusHistory(String caseCode) async {
+    final response = await apiClient.get('/api/cases/$caseCode/status-history');
+    final data = response.data;
+    final list = data is List ? data : (data is Map ? (data['items'] ?? data['data'] ?? <dynamic>[]) : <dynamic>[]);
+    return (list as List)
+        .whereType<Map<String, dynamic>>()
+        .map(Map<String, dynamic>.from)
+        .toList();
+  }
+
   Future<List<CustomerCaseHistoryItem>> getCasesByCustomerId(String customerId,
       {String? tenantId,}) async {
     // Prefer backend profile endpoint for exact customer-case relationships.

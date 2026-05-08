@@ -206,6 +206,11 @@ class _BillingListScreenState extends State<BillingListScreen> {
 
   Widget _buildPaymentsList(BuildContext context, List<BillingPay> payments, bool canDeleteBilling) {
     final localizer = AppLocalizations.of(context)!;
+    final session = (context.watch<AuthBloc>().state is AuthAuthenticated)
+        ? (context.watch<AuthBloc>().state as AuthAuthenticated).session
+        : null;
+    final canEdit = session?.hasPermission(Permissions.createBilling) ?? false;
+
     if (payments.isEmpty) {
       return Center(
         child: Column(
@@ -237,16 +242,29 @@ class _BillingListScreenState extends State<BillingListScreen> {
                   Text('${localizer.notes}: ${payment.notes}'),
               ],
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: canDeleteBilling
-                  ? () {
-                      // In a real app, we'd show a confirmation dialog
-                      context
-                          .read<BillingBloc>()
-                          .add(DeletePayment(payment.id ?? 0));
-                    }
-                  : null,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (canEdit)
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => BillingFormScreen(
+                          isPayment: true,
+                          initialPayment: payment,
+                        ),
+                      ),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: canDeleteBilling
+                      ? () => context.read<BillingBloc>().add(DeletePayment(payment.id ?? 0))
+                      : null,
+                ),
+              ],
             ),
           ),
         );
@@ -256,6 +274,11 @@ class _BillingListScreenState extends State<BillingListScreen> {
 
   Widget _buildReceiptsList(BuildContext context, List<BillingReceipt> receipts, bool canDeleteBilling) {
     final localizer = AppLocalizations.of(context)!;
+    final session = (context.watch<AuthBloc>().state is AuthAuthenticated)
+        ? (context.watch<AuthBloc>().state as AuthAuthenticated).session
+        : null;
+    final canEdit = session?.hasPermission(Permissions.createBilling) ?? false;
+
     if (receipts.isEmpty) {
       return Center(
         child: Column(
@@ -287,16 +310,29 @@ class _BillingListScreenState extends State<BillingListScreen> {
                   Text('${localizer.notes}: ${receipt.notes}'),
               ],
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: canDeleteBilling
-                  ? () {
-                      // In a real app, we'd show a confirmation dialog
-                      context
-                          .read<BillingBloc>()
-                          .add(DeleteReceipt(receipt.id ?? 0));
-                    }
-                  : null,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (canEdit)
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => BillingFormScreen(
+                          isPayment: false,
+                          initialReceipt: receipt,
+                        ),
+                      ),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: canDeleteBilling
+                      ? () => context.read<BillingBloc>().add(DeleteReceipt(receipt.id ?? 0))
+                      : null,
+                ),
+              ],
             ),
           ),
         );

@@ -499,6 +499,17 @@ class _ESignListScreenState extends State<ESignListScreen> {
                 contentPadding: EdgeInsets.zero,
               ),
             ),
+            if (request.status != 'Cancelled')
+              PopupMenuItem(
+                value: 'cancel',
+                child: ListTile(
+                  leading: const Icon(Icons.cancel, color: Colors.red),
+                  title: Text(l10n.cancel,
+                      style: const TextStyle(color: Colors.red),),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
           ],
         ),
       ),
@@ -511,6 +522,33 @@ class _ESignListScreenState extends State<ESignListScreen> {
         context.read<ESignBloc>().add(GetESignShareLink(request.id));
       case 'update_status':
         _showUpdateStatusDialog(request);
+      case 'cancel':
+        _confirmCancel(request);
+    }
+  }
+
+  Future<void> _confirmCancel(ESignRequest request) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.cancel),
+        content: Text(l10n.deleteConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
+    );
+    if ((confirmed ?? false) && mounted) {
+      context.read<ESignBloc>().add(UpdateESignStatus(request.id, 'Cancelled'));
     }
   }
 }

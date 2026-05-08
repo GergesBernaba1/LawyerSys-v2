@@ -24,3 +24,14 @@ class DeleteCase extends CasesEvent {
   DeleteCase(this.caseId);
   final String caseId;
 }
+
+class ChangeCaseStatus extends CasesEvent {
+  ChangeCaseStatus({required this.caseCode, required this.status});
+  final String caseCode;
+  final int status;
+}
+
+class LoadCaseStatusHistory extends CasesEvent {
+  LoadCaseStatusHistory(this.caseCode);
+  final String caseCode;
+}

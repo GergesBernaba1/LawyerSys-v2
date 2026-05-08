@@ -66,4 +66,8 @@ class TimeTrackingRepository {
       'hourlyRate': hourlyRate,
     },);
   }
+
+  Future<void> deleteTimeEntry(int entryId) async {
+    await apiClient.delete('/TimeTracking/$entryId');
+  }
 }

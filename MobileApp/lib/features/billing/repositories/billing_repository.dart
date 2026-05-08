@@ -60,6 +60,14 @@ class BillingRepository {
     await apiClient.delete('/Billing/payments/$id');
   }
 
+  Future<void> updatePayment(BillingPay payment) async {
+    await apiClient.put('/Billing/payments/${payment.id}', data: payment.toJson());
+  }
+
+  Future<void> updateReceipt(BillingReceipt receipt) async {
+    await apiClient.put('/Billing/receipts/${receipt.id}', data: receipt.toJson());
+  }
+
   Future<void> deleteReceipt(int id) async {
     await apiClient.delete('/Billing/receipts/$id');
   }

@@ -35,3 +35,15 @@ class DeleteReceipt extends BillingEvent {
   DeleteReceipt(this.id);
   final int id;
 }
+
+class UpdatePayment extends BillingEvent {
+
+  UpdatePayment(this.payment);
+  final BillingPay payment;
+}
+
+class UpdateReceipt extends BillingEvent {
+
+  UpdateReceipt(this.receipt);
+  final BillingReceipt receipt;
+}

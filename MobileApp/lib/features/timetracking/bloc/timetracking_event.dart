@@ -54,3 +54,10 @@ class RefreshTimeTracking extends TimeTrackingEvent {
   final double? hourlyRate;
   final String? statusFilter;
 }
+
+class DeleteTimeEntry extends TimeTrackingEvent {
+
+  DeleteTimeEntry({required this.entryId, this.statusFilter});
+  final int entryId;
+  final String? statusFilter;
+}

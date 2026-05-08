@@ -1763,6 +1763,47 @@ abstract class AppLocalizations {
   String get assignedLabel;
   String get followUpLabel;
   String get convertedToCaseLabel;
+
+  // Billing edit
+  String get editPayment;
+  String get editReceipt;
+
+  // Case conversation
+  String get caseConversation;
+  String get noCaseConversation;
+  String get typeMessage;
+  String get visibleToCustomer;
+  String get sendingMessage;
+
+  // Case status
+  String get statusHistory;
+  String get changeStatus;
+  String get noStatusHistory;
+  String get changedFrom;
+  String get changedTo;
+  String get changedAt;
+  String get statusOpen;
+  String get statusAwaitingHearing;
+  String get statusClosed;
+  String get statusWon;
+  String get statusLost;
+
+  // Case entity relations
+  String get caseLinksManager;
+  String get linkedCustomers;
+  String get linkedCourts;
+  String get linkedContenders;
+  String get linkedEmployees;
+  String get linkCustomer;
+  String get linkCourt;
+  String get linkContender;
+  String get linkEmployee;
+  String get unlinkConfirm;
+  String get linked;
+  String get unlink;
+  String get enterIdToLink;
+  String get linkSuccess;
+  String get unlinkSuccess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

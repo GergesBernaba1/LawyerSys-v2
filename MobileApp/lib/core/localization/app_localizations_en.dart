@@ -1445,4 +1445,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get followUpLabel => 'Follow-up';
   @override
   String get convertedToCaseLabel => 'Converted to Case';
+
+  // Billing edit
+  @override
+  String get editPayment => 'Edit Payment';
+  @override
+  String get editReceipt => 'Edit Receipt';
+
+  // Case conversation
+  @override
+  String get caseConversation => 'Case Conversation';
+  @override
+  String get noCaseConversation => 'No messages yet. Start the conversation.';
+  @override
+  String get typeMessage => 'Type a message…';
+  @override
+  String get visibleToCustomer => 'Visible to Customer';
+  @override
+  String get sendingMessage => 'Sending…';
+
+  // Case status
+  @override
+  String get statusHistory => 'Status History';
+  @override
+  String get changeStatus => 'Change Status';
+  @override
+  String get noStatusHistory => 'No status history found.';
+  @override
+  String get changedFrom => 'From';
+  @override
+  String get changedTo => 'To';
+  @override
+  String get changedAt => 'Changed At';
+  @override
+  String get statusOpen => 'Open';
+  @override
+  String get statusAwaitingHearing => 'Awaiting Hearing';
+  @override
+  String get statusClosed => 'Closed';
+  @override
+  String get statusWon => 'Won';
+  @override
+  String get statusLost => 'Lost';
+
+  // Case entity relations
+  @override
+  String get caseLinksManager => 'Linked Entities';
+  @override
+  String get linkedCustomers => 'Linked Customers';
+  @override
+  String get linkedCourts => 'Linked Courts';
+  @override
+  String get linkedContenders => 'Linked Contenders';
+  @override
+  String get linkedEmployees => 'Linked Employees';
+  @override
+  String get linkCustomer => 'Link Customer';
+  @override
+  String get linkCourt => 'Link Court';
+  @override
+  String get linkContender => 'Link Contender';
+  @override
+  String get linkEmployee => 'Link Employee';
+  @override
+  String get unlinkConfirm => 'Are you sure you want to unlink this item?';
+  @override
+  String get linked => 'Linked';
+  @override
+  String get unlink => 'Unlink';
+  @override
+  String get enterIdToLink => 'Enter ID to link';
+  @override
+  String get linkSuccess => 'Linked successfully';
+  @override
+  String get unlinkSuccess => 'Unlinked successfully';
 }

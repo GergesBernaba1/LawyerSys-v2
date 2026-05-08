@@ -14,6 +14,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
     on<StopTimeEntry>(_onStopTimeEntry);
     on<FilterByStatus>(_onFilterByStatus);
     on<RefreshTimeTracking>(_onRefreshTimeTracking);
+    on<DeleteTimeEntry>(_onDeleteTimeEntry);
   }
   final TimeTrackingRepository timeTrackingRepository;
 
@@ -128,6 +129,18 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
       add(LoadTimeEntries(statusFilter: event.statusFilter ?? 'All'));
       add(LoadSuggestions(event.hourlyRate ?? 0));
       add(LoadCaseOptions());
+    }
+  }
+
+  Future<void> _onDeleteTimeEntry(
+      DeleteTimeEntry event, Emitter<TimeTrackingState> emit,) async {
+    try {
+      await timeTrackingRepository.deleteTimeEntry(event.entryId);
+      if (!isClosed) {
+        add(LoadTimeEntries(statusFilter: event.statusFilter ?? 'All'));
+      }
+    } catch (e) {
+      emit(TimeTrackingError(e.toString()));
     }
   }
 }

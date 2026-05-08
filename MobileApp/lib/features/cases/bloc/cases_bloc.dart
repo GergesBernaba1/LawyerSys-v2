@@ -15,6 +15,8 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
     on<CreateCase>(_onCreateCase);
     on<UpdateCase>(_onUpdateCase);
     on<DeleteCase>(_onDeleteCase);
+    on<ChangeCaseStatus>(_onChangeCaseStatus);
+    on<LoadCaseStatusHistory>(_onLoadCaseStatusHistory);
   }
   final CasesRepository casesRepository;
   final List<CaseModel> _cases = [];
@@ -153,6 +155,27 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
         hasMore: cases.length >= _pageSize,
       ),);
       emit(CaseOperationSuccess('Case deleted successfully'));
+    } catch (e) {
+      emit(CasesError(e.toString()));
+    }
+  }
+
+  Future<void> _onChangeCaseStatus(
+      ChangeCaseStatus event, Emitter<CasesState> emit,) async {
+    try {
+      await casesRepository.changeStatus(event.caseCode, event.status);
+      emit(CaseOperationSuccess('Status updated successfully'));
+    } catch (e) {
+      emit(CasesError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadCaseStatusHistory(
+      LoadCaseStatusHistory event, Emitter<CasesState> emit,) async {
+    emit(CasesLoading());
+    try {
+      final history = await casesRepository.getStatusHistory(event.caseCode);
+      emit(CaseStatusHistoryLoaded(history));
     } catch (e) {
       emit(CasesError(e.toString()));
     }

@@ -17,6 +17,8 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     on<CreateReceipt>(_onCreateReceipt);
     on<DeletePayment>(_onDeletePayment);
     on<DeleteReceipt>(_onDeleteReceipt);
+    on<UpdatePayment>(_onUpdatePayment);
+    on<UpdateReceipt>(_onUpdateReceipt);
   }
   final BillingRepository billingRepository;
 
@@ -128,6 +130,32 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       DeleteReceipt event, Emitter<BillingState> emit,) async {
     try {
       await billingRepository.deleteReceipt(event.id);
+      if (!isClosed) {
+        add(LoadReceipts());
+        add(LoadSummary());
+      }
+    } catch (e) {
+      emit(BillingError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdatePayment(
+      UpdatePayment event, Emitter<BillingState> emit,) async {
+    try {
+      await billingRepository.updatePayment(event.payment);
+      if (!isClosed) {
+        add(LoadPayments());
+        add(LoadSummary());
+      }
+    } catch (e) {
+      emit(BillingError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateReceipt(
+      UpdateReceipt event, Emitter<BillingState> emit,) async {
+    try {
+      await billingRepository.updateReceipt(event.receipt);
       if (!isClosed) {
         add(LoadReceipts());
         add(LoadSummary());

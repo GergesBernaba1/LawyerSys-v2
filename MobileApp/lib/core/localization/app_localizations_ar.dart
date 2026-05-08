@@ -1445,4 +1445,78 @@ class AppLocalizationsAr extends AppLocalizations {
   String get followUpLabel => 'المتابعة';
   @override
   String get convertedToCaseLabel => 'تحوَّل إلى قضية';
+
+  // Billing edit
+  @override
+  String get editPayment => 'تعديل الدفعة';
+  @override
+  String get editReceipt => 'تعديل الإيصال';
+
+  // Case conversation
+  @override
+  String get caseConversation => 'محادثة القضية';
+  @override
+  String get noCaseConversation => 'لا توجد رسائل بعد. ابدأ المحادثة.';
+  @override
+  String get typeMessage => 'اكتب رسالة…';
+  @override
+  String get visibleToCustomer => 'مرئي للعميل';
+  @override
+  String get sendingMessage => 'جارٍ الإرسال…';
+
+  // Case status
+  @override
+  String get statusHistory => 'سجل الحالات';
+  @override
+  String get changeStatus => 'تغيير الحالة';
+  @override
+  String get noStatusHistory => 'لا يوجد سجل حالات.';
+  @override
+  String get changedFrom => 'من';
+  @override
+  String get changedTo => 'إلى';
+  @override
+  String get changedAt => 'وقت التغيير';
+  @override
+  String get statusOpen => 'مفتوحة';
+  @override
+  String get statusAwaitingHearing => 'بانتظار الجلسة';
+  @override
+  String get statusClosed => 'مغلقة';
+  @override
+  String get statusWon => 'مُكسبة';
+  @override
+  String get statusLost => 'مخسورة';
+
+  // Case entity relations
+  @override
+  String get caseLinksManager => 'الجهات المرتبطة';
+  @override
+  String get linkedCustomers => 'العملاء المرتبطون';
+  @override
+  String get linkedCourts => 'المحاكم المرتبطة';
+  @override
+  String get linkedContenders => 'الخصوم المرتبطون';
+  @override
+  String get linkedEmployees => 'الموظفون المرتبطون';
+  @override
+  String get linkCustomer => 'ربط عميل';
+  @override
+  String get linkCourt => 'ربط محكمة';
+  @override
+  String get linkContender => 'ربط خصم';
+  @override
+  String get linkEmployee => 'ربط موظف';
+  @override
+  String get unlinkConfirm => 'هل أنت متأكد من فصل هذا العنصر؟';
+  @override
+  String get linked => 'مرتبط';
+  @override
+  String get unlink => 'فصل';
+  @override
+  String get enterIdToLink => 'أدخل المعرف للربط';
+  @override
+  String get linkSuccess => 'تم الربط بنجاح';
+  @override
+  String get unlinkSuccess => 'تم الفصل بنجاح';
 }
