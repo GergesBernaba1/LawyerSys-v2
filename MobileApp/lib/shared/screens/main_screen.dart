@@ -15,6 +15,9 @@ import 'package:qadaya_lawyersys/features/authentication/bloc/auth_state.dart';
 import 'package:qadaya_lawyersys/features/authentication/models/user_session.dart';
 import 'package:qadaya_lawyersys/features/billing/screens/billing_list_screen.dart';
 import 'package:qadaya_lawyersys/features/calendar/screens/calendar_screen.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_bloc.dart';
+import 'package:qadaya_lawyersys/features/cases/bloc/cases_event.dart';
+import 'package:qadaya_lawyersys/features/cases/screens/case_form_screen.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/cases_list_screen.dart';
 import 'package:qadaya_lawyersys/features/client-portal/screens/portal_overview_screen.dart';
 import 'package:qadaya_lawyersys/features/consultations/screens/consultations_list_screen.dart';
@@ -52,11 +55,9 @@ import 'package:qadaya_lawyersys/features/workqueue/screens/workqueue_screen.dar
 
 // Theme constants matching ClientApp
 const _kPrimary = Color(0xFF14345A);
-const _kPrimaryLight = Color(0xFF2D6A87);
 const _kGold = Color(0xFFB98746);
 const _kBg = Color(0xFFEEF4FA);
 const _kText = Color(0xFF0F172A);
-const _kTextSecondary = Color(0xFF5F7085);
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -94,6 +95,28 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _signalRSub?.cancel();
     super.dispose();
+  }
+
+  Widget? _buildFab(BuildContext context, _NavItem currentItem, UserSession? session) {
+    // Show a create-case FAB only on the Cases screen and only when the user
+    // has the createCases permission (Admin/Employee).
+    if (currentItem.page is! CasesListScreen) return null;
+    if (!(session?.hasPermission(Permissions.createCases) ?? false)) return null;
+
+    return FloatingActionButton.extended(
+      backgroundColor: _kPrimary,
+      foregroundColor: Colors.white,
+      icon: const Icon(Icons.add),
+      label: Text(AppLocalizations.of(context)!.createCase),
+      onPressed: () async {
+        final bloc = context.read<CasesBloc>();
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(builder: (_) => const CaseFormScreen()),
+        );
+        if (mounted) bloc.add(RefreshCases());
+      },
+    );
   }
 
   List<_NavItem> _buildNavItems(AppLocalizations l, UserSession? session) {
@@ -309,6 +332,7 @@ class _MainScreenState extends State<MainScreen> {
           Navigator.pushReplacementNamed(context, '/login');
         },
       ),
+      floatingActionButton: _buildFab(context, currentItem, session),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
         child: KeyedSubtree(
@@ -338,138 +362,141 @@ class _AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final initials = (session?.fullName.isNotEmpty ?? false
+            ? session!.fullName[0]
+            : session?.email[0] ?? 'U')
+        .toUpperCase();
+    final displayName = (session?.fullName.isNotEmpty ?? false)
+        ? session!.fullName
+        : session?.email ?? '';
+
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: _kBg,
+      width: MediaQuery.of(context).size.width * 0.78,
       child: Column(
         children: [
-          // Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [_kPrimary, _kPrimaryLight],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          // ── Compact profile card ─────────────────────────────────────────
+          SafeArea(
+            bottom: false,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: _kPrimary,
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.gavel,
-                          color: Colors.white, size: 24,),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'LawyerSys',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: _kGold,
-                  child: Text(
-                    (session?.fullName.isNotEmpty ?? false
-                            ? session!.fullName[0]
-                            : session?.email[0] ?? 'U')
-                        .toUpperCase(),
-                    style: const TextStyle(
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: _kGold,
+                    child: Text(
+                      initials,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        fontSize: 18,),
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  session?.fullName ?? session?.email ?? '',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,),
-                ),
-                if (session?.roles.isNotEmpty ?? false)
-                  _RoleBadge(session: session!),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                        if (session != null)
+                          _RoleBadge(session: session!),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          // Nav items
+          const SizedBox(height: 8),
+
+          // ── Nav items ────────────────────────────────────────────────────
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
                 final isSelected = index == selectedIndex;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 2),
                   child: Material(
                     color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                       onTap: () => onItemTap(index),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
+                        duration: const Duration(milliseconds: 160),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 13,),
+                            horizontal: 14, vertical: 11,),
                         decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? const LinearGradient(
-                                  colors: [_kPrimary, _kPrimaryLight],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                )
-                              : null,
-                          color: isSelected ? null : Colors.transparent,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: _kPrimary.withValues(alpha: 0.3),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ]
+                          color: isSelected
+                              ? _kPrimary.withValues(alpha: 0.1)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                          border: isSelected
+                              ? Border.all(
+                                  color: _kPrimary.withValues(alpha: 0.25),)
                               : null,
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              item.icon,
-                              size: 22,
-                              color:
-                                  isSelected ? Colors.white : _kTextSecondary,
+                            Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? _kPrimary
+                                    : _kPrimary.withValues(alpha: 0.07),
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              child: Icon(
+                                item.icon,
+                                size: 18,
+                                color: isSelected
+                                    ? Colors.white
+                                    : _kPrimary.withValues(alpha: 0.7),
+                              ),
                             ),
-                            const SizedBox(width: 14),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 item.label,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : _kText,
+                                  color: isSelected ? _kPrimary : _kText,
                                   fontWeight: isSelected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                  fontSize: 14.5,
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  fontSize: 13.5,
                                 ),
                               ),
                             ),
+                            if (isSelected)
+                              Container(
+                                width: 4,
+                                height: 4,
+                                decoration: const BoxDecoration(
+                                  color: _kPrimary,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -480,34 +507,40 @@ class _AppDrawer extends StatelessWidget {
             ),
           ),
 
-          // Logout
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(14),
+          // ── Logout ──────────────────────────────────────────────────────
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 12),
               child: InkWell(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 onTap: onLogout,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEF2F2),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                        color: Colors.red.withValues(alpha: 0.2),),
+                    color: Colors.red.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.15)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.logout, color: Colors.red, size: 22),
-                      const SizedBox(width: 14),
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: const Icon(Icons.logout, color: Colors.red, size: 18),
+                      ),
+                      const SizedBox(width: 12),
                       Text(
                         AppLocalizations.of(context)!.logout,
                         style: const TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.5,),
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                        ),
                       ),
                     ],
                   ),
@@ -530,8 +563,8 @@ class _NavItem {
   final String? permission;
 }
 
-/// Role badge shown in the drawer header.
-/// SuperAdmin gets a gold badge; all other roles get a subtle white badge.
+/// Role badge shown in the compact profile card.
+/// SuperAdmin gets a gold badge; others get a white-tinted badge.
 class _RoleBadge extends StatelessWidget {
   const _RoleBadge({required this.session});
   final UserSession session;
@@ -546,22 +579,22 @@ class _RoleBadge extends StatelessWidget {
                 ? 'Employee'
                 : 'Customer';
     final badgeColor = session.isSuperAdmin()
-        ? _kGold.withValues(alpha: 0.9)
-        : Colors.white.withValues(alpha: 0.18);
+        ? _kGold
+        : Colors.white.withValues(alpha: 0.22);
     return Container(
-      margin: const EdgeInsets.only(top: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      margin: const EdgeInsets.only(top: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: badgeColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         roleLabel,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: FontWeight.w700,
-          letterSpacing: 0.3,
+          letterSpacing: 0.2,
         ),
       ),
     );

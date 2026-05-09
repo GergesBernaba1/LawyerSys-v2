@@ -736,29 +736,29 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noUsersFound => 'لا يوجد مستخدمون';
 
-  // Tenants
+  // Tenants (Law Offices)
   @override
-  String get tenants => 'المستأجرون';
+  String get tenants => 'مكاتب المحامين';
   @override
-  String get noTenantsFound => 'لا يوجد مستأجرون';
+  String get noTenantsFound => 'لا توجد مكاتب محامين';
   @override
-  String get tenantStatusUpdated => 'تم تحديث حالة المستأجر';
+  String get tenantStatusUpdated => 'تم تحديث حالة المكتب';
   @override
   String get currentTenant => 'الحالي';
   @override
-  String get createTenant => 'إنشاء مستأجر';
+  String get createTenant => 'إنشاء مكتب محامي';
   @override
-  String get editTenant => 'تعديل المستأجر';
+  String get editTenant => 'تعديل المكتب';
   @override
-  String get deleteTenant => 'حذف المستأجر';
+  String get deleteTenant => 'حذف المكتب';
   @override
-  String get deleteTenantConfirm => 'هل أنت متأكد من حذف هذا المستأجر؟';
+  String get deleteTenantConfirm => 'هل أنت متأكد من حذف هذا المكتب؟';
   @override
-  String get tenantName => 'اسم المستأجر';
+  String get tenantName => 'اسم المكتب';
   @override
-  String get tenantSaved => 'تم حفظ المستأجر بنجاح';
+  String get tenantSaved => 'تم حفظ المكتب بنجاح';
   @override
-  String get tenantDeleted => 'تم حذف المستأجر بنجاح';
+  String get tenantDeleted => 'تم حذف المكتب بنجاح';
 
   // Users / Roles
   @override
@@ -1078,11 +1078,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get userRoleChangedSuccessfully => 'تم تغيير دور المستخدم بنجاح';
   @override
-  String get tenantCreatedSuccessfully => 'تم إنشاء المستأجر بنجاح';
+  String get tenantCreatedSuccessfully => 'تم إنشاء المكتب بنجاح';
   @override
-  String get tenantUpdatedSuccessfully => 'تم تحديث المستأجر بنجاح';
+  String get tenantUpdatedSuccessfully => 'تم تحديث المكتب بنجاح';
   @override
-  String get tenantDeletedSuccessfully => 'تم حذف المستأجر بنجاح';
+  String get tenantDeletedSuccessfully => 'تم حذف المكتب بنجاح';
   @override
   String get draftCreatedSuccessfully => 'تم إنشاء المسودة بنجاح';
   @override
@@ -1301,7 +1301,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get jobTitle => 'المسمى الوظيفي';
   @override
-  String get tenantPhone => 'هاتف المستأجر';
+  String get tenantPhone => 'هاتف المكتب';
   @override
   String get usernameRequired => 'اسم المستخدم مطلوب';
   @override
@@ -1389,9 +1389,9 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get totalEmployees => 'إجمالي الموظفين';
   @override
-  String get totalTenants => 'إجمالي المستأجرين';
+  String get totalTenants => 'إجمالي المكاتب';
   @override
-  String get activeTenants => 'المستأجرون النشطون';
+  String get activeTenants => 'المكاتب النشطة';
   // Judicial detail
   @override
   String get deleteDocument => 'حذف الوثيقة';

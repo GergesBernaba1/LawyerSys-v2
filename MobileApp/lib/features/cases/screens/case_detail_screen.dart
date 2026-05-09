@@ -13,7 +13,6 @@ import 'package:qadaya_lawyersys/features/cases/models/case.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/case_conversation_screen.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/case_entity_relations_screen.dart';
 import 'package:qadaya_lawyersys/features/cases/screens/case_form_screen.dart';
-import 'package:qadaya_lawyersys/features/cases/screens/case_relations_screen.dart';
 
 const _kPrimary = Color(0xFF14345A);
 
@@ -297,8 +296,6 @@ class _DetailsTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        const Divider(),
-        CaseRelationsSection(caseId: int.tryParse(caseModel.caseId) ?? 0),
       ],
     );
   }
