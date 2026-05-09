@@ -12,7 +12,7 @@ class ClientPortalRepository {
   Future<List<PortalMessageModel>> getMessages(
       {int page = 1, int pageSize = 50,}) async {
     final response =
-        await apiClient.get('/api/client-portal/messages', queryParameters: {
+        await apiClient.get('/api/clientportal/messages', queryParameters: {
       'page': page,
       'pageSize': pageSize,
     },);
@@ -26,13 +26,13 @@ class ClientPortalRepository {
   }
 
   Future<void> markMessageAsRead(String messageId) async {
-    await apiClient.put('/api/client-portal/messages/$messageId/read');
+    await apiClient.put('/api/clientportal/messages/$messageId/read');
   }
 
   Future<List<PortalMessageModel>> getDocuments(
       {int page = 1, int pageSize = 50,}) async {
     final response =
-        await apiClient.get('/api/client-portal/documents', queryParameters: {
+        await apiClient.get('/api/clientportal/documents', queryParameters: {
       'page': page,
       'pageSize': pageSize,
     },);
@@ -48,7 +48,7 @@ class ClientPortalRepository {
   Future<String?> getDocumentDownloadUrl(String messageId) async {
     try {
       final response =
-          await apiClient.get('/api/client-portal/documents/$messageId/url');
+          await apiClient.get('/api/clientportal/documents/$messageId/url');
       if (response.data is Map) {
         return (response.data as Map)['url']?.toString() ??
             (response.data as Map)['downloadUrl']?.toString();
@@ -60,14 +60,14 @@ class ClientPortalRepository {
   }
 
   Future<void> sendMessage(String subject, String body) async {
-    await apiClient.post('/api/client-portal/messages', data: {
+    await apiClient.post('/api/clientportal/messages', data: {
       'subject': subject,
       'body': body,
     },);
   }
 
   Future<Map<String, dynamic>> getOverview() async {
-    final response = await apiClient.get('/api/client-portal/overview');
+    final response = await apiClient.get('/api/clientportal/overview');
     if (response.data is Map) {
       return Map<String, dynamic>.from(response.data as Map);
     }
@@ -79,6 +79,6 @@ class ClientPortalRepository {
       'file': await MultipartFile.fromFile(filePath, filename: filePath.split('/').last),
       if (title != null && title.isNotEmpty) 'title': title,
     });
-    await apiClient.post('/client-portal/documents/upload', data: formData);
+    await apiClient.post('/api/clientportal/documents/upload', data: formData);
   }
 }

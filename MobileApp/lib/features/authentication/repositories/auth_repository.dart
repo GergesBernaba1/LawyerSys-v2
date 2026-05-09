@@ -265,6 +265,19 @@ class AuthRepository {
     return const [];
   }
 
+  /// Persists whether the user chose "Remember Me" at login.
+  /// When false, [getStoredSession] will not auto-restore the session.
+  Future<void> setRememberMe({required bool value}) async {
+    await _secureStorage.write(
+        SecureStorage.keyRememberMe, value ? 'true' : 'false',);
+  }
+
+  Future<bool> getRememberMe() async {
+    final val = await _secureStorage.read(SecureStorage.keyRememberMe);
+    // Default to true so existing installs (no flag stored yet) keep working.
+    return val == null || val == 'true';
+  }
+
   Future<bool> setBiometricEnabled({required bool enabled}) async {
     final stored = await getStoredSession();
     if (stored == null) return false;

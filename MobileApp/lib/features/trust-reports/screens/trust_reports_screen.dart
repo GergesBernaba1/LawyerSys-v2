@@ -44,14 +44,15 @@ class _TrustReportsScreenState extends State<TrustReportsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.reports),
+        title: Text(l.trustReports),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Financial Summary'),
-            Tab(text: 'Outstanding Balances'),
+          tabs: [
+            Tab(text: l.financialSummary),
+            Tab(text: l.outstandingBalancesTab),
           ],
         ),
       ),

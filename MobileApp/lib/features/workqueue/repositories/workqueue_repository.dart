@@ -7,37 +7,38 @@ class WorkqueueRepository {
   WorkqueueRepository(this.apiClient);
   final ApiClient apiClient;
 
+  // Backend route: GET /api/admintasks
+  // The server auto-filters by current employee when the caller is an employee.
   Future<List<WorkqueueTask>> getMyTasks({String? status}) async {
-    final queryParameters = <String, dynamic>{
-      'assignedToMe': true,
-      if (status != null && status.isNotEmpty) 'status': status,
-    };
-    final response =
-        await apiClient.get('/tasks', queryParameters: queryParameters);
+    final response = await apiClient.get('/api/admintasks');
     final items = normalizeJsonList(response.data);
-    return items
+    final tasks = items
         .whereType<Map<String, dynamic>>()
         .map(WorkqueueTask.fromJson)
         .toList();
+    // Client-side status filter (backend has no status field — type is used as proxy).
+    if (status != null && status.isNotEmpty) {
+      return tasks.where((t) => t.status == status).toList();
+    }
+    return tasks;
   }
 
   Future<void> updateTaskStatus(int id, String status) async {
-    await apiClient.put('/tasks/$id', data: {'status': status});
+    // Backend uses 'type' as the status-proxy field.
+    await apiClient.put('/api/admintasks/$id', data: {'type': status});
   }
 
   Future<void> completeTask(int id) async {
-    await apiClient.put('/tasks/$id/complete');
+    await apiClient.put('/api/admintasks/$id', data: {'type': 'Completed'});
   }
 
   Future<void> reassignTask(int id, int newEmployeeId) async {
-    await apiClient.put('/tasks/$id', data: {'assignedToId': newEmployeeId});
+    await apiClient.put('/api/admintasks/$id', data: {'employeeId': newEmployeeId});
   }
 
   Future<List<WorkqueueTask>> getTasksByEmployee(int userId) async {
-    final response = await apiClient.get('/tasks', queryParameters: {
-      'assignedToId': userId,
-      'pageSize': 20,
-    },);
+    final response =
+        await apiClient.get('/api/admintasks/byemployee/$userId');
     final items = normalizeJsonList(response.data);
     return items.whereType<Map<String, dynamic>>().map(WorkqueueTask.fromJson).toList();
   }

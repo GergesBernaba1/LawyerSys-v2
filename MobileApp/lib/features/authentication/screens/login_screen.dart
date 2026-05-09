@@ -246,9 +246,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             return;
                           }
                           unawaited(_saveOrClearCredentials(email));
-                          context
-                              .read<AuthBloc>()
-                              .add(LoginRequested(email, password));
+                          context.read<AuthBloc>().add(
+                                LoginRequested(
+                                  email,
+                                  password,
+                                  rememberMe: _rememberMe,
+                                ),
+                              );
                         },
                       ),
                     ),

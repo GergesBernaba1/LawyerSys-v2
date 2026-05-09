@@ -1354,6 +1354,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noOutstandingBalances => 'لا توجد أرصدة معلقة';
   @override
   String get selectTabToLoadData => 'اختر التبويب لتحميل البيانات';
+  @override
+  String get financialSummary => 'الملخص المالي';
+  @override
+  String get outstandingBalancesTab => 'الأرصدة المستحقة';
   // Billing form
   @override
   String get pleaseEnterAmount => 'يرجى إدخال المبلغ';

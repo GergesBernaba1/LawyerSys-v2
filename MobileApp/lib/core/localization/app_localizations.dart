@@ -1713,6 +1713,8 @@ abstract class AppLocalizations {
   String get noFinancialData;
   String get noOutstandingBalances;
   String get selectTabToLoadData;
+  String get financialSummary;
+  String get outstandingBalancesTab;
   // Billing form
   String get pleaseEnterAmount;
   String get pleaseEnterValidNumber;

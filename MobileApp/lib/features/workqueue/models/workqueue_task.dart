@@ -23,16 +23,21 @@ class WorkqueueTask {
       return DateTime.tryParse(value.toString());
     }
 
+    // Backend returns AdminTaskDto:
+    //   { id, taskName, type, taskDate, taskReminderDate, notes, employeeId, employeeName }
+    // We map those fields, with fallbacks for any future shape changes.
     return WorkqueueTask(
       id: parseInt(json['id']) ?? 0,
-      title: (json['title'] ?? json['taskName'] ?? '').toString(),
-      description: json['description']?.toString(),
-      status: (json['status'] ?? 'Pending').toString(),
+      title: (json['taskName'] ?? json['title'] ?? '').toString(),
+      description: (json['notes'] ?? json['description'])?.toString(),
+      // Backend has no status field — use 'type' as status proxy, default Pending.
+      status: (json['type'] ?? json['status'] ?? 'Pending').toString(),
       priority: json['priority']?.toString(),
-      dueDate: parseDate(json['dueDate']),
+      // taskReminderDate is the due-date equivalent on the backend.
+      dueDate: parseDate(json['taskReminderDate'] ?? json['dueDate']),
       caseCode: json['caseCode']?.toString(),
-      assignedToName: json['assignedToName']?.toString(),
-      assignedToId: parseInt(json['assignedToId']),
+      assignedToName: (json['employeeName'] ?? json['assignedToName'])?.toString(),
+      assignedToId: parseInt(json['employeeId'] ?? json['assignedToId']),
     );
   }
   final int id;

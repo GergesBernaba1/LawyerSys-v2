@@ -1354,6 +1354,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noOutstandingBalances => 'No outstanding balances';
   @override
   String get selectTabToLoadData => 'Select the tab to load data';
+  @override
+  String get financialSummary => 'Financial Summary';
+  @override
+  String get outstandingBalancesTab => 'Outstanding Balances';
   // Billing form
   @override
   String get pleaseEnterAmount => 'Please enter amount';

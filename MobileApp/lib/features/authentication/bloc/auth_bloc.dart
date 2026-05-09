@@ -31,6 +31,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final session =
           await authRepository.login(LoginRequest(userName: event.email, password: event.password));
 
+      // Persist the remember-me preference so SplashScreen can decide
+      // whether to auto-restore the session on the next app launch.
+      await authRepository.setRememberMe(value: event.rememberMe);
+
       try {
         final fcmToken = await FirebaseMessaging.instance.getToken();
         if (fcmToken != null && fcmToken.isNotEmpty) {
@@ -127,6 +131,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onSessionRestored(SessionRestored event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
+      // If the user did NOT check "Remember Me", skip auto-login and send
+      // them back to the login screen every time the app is launched.
+      final rememberMe = await authRepository.getRememberMe();
+      if (!rememberMe) {
+        emit(AuthUnauthenticated());
+        return;
+      }
+
       final stored = await authRepository.getStoredSession();
       if (stored == null) {
         emit(AuthUnauthenticated());
