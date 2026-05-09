@@ -236,27 +236,42 @@ class _CaseTile extends StatelessWidget {
   const _CaseTile({required this.caseItem});
   final CaseModel caseItem;
 
-  Color _statusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'in progress':
-      case 'awaiting hearing':
-      case 'new':
+  Color _statusColor(int status) {
+    switch (status) {
+      case 1: // InProgress
+      case 2: // AwaitingHearing
         return const Color(0xFF10B981);
-      case 'closed':
-      case 'lost':
+      case 3: // Closed
+      case 5: // Lost
         return const Color(0xFF6B7280);
-      case 'won':
+      case 4: // Won
         return _kGold;
-      default:
+      default: // New / unknown
         return _kPrimaryLight;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _statusColor(caseItem.caseStatus);
+    final l = AppLocalizations.of(context)!;
+    final statusColor = _statusColor(caseItem.status);
+
+    String localizedStatus(int s) {
+      switch (s) {
+        case 0: return l.statusOpen;
+        case 1: return l.statusInProgress;
+        case 2: return l.statusAwaitingHearing;
+        case 3: return l.statusClosed;
+        case 4: return l.statusWon;
+        case 5: return l.statusLost;
+        default: return s.toString();
+      }
+    }
+
+    final statusLabel = localizedStatus(caseItem.status);
+
     return Semantics(
-      label: 'Case ${caseItem.caseNumber}, ${caseItem.invitionType}, status ${caseItem.caseStatus}',
+      label: 'Case ${caseItem.caseNumber}, ${caseItem.invitionType}, status $statusLabel',
       hint: 'Double tap to view case details',
       button: true,
       onTapHint: 'Open case details',
@@ -266,81 +281,83 @@ class _CaseTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute<void>(
-                builder: (_) => CaseDetailScreen(caseModel: caseItem),),
+              builder: (_) => CaseDetailScreen(caseModel: caseItem),
+            ),
           );
         },
         child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _kPrimary.withValues(alpha: 0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: _kText.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [_kPrimary, _kPrimaryLight],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _kPrimary.withValues(alpha: 0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: _kText.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              child: const Icon(Icons.gavel, color: Colors.white, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    caseItem.caseNumber,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: _kText,
-                      fontSize: 15,
-                    ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [_kPrimary, _kPrimaryLight],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    caseItem.invitionType,
-                    style: const TextStyle(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.gavel, color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      caseItem.caseNumber,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: _kText,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      caseItem.invitionType,
+                      style: const TextStyle(
                         color: _kTextSecondary,
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                caseItem.caseStatus,
-                style: TextStyle(
-                  color: statusColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
