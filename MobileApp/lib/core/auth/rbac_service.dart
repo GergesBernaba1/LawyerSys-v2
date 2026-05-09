@@ -36,7 +36,6 @@ class RbacService {
     Permissions.viewWorkqueue,
     Permissions.viewAiAssistant,
     Permissions.viewIntake,
-    Permissions.viewSitings,
   ];
 
   static const List<String> _adminPermissions = [
@@ -69,18 +68,20 @@ class RbacService {
     Permissions.viewClientPortal,
   ];
 
-  static const Map<String, List<String>> _roleMap = {
-    Roles.superAdmin: _adminPermissions,
-    Roles.admin: _adminPermissions,
-    Roles.employee: _employeePermissions,
-    Roles.customer: _customerPermissions,
+  // Lowercase keys for case-insensitive matching.
+  static final Map<String, List<String>> _roleMap = {
+    Roles.superAdmin.toLowerCase(): _adminPermissions,
+    Roles.admin.toLowerCase(): _adminPermissions,
+    Roles.employee.toLowerCase(): _employeePermissions,
+    Roles.customer.toLowerCase(): _customerPermissions,
   };
 
   /// Returns the merged, deduplicated permission list for the given roles.
+  /// Case-insensitive: JWT role claims "Admin" and "admin" both work.
   static List<String> permissionsForRoles(List<String> roles) {
     final perms = <String>{};
     for (final role in roles) {
-      final mapped = _roleMap[role];
+      final mapped = _roleMap[role.toLowerCase()];
       if (mapped != null) perms.addAll(mapped);
     }
     return perms.toList();

@@ -31,6 +31,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen>
   List<Map<String, dynamic>> _statusHistory = [];
   List<Map<String, dynamic>> _courtHistory = [];
   bool _historyLoaded = false;
+  bool _historyLoading = false;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen>
     if (_tabController.indexIsChanging) return;
     if (!_historyLoaded && _tabController.index >= 1) {
       _historyLoaded = true;
+      setState(() => _historyLoading = true);
       context.read<CasesBloc>()
         ..add(LoadCaseStatusHistory(widget.caseModel.caseId))
         ..add(LoadCaseCourtHistory(widget.caseModel.caseId));
@@ -112,10 +114,15 @@ class _CaseDetailScreenState extends State<CaseDetailScreen>
           );
         }
         if (state is CaseStatusHistoryLoaded) {
-          setState(() => _statusHistory = state.history);
+          setState(() {
+            _statusHistory = state.history;
+          });
         }
         if (state is CaseCourtHistoryLoaded) {
-          setState(() => _courtHistory = state.history);
+          setState(() {
+            _courtHistory = state.history;
+            _historyLoading = false;
+          });
         }
       },
       child: Scaffold(
@@ -187,8 +194,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen>
           controller: _tabController,
           children: [
             _DetailsTab(caseModel: widget.caseModel, session: session),
-            _StatusHistoryTab(history: _statusHistory),
-            _CourtHistoryTab(history: _courtHistory),
+            _StatusHistoryTab(history: _statusHistory, isLoading: _historyLoading),
+            _CourtHistoryTab(history: _courtHistory, isLoading: _historyLoading),
           ],
         ),
       ),
@@ -311,8 +318,9 @@ class _DetailsTab extends StatelessWidget {
 // ── Status history tab ───────────────────────────────────────────────────────
 
 class _StatusHistoryTab extends StatelessWidget {
-  const _StatusHistoryTab({required this.history});
+  const _StatusHistoryTab({required this.history, this.isLoading = false});
   final List<Map<String, dynamic>> history;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -329,6 +337,10 @@ class _StatusHistoryTab extends StatelessWidget {
         case 5: return l.statusLost;
         default: return v?.toString() ?? '—';
       }
+    }
+
+    if (isLoading && history.isEmpty) {
+      return const Center(child: CircularProgressIndicator(color: _kPrimary));
     }
 
     if (history.isEmpty) {
@@ -390,12 +402,17 @@ class _StatusHistoryTab extends StatelessWidget {
 // ── Court history tab ────────────────────────────────────────────────────────
 
 class _CourtHistoryTab extends StatelessWidget {
-  const _CourtHistoryTab({required this.history});
+  const _CourtHistoryTab({required this.history, this.isLoading = false});
   final List<Map<String, dynamic>> history;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+
+    if (isLoading && history.isEmpty) {
+      return const Center(child: CircularProgressIndicator(color: _kPrimary));
+    }
 
     if (history.isEmpty) {
       return Center(

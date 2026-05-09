@@ -119,11 +119,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                 const SizedBox(height: 10),
                 Text('${localizer.email}: ${customer.email ?? 'N/A'}'),
                 const SizedBox(height: 6),
-                Text('${localizer.customer}: ${customer.ssn ?? 'N/A'}'),
+                Text('${localizer.ssn}: ${customer.ssn ?? 'N/A'}'),
                 const SizedBox(height: 6),
                 Text('${localizer.phoneNumber}: ${customer.phoneNumber ?? 'N/A'}'),
                 const SizedBox(height: 6),
-                Text('${localizer.customer}: ${customer.address ?? 'N/A'}'),
+                Text('${localizer.address}: ${customer.address ?? 'N/A'}'),
                 const SizedBox(height: 16),
                 if (customer.phoneNumber != null && customer.phoneNumber!.isNotEmpty)
                   Row(

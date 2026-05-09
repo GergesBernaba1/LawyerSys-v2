@@ -167,6 +167,13 @@ class _CasesListScreenState extends State<CasesListScreen> {
           // List
           Expanded(
             child: BlocBuilder<CasesBloc, CasesState>(
+              // Only rebuild for list-relevant states; ignore history states so
+              // the list stays visible while the detail screen loads history.
+              buildWhen: (_, s) =>
+                  s is CasesInitial ||
+                  s is CasesLoading ||
+                  s is CasesLoaded ||
+                  s is CasesError,
               builder: (context, state) {
                 if (state is CasesLoading) {
                   return const ListSkeleton(itemCount: 8);

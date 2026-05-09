@@ -173,7 +173,8 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
 
   Future<void> _onLoadCaseStatusHistory(
       LoadCaseStatusHistory event, Emitter<CasesState> emit,) async {
-    emit(CasesLoading());
+    // Do NOT emit CasesLoading here — that would clear the cases list.
+    // The detail screen tracks its own loading flag for the history tabs.
     try {
       final history = await casesRepository.getStatusHistory(event.caseCode);
       emit(CaseStatusHistoryLoaded(history));
@@ -184,7 +185,8 @@ class CasesBloc extends Bloc<CasesEvent, CasesState> {
 
   Future<void> _onLoadCaseCourtHistory(
       LoadCaseCourtHistory event, Emitter<CasesState> emit,) async {
-    emit(CasesLoading());
+    // Do NOT emit CasesLoading here — that would clear the cases list.
+    // The detail screen tracks its own loading flag for the history tabs.
     try {
       final history = await casesRepository.getCourtHistory(event.caseCode);
       emit(CaseCourtHistoryLoaded(history));

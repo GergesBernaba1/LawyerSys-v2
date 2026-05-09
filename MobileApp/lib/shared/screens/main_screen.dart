@@ -404,13 +404,7 @@ class _AppDrawer extends StatelessWidget {
                       fontSize: 15,),
                 ),
                 if (session?.roles.isNotEmpty ?? false)
-                  Text(
-                    session!.roles.first,
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.75),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,),
-                  ),
+                  _RoleBadge(session: session!),
               ],
             ),
           ),
@@ -534,4 +528,42 @@ class _NavItem {
   final String label;
   final Widget page;
   final String? permission;
+}
+
+/// Role badge shown in the drawer header.
+/// SuperAdmin gets a gold badge; all other roles get a subtle white badge.
+class _RoleBadge extends StatelessWidget {
+  const _RoleBadge({required this.session});
+  final UserSession session;
+
+  @override
+  Widget build(BuildContext context) {
+    final roleLabel = session.isSuperAdmin()
+        ? 'Super Admin'
+        : session.isAdmin()
+            ? 'Admin'
+            : session.isEmployee()
+                ? 'Employee'
+                : 'Customer';
+    final badgeColor = session.isSuperAdmin()
+        ? _kGold.withValues(alpha: 0.9)
+        : Colors.white.withValues(alpha: 0.18);
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: badgeColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        roleLabel,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
 }
