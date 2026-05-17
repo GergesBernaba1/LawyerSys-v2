@@ -25,6 +25,7 @@ type PublicSiteShellProps = {
   isAuthInitialized: boolean;
   children: React.ReactNode;
   extraHeaderActions?: React.ReactNode;
+  darkMode?: boolean;
 };
 
 export default function PublicSiteShell({
@@ -36,6 +37,7 @@ export default function PublicSiteShell({
   isAuthInitialized,
   children,
   extraHeaderActions,
+  darkMode = false,
 }: PublicSiteShellProps) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -59,25 +61,44 @@ export default function PublicSiteShell({
 
   const isActivePath = (path: string) => pathname === path;
 
+  const headerBg = darkMode ? alpha("#030d1e", 0.92) : alpha("#ffffff", 0.84);
+  const headerBorderColor = darkMode ? alpha("#1c7b82", 0.18) : alpha(theme.palette.primary.main, 0.12);
+  const headerGradientLine = darkMode
+    ? "linear-gradient(90deg, rgba(28,123,130,0) 0%, rgba(28,123,130,0.45) 35%, rgba(28,123,130,0) 100%)"
+    : "linear-gradient(90deg, rgba(18,58,99,0) 0%, rgba(28,123,130,0.34) 35%, rgba(18,58,99,0) 100%)";
+
+  const navPillBg = darkMode ? alpha("#ffffff", 0.04) : alpha(theme.palette.primary.main, 0.05);
+  const navPillBorder = darkMode ? alpha("#ffffff", 0.08) : alpha(theme.palette.primary.main, 0.08);
+  const navLinkColor = darkMode ? "rgba(255,255,255,0.85)" : "text.primary";
+  const navLinkActive = darkMode ? "rgba(255,255,255,1)" : "primary.main";
+  const navLinkActiveBg = darkMode ? alpha("#1c7b82", 0.22) : alpha(theme.palette.primary.main, 0.12);
+  const navLinkHoverBg = darkMode ? alpha("#ffffff", 0.06) : alpha(theme.palette.primary.main, 0.08);
+  const logoNameColor = darkMode ? "common.white" : "text.primary";
+  const langPillBg = darkMode ? alpha("#ffffff", 0.06) : alpha(theme.palette.primary.main, 0.06);
+
   return (
     <Box
       dir={isRTL ? "rtl" : "ltr"}
       sx={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(21,93,117,0.22) 0%, rgba(21,93,117,0) 34%), linear-gradient(180deg, #f3f8fb 0%, #ffffff 42%, #edf3f7 100%)",
+        background: darkMode
+          ? "linear-gradient(180deg, #050d1a 0%, #060f1c 100%)"
+          : "radial-gradient(circle at top, rgba(21,93,117,0.22) 0%, rgba(21,93,117,0) 34%), linear-gradient(180deg, #f3f8fb 0%, #ffffff 42%, #edf3f7 100%)",
       }}
     >
+      {/* Header */}
       <Box
         sx={{
           position: "sticky",
           top: 0,
           zIndex: 10,
-          backdropFilter: "blur(18px)",
-          backgroundColor: alpha("#ffffff", 0.84),
+          backdropFilter: "blur(20px)",
+          backgroundColor: headerBg,
           borderBottom: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.12),
-          boxShadow: "0 10px 32px -28px rgba(18,58,99,0.35)",
+          borderColor: headerBorderColor,
+          boxShadow: darkMode
+            ? "0 8px 32px -20px rgba(0,0,0,0.6)"
+            : "0 10px 32px -28px rgba(18,58,99,0.35)",
           "&::after": {
             content: '""',
             position: "absolute",
@@ -85,12 +106,13 @@ export default function PublicSiteShell({
             insetInlineEnd: 0,
             bottom: 0,
             height: 2,
-            background: "linear-gradient(90deg, rgba(18,58,99,0) 0%, rgba(28,123,130,0.34) 35%, rgba(18,58,99,0) 100%)",
+            background: headerGradientLine,
             pointerEvents: "none",
           },
         }}
       >
         <Container maxWidth="lg">
+          {/* Mobile nav */}
           <Stack
             direction="row"
             spacing={0.75}
@@ -112,12 +134,15 @@ export default function PublicSiteShell({
                   whiteSpace: "nowrap",
                   fontWeight: 800,
                   minWidth: "fit-content",
+                  color: darkMode && !isActivePath(link.path) ? "rgba(255,255,255,0.75)" : undefined,
                 }}
               >
                 {link.label}
               </Button>
             ))}
           </Stack>
+
+          {/* Desktop header row */}
           <Box
             sx={{
               py: 1.5,
@@ -128,6 +153,7 @@ export default function PublicSiteShell({
               flexWrap: { xs: "wrap", lg: "nowrap" },
             }}
           >
+            {/* Logo */}
             <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
               <Box
                 sx={{
@@ -144,12 +170,13 @@ export default function PublicSiteShell({
                 <BalanceIcon />
               </Box>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: "-0.03em" }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: "-0.03em", color: logoNameColor }}>
                   {data.systemName || t("app.title")}
                 </Typography>
               </Box>
             </Stack>
 
+            {/* Desktop nav links */}
             <Stack
               direction="row"
               spacing={0.75}
@@ -158,16 +185,15 @@ export default function PublicSiteShell({
                 display: { xs: "none", md: "flex" },
                 p: 0.5,
                 borderRadius: 999,
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                bgcolor: navPillBg,
                 border: "1px solid",
-                borderColor: alpha(theme.palette.primary.main, 0.08),
+                borderColor: navPillBorder,
               }}
             >
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   component="button"
-                  color="text.primary"
                   underline="hover"
                   onClick={() => onNavigate(link.path)}
                   sx={{
@@ -176,24 +202,11 @@ export default function PublicSiteShell({
                     borderRadius: 999,
                     fontWeight: 800,
                     textDecoration: "none",
-                    backgroundColor: isActivePath(link.path) ? alpha(theme.palette.primary.main, 0.12) : "transparent",
-                    color: isActivePath(link.path) ? "primary.main" : "text.primary",
+                    backgroundColor: isActivePath(link.path) ? navLinkActiveBg : "transparent",
+                    color: isActivePath(link.path) ? navLinkActive : navLinkColor,
                     position: "relative",
-                    "&::after": isActivePath(link.path)
-                      ? {
-                          content: '""',
-                          position: "absolute",
-                          insetInlineStart: 12,
-                          insetInlineEnd: 12,
-                          bottom: 4,
-                          height: 2,
-                          borderRadius: 2,
-                          background: "linear-gradient(90deg, #14345a 0%, #2d6a87 100%)",
-                        }
-                      : undefined,
-                    "&:hover": {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                    },
+                    transition: "all 0.18s ease",
+                    "&:hover": { backgroundColor: navLinkHoverBg },
                   }}
                 >
                   {link.label}
@@ -201,15 +214,12 @@ export default function PublicSiteShell({
               ))}
             </Stack>
 
+            {/* Right actions */}
             <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center" sx={{ justifyContent: { xs: "flex-start", lg: "flex-end" } }}>
               <Stack
                 direction="row"
                 spacing={0.75}
-                sx={{
-                  p: 0.5,
-                  borderRadius: 999,
-                  bgcolor: alpha(theme.palette.primary.main, 0.06),
-                }}
+                sx={{ p: 0.5, borderRadius: 999, bgcolor: langPillBg }}
               >
                 {(["ar", "en"] as const).map((languageCode) => (
                   <Button
@@ -221,7 +231,7 @@ export default function PublicSiteShell({
                       minWidth: 52,
                       borderRadius: 999,
                       fontWeight: 800,
-                      color: currentLanguage === languageCode ? "common.white" : "text.secondary",
+                      color: currentLanguage === languageCode ? "common.white" : darkMode ? "rgba(255,255,255,0.6)" : "text.secondary",
                       background:
                         currentLanguage === languageCode
                           ? "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)"
@@ -233,12 +243,20 @@ export default function PublicSiteShell({
                 ))}
               </Stack>
               {isAuthInitialized && isAuthenticated && (
-                <Button variant="outlined" onClick={() => onNavigate("/dashboard")}>
+                <Button
+                  variant="outlined"
+                  onClick={() => onNavigate("/dashboard")}
+                  sx={darkMode ? { borderColor: alpha("#1c7b82", 0.6), color: "#1c7b82" } : {}}
+                >
                   {t("landing.actions.dashboard")}
                 </Button>
               )}
               {extraHeaderActions}
-              <Button variant="text" sx={{ fontWeight: 800 }} onClick={() => onNavigate(data.secondaryButtonUrl || "/login")}>
+              <Button
+                variant="text"
+                sx={{ fontWeight: 800, color: darkMode ? "rgba(255,255,255,0.75)" : undefined }}
+                onClick={() => onNavigate(data.secondaryButtonUrl || "/login")}
+              >
                 {data.secondaryButtonText || t("landing.actions.login")}
               </Button>
             </Stack>
@@ -248,15 +266,15 @@ export default function PublicSiteShell({
 
       {children}
 
+      {/* Footer */}
       <Box
         component="footer"
         sx={{
           borderTop: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.12),
-          background: "linear-gradient(180deg, rgba(14,43,73,1) 0%, rgba(18,58,99,1) 100%)",
+          borderColor: darkMode ? alpha("#1c7b82", 0.15) : alpha(theme.palette.primary.main, 0.12),
+          background: "linear-gradient(180deg, rgba(4,12,28,1) 0%, rgba(6,18,38,1) 100%)",
           color: "common.white",
           py: 5,
-          mt: { xs: 6, md: 8 },
         }}
       >
         <Container maxWidth="lg">
@@ -277,7 +295,7 @@ export default function PublicSiteShell({
                     display: "grid",
                     placeItems: "center",
                     color: "common.white",
-                    backgroundColor: alpha("#ffffff", 0.12),
+                    background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
                   }}
                 >
                   <BalanceIcon />
@@ -286,7 +304,7 @@ export default function PublicSiteShell({
                   {data.systemName}
                 </Typography>
               </Stack>
-              <Typography variant="body2" sx={{ opacity: 0.82, maxWidth: 560, lineHeight: 1.9 }}>
+              <Typography variant="body2" sx={{ opacity: 0.72, maxWidth: 560, lineHeight: 1.9 }}>
                 {data.tagline}
               </Typography>
             </Box>
@@ -303,7 +321,7 @@ export default function PublicSiteShell({
                     onClick={() => onNavigate(item.path)}
                     underline="hover"
                     color="inherit"
-                    sx={{ textAlign: "start", opacity: 0.86 }}
+                    sx={{ textAlign: "start", opacity: 0.72, transition: "opacity 0.15s", "&:hover": { opacity: 1 } }}
                   >
                     {item.label}
                   </Link>
@@ -316,13 +334,13 @@ export default function PublicSiteShell({
                 {t("landing.footer.contact")}
               </Typography>
               <Stack spacing={1}>
-                <Typography variant="body2" sx={{ opacity: 0.86 }}>
+                <Typography variant="body2" sx={{ opacity: 0.72 }}>
                   {t("landing.contact.email")}: {data.contactEmail || "-"}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.86 }}>
+                <Typography variant="body2" sx={{ opacity: 0.72 }}>
                   {t("landing.contact.phone")}: {data.contactPhone || "-"}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.86 }}>
+                <Typography variant="body2" sx={{ opacity: 0.72 }}>
                   {t("landing.contact.address")}: {data.contactAddress || "-"}
                 </Typography>
               </Stack>
@@ -336,8 +354,8 @@ export default function PublicSiteShell({
               mt: 4,
               pt: 2,
               borderTop: "1px solid",
-              borderColor: alpha("#ffffff", 0.14),
-              opacity: 0.72,
+              borderColor: alpha("#ffffff", 0.1),
+              opacity: 0.5,
               textAlign: "center",
             }}
           >
