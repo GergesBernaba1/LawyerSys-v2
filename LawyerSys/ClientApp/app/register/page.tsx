@@ -255,16 +255,17 @@ export default function RegisterPage() {
                       p: 2,
                       borderRadius: 3,
                       border: '1px solid',
-                      borderColor: selected ? 'primary.main' : 'divider',
-                      bgcolor: selected ? 'rgba(20, 52, 90, 0.04)' : '#ffffff',
+                      borderColor: selected ? '#1c7b82' : 'rgba(255,255,255,0.1)',
+                      bgcolor: selected ? 'rgba(28,123,130,0.12)' : 'rgba(255,255,255,0.04)',
                       cursor: 'pointer',
                       textAlign: 'left',
+                      transition: 'border-color 0.2s, background-color 0.2s',
                       '&:hover': {
-                        boxShadow: 3,
+                        borderColor: 'rgba(28,123,130,0.5)',
+                        boxShadow: '0 4px 16px rgba(28,123,130,0.18)',
                       },
                       '&:focus-visible': {
-                        outline: '2px solid',
-                        outlineColor: 'primary.main',
+                        outline: '2px solid #1c7b82',
                         outlineOffset: 2,
                       },
                     }}
@@ -273,14 +274,14 @@ export default function RegisterPage() {
                       <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
                         {pkg.name}
                       </Typography>
-                      <Chip size="small" label={pkg.officeSize} color={selected ? 'primary' : 'default'} />
+                      <Chip size="small" label={pkg.officeSize} variant={selected ? 'filled' : 'outlined'} color={selected ? 'primary' : 'default'} sx={!selected ? { borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.55)' } : {}} />
                     </Stack>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1.25, lineHeight: 1.7 }}>
+                    <Typography variant="body2" sx={{ mb: 1.25, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)' }}>
                       {pkg.description}
                     </Typography>
                     <Stack spacing={0.5} sx={{ mb: 1.5 }}>
                       {(pkg.features || []).slice(0, 3).map((feature) => (
-                        <Typography key={feature} variant="caption" color="text.secondary">
+                        <Typography key={feature} variant="caption" sx={{ color: 'rgba(255,255,255,0.45)' }}>
                           • {feature}
                         </Typography>
                       ))}
@@ -289,8 +290,9 @@ export default function RegisterPage() {
                       {pkg.monthlyOption ? (
                         <Chip
                           size="small"
-                          variant={selected && selectedBillingCycle === "Monthly" ? "filled" : "outlined"}
+                          variant="outlined"
                           color={selected && selectedBillingCycle === "Monthly" ? "primary" : "default"}
+                          sx={!(selected && selectedBillingCycle === "Monthly") ? { borderColor: 'rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.5)' } : { borderColor: '#1c7b82', color: '#14c8d4' }}
                           onClick={(event) => {
                             event.stopPropagation();
                             setSelectedOfficeSize(pkg.officeSize);
@@ -302,8 +304,9 @@ export default function RegisterPage() {
                       {pkg.annualOption ? (
                         <Chip
                           size="small"
-                          variant={selected && selectedBillingCycle === "Annual" ? "filled" : "outlined"}
+                          variant="outlined"
                           color={selected && selectedBillingCycle === "Annual" ? "primary" : "default"}
+                          sx={!(selected && selectedBillingCycle === "Annual") ? { borderColor: 'rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.5)' } : { borderColor: '#1c7b82', color: '#14c8d4' }}
                           onClick={(event) => {
                             event.stopPropagation();
                             setSelectedOfficeSize(pkg.officeSize);
@@ -388,11 +391,11 @@ export default function RegisterPage() {
           </Box>
 
           {selectedGroup ? (
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'rgba(20, 52, 90, 0.04)', border: '1px solid', borderColor: 'divider' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'rgba(28,123,130,0.08)', border: '1px solid rgba(28,123,130,0.25)' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                 {t('register.selectedPackage', { defaultValue: 'Selected plan' })}: {selectedGroup.name}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography variant="body2" sx={{ mt: 0.5, color: 'rgba(255,255,255,0.5)' }}>
                 {selectedBillingCycle === 'Annual'
                   ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
                   : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}
@@ -400,7 +403,7 @@ export default function RegisterPage() {
             </Paper>
           ) : null}
 
-          <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={loading} loadingPosition="start" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }}>
+          <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={loading} loadingPosition="start" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }}>
             {t('register.signUp') || 'Sign Up'}
           </LoadingButton>
         </Stack>

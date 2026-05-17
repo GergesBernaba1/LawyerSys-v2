@@ -185,31 +185,60 @@ export default function AuthSplitLayout({
             <Box
               sx={{
                 p: { xs: 3, sm: 4, lg: 5 },
-                background:
-                  "linear-gradient(180deg, rgba(252,254,255,0.98) 0%, rgba(244,248,252,0.98) 100%)",
+                background: "linear-gradient(160deg, rgba(5,12,26,1) 0%, rgba(8,20,42,1) 100%)",
                 textAlign: isRTL ? "right" : "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
+                // ── dark-mode overrides: inputs, labels, text, alerts ──────
+                color: "rgba(255,255,255,0.88)",                              // default text colour inside the panel
+                "& .MuiOutlinedInput-root": {
+                  color: "rgba(255,255,255,0.9)",
+                  backgroundColor: "rgba(255,255,255,0.05) !important",      // override global theme white bg
+                  borderRadius: "14px",
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.13)" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(28,123,130,0.5)" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#1c7b82", borderWidth: "2px" },
+                  "&.Mui-focused": { boxShadow: "0 0 0 4px rgba(28,123,130,0.14)" },
+                },
+                "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.38)" },
+                "& .MuiInputLabel-root.Mui-focused": { color: "#14c8d4" },
+                "& .MuiInputBase-input": { color: "rgba(255,255,255,0.9)" },
+                "& .MuiIconButton-root": { color: "rgba(255,255,255,0.45)", "&:hover": { color: "rgba(255,255,255,0.85)" } },
+                // secondary-coloured text → readable on dark bg
+                "& .MuiTypography-colorTextSecondary, & [class*='MuiTypography'][style*='#5f7085'], & [class*='MuiTypography'][style*='#64748b']":
+                  { color: "rgba(255,255,255,0.45) !important" },
+                // subtitle1 / subtitle2 from the theme have color: #64748b — override
+                "& .MuiTypography-subtitle1, & .MuiTypography-subtitle2": { color: "rgba(255,255,255,0.7)" },
+                // alerts on dark background
+                "& .MuiAlert-root": { border: "1px solid", backdropFilter: "blur(6px)" },
+                "& .MuiAlert-root.MuiAlert-colorError": { bgcolor: "rgba(211,47,47,0.14)", color: "rgba(255,160,160,0.95)", borderColor: "rgba(211,47,47,0.28)", "& .MuiAlert-icon": { color: "rgba(255,120,120,0.9)" } },
+                "& .MuiAlert-root.MuiAlert-colorSuccess": { bgcolor: "rgba(28,123,130,0.14)", color: "rgba(160,230,220,0.95)", borderColor: "rgba(28,123,130,0.3)", "& .MuiAlert-icon": { color: "rgba(100,220,210,0.9)" } },
+                "& .MuiAlert-root.MuiAlert-colorWarning": { bgcolor: "rgba(237,174,73,0.12)", color: "rgba(255,220,130,0.95)", borderColor: "rgba(237,174,73,0.28)", "& .MuiAlert-icon": { color: "rgba(255,210,100,0.9)" } },
+                "& .MuiAlert-root.MuiAlert-colorInfo": { bgcolor: "rgba(28,100,180,0.14)", color: "rgba(160,200,255,0.95)", borderColor: "rgba(28,100,180,0.28)", "& .MuiAlert-icon": { color: "rgba(130,180,255,0.9)" } },
+                // select / autocomplete
+                "& .MuiSelect-icon": { color: "rgba(255,255,255,0.4)" },
+                "& .MuiFormHelperText-root": { color: "rgba(255,255,255,0.35)" },
+                "& .MuiCheckbox-root": { color: "rgba(255,255,255,0.35)", "&.Mui-checked": { color: "#1c7b82" } },
               }}
             >
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Avatar
                     sx={{
-                      width: 48,
-                      height: 48,
-                      background: "linear-gradient(135deg, #14345a 0%, #2d6a87 100%)",
-                      boxShadow: "0 10px 20px rgba(20, 52, 90, 0.18)",
+                      width: 44,
+                      height: 44,
+                      background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                      boxShadow: "0 8px 20px -6px rgba(28,123,130,0.5)",
                     }}
                   >
                     {formIcon}
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.03em" }}>
+                    <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.03em", color: "common.white" }}>
                       {formTitle}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.4 }}>
+                    <Typography variant="body2" sx={{ mt: 0.4, color: "rgba(255,255,255,0.45)" }}>
                       {formSubtitle}
                     </Typography>
                   </Box>
@@ -222,7 +251,7 @@ export default function AuthSplitLayout({
                     color="inherit"
                     startIcon={!isRTL ? <ArrowBackRoundedIcon /> : undefined}
                     endIcon={isRTL ? <ArrowBackRoundedIcon sx={{ transform: "rotate(180deg)" }} /> : undefined}
-                    sx={{ fontWeight: 800, color: "text.secondary", textDecoration: "none" }}
+                    sx={{ fontWeight: 700, color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: "0.82rem", "&:hover": { color: "rgba(255,255,255,0.8)" } }}
                   >
                     {footerLinkLabel}
                   </Button>

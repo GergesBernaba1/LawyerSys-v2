@@ -134,17 +134,17 @@ export default function LoginPage() {
             variant="contained"
             size="large"
             disabled={loading}
-            sx={{ mt: 1, py: 1.35, borderRadius: 3, fontWeight: 800 }}
+            sx={{ mt: 1, py: 1.35, borderRadius: 3, fontWeight: 800, background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)", "&:hover": { background: "linear-gradient(135deg, #0f3358 0%, #187479 100%)" } }}
           >
             {loading ? (t('app.loading') || 'Loading...') : t('app.login')}
           </Button>
         </Stack>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isRTL ? 'row-reverse' : 'row', mt: 2.5, gap: 2, flexWrap: 'wrap' }}>
-          <MuiLink href="/forgot-password" variant="body2" sx={{ color: 'primary.main', fontWeight: 700 }}>
+          <MuiLink href="/forgot-password" variant="body2" sx={{ color: '#14c8d4', fontWeight: 700 }}>
             {t('login.forgotPassword') || 'Forgot password?'}
           </MuiLink>
-          <MuiLink href="/register" variant="body2" sx={{ color: 'primary.main', fontWeight: 700 }}>
+          <MuiLink href="/register" variant="body2" sx={{ color: '#14c8d4', fontWeight: 700 }}>
             {t('login.noAccount') || "Don't have an account? Sign Up"}
           </MuiLink>
         </Box>

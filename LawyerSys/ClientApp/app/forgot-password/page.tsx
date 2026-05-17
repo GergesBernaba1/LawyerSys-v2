@@ -98,7 +98,7 @@ export default function ForgotPasswordPage(){
               <Button
                 fullWidth
                 variant="contained"
-                sx={{ mt: 2, borderRadius: 3, fontWeight: 800 }}
+                sx={{ mt: 2, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }}
                 onClick={() => router.push(`/reset-password?userName=${encodeURIComponent(userName)}&token=${encodeURIComponent(success.token)}`)}
               >
                 {t('login.resetPassword') || 'Reset Password Now'}
@@ -123,7 +123,7 @@ export default function ForgotPasswordPage(){
             variant="contained"
             size="large"
             disabled={loading}
-            sx={{ py: 1.35, borderRadius: 3, fontWeight: 800 }}
+            sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }}
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : (t('login.requestReset') || 'Send Reset Link')}
           </Button>
