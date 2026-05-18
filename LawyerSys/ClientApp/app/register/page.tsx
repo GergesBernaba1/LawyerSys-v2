@@ -68,7 +68,6 @@ export default function RegisterPage() {
   const [countries, setCountries] = useState<CountryOption[]>([]);
   const [packages, setPackages] = useState<SubscriptionPackageOption[]>([]);
   const [selectedOfficeSize, setSelectedOfficeSize] = useState<string>("");
-  const [selectedBillingCycle, setSelectedBillingCycle] = useState<"Monthly" | "Annual">("Monthly");
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -126,7 +125,6 @@ export default function RegisterPage() {
       setPackages(nextPackages);
       if (nextPackages.length > 0) {
         setSelectedOfficeSize((current) => current || nextPackages[0].officeSize);
-        setSelectedBillingCycle(nextPackages[0].monthlyOption ? "Monthly" : "Annual");
       }
     } catch {
       setPackagesError(t('register.failedPackages', { defaultValue: 'Failed to load subscription packages.' }));
@@ -150,9 +148,9 @@ export default function RegisterPage() {
     setSuccessMessage('');
 
     const selectedPackageId =
-      selectedBillingCycle === "Annual"
-        ? selectedGroup?.annualOption?.subscriptionPackageId ?? null
-        : selectedGroup?.monthlyOption?.subscriptionPackageId ?? null;
+      selectedGroup?.annualOption?.subscriptionPackageId ??
+      selectedGroup?.monthlyOption?.subscriptionPackageId ??
+      null;
 
     if (password !== confirmPassword) {
       setError(t('register.passwordMismatch') || 'Passwords do not match');
@@ -243,6 +241,10 @@ export default function RegisterPage() {
             >
               {packages.map((pkg) => {
                 const selected = selectedOfficeSize === pkg.officeSize;
+                const option = pkg.annualOption ?? pkg.monthlyOption;
+                const cycleLabel = pkg.annualOption
+                  ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
+                  : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' });
                 return (
                   <Paper
                     key={pkg.officeSize}
@@ -274,7 +276,13 @@ export default function RegisterPage() {
                       <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
                         {pkg.name}
                       </Typography>
-                      <Chip size="small" label={pkg.officeSize} variant={selected ? 'filled' : 'outlined'} color={selected ? 'primary' : 'default'} sx={!selected ? { borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.55)' } : {}} />
+                      <Chip
+                        size="small"
+                        label={cycleLabel}
+                        variant={selected ? 'filled' : 'outlined'}
+                        color={selected ? 'primary' : 'default'}
+                        sx={!selected ? { borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.55)' } : {}}
+                      />
                     </Stack>
                     <Typography variant="body2" sx={{ mb: 1.25, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)' }}>
                       {pkg.description}
@@ -286,36 +294,14 @@ export default function RegisterPage() {
                         </Typography>
                       ))}
                     </Stack>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                      {pkg.monthlyOption ? (
-                        <Chip
-                          size="small"
-                          variant="outlined"
-                          color={selected && selectedBillingCycle === "Monthly" ? "primary" : "default"}
-                          sx={!(selected && selectedBillingCycle === "Monthly") ? { borderColor: 'rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.5)' } : { borderColor: '#1c7b82', color: '#14c8d4' }}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setSelectedOfficeSize(pkg.officeSize);
-                            setSelectedBillingCycle("Monthly");
-                          }}
-                          label={`${t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}: ${formatAmount(pkg.monthlyOption.price)}`}
-                        />
-                      ) : null}
-                      {pkg.annualOption ? (
-                        <Chip
-                          size="small"
-                          variant="outlined"
-                          color={selected && selectedBillingCycle === "Annual" ? "primary" : "default"}
-                          sx={!(selected && selectedBillingCycle === "Annual") ? { borderColor: 'rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.5)' } : { borderColor: '#1c7b82', color: '#14c8d4' }}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setSelectedOfficeSize(pkg.officeSize);
-                            setSelectedBillingCycle("Annual");
-                          }}
-                          label={`${t('subscription.billingCycle.annual', { defaultValue: 'Annual' })}: ${formatAmount(pkg.annualOption.price)}`}
-                        />
-                      ) : null}
-                    </Stack>
+                    {option ? (
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: selected ? '#14c8d4' : 'rgba(255,255,255,0.75)' }}>
+                        {formatAmount(option.price)}
+                        <Typography component="span" variant="caption" sx={{ ml: 0.5, color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>
+                          / {cycleLabel}
+                        </Typography>
+                      </Typography>
+                    ) : null}
                   </Paper>
                 );
               })}
@@ -390,18 +376,29 @@ export default function RegisterPage() {
             />
           </Box>
 
-          {selectedGroup ? (
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'rgba(28,123,130,0.08)', border: '1px solid rgba(28,123,130,0.25)' }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                {t('register.selectedPackage', { defaultValue: 'Selected plan' })}: {selectedGroup.name}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 0.5, color: 'rgba(255,255,255,0.5)' }}>
-                {selectedBillingCycle === 'Annual'
-                  ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
-                  : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' })}
-              </Typography>
-            </Paper>
-          ) : null}
+          {selectedGroup ? (() => {
+            const selectedOption = selectedGroup.annualOption ?? selectedGroup.monthlyOption;
+            const selectedCycleLabel = selectedGroup.annualOption
+              ? t('subscription.billingCycle.annual', { defaultValue: 'Annual' })
+              : t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' });
+            return (
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'rgba(28,123,130,0.08)', border: '1px solid rgba(28,123,130,0.25)' }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                    {t('register.selectedPackage', { defaultValue: 'Selected plan' })}: {selectedGroup.name}
+                  </Typography>
+                  {selectedOption ? (
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#14c8d4' }}>
+                      {formatAmount(selectedOption.price)}
+                    </Typography>
+                  ) : null}
+                </Stack>
+                <Typography variant="body2" sx={{ mt: 0.5, color: 'rgba(255,255,255,0.5)' }}>
+                  {selectedCycleLabel}
+                </Typography>
+              </Paper>
+            );
+          })() : null}
 
           <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={loading} loadingPosition="start" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }}>
             {t('register.signUp') || 'Sign Up'}

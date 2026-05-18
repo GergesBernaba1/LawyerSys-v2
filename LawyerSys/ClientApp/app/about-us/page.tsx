@@ -62,7 +62,16 @@ export default function AboutUsPage() {
           headers: { "Accept-Language": getRequestLanguage(currentLanguage) },
         } as any);
         if (mounted) {
-          setData(buildLandingData(response.data, fallbackData));
+          const apiBuilt = buildLandingData(response.data, fallbackData);
+          setData({
+            ...fallbackData,
+            primaryButtonUrl:    apiBuilt.primaryButtonUrl    || fallbackData.primaryButtonUrl,
+            secondaryButtonUrl:  apiBuilt.secondaryButtonUrl  || fallbackData.secondaryButtonUrl,
+            contactEmail:        apiBuilt.contactEmail        || fallbackData.contactEmail,
+            contactPhone:        apiBuilt.contactPhone        || fallbackData.contactPhone,
+            contactAddress:      apiBuilt.contactAddress      || fallbackData.contactAddress,
+            contactWorkingHours: apiBuilt.contactWorkingHours || fallbackData.contactWorkingHours,
+          });
           setError("");
         }
       } catch {

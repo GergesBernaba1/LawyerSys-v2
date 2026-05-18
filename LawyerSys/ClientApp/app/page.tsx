@@ -32,6 +32,7 @@ import {
   BarChart as BarChartIcon,
   Bolt as BoltIcon,
   BusinessOutlined as BusinessOutlinedIcon,
+  CalendarMonth as CalendarMonthIcon,
   Check as CheckIcon,
   ExpandMore as ExpandMoreIcon,
   FolderOutlined as FolderOutlinedIcon,
@@ -41,6 +42,7 @@ import {
   People as PeopleIcon,
   PeopleAltOutlined as PeopleAltOutlinedIcon,
   PlayArrow as PlayArrowIcon,
+  Repeat as RepeatIcon,
   Security as SecurityIcon,
   SupportAgent as SupportAgentIcon,
   WorkspacePremium as WorkspacePremiumIcon,
@@ -389,7 +391,6 @@ export default function LandingPage() {
   const [demoSubmitting, setDemoSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [demoMessage, setDemoMessage] = useState("");
-  const [billingCycle, setBillingCycle] = useState<"Monthly" | "Annual">("Monthly");
   const [expandedFaq, setExpandedFaq] = useState<string | false>(false);
 
   useEffect(() => {
@@ -408,7 +409,18 @@ export default function LandingPage() {
           api.get("/Tenants/public-partners", { skipTenantHeader: true, headers: { "Accept-Language": requestLanguage } } as any),
         ]);
         if (mounted) {
-          setData(buildLandingData(landingResponse.data, fallbackData));
+          // Build from API to extract config/contact values, but always keep
+          // localised text from translation keys so switching language works correctly.
+          const apiBuilt = buildLandingData(landingResponse.data, fallbackData);
+          setData({
+            ...fallbackData,                                              // all text from i18n
+            primaryButtonUrl:   apiBuilt.primaryButtonUrl   || fallbackData.primaryButtonUrl,
+            secondaryButtonUrl: apiBuilt.secondaryButtonUrl || fallbackData.secondaryButtonUrl,
+            contactEmail:       apiBuilt.contactEmail       || fallbackData.contactEmail,
+            contactPhone:       apiBuilt.contactPhone       || fallbackData.contactPhone,
+            contactAddress:     apiBuilt.contactAddress     || fallbackData.contactAddress,
+            contactWorkingHours: apiBuilt.contactWorkingHours || fallbackData.contactWorkingHours,
+          });
           setPackages(Array.isArray(packagesResponse.data) ? packagesResponse.data : []);
           setPartners(Array.isArray(partnersResponse.data) ? partnersResponse.data : []);
           setError("");
@@ -1232,173 +1244,319 @@ export default function LandingPage() {
       </Box>
 
       {/* ── PRICING ──────────────────────────────────────────────────── */}
-      <Box sx={{ py: { xs: 7, md: 10 } }}>
-        <Container maxWidth="xl">
-          <Box sx={{ textAlign: "center", mb: 5 }}>
-            <SectionLabel>{t("subscription.pricingTitle", { defaultValue: "الأسعار" })}</SectionLabel>
+      <Box
+        sx={{
+          py: { xs: 8, md: 12 },
+          position: "relative",
+          overflow: "hidden",
+          background: "linear-gradient(180deg, transparent 0%, rgba(8,24,58,0.5) 40%, rgba(8,24,58,0.5) 60%, transparent 100%)",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        {/* Background glow blobs */}
+        <Box sx={{ position: "absolute", top: "15%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(28,123,130,0.1) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", bottom: "10%", insetInlineStart: "10%", width: 300, height: 300, borderRadius: "50%", background: "rgba(18,58,99,0.18)", filter: "blur(80px)", pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", top: "5%", insetInlineEnd: "8%", width: 240, height: 240, borderRadius: "50%", background: "rgba(28,123,130,0.08)", filter: "blur(70px)", pointerEvents: "none" }} />
+
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
+          {/* Section header */}
+          <Box sx={{ textAlign: "center", mb: 7 }}>
+            <SectionLabel>{t("subscription.pricingTitle", { defaultValue: "باقات الاشتراك" })}</SectionLabel>
             <SectionTitle>{t("landing.pricing.title", { defaultValue: "خطط مرنة تناسب احتياجاتك" })}</SectionTitle>
-            <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.5)", mb: 3.5 }}>
+            <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.5)", maxWidth: 500, mx: "auto", lineHeight: 1.8 }}>
               {t("landing.pricing.subtitle", { defaultValue: "جميع الخطط تشمل خدمات مُستمرة ودعماً متخصصاً وتجربة سلسة من اليوم الأول." })}
             </Typography>
-
-            {/* Billing cycle toggle */}
-            <Box
-              sx={{
-                display: "inline-flex",
-                p: 0.5,
-                borderRadius: 999,
-                bgcolor: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              {(["Monthly", "Annual"] as const).map((cycle) => (
-                <Button
-                  key={cycle}
-                  size="small"
-                  variant={billingCycle === cycle ? "contained" : "text"}
-                  onClick={() => setBillingCycle(cycle)}
-                  sx={{
-                    borderRadius: 999,
-                    px: 2.5,
-                    fontWeight: 800,
-                    color: billingCycle === cycle ? "common.white" : "rgba(255,255,255,0.5)",
-                    background: billingCycle === cycle ? tealGradient : "transparent",
-                    boxShadow: billingCycle === cycle ? "0 6px 16px -6px rgba(28,123,130,0.5)" : "none",
-                  }}
-                >
-                  {cycle === "Monthly"
-                    ? t("subscription.billingCycle.monthly", { defaultValue: "شهري" })
-                    : t("subscription.billingCycle.annual", { defaultValue: "سنوي" })}
-                </Button>
-              ))}
-            </Box>
           </Box>
 
           {/* Package cards */}
-          {sortedPackages.length > 0 ? (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "repeat(3,1fr)" },
-                gap: 2.5,
-                alignItems: "start",
-              }}
-            >
-              {sortedPackages.map((pkg, i) => {
-                const option = billingCycle === "Monthly" ? pkg.monthlyOption : pkg.annualOption;
-                const isFeatured = i === 1;
-                return (
-                  <Box
-                    key={i}
-                    sx={{
-                      p: isFeatured ? 0 : 2.5,
-                      borderRadius: isFeatured ? 4 : 4,
-                      border: isFeatured ? "2px solid rgba(28,123,130,0.45)" : "1px solid rgba(255,255,255,0.08)",
-                      background: isFeatured
-                        ? "linear-gradient(160deg, rgba(12,40,78,1) 0%, rgba(14,80,90,0.98) 100%)"
-                        : "rgba(255,255,255,0.03)",
-                      position: "relative",
-                      overflow: "hidden",
-                      boxShadow: isFeatured ? "0 32px 64px -24px rgba(28,123,130,0.4)" : "none",
-                      transform: isFeatured ? { md: "scale(1.04)" } : "none",
-                      transition: "all 0.25s",
-                      "&:hover": { borderColor: isFeatured ? "rgba(28,123,130,0.6)" : "rgba(255,255,255,0.16)", transform: isFeatured ? { md: "scale(1.05) translateY(-4px)" } : "translateY(-4px)" },
-                    }}
-                  >
-                    {isFeatured && (
-                      <Box
-                        sx={{
-                          textAlign: "center",
-                          py: 0.6,
-                          background: tealGradient,
-                          mb: 0,
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: "common.white", letterSpacing: "0.1em" }}>
-                          {t("subscription.bestValue", { defaultValue: "الأكثر تميزاً" })}
-                        </Typography>
-                      </Box>
-                    )}
-                    <Box sx={{ p: isFeatured ? 2.5 : 0 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 900, color: "common.white", mb: 0.5, letterSpacing: "-0.03em" }}>
-                        {pkg.name}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.7, mb: 2.5 }}>
-                        {pkg.description}
-                      </Typography>
+          {sortedPackages.length > 0 ? (() => {
+            // Determine which single card to feature — the highest-priced one
+            const maxPrice = Math.max(
+              ...sortedPackages.map((p) => (p.annualOption ?? p.monthlyOption)?.price ?? 0)
+            );
+            return (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: sortedPackages.length === 2 ? "repeat(2,1fr)" : "repeat(3,1fr)",
+                  },
+                  gap: { xs: 3, md: 4 },
+                  alignItems: "center",
+                  maxWidth: sortedPackages.length === 2 ? 820 : "100%",
+                  mx: "auto",
+                }}
+              >
+                {sortedPackages.map((pkg, i) => {
+                  const option = pkg.annualOption ?? pkg.monthlyOption;
+                  const isAnnual = Boolean(pkg.annualOption);
+                  const cycleLabel = isAnnual
+                    ? t("subscription.billingCycle.annual", { defaultValue: "سنوي" })
+                    : t("subscription.billingCycle.monthly", { defaultValue: "شهري" });
+                  // Only the single most-expensive package is featured
+                  const isFeatured = (option?.price ?? 0) === maxPrice;
 
-                      {option ? (
-                        <Box sx={{ mb: 2.5 }}>
-                          <Stack direction="row" alignItems="flex-end" spacing={0.5}>
-                            <Typography
-                              sx={{
-                                fontSize: "2rem",
-                                fontWeight: 900,
-                                color: isFeatured ? "#14c8d4" : "common.white",
-                                letterSpacing: "-0.04em",
-                                lineHeight: 1,
-                              }}
-                            >
-                              {formatCurrency(option.price)}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.4)", pb: 0.4 }}>
-                              / {billingCycle === "Monthly"
-                                ? t("subscription.billingCycle.monthly", { defaultValue: "شهر" })
-                                : t("subscription.billingCycle.annual", { defaultValue: "سنة" })}
-                            </Typography>
-                          </Stack>
-                        </Box>
-                      ) : (
-                        <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.35)", mb: 2.5 }}>
-                          {t("subscription.notAvailable", { defaultValue: "غير متاح لهذا الدورة" })}
-                        </Typography>
+                  return (
+                    <Box
+                      key={i}
+                      sx={{
+                        position: "relative",
+                        borderRadius: 5,
+                        overflow: "visible",
+                        // Push featured card up slightly
+                        mt: isFeatured ? { md: -2 } : 0,
+                      }}
+                    >
+                      {/* Outer glow for featured */}
+                      {isFeatured && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            inset: -1,
+                            borderRadius: 5,
+                            background: "linear-gradient(135deg, rgba(28,123,130,0.6) 0%, rgba(20,200,212,0.3) 100%)",
+                            filter: "blur(18px)",
+                            opacity: 0.55,
+                            zIndex: 0,
+                            pointerEvents: "none",
+                          }}
+                        />
                       )}
 
-                      <Stack spacing={1} sx={{ mb: 3 }}>
-                        {(pkg.features || []).map((f) => (
-                          <Stack key={f} direction="row" spacing={1} alignItems="flex-start">
-                            <CheckIcon sx={{ fontSize: 16, color: isFeatured ? "#14c8d4" : "#10b981", mt: 0.15, flexShrink: 0 }} />
-                            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.7)", lineHeight: 1.6, fontSize: "0.83rem" }}>
-                              {f}
-                            </Typography>
-                          </Stack>
-                        ))}
-                      </Stack>
-
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        onClick={() => router.push("/register")}
+                      <Box
                         sx={{
-                          borderRadius: 999,
-                          fontWeight: 800,
-                          py: 1.1,
-                          background: isFeatured ? tealGradient : "rgba(255,255,255,0.08)",
-                          color: isFeatured ? "common.white" : "rgba(255,255,255,0.85)",
-                          border: isFeatured ? "none" : "1px solid rgba(255,255,255,0.12)",
-                          boxShadow: isFeatured ? "0 12px 28px -8px rgba(28,123,130,0.5)" : "none",
+                          position: "relative",
+                          zIndex: 1,
+                          borderRadius: 5,
+                          overflow: "hidden",
+                          border: isFeatured
+                            ? "1.5px solid rgba(28,123,130,0.55)"
+                            : "1px solid rgba(255,255,255,0.09)",
+                          background: isFeatured
+                            ? "linear-gradient(155deg, rgba(10,36,74,0.98) 0%, rgba(12,72,82,0.96) 100%)"
+                            : "rgba(255,255,255,0.035)",
+                          backdropFilter: "blur(12px)",
+                          boxShadow: isFeatured
+                            ? "0 40px 80px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)"
+                            : "0 8px 32px -8px rgba(0,0,0,0.4)",
+                          transition: "transform 0.3s ease, box-shadow 0.3s ease",
                           "&:hover": {
-                            background: isFeatured ? "linear-gradient(135deg, #0f3358 0%, #156e74 100%)" : "rgba(255,255,255,0.12)",
+                            transform: "translateY(-6px)",
+                            boxShadow: isFeatured
+                              ? "0 56px 96px -24px rgba(28,123,130,0.5), inset 0 1px 0 rgba(255,255,255,0.08)"
+                              : "0 24px 56px -12px rgba(0,0,0,0.5)",
                           },
                         }}
                       >
-                        {t("subscription.choosePackage", { defaultValue: "ابدأ الآن" })}
-                      </Button>
+                        {/* Featured banner */}
+                        {isFeatured && (
+                          <Box
+                            sx={{
+                              textAlign: "center",
+                              py: 0.75,
+                              background: "linear-gradient(90deg, rgba(18,58,99,0) 0%, rgba(28,123,130,0.9) 20%, rgba(20,200,212,0.9) 50%, rgba(28,123,130,0.9) 80%, rgba(18,58,99,0) 100%)",
+                            }}
+                          >
+                            <Stack direction="row" spacing={0.75} justifyContent="center" alignItems="center">
+                              <WorkspacePremiumIcon sx={{ fontSize: 14, color: "common.white" }} />
+                              <Typography variant="caption" sx={{ fontWeight: 900, color: "common.white", letterSpacing: "0.12em", fontSize: "0.72rem" }}>
+                                {t("subscription.bestValue", { defaultValue: "الأكثر تميزاً" })}
+                              </Typography>
+                            </Stack>
+                          </Box>
+                        )}
+
+                        {/* Card body */}
+                        <Box sx={{ p: { xs: 2.5, md: 3 } }}>
+
+                          {/* Icon + cycle badge row */}
+                          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2.5 }}>
+                            <Box
+                              sx={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: 3,
+                                display: "grid",
+                                placeItems: "center",
+                                background: isFeatured
+                                  ? "linear-gradient(135deg, rgba(18,58,99,0.8) 0%, rgba(28,123,130,0.8) 100%)"
+                                  : "rgba(255,255,255,0.06)",
+                                border: isFeatured ? "1px solid rgba(28,123,130,0.4)" : "1px solid rgba(255,255,255,0.1)",
+                                color: isFeatured ? "#14c8d4" : "rgba(255,255,255,0.5)",
+                                boxShadow: isFeatured ? "0 8px 20px -6px rgba(28,123,130,0.5)" : "none",
+                              }}
+                            >
+                              {isAnnual
+                                ? <CalendarMonthIcon sx={{ fontSize: 24 }} />
+                                : <RepeatIcon sx={{ fontSize: 24 }} />
+                              }
+                            </Box>
+                            <Chip
+                              label={cycleLabel}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                borderRadius: 999,
+                                fontSize: "0.75rem",
+                                px: 0.5,
+                                bgcolor: isFeatured ? "rgba(20,200,212,0.12)" : "rgba(255,255,255,0.06)",
+                                color: isFeatured ? "#14c8d4" : "rgba(255,255,255,0.5)",
+                                border: isFeatured ? "1px solid rgba(20,200,212,0.3)" : "1px solid rgba(255,255,255,0.1)",
+                              }}
+                            />
+                          </Stack>
+
+                          {/* Name & description */}
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              fontWeight: 900,
+                              color: "common.white",
+                              letterSpacing: "-0.04em",
+                              mb: 0.75,
+                              lineHeight: 1.25,
+                            }}
+                          >
+                            {pkg.name}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "rgba(255,255,255,0.48)", lineHeight: 1.75, mb: 3 }}
+                          >
+                            {pkg.description}
+                          </Typography>
+
+                          {/* Price block */}
+                          {option ? (
+                            <Box
+                              sx={{
+                                py: 2.5,
+                                px: 2,
+                                mb: 3,
+                                borderRadius: 3,
+                                background: isFeatured
+                                  ? "rgba(28,123,130,0.1)"
+                                  : "rgba(255,255,255,0.03)",
+                                border: isFeatured
+                                  ? "1px solid rgba(28,123,130,0.2)"
+                                  : "1px solid rgba(255,255,255,0.06)",
+                                textAlign: "center",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: { xs: "2.6rem", md: "3rem" },
+                                  fontWeight: 900,
+                                  letterSpacing: "-0.05em",
+                                  lineHeight: 1,
+                                  color: isFeatured ? "#14c8d4" : "common.white",
+                                  background: isFeatured
+                                    ? "linear-gradient(135deg, #14c8d4 0%, #20e8d8 60%, #14c8d4 100%)"
+                                    : undefined,
+                                  WebkitBackgroundClip: isFeatured ? "text" : undefined,
+                                  WebkitTextFillColor: isFeatured ? "transparent" : undefined,
+                                  mb: 0.5,
+                                }}
+                              >
+                                {formatCurrency(option.price)}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{ color: "rgba(255,255,255,0.38)", fontWeight: 600, letterSpacing: "0.04em" }}
+                              >
+                                / {cycleLabel}
+                              </Typography>
+                            </Box>
+                          ) : null}
+
+                          {/* Features list */}
+                          <Stack spacing={1.1} sx={{ mb: 3.5 }}>
+                            {(pkg.features || []).map((f) => (
+                              <Stack key={f} direction="row" spacing={1.25} alignItems="flex-start">
+                                <Box
+                                  sx={{
+                                    width: 18,
+                                    height: 18,
+                                    borderRadius: "50%",
+                                    display: "grid",
+                                    placeItems: "center",
+                                    flexShrink: 0,
+                                    mt: 0.15,
+                                    bgcolor: isFeatured ? "rgba(20,200,212,0.15)" : "rgba(16,185,129,0.12)",
+                                    border: isFeatured ? "1px solid rgba(20,200,212,0.3)" : "1px solid rgba(16,185,129,0.25)",
+                                  }}
+                                >
+                                  <CheckIcon sx={{ fontSize: 11, color: isFeatured ? "#14c8d4" : "#10b981" }} />
+                                </Box>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.65, fontSize: "0.845rem" }}
+                                >
+                                  {f}
+                                </Typography>
+                              </Stack>
+                            ))}
+                          </Stack>
+
+                          {/* CTA button */}
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() => router.push("/register")}
+                            endIcon={<ArrowOutwardIcon sx={{ fontSize: "1rem !important" }} />}
+                            sx={{
+                              borderRadius: 999,
+                              fontWeight: 800,
+                              py: 1.3,
+                              fontSize: "0.95rem",
+                              background: isFeatured
+                                ? tealGradient
+                                : "rgba(255,255,255,0.07)",
+                              color: "common.white",
+                              border: isFeatured ? "none" : "1px solid rgba(255,255,255,0.14)",
+                              boxShadow: isFeatured
+                                ? "0 16px 36px -10px rgba(28,123,130,0.55)"
+                                : "none",
+                              "&:hover": {
+                                background: isFeatured
+                                  ? "linear-gradient(135deg, #0f3358 0%, #156e74 100%)"
+                                  : "rgba(255,255,255,0.12)",
+                                boxShadow: isFeatured ? "0 20px 44px -12px rgba(28,123,130,0.65)" : "none",
+                              },
+                            }}
+                          >
+                            {t("subscription.choosePackage", { defaultValue: "ابدأ الآن" })}
+                          </Button>
+                        </Box>
+                      </Box>
                     </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          ) : (
-            /* Fallback if no packages loaded */
+                  );
+                })}
+              </Box>
+            );
+          })() : (
             <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.3)", textAlign: "center" }}>
               {t("landing.pricing.noPackages", { defaultValue: "سيتم عرض الخطط قريباً" })}
             </Typography>
           )}
 
-          <Typography variant="caption" sx={{ display: "block", textAlign: "center", color: "rgba(255,255,255,0.25)", mt: 3 }}>
-            {t("landing.pricing.allTaxes", { defaultValue: "جميع الخطط تشمل تجديداً تلقائياً ودعماً مستمراً وموثوقية عالية" })}
-          </Typography>
+          {/* Bottom trust line */}
+          <Stack direction="row" spacing={3} justifyContent="center" alignItems="center" flexWrap="wrap" sx={{ mt: 5, gap: 2 }}>
+            {[
+              t("landing.pricing.trustNoCard", { defaultValue: "لا حاجة لبطاقة ائتمانية" }),
+              t("landing.pricing.trustCancel", { defaultValue: "إلغاء في أي وقت" }),
+              t("landing.pricing.trustSupport", { defaultValue: "دعم مستمر طوال الاشتراك" }),
+            ].map((text) => (
+              <Stack key={text} direction="row" spacing={0.75} alignItems="center">
+                <CheckIcon sx={{ fontSize: 14, color: "#1c7b82" }} />
+                <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.38)", fontWeight: 600 }}>
+                  {text}
+                </Typography>
+              </Stack>
+            ))}
+          </Stack>
         </Container>
       </Box>
 

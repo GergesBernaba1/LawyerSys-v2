@@ -133,7 +133,24 @@
     "landing":  {
                     "failedLoad":  "Failed to load landing page data. Showing fallback content.",
                     "badge":  "Legal operations platform",
-                    "highlights":  "Highlights",
+                    "highlights":  {
+                                       "cases":  {
+                                                     "title":  "Comprehensive case tracking",
+                                                     "description":  "A unified view of all cases and their stages with full customization of fields and workflow operations to suit your needs."
+                                                 },
+                                       "alerts":  {
+                                                      "title":  "Deadline alerts",
+                                                      "description":  "Automatic notifications via the platform and email to always keep you informed about upcoming steps before every important date."
+                                                  },
+                                       "perms":  {
+                                                     "title":  "Flexible and secure permissions",
+                                                     "description":  "Full role-based data access control with a complete audit log to ensure internal governance and confidentiality."
+                                                 },
+                                       "analytics":  {
+                                                         "title":  "Smart reports and analytics",
+                                                         "description":  "Real-time dashboards that help you measure performance and make data-driven decisions."
+                                                     }
+                                   },
                     "featuresTitle":  "Core advantages",
                     "featuresSubtitle":  "One platform for the operating layer of your legal business",
                     "contactTitle":  "Contact and onboarding",
@@ -191,13 +208,19 @@
                                   "availability":  "access for your firm",
                                   "packages":  "office packages",
                                   "workspace":  "shared workspace",
-                                  "visibility":  "degree operational visibility"
+                                  "visibility":  "degree operational visibility",
+                                  "lawFirms":  "law firms",
+                                  "activeUsers":  "active users",
+                                  "managedCases":  "managed cases",
+                                  "uptime":  "uptime",
+                                  "satisfaction":  "client satisfaction"
                               },
                     "partners":  {
                                      "title":  "Our partners",
                                      "subtitle":  "Law firms already operating with our platform",
                                      "countryFallback":  "Regional partner",
-                                     "users":  "{{count}} active users"
+                                     "users":  "{{count}} active users",
+                                     "trustedBy":  "Trusted by legal industry leaders"
                                  },
                     "demo":  {
                                  "bookButton":  "Book a demo",
@@ -224,16 +247,116 @@
                                       "missionBadge":  "Mission",
                                       "visionBadge":  "Vision",
                                       "contactCardLabel":  "Connect with our team",
-                                      "contactAction":  "Go to contact us"
+                                      "contactAction":  "Go to contact us",
+                                      "aboutLabel":  "About us",
+                                      "valuesLabel":  "Our values & vision",
+                                      "valuesSectionTitle":  "What drives us every day"
                                   },
                     "contactPage":  {
                                         "emailAction":  "Send email",
                                         "phoneAction":  "Call now",
                                         "addressAction":  "Office address",
+                                        "ctaBadge":  "Start today",
                                         "ctaTitle":  "Need a system walkthrough?",
                                         "ctaSubtitle":  "You can create a tenant directly or move to the about page to understand how the platform is positioned for legal teams.",
                                         "learnMoreAction":  "Learn more about us"
                                 },
+                    "mockup":  {
+                                   "total":  "Total",
+                                   "active":  "Active",
+                                   "week":  "This Week",
+                                   "financial":  "Financial",
+                                   "statusActive":  "Active",
+                                   "statusPending":  "Pending",
+                                   "statusClosed":  "Closed",
+                                   "statusNew":  "New",
+                                   "dashboard":  "Dashboard"
+                               },
+                    "heroProof":  "No credit card required • 14-day free trial • Cancel anytime",
+                    "featuresLabel":  "Features",
+                    "problems":  {
+                                     "label":  "Smart solutions to daily challenges",
+                                     "title":  "Solve complex daily challenges",
+                                     "subtitle":  "Qadaya turns the hardest challenges of managing your legal office into an organized, efficient workflow.",
+                                     "time":  {
+                                                  "title":  "Time lost in follow-up",
+                                                  "description":  "Manual follow-up on cases and deadlines drains your time and increases the risk of missing important dates or actions.",
+                                                  "solution":  "Smart alerts and reminders for every case"
+                                              },
+                                     "info":  {
+                                                  "title":  "Scattered information",
+                                                  "description":  "Information spread across paper files, email, and WhatsApp chats — all consolidated in one organized and easily accessible place.",
+                                                  "solution":  "All information in one organized place"
+                                              },
+                                     "perf":  {
+                                                  "title":  "Difficult performance measurement",
+                                                  "description":  "Lack of analytical reports prevents data-driven decisions to improve team and case performance.",
+                                                  "solution":  "Precise reports and performance dashboards"
+                                              }
+                                 },
+                    "steps":  {
+                                  "label":  "Getting started is simple",
+                                  "title":  "How do you get started with Qadaya?",
+                                  "one":  {
+                                              "title":  "Create your account",
+                                              "description":  "Register with your details and instantly find a ready workspace for your legal office."
+                                          },
+                                  "two":  {
+                                              "title":  "Import your data",
+                                              "description":  "We help you migrate your data easily — all your data in one place, secure and fast."
+                                          },
+                                  "three":  {
+                                                "title":  "Start managing your cases",
+                                                "description":  "Immediately start managing cases, procedures, and your team efficiently and confidently."
+                                            }
+                              },
+                    "faq":  {
+                                "label":  "FAQ",
+                                "title":  "Frequently asked questions",
+                                "trial":  {
+                                              "q":  "Can I try Qadaya before subscribing?",
+                                              "a":  "Yes, we offer a free trial period that gives you full access to platform features without needing a credit card."
+                                          },
+                                "data":  {
+                                             "q":  "Is my data secure?",
+                                             "a":  "Absolutely. We use bank-grade encryption and comply with the highest information security standards to protect your office and client data."
+                                         },
+                                "users":  {
+                                              "q":  "How are users counted?",
+                                              "a":  "Every active user in your office is counted regardless of their permissions. You can add or remove users at any time."
+                                          },
+                                "cancel":  {
+                                               "q":  "Can I cancel my subscription at any time?",
+                                               "a":  "Yes, you can cancel your subscription at any time with no additional fees. Your data remains accessible until the end of the subscription period."
+                                           },
+                                "training":  {
+                                                 "q":  "Do you support team training?",
+                                                 "a":  "Yes, we provide guided onboarding sessions and comprehensive learning resources to help your team get the most out of the platform."
+                                             },
+                                "english":  {
+                                                "q":  "Do you support the English language?",
+                                                "a":  "Yes, the platform fully supports both Arabic and English with full RTL layout support."
+                                            }
+                            },
+                    "testimonial":  {
+                                        "quote":  "Qadaya completely changed the way we work. We became more organized, errors decreased, and team productivity improved noticeably.",
+                                        "name":  "Ashraf Al-Hamzi",
+                                        "role":  "Founding Partner · Al-Qamar Law Firm"
+                                    },
+                    "pricing":  {
+                                    "title":  "Flexible plans that fit your needs",
+                                    "subtitle":  "All plans include ongoing services, specialized support, and a seamless experience from day one.",
+                                    "noPackages":  "Plans coming soon",
+                                    "allTaxes":  "All plans include automatic renewal, continuous support, and high reliability",
+                                    "trustNoCard":  "No credit card required",
+                                    "trustCancel":  "Cancel anytime",
+                                    "trustSupport":  "Continuous support throughout your subscription"
+                                },
+                    "cta":  {
+                                "title":  "Ready to take control of your cases?",
+                                "subtitle":  "Join hundreds of law firms. Start your free trial now.",
+                                "startTrial":  "Start free trial"
+                            },
                     "footer":  {
                                    "navigation":  "Navigation",
                                    "contact":  "Contact",
@@ -1034,6 +1157,8 @@
                          "superAdminNotice":  "Super admin billing is available from Administration.",
                          "pricingTitle":  "Pricing packages",
                          "pricingSubtitle":  "Choose monthly or annual billing",
+                         "bestValue":  "Most popular",
+                         "notAvailable":  "Not available for this cycle",
                          "choosePackage":  "Choose package",
                          "changePackage":  "Switch to this package",
                          "changePackageToMonthly":  "Switch to monthly",
