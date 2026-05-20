@@ -1196,7 +1196,7 @@ export default function LandingPage() {
                 fontFamily: "Georgia, serif",
               }}
             >
-              "
+              &quot;
             </Typography>
             <Typography
               variant="h5"
