@@ -49,6 +49,7 @@ type CountryOption = {
 
 type SubscriptionPackageCycleOption = {
   subscriptionPackageId: number;
+  name: string;
   billingCycle: string;
   price: number;
   currency: string;
@@ -172,7 +173,7 @@ export default function RegisterPage() {
         cards.push({
           packageId: group.monthlyOption.subscriptionPackageId,
           billingCycle: 'Monthly',
-          label: t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' }),
+          label: group.monthlyOption.name || t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' }),
           description: group.description,
           features: group.features,
           price: group.monthlyOption.price,
@@ -183,7 +184,7 @@ export default function RegisterPage() {
         cards.push({
           packageId: group.annualOption.subscriptionPackageId,
           billingCycle: 'Annual',
-          label: t('subscription.billingCycle.annual', { defaultValue: 'Annual' }),
+          label: group.annualOption.name || t('subscription.billingCycle.annual', { defaultValue: 'Annual' }),
           description: group.description,
           features: group.features,
           price: group.annualOption.price,

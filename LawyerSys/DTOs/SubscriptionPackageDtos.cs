@@ -3,6 +3,8 @@ namespace LawyerSys.DTOs;
 public class SubscriptionPackageCycleOptionDto
 {
     public int SubscriptionPackageId { get; set; }
+    /// <summary>Localized name of this specific billing-cycle row.</summary>
+    public string Name { get; set; } = string.Empty;
     public string BillingCycle { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public string Currency { get; set; } = string.Empty;

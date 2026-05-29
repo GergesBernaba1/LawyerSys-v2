@@ -127,8 +127,8 @@ public sealed class SubscriptionPackagesService : ISubscriptionPackagesService
                         GetLocalized(useArabic, primary.Feature2Ar, primary.Feature2),
                         GetLocalized(useArabic, primary.Feature3Ar, primary.Feature3),
                     }.Where(feature => !string.IsNullOrWhiteSpace(feature)).ToArray(),
-                    MonthlyOption = BuildOption(monthly),
-                    AnnualOption = BuildOption(annual),
+                    MonthlyOption = BuildOption(monthly, useArabic),
+                    AnnualOption = BuildOption(annual, useArabic),
                     DisplayOrder = primary.DisplayOrder,
                 };
             })
@@ -171,13 +171,14 @@ public sealed class SubscriptionPackagesService : ISubscriptionPackagesService
             .ToList();
     }
 
-    private static SubscriptionPackageCycleOptionDto? BuildOption(SubscriptionPackage? package)
+    private static SubscriptionPackageCycleOptionDto? BuildOption(SubscriptionPackage? package, bool useArabic = false)
     {
         return package == null
             ? null
             : new SubscriptionPackageCycleOptionDto
             {
                 SubscriptionPackageId = package.Id,
+                Name = GetLocalized(useArabic, package.NameAr, package.Name),
                 BillingCycle = package.BillingCycle.ToString(),
                 Price = package.Price,
                 Currency = package.Currency,
