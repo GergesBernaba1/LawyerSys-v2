@@ -50,6 +50,7 @@ type CountryOption = {
 type SubscriptionPackageCycleOption = {
   subscriptionPackageId: number;
   name: string;
+  description: string;
   billingCycle: string;
   price: number;
   currency: string;
@@ -178,7 +179,7 @@ export default function RegisterPage() {
           billingCycle: 'Monthly',
           label: group.monthlyOption.name || t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' }),
           cycleLabel: t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' }),
-          description: group.description,
+          description: group.monthlyOption.description || group.description,
           features: group.features,
           price: group.monthlyOption.price,
           currency: group.monthlyOption.currency,
@@ -190,7 +191,7 @@ export default function RegisterPage() {
           billingCycle: 'Annual',
           label: group.annualOption.name || t('subscription.billingCycle.annual', { defaultValue: 'Annual' }),
           cycleLabel: t('subscription.billingCycle.annual', { defaultValue: 'Annual' }),
-          description: group.description,
+          description: group.annualOption.description || group.description,
           features: group.features,
           price: group.annualOption.price,
           currency: group.annualOption.currency,

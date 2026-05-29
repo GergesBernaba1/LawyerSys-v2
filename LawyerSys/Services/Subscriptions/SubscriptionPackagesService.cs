@@ -179,6 +179,7 @@ public sealed class SubscriptionPackagesService : ISubscriptionPackagesService
             {
                 SubscriptionPackageId = package.Id,
                 Name = GetLocalized(useArabic, package.NameAr, package.Name),
+                Description = GetLocalized(useArabic, package.DescriptionAr, package.Description),
                 BillingCycle = package.BillingCycle.ToString(),
                 Price = package.Price,
                 Currency = package.Currency,

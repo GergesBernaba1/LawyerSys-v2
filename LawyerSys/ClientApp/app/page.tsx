@@ -64,6 +64,7 @@ import {
 type PricingOption = {
   subscriptionPackageId: number;
   name: string;
+  description: string;
   billingCycle: string;
   price: number;
   currency: string;
@@ -509,7 +510,7 @@ export default function LandingPage() {
         cards.push({
           packageId: group.monthlyOption.subscriptionPackageId,
           name: group.monthlyOption.name || group.name,
-          description: group.description,
+          description: group.monthlyOption.description || group.description,
           features: group.features,
           billingCycle: "Monthly",
           price: group.monthlyOption.price,
@@ -520,7 +521,7 @@ export default function LandingPage() {
         cards.push({
           packageId: group.annualOption.subscriptionPackageId,
           name: group.annualOption.name || group.name,
-          description: group.description,
+          description: group.annualOption.description || group.description,
           features: group.features,
           billingCycle: "Annual",
           price: group.annualOption.price,
