@@ -451,7 +451,8 @@
                      "usernameRequired":  "Please enter a username",
                      "fullNameRequired":  "Please enter your full name",
                      "emailRequired":  "Please enter a valid email",
-                     "passwordRequired":  "Please enter a password"
+                     "passwordRequired":  "Please enter a password",
+                     "bestValue":  "Best Value"
                  },
     "dashboard":  {
                       "welcomeBack":  "Welcome back",

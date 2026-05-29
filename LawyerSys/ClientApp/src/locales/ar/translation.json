@@ -451,7 +451,8 @@
                      "usernameRequired":  "الرجاء إدخال اسم المستخدم",
                      "fullNameRequired":  "الرجاء إدخال الاسم الكامل",
                      "emailRequired":  "الرجاء إدخال بريد إلكتروني صحيح",
-                     "passwordRequired":  "الرجاء إدخال كلمة المرور"
+                     "passwordRequired":  "الرجاء إدخال كلمة المرور",
+                     "bestValue":  "الأوفر"
                  },
     "dashboard":  {
                       "welcomeBack":  "مرحباً بعودتك",

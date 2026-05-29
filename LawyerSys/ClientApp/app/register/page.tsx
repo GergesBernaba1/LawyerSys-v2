@@ -546,7 +546,7 @@ export default function RegisterPage() {
                       {card.billingCycle === 'Annual' && (
                         <Chip
                           size="small"
-                          label={isRTL ? 'الأوفر' : 'Best Value'}
+                          label={t('register.bestValue', { defaultValue: 'Best Value' })}
                           sx={{
                             position: 'absolute',
                             top: 10,
