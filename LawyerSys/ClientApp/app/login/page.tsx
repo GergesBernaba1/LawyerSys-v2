@@ -65,23 +65,23 @@ export default function LoginPage() {
 
   return (
     <AuthSplitLayout
-      badge={isRTL ? 'منصة تشغيل قانونية' : 'LEGAL OPERATIONS PLATFORM'}
+      badge={t('login.platformBadge')}
       title={t('login.workspaceTitle')}
       subtitle={t('login.workspaceSubtitle')}
       formTitle={t('app.login')}
-      formSubtitle={isRTL ? 'الوصول الآمن إلى لوحة التحكم وأدوات المكتب' : 'Secure access to your dashboard and office tools'}
+      formSubtitle={t('login.formSubtitle')}
       heroIcon={<AccountBalanceOutlined />}
       formIcon={<LockOutlinedIcon />}
       footerLinkHref="/"
-      footerLinkLabel={isRTL ? 'العودة إلى الرئيسية' : 'Back to home'}
+      footerLinkLabel={t('login.backToHome')}
       features={[
         {
           icon: <GavelOutlined fontSize="small" />,
-          text: isRTL ? 'الوصول السريع إلى القضايا والجلسات من نفس الواجهة' : 'Reach cases and hearings quickly from one consistent workspace',
+          text: t('login.featureCases'),
         },
         {
           icon: <ShieldOutlined fontSize="small" />,
-          text: isRTL ? 'نفس ضوابط الوصول الحالية مع عرض أوضح للحقول والإجراءات' : 'The same access controls with clearer field and action presentation',
+          text: t('login.featureControls'),
         },
       ]}
     >
@@ -114,7 +114,8 @@ export default function LoginPage() {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    aria-label="toggle password visibility"
+                    aria-label={showPassword ? (t('login.hidePassword') || 'Hide password') : (t('login.showPassword') || 'Show password')}
+                    aria-pressed={showPassword}
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
                   >
@@ -135,6 +136,7 @@ export default function LoginPage() {
             variant="contained"
             size="large"
             disabled={loading}
+            aria-busy={loading}
             sx={{ mt: 1, py: 1.35, borderRadius: 3, fontWeight: 800, ...brandGradientButtonSx }}
           >
             {loading ? (t('app.loading') || 'Loading...') : t('app.login')}
@@ -142,10 +144,10 @@ export default function LoginPage() {
         </Stack>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isRTL ? 'row-reverse' : 'row', mt: 2.5, gap: 2, flexWrap: 'wrap' }}>
-          <MuiLink href="/forgot-password" variant="body2" sx={{ color: '#14c8d4', fontWeight: 700 }}>
+          <MuiLink href="/forgot-password" variant="body2" sx={{ color: '#0f5d63', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px', '&:hover': { color: '#0a4448' } }}>
             {t('login.forgotPassword') || 'Forgot password?'}
           </MuiLink>
-          <MuiLink href="/register" variant="body2" sx={{ color: '#14c8d4', fontWeight: 700 }}>
+          <MuiLink href="/register" variant="body2" sx={{ color: '#0f5d63', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px', '&:hover': { color: '#0a4448' } }}>
             {t('login.noAccount') || "Don't have an account? Sign Up"}
           </MuiLink>
         </Box>

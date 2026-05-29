@@ -395,7 +395,14 @@
                   "newPassword":  "New Password",
                   "confirmNewPassword":  "Confirm New Password",
                   "resetEmailSent":  "Reset link sent to your email",
-                  "backToLogin":  "Back to Login"
+                  "backToLogin":  "Back to Login",
+                  "platformBadge":  "LEGAL OPERATIONS PLATFORM",
+                  "formSubtitle":  "Secure access to your dashboard and office tools",
+                  "backToHome":  "Back to home",
+                  "featureCases":  "Reach cases and hearings quickly from one consistent workspace",
+                  "featureControls":  "The same access controls with clearer field and action presentation",
+                  "showPassword":  "Show password",
+                  "hidePassword":  "Hide password"
               },
     "register":  {
                      "title":  "Create Account",
