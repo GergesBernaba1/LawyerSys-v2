@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../src/services/auth';
 import { useTranslation } from 'react-i18next';
 import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout';
+import { brandGradientButtonSx } from '../../src/brand';
 
 export default function LoginPage() {
   const [userName, setUserName] = useState('');
@@ -134,7 +135,7 @@ export default function LoginPage() {
             variant="contained"
             size="large"
             disabled={loading}
-            sx={{ mt: 1, py: 1.35, borderRadius: 3, fontWeight: 800, background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)", "&:hover": { background: "linear-gradient(135deg, #0f3358 0%, #187479 100%)" } }}
+            sx={{ mt: 1, py: 1.35, borderRadius: 3, fontWeight: 800, ...brandGradientButtonSx }}
           >
             {loading ? (t('app.loading') || 'Loading...') : t('app.login')}
           </Button>

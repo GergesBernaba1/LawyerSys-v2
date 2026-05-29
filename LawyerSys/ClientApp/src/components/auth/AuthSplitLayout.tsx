@@ -14,6 +14,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { ArrowBackRounded as ArrowBackRoundedIcon } from "@mui/icons-material";
+import { brandGradient, BRAND_TEAL_END } from "../../brand";
 
 type AuthFeature = {
   icon: React.ReactNode;
@@ -198,7 +199,7 @@ export default function AuthSplitLayout({
                   borderRadius: "14px",
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.13)" },
                   "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(28,123,130,0.5)" },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#1c7b82", borderWidth: "2px" },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: BRAND_TEAL_END, borderWidth: "2px" },
                   "&.Mui-focused": { boxShadow: "0 0 0 4px rgba(28,123,130,0.14)" },
                 },
                 "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.38)" },
@@ -219,7 +220,7 @@ export default function AuthSplitLayout({
                 // select / autocomplete
                 "& .MuiSelect-icon": { color: "rgba(255,255,255,0.4)" },
                 "& .MuiFormHelperText-root": { color: "rgba(255,255,255,0.35)" },
-                "& .MuiCheckbox-root": { color: "rgba(255,255,255,0.35)", "&.Mui-checked": { color: "#1c7b82" } },
+                "& .MuiCheckbox-root": { color: "rgba(255,255,255,0.35)", "&.Mui-checked": { color: BRAND_TEAL_END } },
               }}
             >
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -228,7 +229,7 @@ export default function AuthSplitLayout({
                     sx={{
                       width: 44,
                       height: 44,
-                      background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                      background: brandGradient,
                       boxShadow: "0 8px 20px -6px rgba(28,123,130,0.5)",
                     }}
                   >

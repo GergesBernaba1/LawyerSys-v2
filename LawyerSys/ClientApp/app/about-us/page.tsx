@@ -41,7 +41,7 @@ const darkCard = {
   backdropFilter: "blur(8px)",
 };
 
-const tealGradient = "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)";
+import { brandGradient as tealGradient } from "../../src/brand";
 
 export default function AboutUsPage() {
   const router = useRouter();

@@ -27,6 +27,7 @@ import {
 import api from '../../src/services/api'
 import { useTranslation } from 'react-i18next'
 import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout'
+import { brandGradientButtonSx } from '../../src/brand'
 
 function ResetPasswordForm() {
   const search = useSearchParams()
@@ -111,7 +112,7 @@ function ResetPasswordForm() {
               ? 'تم تحديث كلمة المرور بنجاح. يمكنك الآن العودة إلى شاشة تسجيل الدخول.'
               : 'Your password has been updated successfully. You can now return to the sign-in screen.'}
           </Typography>
-          <Button fullWidth variant="contained" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }} onClick={()=>router.push('/login')}>
+          <Button fullWidth variant="contained" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, ...brandGradientButtonSx }} onClick={()=>router.push('/login')}>
             {t('login.signIn') || 'Sign In Now'}
           </Button>
         </Stack>
@@ -156,7 +157,7 @@ function ResetPasswordForm() {
               sx={fieldSx}
               InputProps={{ startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: 'rgba(255,255,255,0.45)' }} /></InputAdornment> }}
             />
-            <Button type="submit" fullWidth variant="contained" size="large" disabled={loading} sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }}>
+            <Button type="submit" fullWidth variant="contained" size="large" disabled={loading} sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, ...brandGradientButtonSx }}>
               {loading ? <CircularProgress size={24} color="inherit" /> : (t('login.resetPassword') || 'Update Password')}
             </Button>
           </Stack>

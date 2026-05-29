@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { Balance as BalanceIcon } from "@mui/icons-material";
 import type { LandingPageData } from "../../services/publicSite";
+import { brandGradient, BRAND_TEAL_END } from "../../brand";
 
 type PublicSiteShellProps = {
   data: LandingPageData;
@@ -62,7 +63,7 @@ export default function PublicSiteShell({
   const isActivePath = (path: string) => pathname === path;
 
   const headerBg = darkMode ? alpha("#030d1e", 0.92) : alpha("#ffffff", 0.84);
-  const headerBorderColor = darkMode ? alpha("#1c7b82", 0.18) : alpha(theme.palette.primary.main, 0.12);
+  const headerBorderColor = darkMode ? alpha(BRAND_TEAL_END, 0.18) : alpha(theme.palette.primary.main, 0.12);
   const headerGradientLine = darkMode
     ? "linear-gradient(90deg, rgba(28,123,130,0) 0%, rgba(28,123,130,0.45) 35%, rgba(28,123,130,0) 100%)"
     : "linear-gradient(90deg, rgba(18,58,99,0) 0%, rgba(28,123,130,0.34) 35%, rgba(18,58,99,0) 100%)";
@@ -71,7 +72,7 @@ export default function PublicSiteShell({
   const navPillBorder = darkMode ? alpha("#ffffff", 0.08) : alpha(theme.palette.primary.main, 0.08);
   const navLinkColor = darkMode ? "rgba(255,255,255,0.85)" : "text.primary";
   const navLinkActive = darkMode ? "rgba(255,255,255,1)" : "primary.main";
-  const navLinkActiveBg = darkMode ? alpha("#1c7b82", 0.22) : alpha(theme.palette.primary.main, 0.12);
+  const navLinkActiveBg = darkMode ? alpha(BRAND_TEAL_END, 0.22) : alpha(theme.palette.primary.main, 0.12);
   const navLinkHoverBg = darkMode ? alpha("#ffffff", 0.06) : alpha(theme.palette.primary.main, 0.08);
   const logoNameColor = darkMode ? "common.white" : "text.primary";
   const langPillBg = darkMode ? alpha("#ffffff", 0.06) : alpha(theme.palette.primary.main, 0.06);
@@ -163,7 +164,7 @@ export default function PublicSiteShell({
                   display: "grid",
                   placeItems: "center",
                   color: "common.white",
-                  background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                  background: brandGradient,
                   boxShadow: "0 12px 24px -16px rgba(18,58,99,0.65)",
                 }}
               >
@@ -234,7 +235,7 @@ export default function PublicSiteShell({
                       color: currentLanguage === languageCode ? "common.white" : darkMode ? "rgba(255,255,255,0.6)" : "text.secondary",
                       background:
                         currentLanguage === languageCode
-                          ? "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)"
+                          ? brandGradient
                           : "transparent",
                     }}
                   >
@@ -246,7 +247,7 @@ export default function PublicSiteShell({
                 <Button
                   variant="outlined"
                   onClick={() => onNavigate("/dashboard")}
-                  sx={darkMode ? { borderColor: alpha("#1c7b82", 0.6), color: "#1c7b82" } : {}}
+                  sx={darkMode ? { borderColor: alpha(BRAND_TEAL_END, 0.6), color: BRAND_TEAL_END } : {}}
                 >
                   {t("landing.actions.dashboard")}
                 </Button>
@@ -271,7 +272,7 @@ export default function PublicSiteShell({
         component="footer"
         sx={{
           borderTop: "1px solid",
-          borderColor: darkMode ? alpha("#1c7b82", 0.15) : alpha(theme.palette.primary.main, 0.12),
+          borderColor: darkMode ? alpha(BRAND_TEAL_END, 0.15) : alpha(theme.palette.primary.main, 0.12),
           background: "linear-gradient(180deg, rgba(4,12,28,1) 0%, rgba(6,18,38,1) 100%)",
           color: "common.white",
           py: 5,
@@ -295,7 +296,7 @@ export default function PublicSiteShell({
                     display: "grid",
                     placeItems: "center",
                     color: "common.white",
-                    background: "linear-gradient(135deg, #123a63 0%, #1c7b82 100%)",
+                    background: brandGradient,
                   }}
                 >
                   <BalanceIcon />

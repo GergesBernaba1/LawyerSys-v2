@@ -31,6 +31,7 @@ import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout';
 import LoadingButton from '../../src/components/LoadingButton';
 import RetryAlert from '../../src/components/RetryAlert';
 import { formatCurrencyValue } from '../../src/hooks/useCurrency';
+import { brandGradientButtonSx, BRAND_TEAL_END } from '../../src/brand';
 
 type CountryOption = {
   id: number;
@@ -257,7 +258,7 @@ export default function RegisterPage() {
                       p: 2,
                       borderRadius: 3,
                       border: '1px solid',
-                      borderColor: selected ? '#1c7b82' : 'rgba(255,255,255,0.1)',
+                      borderColor: selected ? BRAND_TEAL_END : 'rgba(255,255,255,0.1)',
                       bgcolor: selected ? 'rgba(28,123,130,0.12)' : 'rgba(255,255,255,0.04)',
                       cursor: 'pointer',
                       textAlign: 'left',
@@ -267,7 +268,7 @@ export default function RegisterPage() {
                         boxShadow: '0 4px 16px rgba(28,123,130,0.18)',
                       },
                       '&:focus-visible': {
-                        outline: '2px solid #1c7b82',
+                        outline: `2px solid ${BRAND_TEAL_END}`,
                         outlineOffset: 2,
                       },
                     }}
@@ -400,7 +401,7 @@ export default function RegisterPage() {
             );
           })() : null}
 
-          <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={loading} loadingPosition="start" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, background: 'linear-gradient(135deg, #123a63 0%, #1c7b82 100%)', '&:hover': { background: 'linear-gradient(135deg, #0f3358 0%, #187479 100%)' } }}>
+          <LoadingButton type="submit" fullWidth variant="contained" size="large" loading={loading} loadingPosition="start" sx={{ py: 1.35, borderRadius: 3, fontWeight: 800, ...brandGradientButtonSx }}>
             {t('register.signUp') || 'Sign Up'}
           </LoadingButton>
         </Stack>
