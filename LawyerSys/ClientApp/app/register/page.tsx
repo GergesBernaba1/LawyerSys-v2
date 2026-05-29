@@ -37,7 +37,7 @@ import SearchableSelect from '../../src/components/SearchableSelect';
 import AuthSplitLayout from '../../src/components/auth/AuthSplitLayout';
 import LoadingButton from '../../src/components/LoadingButton';
 import RetryAlert from '../../src/components/RetryAlert';
-import { formatCurrencyValue } from '../../src/hooks/useCurrency';
+import { formatWithCurrency } from '../../src/hooks/useCurrency';
 import { brandGradientButtonSx, BRAND_TEAL_END } from '../../src/brand';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -117,9 +117,8 @@ export default function RegisterPage() {
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [packagesError, setPackagesError] = useState('');
 
-  const resolvedCountryId = typeof countryId === 'number' ? countryId : undefined;
   const formatAmount = (value: number, currency: string) =>
-    formatCurrencyValue(value, resolvedCountryId, i18n.language);
+    formatWithCurrency(value, currency, i18n.language);
 
   // ── Redirect if already authenticated ───────────────────────────────────
   useEffect(() => {

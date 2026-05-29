@@ -80,6 +80,47 @@ export function formatCurrencyValue(
   }
 }
 
+/** Currency → preferred locale mapping for correct symbol rendering. */
+const currencyLocaleMap: Record<string, { en: string; ar: string }> = {
+  EGP: { en: "en-EG", ar: "ar-EG" },
+  SAR: { en: "en-SA", ar: "ar-SA" },
+  AED: { en: "en-AE", ar: "ar-AE" },
+  KWD: { en: "en-KW", ar: "ar-KW" },
+  QAR: { en: "en-QA", ar: "ar-QA" },
+  BHD: { en: "en-BH", ar: "ar-BH" },
+  OMR: { en: "en-OM", ar: "ar-OM" },
+  JOD: { en: "en-JO", ar: "ar-JO" },
+  USD: { en: "en-US", ar: "ar" },
+};
+
+/**
+ * Format a monetary value using an **explicit** ISO 4217 currency code.
+ * Use this when the currency is already known (e.g. comes from an API
+ * response) and should not be inferred from a country ID.
+ */
+export function formatWithCurrency(
+  value: number,
+  currency: string,
+  language?: string,
+  options?: Intl.NumberFormatOptions
+) {
+  const upper = (currency || "").toUpperCase();
+  const isArabic = language?.toLowerCase().startsWith("ar");
+  const locales = currencyLocaleMap[upper];
+  const locale = locales ? (isArabic ? locales.ar : locales.en) : undefined;
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: upper || "USD",
+      maximumFractionDigits: 2,
+      ...options,
+    }).format(value || 0);
+  } catch {
+    return `${(value || 0).toLocaleString()} ${upper}`;
+  }
+}
+
 export function useCurrency() {
   const { user } = useAuth();
   const { i18n } = useTranslation();
