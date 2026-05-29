@@ -69,7 +69,10 @@ type SubscriptionPackageGroup = {
 type PlanCard = {
   packageId: number;
   billingCycle: 'Monthly' | 'Annual';
+  /** Plan name from the API (e.g. "الباقة الشهرية") — shown as card title. */
   label: string;
+  /** Short renewal-period label (e.g. "شهري" / "سنوي") — shown under the price. */
+  cycleLabel: string;
   description: string;
   features: string[];
   price: number;
@@ -174,6 +177,7 @@ export default function RegisterPage() {
           packageId: group.monthlyOption.subscriptionPackageId,
           billingCycle: 'Monthly',
           label: group.monthlyOption.name || t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' }),
+          cycleLabel: t('subscription.billingCycle.monthly', { defaultValue: 'Monthly' }),
           description: group.description,
           features: group.features,
           price: group.monthlyOption.price,
@@ -185,6 +189,7 @@ export default function RegisterPage() {
           packageId: group.annualOption.subscriptionPackageId,
           billingCycle: 'Annual',
           label: group.annualOption.name || t('subscription.billingCycle.annual', { defaultValue: 'Annual' }),
+          cycleLabel: t('subscription.billingCycle.annual', { defaultValue: 'Annual' }),
           description: group.description,
           features: group.features,
           price: group.annualOption.price,
@@ -598,7 +603,7 @@ export default function RegisterPage() {
                           {formatAmount(card.price, card.currency)}
                         </Typography>
                         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>
-                          / {card.label}
+                          / {card.cycleLabel}
                         </Typography>
                       </Stack>
                     </Paper>
