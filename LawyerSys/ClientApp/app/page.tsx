@@ -49,7 +49,7 @@ import {
 } from "@mui/icons-material";
 import api from "../src/services/api";
 import { useAuth } from "../src/services/auth";
-import { useCurrency } from "../src/hooks/useCurrency";
+import { useCurrency, formatWithCurrency } from "../src/hooks/useCurrency";
 import PublicSiteShell from "../src/components/public/PublicSiteShell";
 import {
   buildLandingData,
@@ -488,6 +488,47 @@ export default function LandingPage() {
     () => [...packages].sort((a, b) => a.displayOrder - b.displayOrder),
     [packages]
   );
+
+  // Flatten groups into one card per active billing-cycle option so that
+  // Monthly Plan and Annual Plan each get their own card on the landing page.
+  type PlanCard = {
+    packageId: number;
+    name: string;
+    description: string;
+    features: string[];
+    billingCycle: "Monthly" | "Annual";
+    price: number;
+    currency: string;
+  };
+
+  const planCards = useMemo<PlanCard[]>(() => {
+    const cards: PlanCard[] = [];
+    for (const group of sortedPackages) {
+      if (group.monthlyOption?.isActive) {
+        cards.push({
+          packageId: group.monthlyOption.subscriptionPackageId,
+          name: group.name,
+          description: group.description,
+          features: group.features,
+          billingCycle: "Monthly",
+          price: group.monthlyOption.price,
+          currency: group.monthlyOption.currency,
+        });
+      }
+      if (group.annualOption?.isActive) {
+        cards.push({
+          packageId: group.annualOption.subscriptionPackageId,
+          name: group.name,
+          description: group.description,
+          features: group.features,
+          billingCycle: "Annual",
+          price: group.annualOption.price,
+          currency: group.annualOption.currency,
+        });
+      }
+    }
+    return cards;
+  }, [sortedPackages]);
 
   // Static data for new sections
   const problemCards = useMemo(() => [
@@ -1270,37 +1311,33 @@ export default function LandingPage() {
           </Box>
 
           {/* Package cards */}
-          {sortedPackages.length > 0 ? (() => {
-            // Determine which single card to feature — the highest-priced one
-            const maxPrice = Math.max(
-              ...sortedPackages.map((p) => (p.annualOption ?? p.monthlyOption)?.price ?? 0)
-            );
+          {planCards.length > 0 ? (() => {
+            // Annual plan is always featured (highest price)
+            const maxPrice = Math.max(...planCards.map((c) => c.price));
             return (
               <Box
                 sx={{
                   display: "grid",
                   gridTemplateColumns: {
                     xs: "1fr",
-                    md: sortedPackages.length === 2 ? "repeat(2,1fr)" : "repeat(3,1fr)",
+                    md: planCards.length === 2 ? "repeat(2,1fr)" : "repeat(3,1fr)",
                   },
                   gap: { xs: 3, md: 4 },
                   alignItems: "center",
-                  maxWidth: sortedPackages.length === 2 ? 820 : "100%",
+                  maxWidth: planCards.length === 2 ? 820 : "100%",
                   mx: "auto",
                 }}
               >
-                {sortedPackages.map((pkg, i) => {
-                  const option = pkg.annualOption ?? pkg.monthlyOption;
-                  const isAnnual = Boolean(pkg.annualOption);
+                {planCards.map((pkg, i) => {
+                  const isAnnual = pkg.billingCycle === "Annual";
                   const cycleLabel = isAnnual
                     ? t("subscription.billingCycle.annual", { defaultValue: "سنوي" })
                     : t("subscription.billingCycle.monthly", { defaultValue: "شهري" });
-                  // Only the single most-expensive package is featured
-                  const isFeatured = (option?.price ?? 0) === maxPrice;
+                  const isFeatured = pkg.price === maxPrice;
 
                   return (
                     <Box
-                      key={i}
+                      key={pkg.packageId}
                       sx={{
                         position: "relative",
                         borderRadius: 5,
@@ -1429,8 +1466,7 @@ export default function LandingPage() {
                           </Typography>
 
                           {/* Price block */}
-                          {option ? (
-                            <Box
+                          <Box
                               sx={{
                                 py: 2.5,
                                 px: 2,
@@ -1460,7 +1496,7 @@ export default function LandingPage() {
                                   mb: 0.5,
                                 }}
                               >
-                                {formatCurrency(option.price)}
+                                {formatWithCurrency(pkg.price, pkg.currency, i18n.language)}
                               </Typography>
                               <Typography
                                 variant="caption"
@@ -1468,8 +1504,7 @@ export default function LandingPage() {
                               >
                                 / {cycleLabel}
                               </Typography>
-                            </Box>
-                          ) : null}
+                          </Box>
 
                           {/* Features list */}
                           <Stack spacing={1.1} sx={{ mb: 3.5 }}>
