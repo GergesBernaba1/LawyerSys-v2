@@ -4,10 +4,37 @@ import dynamic from 'next/dynamic'
 const Providers = dynamic(() => import('../src/providers/Providers'), { ssr: false })
 const ServiceWorkerRegister = dynamic(() => import('../src/components/ServiceWorkerRegister'), { ssr: false })
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://qadaya.naqreo.com'
+const title = 'قضايا Qadaya | منصة إدارة العمليات القانونية'
+const description =
+  'مساحة عمل ثنائية اللغة لإدارة القضايا، تنسيق العملاء، وإدارة مكاتب المحاماة. Bilingual legal operations workspace for case management, client coordination, and firm administration.'
+
 export const metadata = {
-  title: 'قضايا Qadaya | منصة إدارة العمليات القانونية',
-  description:
-    'مساحة عمل ثنائية اللغة لإدارة القضايا، تنسيق العملاء، وإدارة مكاتب المحاماة. Bilingual legal operations workspace for case management, client coordination, and firm administration.',
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: siteUrl,
+    siteName: 'Qadaya',
+    images: [
+      {
+        url: '/icons/icon-512.png',
+        width: 512,
+        height: 512,
+        alt: 'Qadaya',
+      },
+    ],
+    locale: 'ar_EG',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title,
+    description,
+    images: ['/icons/icon-512.png'],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
