@@ -18,13 +18,7 @@ param(
     [string]$ClientIisName,
 
     [Parameter(Mandatory = $false)]
-    [string]$ClientStartRelativePath = "start.bat",
-
-    [Parameter(Mandatory = $false)]
-    [string]$ClientBackendUrl = "",
-
-    [Parameter(Mandatory = $false)]
-    [string]$ClientSiteUrl = ""
+    [string]$ClientStartRelativePath = "start.bat"
 )
 
 $ErrorActionPreference = "Stop"
@@ -127,16 +121,9 @@ if (-not (Test-Path -LiteralPath $clientStartPath)) {
 }
 
 Write-Host "Starting client from: $clientStartPath"
-$startCommand = @()
-if (-not [string]::IsNullOrWhiteSpace($ClientBackendUrl)) {
-    $startCommand += "set NEXT_PUBLIC_BACKEND_URL=$ClientBackendUrl"
-    $startCommand += "set NEXT_PUBLIC_API_BASE_URL=$ClientBackendUrl"
-}
-if (-not [string]::IsNullOrWhiteSpace($ClientSiteUrl)) {
-    $startCommand += "set NEXT_PUBLIC_SITE_URL=$ClientSiteUrl"
-}
-$startCommand += "`"$clientStartPath`""
-
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c $($startCommand -join ' && ')" -WorkingDirectory $ClientDeployPath -WindowStyle Hidden
+# NEXT_PUBLIC_* values are baked into the client bundle at `next build` time (see the
+# "Build ClientApp" step in .github/workflows/deploy-iis.yml). Setting them here would only
+# affect this Node process's own env, not the already-compiled browser bundle, so don't try.
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$clientStartPath`"" -WorkingDirectory $ClientDeployPath -WindowStyle Hidden
 
 Write-Host "IIS deployment completed successfully."

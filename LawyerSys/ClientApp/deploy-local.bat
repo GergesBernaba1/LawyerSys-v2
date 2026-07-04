@@ -75,7 +75,6 @@ echo Creating environment configuration...
 echo NODE_ENV=production
 echo PORT=3002
 echo HOSTNAME=0.0.0.0
-echo NEXT_PUBLIC_BACKEND_URL=https://localhost:7001/api
 ) > "%DEPLOY_PATH%\.env.local"
 echo Environment file created.
 echo.
@@ -88,7 +87,6 @@ echo echo Starting LawyerSys ClientApp...
 echo set NODE_ENV=production
 echo set PORT=3002
 echo set HOSTNAME=0.0.0.0
-echo set NEXT_PUBLIC_BACKEND_URL=https://localhost:7001/api
 echo node server.js
 ) > "%DEPLOY_PATH%\start.bat"
 echo.

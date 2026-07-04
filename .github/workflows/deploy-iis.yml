@@ -56,6 +56,4 @@ jobs:
             -ClientSourceRoot "$pwd\LawyerSys\ClientApp" `
             -ClientDeployPath "C:\inetpub\Qadaya-LawyerSys\ClientApp" `
             -ClientIisName "lawyer-clientApp" `
-            -ClientStartRelativePath "start.bat" `
-            -ClientBackendUrl "https://qadayaapi.naqreo.com/api" `
-            -ClientSiteUrl "https://qadaya.naqreo.com"
+            -ClientStartRelativePath "start.bat"
